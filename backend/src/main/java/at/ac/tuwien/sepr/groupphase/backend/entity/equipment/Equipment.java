@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity.equipment;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.TimePeriods;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.PeriodType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
@@ -60,6 +61,7 @@ public abstract class Equipment {
 
     private int unsageDurationDays;
 
+    @Enumerated(EnumType.STRING)
     private SkillLevel targetSkillLevel;
 
     protected Equipment() {
@@ -118,4 +120,5 @@ public abstract class Equipment {
         TimePeriods period = new TimePeriods(this, start, end, periodType);
         timePeriodsList.add(period);
     }
+
 }
