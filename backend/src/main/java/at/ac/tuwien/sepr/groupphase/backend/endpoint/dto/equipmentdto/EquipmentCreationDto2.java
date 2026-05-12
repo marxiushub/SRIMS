@@ -2,19 +2,15 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
-import at.ac.tuwien.sepr.groupphase.backend.entity.enums.EquipmentType;
-import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
-/**
- * A general dto for Equipment.
- * */
+public class EquipmentCreationDto2 {
 
-//PS: Dominik: die Annoationen werfen MethodArgumentNotValidException, muss im exception hanler behandelt werden
-public abstract class EquipmentCreationDto {
-
+    /*
+     * General Variables
+     * */
     @Positive(message = "price is negative")
     private double price;
 
@@ -27,10 +23,21 @@ public abstract class EquipmentCreationDto {
     @NotNull(message = "skillevel is empty")
     private SkillLevel targetSkillLevel;
 
+    /**
+     *  specific variables: Helmet,Pole,Ski,Snowboard.
+     * */
+    private double size;
 
     /**
-     * Getter and Setter.
+     *SnowboardBoots.
      * */
+    private String lancingSystem;
+
+
+    /**
+     *Skiboots.
+     * */
+    private int soleLengthMm;
 
     public double getPrice() {
         return price;
@@ -64,13 +71,29 @@ public abstract class EquipmentCreationDto {
         this.targetSkillLevel = targetSkillLevel;
     }
 
-    /**
-     * management methods.
-     * */
+    public double getSize() {
+        return size;
+    }
 
-    public abstract EquipmentType getType();
+    public void setSize(double size) {
+        this.size = size;
+    }
 
-    public abstract Equipment toEntity();
+    public String getLancingSystem() {
+        return lancingSystem;
+    }
+
+    public void setLancingSystem(String lancingSystem) {
+        this.lancingSystem = lancingSystem;
+    }
+
+    public int getSoleLengthMm() {
+        return soleLengthMm;
+    }
+
+    public void setSoleLengthMm(int soleLengthMm) {
+        this.soleLengthMm = soleLengthMm;
+    }
 
 
 }

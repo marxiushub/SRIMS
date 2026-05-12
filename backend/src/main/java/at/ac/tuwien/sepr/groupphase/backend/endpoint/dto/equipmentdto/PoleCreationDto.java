@@ -1,9 +1,12 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto;
 
+import at.ac.tuwien.sepr.groupphase.backend.entity.enums.EquipmentType;
+import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
+import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Helmet;
+import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Pole;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
 
 public class PoleCreationDto extends EquipmentCreationDto {
 
@@ -20,4 +23,15 @@ public class PoleCreationDto extends EquipmentCreationDto {
         this.length = length;
     }
 
+    private final EquipmentType type = EquipmentType.POLE;
+
+    @Override
+    public EquipmentType getType() {
+        return type;
+    }
+
+    @Override
+    public Equipment toEntity() {
+        return new Pole(getModel(), getPrice(), length, getStatus(), getTargetSkillLevel());
+    }
 }

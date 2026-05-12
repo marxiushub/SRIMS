@@ -1,5 +1,8 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto;
 
+import at.ac.tuwien.sepr.groupphase.backend.entity.enums.EquipmentType;
+import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
+import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.SkiBoot;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
@@ -21,5 +24,17 @@ public class SkiBootCreationDto extends EquipmentCreationDto {
 
     public void setSoleLengthMm(int soleLengthMm) {
         this.soleLengthMm = soleLengthMm;
+    }
+
+    private final EquipmentType type = EquipmentType.SKIBOOT;
+
+    @Override
+    public EquipmentType getType() {
+        return type;
+    }
+
+    @Override
+    public Equipment toEntity() {
+        return new SkiBoot(getModel(), getPrice(), soleLengthMm, getStatus(), getTargetSkillLevel());
     }
 }
