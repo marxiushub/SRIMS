@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity.equipment;
 
+import at.ac.tuwien.sepr.groupphase.backend.entity.enums.EquipmentType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
 import jakarta.persistence.Entity;
@@ -18,5 +19,10 @@ public class Snowboard extends Equipment {
 
     public double getLength() {
         return length;
+    }
+
+    @Override
+    public EquipmentType getEquipmentType() {
+        return EquipmentType.SNOWBOARD;
     }
 }
