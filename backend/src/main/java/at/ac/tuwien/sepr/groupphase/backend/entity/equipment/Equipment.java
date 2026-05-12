@@ -1,22 +1,25 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity.equipment;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.TimePeriods;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.PeriodType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.EnumType;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.OneToMany;
+
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * This Entity represents a generic piece of equipment.
@@ -42,14 +45,23 @@ public abstract class Equipment {
     @Enumerated(EnumType.STRING)
     private RentalStatus status;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = true, unique = true)
     private String barcodeId;
+
+    //Mocked generating of barcoeIds
+    @PrePersist
+    public void generateBarcode() {
+        if (barcodeId == null) {
+            barcodeId = UUID.randomUUID().toString();
+        }
+    }
 
     @OneToMany(mappedBy = "equipment")
     private List<TimePeriods> timePeriodsList;
 
     private int unsageDurationDays;
 
+    @Enumerated(EnumType.STRING)
     private SkillLevel targetSkillLevel;
 
     protected Equipment() {
@@ -108,4 +120,5 @@ public abstract class Equipment {
         TimePeriods period = new TimePeriods(this, start, end, periodType);
         timePeriodsList.add(period);
     }
+
 }

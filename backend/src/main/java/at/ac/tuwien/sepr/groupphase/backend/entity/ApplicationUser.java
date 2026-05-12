@@ -26,7 +26,7 @@ public class ApplicationUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = false)
     private String userName;
 
     @Column(nullable = false, unique = true)
@@ -37,6 +37,7 @@ public class ApplicationUser {
 
     @Column(nullable = false)
     private Boolean admin;
+
     @Enumerated(EnumType.STRING)
     private SkillLevel experience;
 
