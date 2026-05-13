@@ -1,5 +1,9 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto;
 
+/**
+ * Data Transfer Object (DTO) for representing the details of a helmet equipment item.
+ * Extends the base {@link EquipmentDetailDto} to include specific attributes related to helmets.
+ */
 public class HelmetDetailDto extends EquipmentDetailDto {
     private double size;
 
