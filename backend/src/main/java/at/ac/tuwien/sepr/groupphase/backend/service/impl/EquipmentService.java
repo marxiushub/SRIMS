@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.EquipmentType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
+import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.HelmetRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.PoleRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.SkiRepository;
@@ -54,6 +55,25 @@ public class EquipmentService {
         }
 
         return repo.save(equipment);
+    }
+
+    public void deleteEquipment(EquipmentType type, Long id) {
+        LOGGER.info("Deleting equipment of type {} with id {}", type, id);
+
+        @SuppressWarnings("unchecked")
+        JpaRepository<Equipment, Long> repo =
+            (JpaRepository<Equipment, Long>) repositoryMap.get(type);
+
+        if (repo == null) {
+            throw new IllegalArgumentException("Unknown equipment type: " + type);
+        }
+
+
+        if (!repo.existsById(id)) {
+            throw new NotFoundException("Equipment type: " + type + " with ID " + id + " was not found.");
+        }
+
+        repo.deleteById(id);
     }
 
 
