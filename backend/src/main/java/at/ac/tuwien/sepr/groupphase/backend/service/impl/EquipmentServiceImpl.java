@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EquipmentMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.EquipmentType;
@@ -16,11 +17,13 @@ import at.ac.tuwien.sepr.groupphase.backend.service.EquipmentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Implementation of {@link EquipmentService} for handling equipment-related operations.
@@ -37,6 +40,8 @@ public class EquipmentServiceImpl implements EquipmentService {
     private final SnowboardRepository snowboardRepository;
     private final SnowboardBootRepository snowboardBootRepository;
     private final EquipmentMapper mapper;
+
+    private final Map<EquipmentType, JpaRepository<? extends Equipment, Long>> repositoryMap;
 
     /**
      * Constructor for EquipmentService. Initializes the service with the necessary repositories and mapper.
@@ -69,6 +74,47 @@ public class EquipmentServiceImpl implements EquipmentService {
         this.snowboardRepository = snowboardRepository;
         this.snowboardBootRepository = snowboardBootRepository;
         this.mapper = mapper;
+        this.repositoryMap = Map.of(
+            EquipmentType.HELMET, helmetRepository,
+            EquipmentType.POLE, poleRepository,
+            EquipmentType.SKI, skiRepository,
+            EquipmentType.SKIBOOT, skiBootRepository,
+            EquipmentType.SNOWBOARD, snowboardRepository,
+            EquipmentType.SNOWBOARDBOOT, snowboardBootRepository
+        );
+    }
+
+    public Equipment createEquipment(EquipmentCreationDto dto) {
+
+        Equipment equipment = dto.toEntity();
+
+        JpaRepository<Equipment, Long> repo =
+            (JpaRepository<Equipment, Long>) repositoryMap.get(dto.getType());
+
+        if (repo == null) {
+            throw new IllegalArgumentException("Unknown equipment type: " + dto.getType());
+        }
+
+        return repo.save(equipment);
+    }
+
+    public void deleteEquipment(EquipmentType type, Long id) {
+        LOGGER.info("Deleting equipment of type {} with id {}", type, id);
+
+        @SuppressWarnings("unchecked")
+        JpaRepository<Equipment, Long> repo =
+            (JpaRepository<Equipment, Long>) repositoryMap.get(type);
+
+        if (repo == null) {
+            throw new IllegalArgumentException("Unknown equipment type: " + type);
+        }
+
+
+        if (!repo.existsById(id)) {
+            throw new NotFoundException("Equipment type: " + type + " with ID " + id + " was not found.");
+        }
+
+        repo.deleteById(id);
     }
 
     public List<EquipmentDetailDto> allEquipment() {
