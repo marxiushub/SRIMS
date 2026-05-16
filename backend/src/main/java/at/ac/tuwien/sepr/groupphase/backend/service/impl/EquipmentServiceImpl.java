@@ -20,13 +20,13 @@ import java.lang.invoke.MethodHandles;
 import java.util.Map;
 
 @Service
-public class EquipmentService {
+public class EquipmentServiceImpl {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private final Map<EquipmentType, JpaRepository<? extends Equipment, Long>> repositoryMap;
 
     @Autowired
-    public EquipmentService(
+    public EquipmentServiceImpl(
         HelmetRepository helmetRepository,
         PoleRepository poleRepository,
         SkiRepository skiRepository,
