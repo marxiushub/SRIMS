@@ -3,10 +3,12 @@ package at.ac.tuwien.sepr.groupphase.backend.unittests;
 import at.ac.tuwien.sepr.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Message;
 import at.ac.tuwien.sepr.groupphase.backend.repository.MessageRepository;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -16,13 +18,15 @@ import static org.junit.jupiter.api.Assertions.*;
 // This test slice annotation is used instead of @SpringBootTest to load only repository beans instead of
 // the entire application context
 @DataJpaTest
-@ActiveProfiles("test")
+@ActiveProfiles({"test", "datagenerator"})
 public class MessageRepositoryTest implements TestData {
 
     @Autowired
     private MessageRepository messageRepository;
 
     @Test
+    @Transactional
+    @Rollback
     public void givenNothing_whenSaveMessage_thenFindListWithOneElementAndFindMessageById() {
         Message message = Message.MessageBuilder.aMessage()
             .withTitle(TEST_NEWS_TITLE)
