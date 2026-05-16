@@ -7,9 +7,11 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Ski;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.EquipmentService;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 
 @ActiveProfiles({"test", "datagenerator"})
@@ -19,6 +21,8 @@ public class EquipmentServiceTests {
     private EquipmentService service;
 
     @Test
+    @Transactional
+    @Rollback
     public void equipmentCreationTest(){
 
         SkiCreationDto dto = new SkiCreationDto();
