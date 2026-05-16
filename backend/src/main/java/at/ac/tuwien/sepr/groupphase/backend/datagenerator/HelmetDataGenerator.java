@@ -36,7 +36,6 @@ public class HelmetDataGenerator {
         new Helmet("Bollé Instinct MIPS", 9.0, 52.0, RentalStatus.FREE, SkillLevel.BEGINNER)
     ));
 
-
     public HelmetDataGenerator(HelmetRepository helmetRepository) {
         this.helmetRepository = helmetRepository;
     }
