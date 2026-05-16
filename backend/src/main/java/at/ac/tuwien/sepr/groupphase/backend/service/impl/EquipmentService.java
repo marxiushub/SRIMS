@@ -25,6 +25,13 @@ public class EquipmentService {
 
     private final Map<EquipmentType, JpaRepository<? extends Equipment, Long>> repositoryMap;
 
+    private final HelmetRepository helmetRepository;
+    private final PoleRepository poleRepository;
+    private final SkiRepository skiRepository;
+    private final SkiBootRepository skiBootRepository;
+    private final SnowboardRepository snowboardRepository;
+    private final SnowboardBootRepository snowboardBootRepository;
+
     @Autowired
     public EquipmentService(
         HelmetRepository helmetRepository,
@@ -34,6 +41,8 @@ public class EquipmentService {
         SnowboardRepository snowboardRepository,
         SnowboardBootRepository snowboardBootRepository
     ) {
+
+
         this.repositoryMap = Map.of(
             EquipmentType.HELMET, helmetRepository,
             EquipmentType.POLE, poleRepository,
