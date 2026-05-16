@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity.equipment;
 
+import at.ac.tuwien.sepr.groupphase.backend.entity.enums.EquipmentType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
 import jakarta.persistence.Entity;
@@ -20,6 +21,8 @@ public class Helmet extends Equipment {
         return size;
     }
 
-
-
+    @Override
+    public EquipmentType getEquipmentType() {
+        return EquipmentType.HELMET; // Replace with your actual Enum value
+    }
 }
