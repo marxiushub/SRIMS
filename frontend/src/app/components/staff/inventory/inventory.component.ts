@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Equipment } from '../../../dtos/equipment';
 import { EquipmentService } from '../../../services/equipment.service';
 import { TranslateService } from '@ngx-translate/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-inventory',
@@ -14,7 +15,7 @@ export class InventoryComponent implements OnInit{
   equipment: Equipment[] = [];
   loading = false;
 
-  constructor (private equipmentService: EquipmentService, public translateService: TranslateService) { }
+  constructor (private equipmentService: EquipmentService, public translateService: TranslateService, private router: Router) { }
 
   ngOnInit(): void {
     this.loadEquipment();
@@ -33,6 +34,10 @@ export class InventoryComponent implements OnInit{
         this.loading = false;
       }
     })
+  }
+
+  openCreatePage(): void {
+    this.router.navigate(['/staff/inventory/create']);
   }
 
   getStatusClass(status: string):string {

@@ -1,0 +1,254 @@
+<div class="container pt-4">
+
+  <h1 class="display-4">{{ 'EQUIPMENT_CREATE.TITLE' | translate }}</h1>
+
+  <div class="card">
+    <div class="card-body">
+      @if (error) {
+        <div class="alert alert-danger">
+          {{ 'EQUIPMENT_CREATE.ERROR' | translate }}
+        </div>
+      }
+
+      <form #form="ngForm" (ngSubmit)="createEquipment()">
+
+        <div class="row">
+          <div class="mb-2 col-lg-6">
+            <div class="row">
+              <label for="equipmentType" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+                {{ 'EQUIPMENT_CREATE.TYPE' | translate }}
+              </label>
+              <div class="col-md-10 col-lg-8">
+                <select
+                  id="equipmentType"
+                  name="equipmentType"
+                  class="form-select"
+                  required
+                  [(ngModel)]="equipment.type"
+                  (ngModelChange)="onTypeChange()">
+                  @for (type of equipmentTypes; track type) {
+                    <option [value]="type">
+                      {{ 'EQUIPMENT_TYPE.' + type | translate }}
+                    </option>
+                  }
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-2 col-lg-6">
+            <div class="row">
+              <label for="equipmentModel" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+                {{ 'EQUIPMENT_CREATE.MODEL' | translate }}
+              </label>
+              <div class="col-md-10 col-lg-8">
+                <input
+                  id="equipmentModel"
+                  name="equipmentModel"
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="equipment.model"
+                  #equipmentModel="ngModel"
+                  required>
+                <div class="invalid-feedback">
+                  {{ 'EQUIPMENT_CREATE.MODEL_REQUIRED' | translate }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="mb-2 col-lg-6">
+            <div class="row">
+              <label for="equipmentStatus" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+                {{ 'EQUIPMENT_CREATE.STATUS' | translate }}
+              </label>
+              <div class="col-md-10 col-lg-8">
+                <select
+                  id="equipmentStatus"
+                  name="equipmentStatus"
+                  class="form-select"
+                  required
+                  [(ngModel)]="equipment.status">
+                  @for (status of rentalStatuses; track status) {
+                    <option [value]="status">
+                      {{ 'RENTAL_STATUS.' + status | translate }}
+                    </option>
+                  }
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-2 col-lg-6">
+            <div class="row">
+              <label for="equipmentSkillLevel" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+                {{ 'EQUIPMENT_CREATE.SKILL_LEVEL' | translate }}
+              </label>
+              <div class="col-md-10 col-lg-8">
+                <select
+                  id="equipmentSkillLevel"
+                  name="equipmentSkillLevel"
+                  class="form-select"
+                  required
+                  [(ngModel)]="equipment.targetSkillLevel">
+                  @for (skillLevel of skillLevels; track skillLevel) {
+                    <option [value]="skillLevel">
+                      {{ 'SKILL_LEVEL.' + skillLevel | translate }}
+                    </option>
+                  }
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="mb-2 col-lg-6">
+            <div class="row">
+              <label for="equipmentPrice" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+                {{ 'EQUIPMENT_CREATE.PRICE' | translate }}
+              </label>
+              <div class="col-md-10 col-lg-8">
+                <div class="input-group">
+                  <input
+                    id="equipmentPrice"
+                    name="equipmentPrice"
+                    type="number"
+                    class="form-control"
+                    min="0.01"
+                    step="0.01"
+                    [(ngModel)]="equipment.price"
+                    #equipmentPrice="ngModel"
+                    required>
+                  <span class="input-group-text">€</span>
+                </div>
+                <div class="invalid-feedback">
+                  {{ 'EQUIPMENT_CREATE.PRICE_REQUIRED' | translate }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          @if (equipment.type === 'SKI' || equipment.type === 'POLE' || equipment.type === 'SNOWBOARD') {
+            <div class="mb-2 col-lg-6">
+              <div class="row">
+                <label for="equipmentLength" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+                  {{ 'EQUIPMENT_CREATE.LENGTH' | translate }}
+                </label>
+                <div class="col-md-10 col-lg-8">
+                  <input
+                    id="equipmentLength"
+                    name="equipmentLength"
+                    type="number"
+                    class="form-control"
+                    [min]="getMinLength()"
+                    [max]="getMaxLength()"
+                    step="1"
+                    [(ngModel)]="equipment.length"
+                    #equipmentLength="ngModel"
+                    required>
+                  <div class="invalid-feedback">
+                    {{ 'EQUIPMENT_CREATE.LENGTH_REQUIRED' | translate }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+
+          @if (equipment.type === 'HELMET') {
+            <div class="mb-2 col-lg-6">
+              <div class="row">
+                <label for="equipmentSize" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+                  {{ 'EQUIPMENT_CREATE.SIZE' | translate }}
+                </label>
+                <div class="col-md-10 col-lg-8">
+                  <input
+                    id="equipmentSize"
+                    name="equipmentSize"
+                    type="number"
+                    class="form-control"
+                    min="48"
+                    max="66"
+                    step="1"
+                    [(ngModel)]="equipment.size"
+                    #equipmentSize="ngModel"
+                    required>
+                  <div class="invalid-feedback">
+                    {{ 'EQUIPMENT_CREATE.SIZE_REQUIRED' | translate }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+
+          @if (equipment.type === 'SKIBOOT') {
+            <div class="mb-2 col-lg-6">
+              <div class="row">
+                <label for="equipmentSoleLength" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+                  {{ 'EQUIPMENT_CREATE.SOLE_LENGTH_MM' | translate }}
+                </label>
+                <div class="col-md-10 col-lg-8">
+                  <input
+                    id="equipmentSoleLength"
+                    name="equipmentSoleLength"
+                    type="number"
+                    class="form-control"
+                    min="140"
+                    max="350"
+                    [(ngModel)]="equipment.soleLengthMm"
+                    #equipmentSoleLength="ngModel"
+                    required>
+                  <div class="invalid-feedback">
+                    {{ 'EQUIPMENT_CREATE.SOLE_LENGTH_REQUIRED' | translate }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+
+          @if (equipment.type === 'SNOWBOARDBOOT') {
+            <div class="mb-2 col-lg-6">
+              <div class="row">
+                <label for="equipmentLancingSystem" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+                  {{ 'EQUIPMENT_CREATE.LANCING_SYSTEM' | translate }}
+                </label>
+                <div class="col-md-10 col-lg-8">
+                  <input
+                    id="equipmentLancingSystem"
+                    name="equipmentLancingSystem"
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="equipment.lancingSystem">
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="mt-4 d-flex flex-row gap-2">
+          <button
+            class="btn btn-primary"
+            [disabled]="!form.valid || loading"
+            type="submit">
+            @if (loading) {
+              {{ 'EQUIPMENT_CREATE.SAVE' | translate }}...
+            } @else {
+              {{ 'EQUIPMENT_CREATE.SAVE' | translate }}
+            }
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-secondary"
+            [disabled]="loading"
+            (click)="cancel()">
+            {{ 'EQUIPMENT_CREATE.CANCEL' | translate }}
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>

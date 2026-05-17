@@ -15,6 +15,7 @@ import {httpInterceptorProviders} from './interceptors';
 import {RouterModule} from "@angular/router";
 import {InventoryComponent} from "./components/staff/inventory/inventory.component";
 import {StaffComponent} from "./components/staff/staff.component";
+import {EquipmentCreateComponent} from "./components/staff/inventory/equipment-create/equipment-create.component";
 
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 
@@ -41,6 +42,7 @@ export function HttpLoaderFactory(http: HttpClient): TranslateLoader{
     MessageComponent,
     StaffComponent,
     InventoryComponent,
+    EquipmentCreateComponent,
   ],
   bootstrap: [AppComponent],
   imports: [BrowserModule,

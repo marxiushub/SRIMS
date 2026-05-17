@@ -36,5 +36,25 @@
     "SKIBOOT":  "Skischuhe",
     "SNOWBOARD": "Snowboard",
     "SNOWBOARDBOOT": "Snowboardschuhe"
+  },
+  "EQUIPMENT_CREATE": {
+    "TITLE": "Equipment hinzufügen",
+    "TYPE": "Equipment-Typ",
+    "MODEL": "Modell",
+    "STATUS": "Status",
+    "SKILL_LEVEL": "Skill Level",
+    "PRICE": "Preis",
+    "LENGTH": "Länge (cm)",
+    "SIZE": "Größe (cm)",
+    "SOLE_LENGTH_MM": "Sohlenlänge (mm)",
+    "LANCING_SYSTEM": "Schnürsystem",
+    "SAVE": "Speichern",
+    "CANCEL": "Abbrechen",
+    "ERROR": "Equipment konnte nicht erstellt werden.",
+    "MODEL_REQUIRED": "Modell ist erforderlich.",
+    "PRICE_REQUIRED": "Preis ist erforderlich.",
+    "LENGTH_REQUIRED": "Länge ist erforderlich.",
+    "SIZE_REQUIRED": "Größe ist erforderlich.",
+    "SOLE_LENGTH_REQUIRED": "Sohlenlänge ist erforderlich."
   }
 }
