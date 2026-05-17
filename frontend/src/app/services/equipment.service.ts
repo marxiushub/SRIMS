@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import {Observable, of} from 'rxjs';
 import {Globals} from '../global/globals';
 import {Equipment} from '../dtos/equipment';
+import {EquipmentCreation} from '../dtos/equipment-creation';
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +20,13 @@ export class EquipmentService {
    */
   getAll(): Observable<Equipment[]> {
     return this.httpClient.get<Equipment[]>(this.equipmentBaseUri);
+  }
+
+  /**
+   * Creates new equipment in backend
+   */
+  create(equipment: EquipmentCreation): Observable<Equipment> {
+    return this.httpClient.post<Equipment>(this.equipmentBaseUri, equipment);
   }
 
 }

@@ -2,7 +2,7 @@ import {RentalStatus} from './rentalstatus';
 import {SkillLevel} from './skilllevel';
 import {EquipmentType} from "./equipmenttype";
 
-export interface Equipment {
+export interface EquipmentCreation {
   type: EquipmentType;
   model: string;
   status: RentalStatus;
