@@ -39,6 +39,7 @@ public class EquipmentEndpoint {
      * @param dto an {@link EquipmentCreationDto}
      * @return an Equipment entity
      * */
+    @PermitAll
     @PostMapping()
     public Equipment createEquipment(@RequestBody EquipmentCreationDto dto) {
         return equipmentService.createEquipment(dto);
