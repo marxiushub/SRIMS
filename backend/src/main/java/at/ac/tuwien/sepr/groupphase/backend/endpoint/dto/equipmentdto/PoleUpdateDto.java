@@ -1,4 +1,5 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto;
+
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 
