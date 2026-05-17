@@ -1,0 +1,39 @@
+{
+  "COMMON": {
+    "APP_NAME": "SRIMS - Ski Rental & Inventory Management System",
+    "LOGIN": "Login",
+    "LOGOUT": "Logout"
+  },
+  "INVENTORY": {
+    "TITLE": "Ski Equipment Inventory",
+    "RELOAD": "Reload",
+    "LOADING": "Loading equipment...",
+    "NO_EQUIPMENT": "No equipment found.",
+    "EQUIPMENT_MODEL": "Model",
+    "EQUIPMENT_PRICE": "Price/Day",
+    "EQUIPMENT_STATUS": "Status",
+    "EQUIPMENT_SKILL": "Skill Level",
+    "EQUIPMENT_TYP": "Type",
+    "AVAILABLE": "Available",
+    "RENTED": "Rented"
+  },
+  "RENTAL_STATUS": {
+    "FREE": "Available",
+    "RESERVED": "Reserved",
+    "RENTED": "Rented",
+    "MAINTENANCE": "In Maintenance"
+  },
+  "SKILL_LEVEL": {
+    "BEGINNER": "Beginner",
+    "INTERMEDIATE": "Intermediate",
+    "ADVANCED": "Advanced"
+  },
+  "EQUIPMENT_TYPE": {
+    "HELMET": "Helmet",
+    "POLE": "Poles",
+    "SKI":  "Ski",
+    "SKIBOOT":  "Ski Boots",
+    "SNOWBOARD": "Snowboard",
+    "SNOWBOARDBOOT": "Snowboard Boots"
+  }
+}

@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.enums.EquipmentType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public interface EquipmentService {
      *
      * @return a list of {@link EquipmentDetailDto} representing the equipment information
      */
-    public List<EquipmentDetailDto> allEquipment();
+    List<EquipmentDetailDto> allEquipment();
 
     /**
      * Retrieves a list of equipment filtered by the specified type.
@@ -31,5 +32,20 @@ public interface EquipmentService {
      * @param type the type of equipment to filter by (e.g., "helmet", "ski", "snowboard")
      * @return a list of {@link EquipmentDetailDto} representing the equipment information for the specified type
      */
-    public List<EquipmentDetailDto> equipmentByType(String type);
+    List<EquipmentDetailDto> equipmentByType(String type);
+
+    /**
+     * Creates a new equipment entry in the system based on the provided creation data.
+     *
+     * @param dto the data transfer object containing the information needed to create the equipment
+     * @return the created {@link Equipment} entity
+     */
+    Equipment createEquipment(EquipmentCreationDto dto);
+
+    /**
+     * Deletes an equipment entry from the system based on the specified type and ID.
+     *
+     * @param id   the unique identifier of the equipment to delete
+     */
+    void deleteEquipment(Long id);
 }

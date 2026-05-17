@@ -1,0 +1,52 @@
+import { Component, OnInit } from '@angular/core';
+import { Equipment } from '../../../dtos/equipment';
+import { EquipmentService } from '../../../services/equipment.service';
+import { TranslateService } from '@ngx-translate/core';
+
+@Component({
+  selector: 'app-inventory',
+  templateUrl: './inventory.component.html',
+  styleUrl: './inventory.component.scss',
+  standalone: false
+})
+export class InventoryComponent implements OnInit{
+
+  equipment: Equipment[] = [];
+  loading = false;
+
+  constructor (private equipmentService: EquipmentService, public translateService: TranslateService) { }
+
+  ngOnInit(): void {
+    this.loadEquipment();
+  }
+
+  loadEquipment(): void {
+    this.loading = true;
+
+    this.equipmentService.getAll().subscribe({
+      next: (data) => {
+        this.equipment = data;
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Failed to load equipment', err);
+        this.loading = false;
+      }
+    })
+  }
+
+  getStatusClass(status: string):string {
+    switch (status) {
+      case 'FREE':
+        return 'bg-success';
+      case 'RESERVED':
+        return 'bg-warning text-dark';
+      case 'RENTED':
+        return 'bg-danger';
+      case 'MAINTENANCE':
+        return 'bg-secondary';
+      default:
+        return 'bg-light text-dark';
+    }
+  }
+}

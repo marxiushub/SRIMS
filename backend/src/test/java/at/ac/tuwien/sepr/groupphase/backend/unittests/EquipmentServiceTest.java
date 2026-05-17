@@ -76,6 +76,31 @@ public class EquipmentServiceTest {
         );
     }
 
+    @Test
+    @Transactional
+    @Rollback
+    void deleteEquipmentValidIdDeletesSuccessfully() {
+        Helmet savedHelmet = helmetRepository.save(testEquipment);
+        Long validId = savedHelmet.getId();
+
+        assertTrue(helmetRepository.findById(validId).isPresent(), "Helmet should exist");
+
+        equipmentService.deleteEquipment(validId);
+
+        assertTrue(helmetRepository.findById(validId).isEmpty(), "Helmet should not exist after deletion");
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void deleteEquipmentInvalidIdThrowsIllegalArgumentException() {
+        Long invalidId = -1L;
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+            equipmentService.deleteEquipment(invalidId)
+        );
+
+    }
+
 
     @Test
     void getEquipmentByTypeUnknownTypeThrowsNotFound() {
