@@ -21,7 +21,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -86,9 +85,10 @@ public class EquipmentServiceImpl implements EquipmentService {
 
     @Override
     public Equipment createEquipment(EquipmentCreationDto dto) {
-
+        LOGGER.trace("Creating equipment of type {} with model {}", dto.getClass().getSimpleName(), dto.getModel());
         Equipment equipment = dto.toEntity();
 
+        @SuppressWarnings("unchecked")
         JpaRepository<Equipment, Long> repo =
             (JpaRepository<Equipment, Long>) repositoryMap.get(dto.getType());
 
@@ -99,30 +99,33 @@ public class EquipmentServiceImpl implements EquipmentService {
         return repo.save(equipment);
     }
 
-    public void deleteEquipment(EquipmentType type, Long id) {
-        LOGGER.info("Deleting equipment of type {} with id {}", type, id);
 
-        @SuppressWarnings("unchecked")
-        JpaRepository<Equipment, Long> repo =
-            (JpaRepository<Equipment, Long>) repositoryMap.get(type);
+    @Override
+    public void deleteEquipment(Long id) {
+        LOGGER.trace("Deleting equipment with id {}", id);
 
-        if (repo == null) {
-            throw new IllegalArgumentException("Unknown equipment type: " + type);
+        if (id == null) {
+            throw new IllegalArgumentException("id is null");
         }
 
-
-        if (!repo.existsById(id)) {
-            throw new NotFoundException("Equipment type: " + type + " with ID " + id + " was not found.");
+        if (id < 0) {
+            throw new IllegalArgumentException("id is negative");
         }
 
-        repo.deleteById(id);
+        if (!equipmentRepository.existsById(id)) {
+            throw new NotFoundException("Equipment with ID " + id + " was not found.");
+        }
+
+        equipmentRepository.deleteById(id);
     }
 
+    @Override
     public List<EquipmentDetailDto> allEquipment() {
         LOGGER.trace("Get all equipment");
         return mapper.entityToDto(equipmentRepository.findAll());
     }
 
+    @Override
     public List<EquipmentDetailDto> equipmentByType(String type) {
         LOGGER.trace("Get equipment by type: {}", type);
 
@@ -133,15 +136,15 @@ public class EquipmentServiceImpl implements EquipmentService {
             throw new NotFoundException("Unknown equipment type: " + type);
         }
 
-        List<? extends Equipment> equipmentList = switch (equipmentType) {
-            case HELMET -> helmetRepository.findAll();
-            case POLE -> poleRepository.findAll();
-            case SKI -> skiRepository.findAll();
-            case SKIBOOT -> skiBootRepository.findAll();
-            case SNOWBOARD -> snowboardRepository.findAll();
-            case SNOWBOARDBOOT -> snowboardBootRepository.findAll();
-        };
-        return mapper.entityToDto(new ArrayList<>(equipmentList));
+        @SuppressWarnings("unchecked")
+        JpaRepository<Equipment, Long> repo =
+            (JpaRepository<Equipment, Long>) repositoryMap.get(equipmentType);
+
+        if (repo == null) {
+            throw new IllegalArgumentException("No repository found for equipment type: " + equipmentType);
+        }
+
+        return mapper.entityToDto(repo.findAll());
     }
 
 }

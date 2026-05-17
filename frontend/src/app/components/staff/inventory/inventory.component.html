@@ -1,0 +1,59 @@
+<div class="container-fluid pt-4">
+
+  <div class="d-flex align-items-center mb-3">
+    <h2 class="mb-0">{{ 'INVENTORY.TITLE' | translate }}</h2>
+
+    <span style="flex: 1"></span>
+
+    <button class="btn btn-primary" (click)="loadEquipment()">
+      {{ 'INVENTORY.RELOAD' | translate }}
+    </button>
+  </div>
+
+  @if (loading) {
+    <div class="alert alert-info">
+      {{ 'INVENTORY.LOADING' | translate }}
+    </div>
+  }
+
+  @if (!loading && equipment.length === 0) {
+    <div class="alert alert-warning">
+      {{ 'INVENTORY.NO_EQUIPMENT' | translate }}
+    </div>
+  }
+
+  @if (!loading && equipment.length > 0) {
+    <table class="table table-hover table-striped">
+
+      <thead>
+      <tr>
+        <th>{{ 'INVENTORY.EQUIPMENT_MODEL' | translate }}</th>
+        <th>{{ 'INVENTORY.EQUIPMENT_TYP' | translate }}</th>
+        <th>{{ 'INVENTORY.EQUIPMENT_STATUS' | translate }}</th>
+        <th>{{ 'INVENTORY.EQUIPMENT_SKILL' | translate }}</th>
+        <th>{{ 'INVENTORY.EQUIPMENT_PRICE' | translate }}</th>
+      </tr>
+      </thead>
+
+      <tbody>
+        @for (item of equipment; track item.id) {
+          <tr>
+            <td>{{ item.model }}</td>
+            <td>{{ 'EQUIPMENT_TYPE.' + item.equipmentType | translate }}</td>
+            <td>
+              <span
+                class="badge"
+                [ngClass]="getStatusClass(item.status)">
+                {{ 'RENTAL_STATUS.' + item.status | translate}}
+              </span>
+            </td>
+            <td>{{ 'SKILL_LEVEL.' + item.targetSkillLevel | translate }}</td>
+            <td>{{ item.price | currency:'EUR':'symbol':'1.2-2':(translateService.currentLang || 'de')}}</td>
+          </tr>
+        }
+      </tbody>
+
+    </table>
+  }
+
+</div>
