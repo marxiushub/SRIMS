@@ -27,7 +27,7 @@ import java.util.UUID;
  */
 
 //PS: Dominik: Ich würde für die Vererbung Joined subclasses verwenden, wobei jede art von equipment
-//seine eigene tabelle hat. ist gut für erweiterbarkeit(müssen keine bestehenden tabellen ändern
+//seine eigene tabelle hat. ist gut für erweiterbarkeit (müssen keine bestehenden tabellen ändern
 //wenn was dazu kommt und ist am intuitivsten, wir können das aber natürlich noch ändern
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -48,7 +48,7 @@ public abstract class Equipment {
     @Column(nullable = true, unique = true)
     private String barcodeId;
 
-    //Mocked generating of barcoeIds
+    //Mocked generating of barcodeIds
     @PrePersist
     public void generateBarcode() {
         if (barcodeId == null) {
@@ -128,6 +128,23 @@ public abstract class Equipment {
         TimePeriods period = new TimePeriods(this, start, end, periodType);
         timePeriodsList.add(period);
     }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
+    }
+
+    public void setStatus(RentalStatus status) {
+        this.status = status;
+    }
+
+    public void setTargetSkillLevel(SkillLevel skillLevel) {
+        this.targetSkillLevel = skillLevel;
+    }
+
 
     public abstract EquipmentType getEquipmentType();
 }

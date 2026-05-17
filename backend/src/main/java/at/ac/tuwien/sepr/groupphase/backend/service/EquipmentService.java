@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.EquipmentType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
@@ -43,4 +44,7 @@ public interface EquipmentService {
      * @param id   the unique identifier of the equipment to delete
      */
     void deleteEquipment(Long id);
+
+    @org.springframework.transaction.annotation.Transactional
+    EquipmentDetailDto updateEquipment(Long id, EquipmentUpdateDto updateDto);
 }
