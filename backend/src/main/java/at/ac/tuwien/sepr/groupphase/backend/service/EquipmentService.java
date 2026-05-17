@@ -38,8 +38,7 @@ public interface EquipmentService {
     /**
      * Deletes an equipment entry from the system based on the specified type and ID.
      *
-     * @param type the type of equipment to delete (e.g., "helmet", "ski", "snowboard")
      * @param id   the unique identifier of the equipment to delete
      */
-    void deleteEquipment(EquipmentType type, Long id);
+    void deleteEquipment(Long id);
 }
