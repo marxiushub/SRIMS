@@ -2,9 +2,21 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.HelmetUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.PoleUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.SkiBootUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.SkiUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.SnowboardBootUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.SnowboardUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EquipmentMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.EquipmentType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
+import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Helmet;
+import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Pole;
+import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Ski;
+import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.SkiBoot;
+import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Snowboard;
+import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.SnowboardBoot;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EquipmentRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.HelmetRepository;
@@ -14,11 +26,14 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.SkiRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.SnowboardBootRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.SnowboardRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.EquipmentService;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentUpdateDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
@@ -143,6 +158,33 @@ public class EquipmentServiceImpl implements EquipmentService {
             case SNOWBOARDBOOT -> snowboardBootRepository.findAll();
         };
         return mapper.entityToDto(new ArrayList<>(equipmentList));
+    }
+
+    @Transactional
+    @Override
+    public EquipmentDetailDto updateEquipment(Long id, EquipmentUpdateDto updateDto) {
+        LOGGER.info("Updating equipment with id {}", id);
+
+        if (id == null) {
+            throw new IllegalArgumentException("id is null");
+        }
+        if (id < 0) {
+            throw new IllegalArgumentException("id is negative");
+        }
+
+        Equipment existingEquipment = equipmentRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException("Equipment with ID " + id + " was not found."));
+
+        if (existingEquipment.getEquipmentType() != updateDto.getType()) {
+            throw new IllegalArgumentException(
+                String.format("Type mismatch: Cannot update a %s with a %s DTO.",
+                    existingEquipment.getEquipmentType(), updateDto.getType())
+            );
+        }
+        mapper.updateEntityFromDto(updateDto, existingEquipment);
+
+        Equipment savedEquipment = equipmentRepository.save(existingEquipment);
+        return mapper.entityToDto(savedEquipment);
     }
 
 }

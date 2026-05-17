@@ -129,5 +129,22 @@ public abstract class Equipment {
         timePeriodsList.add(period);
     }
 
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
+    }
+
+    public void setStatus(RentalStatus status) {
+        this.status = status;
+    }
+
+    public void setTargetSkillLevel(SkillLevel skillLevel) {
+        this.targetSkillLevel = skillLevel;
+    }
+
+
     public abstract EquipmentType getEquipmentType();
 }

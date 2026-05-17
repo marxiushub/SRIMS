@@ -8,18 +8,22 @@ import jakarta.persistence.Entity;
 @Entity
 public class SnowboardBoot extends Equipment {
 
-    private String lancingSystem;
+    private String lacingSystem;
 
     protected SnowboardBoot() {
     }
 
     public SnowboardBoot(String model, double price, String lancingSystem, RentalStatus status, SkillLevel targetSkillLevel) {
         super(model, price, status, targetSkillLevel);
-        this.lancingSystem = lancingSystem;
+        this.lacingSystem = lancingSystem;
     }
 
-    public String getLanzingSystem() {
-        return lancingSystem;
+    public String getLacingSystem() {
+        return lacingSystem;
+    }
+
+    public void setLacingSystem(String lacingSystem) {
+        this.lacingSystem = lacingSystem;
     }
 
     @Override

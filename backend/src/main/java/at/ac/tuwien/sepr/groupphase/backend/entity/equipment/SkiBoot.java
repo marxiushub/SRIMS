@@ -21,6 +21,10 @@ public class SkiBoot extends Equipment {
         return soleLengthMm;
     }
 
+    public void setSoleLengthMm(double length) {
+        this.soleLengthMm = (int) length;
+    }
+
     @Override
     public EquipmentType getEquipmentType() {
         return EquipmentType.SKIBOOT;
