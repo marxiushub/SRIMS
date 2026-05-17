@@ -47,4 +47,25 @@ public class EquipmentEndpointTest {
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound());
     }
+
+    @Test
+    public void getEquipmentByIdValidIdReturnsEquipmentDetail() throws Exception {
+        Long testId = 1L;
+
+        mockMvc.perform(get("/api/v1/equipment/{id}", testId)
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(testId))
+            .andExpect(jsonPath("$.equipmentType").exists())
+            .andExpect(jsonPath("$.model").exists());
+    }
+
+    @Test
+    public void getEquipmentByIdUnknownIdReturnsNotFound() throws Exception {
+        Long nonExistentId = 99999L;
+
+        mockMvc.perform(get("/api/v1/equipment/{id}", nonExistentId)
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound());
+    }
 }
