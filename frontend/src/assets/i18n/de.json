@@ -13,6 +13,13 @@
     "EQUIPMENT_PRICE": "Preis/Tag",
     "EQUIPMENT_STATUS": "Status",
     "EQUIPMENT_SKILL": "Erfahrungslevel",
+    "EQUIPMENT_ACTIONS": "Aktionen",
+    "DELETE": "Löschen",
+    "DELETE_TITLE": "Ausrüstung löschen",
+    "DELETE_CONFIRMATION": "Sind Sie sicher, dass Sie diese Ausrüstung löschen wollen?",
+    "DELETE_CANCEL": "Abbrechen",
+    "DELETE_CONFIRM": "Löschen",
+    "DELETE_ERROR": "Ausrüstung konnte nicht gelöscht werden.",
     "EQUIPMENT_TYP": "Typ",
     "AVAILABLE": "Verfügbar",
     "RENTED": "Verliehen"
