@@ -6,28 +6,20 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.service.EquipmentService;
-import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.context.ActiveProfiles;
-import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import org.springframework.boot.test.context.SpringBootTest;
 
 import org.springframework.http.MediaType;
 
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.springframework.test.util.AssertionErrors.assertFalse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MvcResult;
 
 @ActiveProfiles({"test", "datagenerator"})
@@ -41,7 +33,7 @@ public class EquipmentEndpointTest {
     private EquipmentService equipmentService;
 
     @Test
-    public void createEquipSevicePosTest() throws Exception{
+    public void createEquipServicePosTest() throws Exception{
 
         String json = """
         {
@@ -85,7 +77,7 @@ public class EquipmentEndpointTest {
 
         assertThat(result.getResponse().getStatus()).isEqualTo(204);
 
-        NotFoundException exception = assertThrows(NotFoundException.class, () ->
+       assertThrows(NotFoundException.class, () ->
             equipmentService.deleteEquipment(generatedId));
     }
 
