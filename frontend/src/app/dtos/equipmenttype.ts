@@ -1,0 +1,8 @@
+export enum EquipmentType {
+  HELMET = 'HELMET',
+  POLE = 'POLE',
+  SKI = 'SKI',
+  SKIBOOT = 'SKIBOOT',
+  SNOWBOARD = 'SNOWBOARD',
+  SNOWBOARDBOOT = 'SNOWBOARDBOOT'
+}

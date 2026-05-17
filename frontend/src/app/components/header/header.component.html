@@ -14,11 +14,30 @@
       </li>
     </ul>
     <ul class="navbar-nav mr-5">
+      <li class="nav-item d-flex align-items-center me-3 text-white-50">
+        <span class="small me-2" [class.text-white]="!isEnglish">DE</span>
+        <div class="form-check form-switch m-0 p-0 d-flex align-items-center" style="min-height: auto;">
+          <input
+            class="form-check-input m-0 cursor-pointer"
+            type="checkbox"
+            role="switch"
+            id="langSwitch"
+            [checked]="isEnglish"
+            (change)="onLanguageToggle($event)"
+            style="width: 2.5em; height: 1.25em;">
+        </div>
+        <span class="small ms-2" [class.text-white]="isEnglish">EN</span>
+      </li>
+
       @if (!authService.isLoggedIn()) {
-        <a class="nav-link" routerLink="/login" routerLinkActive="active">Login</a>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/login" routerLinkActive="active">{{ 'COMMON.LOGIN' | translate }}</a>
+        </li>
       }
       @if (authService.isLoggedIn()) {
-        <a class="nav-link" routerLink="/" (click)="authService.logoutUser()">Logout</a>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/" (click)="authService.logoutUser()">{{ 'COMMON.LOGOUT' | translate }}</a>
+        </li>
       }
     </ul>
   </div>
