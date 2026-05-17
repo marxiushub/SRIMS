@@ -2,9 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.entity.enums.EquipmentType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
-import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 
 import java.util.List;
 
@@ -30,6 +28,14 @@ public interface EquipmentService {
     List<EquipmentDetailDto> equipmentByType(String type);
 
     /**
+     * Retrieves detailed information about a specific equipment item based on its unique identifier.
+     *
+     * @param id the unique identifier of the equipment to retrieve
+     * @return an {@link EquipmentDetailDto} containing the detailed information of the specified equipment
+     */
+    EquipmentDetailDto equipmentById(Long id);
+
+    /**
      * Creates a new equipment entry in the system based on the provided creation data.
      *
      * @param dto the data transfer object containing the information needed to create the equipment
@@ -40,7 +46,7 @@ public interface EquipmentService {
     /**
      * Deletes an equipment entry from the system based on the specified type and ID.
      *
-     * @param id   the unique identifier of the equipment to delete
+     * @param id the unique identifier of the equipment to delete
      */
     void deleteEquipment(Long id);
 }
