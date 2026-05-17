@@ -54,7 +54,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private UsernamePasswordAuthenticationToken getAuthToken(HttpServletRequest request)
         throws JwtException, IllegalArgumentException {
         String token = request.getHeader(securityProperties.getAuthHeader());
-        if (token == null || token.isEmpty()) {
+        //TODO: Remove "token.equals("Bearer null") as soon as login/authentification works properly
+        if (token == null || token.isEmpty() || token.equals("Bearer null")) {
             return null;
         }
 

@@ -100,6 +100,14 @@ public abstract class Equipment {
         return timePeriodsList;
     }
 
+    public SkillLevel getTargetSkillLevel() {
+        return targetSkillLevel;
+    }
+
+    public String getBarcodeId() {
+        return barcodeId;
+    }
+
     /**
      * Setter.
      *
