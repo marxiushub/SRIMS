@@ -12,12 +12,6 @@ import java.util.List;
  */
 public interface EquipmentService {
 
-    /**
-     * Creates a new entry of type equipment in the Database.
-     *
-     * @return an Equipment entity
-     * */
-    public Equipment createEquipment(EquipmentCreationDto dto);
 
     /**
      * Retrieves a list of all equipment available in the system.

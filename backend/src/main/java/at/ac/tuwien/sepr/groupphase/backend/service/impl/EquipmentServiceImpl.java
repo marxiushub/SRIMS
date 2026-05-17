@@ -100,23 +100,23 @@ public class EquipmentServiceImpl implements EquipmentService {
         return repo.save(equipment);
     }
 
-    public void deleteEquipment(EquipmentType type, Long id) {
-        LOGGER.info("Deleting equipment of type {} with id {}", type, id);
+    @Override
+    public void deleteEquipment(Long id) {
+        LOGGER.trace("Deleting equipment with id {}", id);
 
-        @SuppressWarnings("unchecked")
-        JpaRepository<Equipment, Long> repo =
-            (JpaRepository<Equipment, Long>) repositoryMap.get(type);
-
-        if (repo == null) {
-            throw new IllegalArgumentException("Unknown equipment type: " + type);
+        if (id == null) {
+            throw new IllegalArgumentException("id is null");
         }
 
-
-        if (!repo.existsById(id)) {
-            throw new NotFoundException("Equipment type: " + type + " with ID " + id + " was not found.");
+        if (id < 0) {
+            throw new IllegalArgumentException("id is negative");
         }
 
-        repo.deleteById(id);
+        if (!equipmentRepository.existsById(id)) {
+            throw new NotFoundException("Equipment with ID " + id + " was not found.");
+        }
+
+        equipmentRepository.deleteById(id);
     }
 
     public List<EquipmentDetailDto> allEquipment() {
