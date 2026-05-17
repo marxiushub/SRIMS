@@ -21,6 +21,10 @@ public class Helmet extends Equipment {
         return size;
     }
 
+    public void setSize(double size) {
+        this.size = size;
+    }
+
     @Override
     public EquipmentType getEquipmentType() {
         return EquipmentType.HELMET; // Replace with your actual Enum value
