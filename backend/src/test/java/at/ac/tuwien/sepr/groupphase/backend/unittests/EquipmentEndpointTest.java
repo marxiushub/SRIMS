@@ -1,24 +1,25 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests;
 
-import jakarta.transaction.Transactional;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.SkiCreationDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
+import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
+import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
+import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepr.groupphase.backend.service.EquipmentService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.context.ActiveProfiles;
-import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import org.springframework.boot.test.context.SpringBootTest;
 
 import org.springframework.http.MediaType;
 
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MvcResult;
 
 @ActiveProfiles({"test", "datagenerator"})
@@ -28,9 +29,11 @@ public class EquipmentEndpointTest {
 
     @Autowired
     private MockMvc mockMvc;
+    @Autowired
+    private EquipmentService equipmentService;
 
     @Test
-    public void createEquipSevicePosTest() throws Exception{
+    public void createEquipServicePosTest() throws Exception{
 
         String json = """
         {
@@ -54,6 +57,38 @@ public class EquipmentEndpointTest {
 
         assertThat(responseBody).contains("Poc Skull X");
         assertThat(responseBody).contains("199.99");
+    }
+
+    @Test
+    public void deleteEquipmentPosTest() throws Exception {
+        SkiCreationDto dto = new SkiCreationDto();
+        dto.setPrice(67);
+        dto.setModel("Test Ski für Delete");
+        dto.setStatus(RentalStatus.FREE);
+        dto.setTargetSkillLevel(SkillLevel.ADVANCED);
+        dto.setLength(200);
+
+        Equipment savedEquip = equipmentService.createEquipment(dto);
+        Long generatedId = savedEquip.getId();
+
+        MvcResult result = mockMvc.perform(delete("/api/v1/equipment/" + generatedId))
+            .andReturn();
+
+
+        assertThat(result.getResponse().getStatus()).isEqualTo(204);
+
+       assertThrows(NotFoundException.class, () ->
+            equipmentService.deleteEquipment(generatedId));
+    }
+
+    @Test
+    public void deleteEquipmentNegTest() throws Exception {
+        Long nonExistentId = 99999L;
+
+        MvcResult result = mockMvc.perform(delete("/api/v1/equipment/" + nonExistentId))
+            .andReturn();
+
+        assertThat(result.getResponse().getStatus()).isEqualTo(404);
     }
 
 
