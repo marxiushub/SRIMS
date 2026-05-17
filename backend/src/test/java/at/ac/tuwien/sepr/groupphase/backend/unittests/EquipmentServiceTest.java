@@ -71,6 +71,8 @@ public class EquipmentServiceTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     void getEquipmentByTypeValidTypeReturnsMappedList() {
         helmetRepository.save(testEquipment);
         List<EquipmentDetailDto> result = equipmentService.equipmentByType("helmet");
@@ -114,6 +116,30 @@ public class EquipmentServiceTest {
             equipmentService.equipmentByType("invalid_type"));
 
         assertTrue(exception.getMessage().contains("Unknown equipment type"));
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void getEquipmentByIdValidIdReturnsCorrectDto() {
+        Helmet savedHelmet = helmetRepository.save(testEquipment);
+        Long validId = savedHelmet.getId();
+
+        EquipmentDetailDto result = equipmentService.equipmentById(validId);
+
+        assertAll(
+            () -> assertThat(result).isNotNull(),
+            () -> assertThat(result.getModel()).isEqualTo(testEquipment.getModel())
+        );
+    }
+
+    @Test
+    public void getEquipmentByIdUnknownIdThrowsNotFoundException() {
+        Long invalidId = 99999L;
+
+        assertThrows(NotFoundException.class, () -> {
+            equipmentService.equipmentById(invalidId);
+        });
     }
 
     @Test
@@ -165,6 +191,4 @@ public class EquipmentServiceTest {
         assertTrue(exception.getMessage().contains("Type mismatch"),
             "Exception message should indicate type mismatch");
     }
-
-
 }
