@@ -84,6 +84,7 @@ public class EquipmentServiceImpl implements EquipmentService {
         );
     }
 
+    @Override
     public Equipment createEquipment(EquipmentCreationDto dto) {
 
         Equipment equipment = dto.toEntity();
