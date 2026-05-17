@@ -5,7 +5,6 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentD
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.service.EquipmentService;
-import at.ac.tuwien.sepr.groupphase.backend.service.impl.EquipmentServiceImpl;
 import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
