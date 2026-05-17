@@ -12,6 +12,7 @@ import java.util.List;
  */
 public interface EquipmentService {
 
+
     /**
      * Retrieves a list of all equipment available in the system.
      *

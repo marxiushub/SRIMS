@@ -4,6 +4,9 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.EquipmentType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
+import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.SnowboardBoot;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -13,6 +16,22 @@ import jakarta.validation.constraints.Positive;
  * */
 
 //PS: Dominik: die Annoationen werfen MethodArgumentNotValidException, muss im exception hanler behandelt werden
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
+    property = "type"
+)
+//@JsonTypeInfo sagt das die info um welche unterklasse es sich handelt als feld mit
+//dem namen type in der json zu finden ist
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = HelmetCreationDto.class, name = "HELMET"),
+    @JsonSubTypes.Type(value = SkiCreationDto.class, name = "SKI"),
+    @JsonSubTypes.Type(value = PoleCreationDto.class, name = "POLE"),
+    @JsonSubTypes.Type(value = SkiBootCreationDto.class, name = "SKIBOOT"),
+    @JsonSubTypes.Type(value = SnowboardCreationDto.class, name = "SNOWBOARD"),
+    @JsonSubTypes.Type(value = SnowboardBoot.class, name = "SNOWBOARDBOOT")
+})//sagt aus wie die typ info nun auf konkrete klassen maped
+
 public abstract class EquipmentCreationDto {
 
     @Positive(message = "price is negative")
