@@ -86,6 +86,7 @@ public class EquipmentServiceImpl implements EquipmentService {
 
     @Override
     public Equipment createEquipment(EquipmentCreationDto dto) {
+        LOGGER.info("Creation of an {}", dto.getType());
 
         Equipment equipment = dto.toEntity();
 

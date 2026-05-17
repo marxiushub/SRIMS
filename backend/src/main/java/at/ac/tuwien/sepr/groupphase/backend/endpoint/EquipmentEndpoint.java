@@ -6,6 +6,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.service.EquipmentService;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.EquipmentServiceImpl;
 import jakarta.annotation.security.PermitAll;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ public class EquipmentEndpoint {
      * */
     @PermitAll
     @PostMapping()
-    public Equipment createEquipment(@RequestBody EquipmentCreationDto dto) {
+    public Equipment createEquipment(@Valid @RequestBody EquipmentCreationDto dto) {
         return equipmentService.createEquipment(dto);
     }
 
