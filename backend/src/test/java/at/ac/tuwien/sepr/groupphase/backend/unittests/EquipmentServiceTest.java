@@ -1,7 +1,12 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.HelmetDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.HelmetUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.SkiCreationDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.SkiUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.enums.EquipmentType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
@@ -17,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 
@@ -109,4 +115,56 @@ public class EquipmentServiceTest {
 
         assertTrue(exception.getMessage().contains("Unknown equipment type"));
     }
+
+    @Test
+    @Transactional
+    @Rollback
+    void updateEquipment_validPartialUpdate_updatesOnlyProvidedFieldsAndReturnsDto() {
+        // Arrange: Ein existierendes Equipment in der DB anlegen
+        Helmet savedHelmet = helmetRepository.save(
+            new Helmet("Poc Skull", 199.99, 58.0, RentalStatus.FREE, SkillLevel.BEGINNER)
+        );
+        Long id = savedHelmet.getId();
+
+        HelmetUpdateDto updateDto = new HelmetUpdateDto();
+        ReflectionTestUtils.setField(updateDto, EquipmentUpdateDto.class, "type", EquipmentType.HELMET, EquipmentType.class);        updateDto.setPrice(150.00);
+        updateDto.setSize(60.0);
+
+        EquipmentDetailDto result = equipmentService.updateEquipment(id, updateDto);
+
+        assertThat(result).isNotNull();
+        assertThat(result).isInstanceOf(HelmetDetailDto.class);
+
+        HelmetDetailDto helmetResult = (HelmetDetailDto) result;
+
+        assertAll(
+            () -> assertThat(helmetResult.getPrice()).isEqualTo(150.00),
+            () -> assertThat(helmetResult.getSize()).isEqualTo(60.0),
+            () -> assertThat(helmetResult.getModel()).isEqualTo("Poc Skull"),
+            () -> assertThat(helmetResult.getStatus()).isEqualTo(RentalStatus.FREE)
+        );
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void updateEquipment_typeMismatch_throwsIllegalArgumentException() {
+        Helmet savedHelmet = helmetRepository.save(
+            new Helmet("Test Helmet", 99.0, 55.0, RentalStatus.FREE, SkillLevel.BEGINNER)
+        );
+        Long helmetId = savedHelmet.getId();
+
+        SkiUpdateDto mismatchDto = new SkiUpdateDto();
+        ReflectionTestUtils.setField(mismatchDto, EquipmentUpdateDto.class, "type", EquipmentType.SKI, EquipmentType.class);
+        mismatchDto.setLength(170.0);
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+            equipmentService.updateEquipment(helmetId, mismatchDto)
+        );
+
+        assertTrue(exception.getMessage().contains("Type mismatch"),
+            "Exception message should indicate type mismatch");
+    }
+
+
 }

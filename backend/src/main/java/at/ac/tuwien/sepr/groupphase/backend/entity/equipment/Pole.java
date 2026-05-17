@@ -21,6 +21,10 @@ public class Pole extends Equipment {
         return length;
     }
 
+    public void setLength(double length) {
+        this.length = length;
+    }
+
     @Override
     public EquipmentType getEquipmentType() {
         return EquipmentType.POLE;

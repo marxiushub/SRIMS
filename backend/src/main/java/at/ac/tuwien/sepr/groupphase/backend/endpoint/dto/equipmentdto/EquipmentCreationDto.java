@@ -30,7 +30,7 @@ import jakarta.validation.constraints.Positive;
     @JsonSubTypes.Type(value = SkiBootCreationDto.class, name = "SKIBOOT"),
     @JsonSubTypes.Type(value = SnowboardCreationDto.class, name = "SNOWBOARD"),
     @JsonSubTypes.Type(value = SnowboardBootCreationDto.class, name = "SNOWBOARDBOOT")
-})//sagt aus wie die typ info nun auf konkrete klassen maped
+})//sagt aus wie die typ info nun auf konkrete klassen mapped
 
 public abstract class EquipmentCreationDto {
 

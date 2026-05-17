@@ -14,11 +14,14 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.SkiRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.SnowboardBootRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.SnowboardRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.EquipmentService;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentUpdateDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
@@ -143,6 +146,33 @@ public class EquipmentServiceImpl implements EquipmentService {
             case SNOWBOARDBOOT -> snowboardBootRepository.findAll();
         };
         return mapper.entityToDto(new ArrayList<>(equipmentList));
+    }
+
+    @Transactional
+    @Override
+    public EquipmentDetailDto updateEquipment(Long id, EquipmentUpdateDto updateDto) {
+        LOGGER.info("Updating equipment with id {}", id);
+
+        if (id == null) {
+            throw new IllegalArgumentException("id is null");
+        }
+        if (id < 0) {
+            throw new IllegalArgumentException("id is negative");
+        }
+
+        Equipment existingEquipment = equipmentRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException("Equipment with ID " + id + " was not found."));
+
+        if (existingEquipment.getEquipmentType() != updateDto.getType()) {
+            throw new IllegalArgumentException(
+                String.format("Type mismatch: Cannot update a %s with a %s DTO.",
+                    existingEquipment.getEquipmentType(), updateDto.getType())
+            );
+        }
+        mapper.updateEntityFromDto(updateDto, existingEquipment);
+
+        Equipment savedEquipment = equipmentRepository.save(existingEquipment);
+        return mapper.entityToDto(savedEquipment);
     }
 
 }
