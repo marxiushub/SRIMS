@@ -7,6 +7,7 @@
   "INVENTORY": {
     "TITLE": "Ski Equipment Inventory",
     "RELOAD": "Reload",
+    "ADD_EQUIPMENT": "Add Equipment",
     "LOADING": "Loading equipment...",
     "NO_EQUIPMENT": "No equipment found.",
     "EQUIPMENT_MODEL": "Model",

@@ -7,6 +7,7 @@
   "INVENTORY": {
     "TITLE": "Skiausrüstung Inventar",
     "RELOAD": "Aktualisieren",
+    "ADD_EQUIPMENT": "Ausrüstung hinzufügen",
     "LOADING": "Ausrüstung wird geladen",
     "NO_EQUIPMENT": "Keine Ausrüstung gefunden.",
     "EQUIPMENT_MODEL": "Modell",
