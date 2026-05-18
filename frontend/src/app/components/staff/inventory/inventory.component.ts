@@ -19,7 +19,7 @@ export class InventoryComponent implements OnInit{
   deleteLoading = false;
   deleteError?: string;
 
-  constructor (private equipmentService: EquipmentService, public translateService: TranslateService) { }
+  constructor (private equipmentService: EquipmentService, public translateService: TranslateService, private router: Router) { }
 
   ngOnInit(): void {
     this.loadEquipment();
