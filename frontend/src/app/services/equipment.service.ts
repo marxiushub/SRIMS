@@ -24,9 +24,6 @@ export class EquipmentService {
 
   /**
    * Deletes equipment by id in backend.
-   *
-   * Current expected endpoint: DELETE /api/v1/equipment/{id}
-   * TODO: Change to correct endpoint.
    */
   delete(id: number): Observable<void> {
     return this.httpClient.delete<void>(`${this.equipmentBaseUri}/${id}`);
