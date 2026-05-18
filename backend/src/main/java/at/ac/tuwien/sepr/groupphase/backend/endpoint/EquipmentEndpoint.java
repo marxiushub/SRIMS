@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.service.EquipmentService;
@@ -50,18 +51,6 @@ public class EquipmentEndpoint {
     public Equipment createEquipment(@Valid @RequestBody EquipmentCreationDto dto) {
         LOGGER.info("POST /api/v1/equipment - {}", dto);
         return equipmentService.createEquipment(dto);
-    }
-
-    /**
-     * Endpoint to retrieve a list of all equipment. This endpoint is accessible to all users without authentication.
-     *
-     * @return a list of {@link EquipmentDetailDto} representing the equipment information
-     */
-    @PermitAll
-    @GetMapping
-    public List<EquipmentDetailDto> getAllEquipment() {
-        LOGGER.info("GET /api/v1/equipment");
-        return equipmentService.allEquipment();
     }
 
     /**
@@ -119,5 +108,20 @@ public class EquipmentEndpoint {
     ) {
         LOGGER.info("PATCH /api/v1/equipment/{} - Body: {}", id, updateDto);
         return equipmentService.updateEquipment(id, updateDto);
+    }
+
+    /**
+     * Searches for equipment based on optional query parameters.
+     * The parameters are passed in the URL (e.g., ?type=SKI&model=Atomic).
+     *
+     * @param searchDto dynamically mapped from URL query parameters
+     * @return a list of equipment matching the criteria
+     */
+    @PermitAll
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public List<EquipmentDetailDto> searchEquipment(EquipmentSearchDto searchDto) {
+        LOGGER.info("GET /api/v1/equipment (Search) with parameters: {}", searchDto);
+        return equipmentService.searchEquipment(searchDto);
     }
 }

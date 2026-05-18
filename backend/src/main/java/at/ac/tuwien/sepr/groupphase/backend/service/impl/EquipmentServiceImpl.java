@@ -2,9 +2,16 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EquipmentMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.EquipmentType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
+import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Helmet;
+import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Pole;
+import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Ski;
+import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.SkiBoot;
+import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Snowboard;
+import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.SnowboardBoot;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EquipmentRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.HelmetRepository;
@@ -18,6 +25,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentU
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +34,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Map;
+
+import static at.ac.tuwien.sepr.groupphase.backend.entity.enums.EquipmentType.HELMET;
+import static at.ac.tuwien.sepr.groupphase.backend.entity.enums.EquipmentType.SKI;
 
 /**
  * Implementation of {@link EquipmentService} for handling equipment-related operations.
@@ -77,9 +88,9 @@ public class EquipmentServiceImpl implements EquipmentService {
         this.snowboardBootRepository = snowboardBootRepository;
         this.mapper = mapper;
         this.repositoryMap = Map.of(
-            EquipmentType.HELMET, helmetRepository,
+            HELMET, helmetRepository,
             EquipmentType.POLE, poleRepository,
-            EquipmentType.SKI, skiRepository,
+            SKI, skiRepository,
             EquipmentType.SKIBOOT, skiBootRepository,
             EquipmentType.SNOWBOARD, snowboardRepository,
             EquipmentType.SNOWBOARDBOOT, snowboardBootRepository
@@ -119,11 +130,6 @@ public class EquipmentServiceImpl implements EquipmentService {
         }
 
         equipmentRepository.deleteById(id);
-    }
-
-    public List<EquipmentDetailDto> allEquipment() {
-        LOGGER.trace("Get all equipment");
-        return mapper.entityToDto(equipmentRepository.findAll());
     }
 
     public List<EquipmentDetailDto> equipmentByType(String type) {
@@ -189,6 +195,52 @@ public class EquipmentServiceImpl implements EquipmentService {
 
         Equipment savedEquipment = equipmentRepository.save(existingEquipment);
         return mapper.entityToDto(savedEquipment);
+    }
+
+    @Override
+    public List<EquipmentDetailDto> searchEquipment(EquipmentSearchDto searchDto) {
+        LOGGER.info("Searching equipment with parameters: {}", searchDto);
+
+        if (searchDto == null) {
+            searchDto = new EquipmentSearchDto();
+        }
+
+        final EquipmentSearchDto equipmentSearchDto = searchDto;
+
+        Specification<Equipment> spec = (root, query, cb) -> cb.conjunction();
+
+        if (equipmentSearchDto.getModel() != null && !equipmentSearchDto.getModel().isBlank()) {
+            spec = spec.and((root, query, cb) ->
+                cb.like(cb.lower(root.get("model")), "%" + equipmentSearchDto.getModel().toLowerCase() + "%"));
+        }
+
+        if (equipmentSearchDto.getType() != null) {
+            spec = spec.and((root, query, cb) -> {
+                Class<? extends Equipment> targetClass = switch (equipmentSearchDto.getType()) {
+                    case SKI -> Ski.class;
+                    case HELMET -> Helmet.class;
+                    case POLE -> Pole.class;
+                    case SKIBOOT -> SkiBoot.class;
+                    case SNOWBOARD -> Snowboard.class;
+                    case SNOWBOARDBOOT -> SnowboardBoot.class;
+                };
+                return cb.equal(root.type(), targetClass);
+            });
+        }
+
+        if (equipmentSearchDto.getStatus() != null) {
+            spec = spec.and((root, query, cb) ->
+                cb.equal(root.get("status"), equipmentSearchDto.getStatus()));
+        }
+
+        if (equipmentSearchDto.getTargetSkillLevel() != null) {
+            spec = spec.and((root, query, cb) ->
+                cb.equal(root.get("targetSkillLevel"), equipmentSearchDto.getTargetSkillLevel()));
+        }
+
+        List<Equipment> foundEquipment = equipmentRepository.findAll(spec);
+
+        return mapper.entityToDto(foundEquipment);
     }
 
 }

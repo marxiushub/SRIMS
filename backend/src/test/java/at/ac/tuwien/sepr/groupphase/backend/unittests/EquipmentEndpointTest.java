@@ -11,6 +11,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.context.ActiveProfiles;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -176,6 +178,110 @@ public class EquipmentEndpointTest {
             .andReturn();
 
         assertThat(result.getResponse().getStatus()).isEqualTo(404);
+    }
+
+    @Test
+    public void searchEquipment_withSpecificTypeAndModel_returnsFilteredList() throws Exception {
+        SkiCreationDto ski1 = new SkiCreationDto();
+        ski1.setPrice(100);
+        ski1.setModel("Atomic Redster");
+        ski1.setStatus(RentalStatus.FREE);
+        ski1.setTargetSkillLevel(SkillLevel.ADVANCED);
+        ski1.setLength(170);
+        equipmentService.createEquipment(ski1);
+
+        SkiCreationDto ski2 = new SkiCreationDto();
+        ski2.setPrice(80);
+        ski2.setModel("Fischer Ranger");
+        ski2.setStatus(RentalStatus.FREE);
+        ski2.setTargetSkillLevel(SkillLevel.BEGINNER);
+        ski2.setLength(160);
+        equipmentService.createEquipment(ski2);
+
+        MvcResult result = mockMvc.perform(get("/api/v1/equipment")
+                .param("type", "SKI")
+                .param("model", "atomic")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+
+
+        String responseBody = result.getResponse().getContentAsString();
+
+        assertAll(
+            "test if only the ski with the correct model was found",
+            () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
+            () -> assertThat(responseBody).contains("Atomic Redster"),
+            () -> assertThat(responseBody).doesNotContain("Fischer Ranger")
+        );
+    }
+
+    @Test
+    public void searchEquipment_withoutParameters_returnsAllItems() throws Exception {
+        SkiCreationDto ski = new SkiCreationDto();
+        ski.setPrice(100);
+        ski.setModel("Universal Ski");
+        ski.setStatus(RentalStatus.FREE);
+        ski.setTargetSkillLevel(SkillLevel.BEGINNER);
+        ski.setLength(160);
+        equipmentService.createEquipment(ski);
+
+
+        MvcResult result = mockMvc.perform(get("/api/v1/equipment")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+
+        String responseBody = result.getResponse().getContentAsString();
+
+        assertAll(
+            "test if it returns everything without parameters",
+            () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
+            () -> assertThat(responseBody).contains("Universal Ski")
+        );
+    }
+
+    @Test
+    public void searchEquipment_withNoMatchingCriteria_returnsEmptyList() throws Exception {
+        // Arrange (Given)
+        SkiCreationDto ski = new SkiCreationDto();
+        ski.setPrice(100);
+        ski.setModel("Universal Ski");
+        ski.setStatus(RentalStatus.FREE);
+        ski.setTargetSkillLevel(SkillLevel.BEGINNER);
+        ski.setLength(160);
+        equipmentService.createEquipment(ski);
+
+        MvcResult result = mockMvc.perform(get("/api/v1/equipment")
+                .param("type", "SNOWBOARD")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+
+        String responseBody = result.getResponse().getContentAsString();
+
+        assertAll(
+            "Check that an empty search is correctly processed as an empty JSON array",
+            () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
+            () -> assertThat(responseBody).isEqualTo("[]"),
+            () -> assertThat(responseBody).doesNotContain("Universal Ski")
+        );
+    }
+
+    @Test
+    public void searchEquipment_withInvalidEnumParameter_returns400BadRequest() throws Exception {
+
+
+        MvcResult result = mockMvc.perform(get("/api/v1/equipment")
+                .param("type", "UFO")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+
+
+        Exception resolvedException = result.getResolvedException();
+
+        assertAll(
+            "Check if invalid enum values in the URL parameter are blocked as 400 Bad Request",
+            () -> assertThat(result.getResponse().getStatus()).isEqualTo(400),
+            () -> assertThat(resolvedException).isNotNull(),
+            () -> assertThat(resolvedException.getClass().getSimpleName()).contains("MethodArgumentNotValidException")        );
     }
 
 
