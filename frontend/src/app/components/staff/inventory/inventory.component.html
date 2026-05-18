@@ -36,6 +36,7 @@
         <th>{{ 'INVENTORY.EQUIPMENT_STATUS' | translate }}</th>
         <th>{{ 'INVENTORY.EQUIPMENT_SKILL' | translate }}</th>
         <th>{{ 'INVENTORY.EQUIPMENT_PRICE' | translate }}</th>
+        <th>{{ 'INVENTORY.EQUIPMENT_ACTIONS' | translate}}</th>
       </tr>
       </thead>
 
@@ -53,11 +54,84 @@
             </td>
             <td>{{ 'SKILL_LEVEL.' + item.targetSkillLevel | translate }}</td>
             <td>{{ item.price | currency:'EUR':'symbol':'1.2-2':(translateService.currentLang || 'de')}}</td>
+            <td>
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-danger"
+                (click)="openDeleteDialog(item)">
+                {{ 'INVENTORY.DELETE' | translate }}
+              </button>
+            </td>
           </tr>
         }
       </tbody>
 
     </table>
+  }
+
+  @if (equipmentToDelete) {
+    <div class="modal fade show d-block" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+          <div class="modal-header">
+            <h5 class="modal-title">
+              {{'INVENTORY.DELETE_TITLE' | translate}}
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              aria-label="Close"
+              [disabled]="deleteLoading"
+              (click)="cancelDelete()">
+            </button>
+          </div>
+
+          <div class="modal-body">
+            <p>
+              {{ 'INVENTORY.DELETE_CONFIRMATION' | translate}}
+            </p>
+
+            <p class="fw-bold mb-0">
+              {{ equipmentToDelete.model }}
+            </p>
+
+
+            @if (deleteError){
+              <div class="alert alert-danger mt-3 mb-0">
+                {{ 'INVENTORY.DELETE_ERROR' | translate}}
+              </div>
+            }
+          </div>
+
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              [disabled]="deleteLoading"
+              (click)="cancelDelete()">
+              {{ 'INVENTORY.DELETE_CANCEL' | translate}}
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-danger"
+              [disabled]="deleteLoading"
+              (click)="confirmDelete()">
+              @if (deleteLoading) {
+                {{ 'INVENTORY.DELETE_CONFIRM' | translate}}...
+              } @else {
+                {{ 'INVENTORY.DELETE_CONFIRM' | translate}}
+              }
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop fade show"></div>
+
   }
 
 </div>

@@ -15,7 +15,11 @@ export class InventoryComponent implements OnInit{
   equipment: Equipment[] = [];
   loading = false;
 
-  constructor (private equipmentService: EquipmentService, public translateService: TranslateService, private router: Router) { }
+  equipmentToDelete?: Equipment;
+  deleteLoading = false;
+  deleteError?: string;
+
+  constructor (private equipmentService: EquipmentService, public translateService: TranslateService) { }
 
   ngOnInit(): void {
     this.loadEquipment();
@@ -38,6 +42,43 @@ export class InventoryComponent implements OnInit{
 
   openCreatePage(): void {
     this.router.navigate(['/staff/inventory/create']);
+  }
+
+  openDeleteDialog(item: Equipment): void {
+    this.equipmentToDelete = item;
+    this.deleteError = undefined;
+  }
+
+  cancelDelete(): void {
+    this.deleteError = undefined;
+    this.equipmentToDelete = undefined;
+    this.deleteLoading = false;
+  }
+
+  confirmDelete(): void {
+    if (!this.equipmentToDelete) {
+      return;
+    }
+
+    this.deleteLoading = true;
+    this.deleteError = undefined;
+
+    this.equipmentService.delete(this.equipmentToDelete.id).subscribe({
+      next: () => {
+        this.equipment = this.equipment.filter(
+          item => item.id !== this.equipmentToDelete?.id
+        );
+
+        this.equipmentToDelete = undefined;
+        this.deleteLoading = false;
+      },
+
+      error: (err) => {
+        console.error('Failed to delete equipment', err);
+        this.deleteError = 'Eqipment could not be deleted.';
+        this.deleteLoading = false;
+      }
+    });
   }
 
   getStatusClass(status: string):string {

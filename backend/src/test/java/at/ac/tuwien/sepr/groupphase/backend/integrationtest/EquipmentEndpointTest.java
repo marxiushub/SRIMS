@@ -34,7 +34,7 @@ public class EquipmentEndpointTest {
 
     @Test
     public void getEquipmentByTypeValidTypeReturnsSubsetList() throws Exception {
-        mockMvc.perform(get("/api/v1/equipment/helmet")
+        mockMvc.perform(get("/api/v1/equipment/type/helmet")
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").isArray())
@@ -43,7 +43,28 @@ public class EquipmentEndpointTest {
 
     @Test
     public void getEquipmentByTypeUnknownTypeThrowsNotFound() throws Exception {
-        mockMvc.perform(get("/api/v1/equipment/UNKNOWN_NONEXISTENT_TYPE")
+        mockMvc.perform(get("/api/v1/equipment/type/UNKNOWN_NONEXISTENT_TYPE")
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void getEquipmentByIdValidIdReturnsEquipmentDetail() throws Exception {
+        Long testId = 1L;
+
+        mockMvc.perform(get("/api/v1/equipment/{id}", testId)
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(testId))
+            .andExpect(jsonPath("$.equipmentType").exists())
+            .andExpect(jsonPath("$.model").exists());
+    }
+
+    @Test
+    public void getEquipmentByIdUnknownIdReturnsNotFound() throws Exception {
+        Long nonExistentId = 99999L;
+
+        mockMvc.perform(get("/api/v1/equipment/{id}", nonExistentId)
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound());
     }

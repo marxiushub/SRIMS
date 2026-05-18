@@ -12,14 +12,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 
@@ -43,10 +43,12 @@ public class EquipmentEndpoint {
      *
      * @param dto an {@link EquipmentCreationDto}
      * @return an Equipment entity
-     * */
+     *
+     */
     @PermitAll
     @PostMapping()
     public Equipment createEquipment(@Valid @RequestBody EquipmentCreationDto dto) {
+        LOGGER.info("POST /api/v1/equipment - {}", dto);
         return equipmentService.createEquipment(dto);
     }
 
@@ -69,10 +71,23 @@ public class EquipmentEndpoint {
      * @return a list of {@link EquipmentDetailDto} representing the equipment information for the specified type
      */
     @PermitAll
-    @GetMapping("/{type}")
+    @GetMapping("/type/{type}")
     public List<EquipmentDetailDto> getEquipmentByType(@PathVariable("type") String type) {
-        LOGGER.info("GET /api/v1/equipment/{}", type);
+        LOGGER.info("GET /api/v1/equipment/type/{}", type);
         return equipmentService.equipmentByType(type);
+    }
+
+    /**
+     * Endpoint to retrieve a specific piece of equipment by its unique ID. This endpoint is accessible to all users without authentication.
+     *
+     * @param id the unique ID of the equipment to be retrieved
+     * @return an {@link EquipmentDetailDto} representing the equipment information for the specified ID
+     */
+    @PermitAll
+    @GetMapping("/{id}")
+    public EquipmentDetailDto getEquipmentById(@PathVariable("id") Long id) {
+        LOGGER.info("GET /api/v1/equipment/{}", id);
+        return equipmentService.equipmentById(id);
     }
 
     /**

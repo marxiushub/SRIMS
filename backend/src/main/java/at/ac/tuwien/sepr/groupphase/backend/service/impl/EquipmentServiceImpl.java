@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -89,7 +88,7 @@ public class EquipmentServiceImpl implements EquipmentService {
 
     @Override
     public Equipment createEquipment(EquipmentCreationDto dto) {
-        LOGGER.info("Creation of an {}", dto.getType());
+        LOGGER.trace("Creation of an {}", dto.getType());
 
         Equipment equipment = dto.toEntity();
 
@@ -137,15 +136,32 @@ public class EquipmentServiceImpl implements EquipmentService {
             throw new NotFoundException("Unknown equipment type: " + type);
         }
 
-        List<? extends Equipment> equipmentList = switch (equipmentType) {
-            case HELMET -> helmetRepository.findAll();
-            case POLE -> poleRepository.findAll();
-            case SKI -> skiRepository.findAll();
-            case SKIBOOT -> skiBootRepository.findAll();
-            case SNOWBOARD -> snowboardRepository.findAll();
-            case SNOWBOARDBOOT -> snowboardBootRepository.findAll();
-        };
-        return mapper.entityToDto(new ArrayList<>(equipmentList));
+        JpaRepository<Equipment, Long> repo =
+            (JpaRepository<Equipment, Long>) repositoryMap.get(equipmentType);
+
+        if (repo == null) {
+            throw new IllegalArgumentException("No repository found for equipment type: " + equipmentType);
+        }
+
+        List<Equipment> equipmentList = repo.findAll();
+        return mapper.entityToDto(equipmentList);
+    }
+
+    public EquipmentDetailDto equipmentById(Long id) {
+        LOGGER.trace("Get equipment by id: {}", id);
+
+        if (id == null) {
+            throw new IllegalArgumentException("id is null");
+        }
+
+        if (id < 0) {
+            throw new IllegalArgumentException("id is negative");
+        }
+
+        Equipment equipment = equipmentRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException("Equipment with ID " + id + " was not found."));
+
+        return mapper.entityToDto(equipment);
     }
 
     @Transactional
