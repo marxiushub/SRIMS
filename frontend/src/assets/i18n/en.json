@@ -7,6 +7,7 @@
   "INVENTORY": {
     "TITLE": "Ski Equipment Inventory",
     "RELOAD": "Reload",
+    "ADD_EQUIPMENT": "Add Equipment",
     "LOADING": "Loading equipment...",
     "NO_EQUIPMENT": "No equipment found.",
     "EQUIPMENT_MODEL": "Model",
@@ -42,5 +43,25 @@
     "SKIBOOT":  "Ski Boots",
     "SNOWBOARD": "Snowboard",
     "SNOWBOARDBOOT": "Snowboard Boots"
+  },
+  "EQUIPMENT_CREATE": {
+    "TITLE": "Add Equipment",
+    "TYPE": "Equipment type",
+    "MODEL": "Model",
+    "STATUS": "Status",
+    "SKILL_LEVEL": "Skill level",
+    "PRICE": "Price",
+    "LENGTH": "Length (cm)",
+    "SIZE": "Size (cm)",
+    "SOLE_LENGTH_MM": "Sole length (mm)",
+    "LANCING_SYSTEM": "Lacing system",
+    "SAVE": "Save",
+    "CANCEL": "Cancel",
+    "ERROR": "Equipment could not be created.",
+    "MODEL_REQUIRED": "Model is required.",
+    "PRICE_REQUIRED": "Price is required.",
+    "LENGTH_REQUIRED": "Length is required.",
+    "SIZE_REQUIRED": "Size is required.",
+    "SOLE_LENGTH_REQUIRED": "Sole length is required."
   }
 }
