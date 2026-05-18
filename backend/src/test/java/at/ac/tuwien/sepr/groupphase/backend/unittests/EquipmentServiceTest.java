@@ -103,8 +103,8 @@ public class EquipmentServiceTest {
     @Transactional
     @Rollback
     void deleteEquipmentInvalidIdThrowsIllegalArgumentException() {
-        Long invalidId = -1L;
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+        long invalidId = -1L;
+        assertThrows(IllegalArgumentException.class, () ->
             equipmentService.deleteEquipment(invalidId)
         );
 
@@ -138,9 +138,7 @@ public class EquipmentServiceTest {
     public void getEquipmentByIdUnknownIdThrowsNotFoundException() {
         Long invalidId = 99999L;
 
-        assertThrows(NotFoundException.class, () -> {
-            equipmentService.equipmentById(invalidId);
-        });
+        assertThrows(NotFoundException.class, () -> equipmentService.equipmentById(invalidId));
     }
 
     @Test
@@ -210,7 +208,7 @@ public class EquipmentServiceTest {
             "Check that only the correct helmet is found",
             () -> assertThat(result).isNotEmpty(),
             () -> assertThat(result.size()).isEqualTo(1),
-            () -> assertThat(result.get(0).getModel()).isEqualTo("Atomic Redster Helmet")
+            () -> assertThat(result.getFirst().getModel()).isEqualTo("Atomic Redster Helmet")
         );
     }
 

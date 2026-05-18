@@ -86,7 +86,7 @@ public class EquipmentEndpointTest {
 
     @Test
     public void deleteEquipmentNegTest() throws Exception {
-        Long nonExistentId = 99999L;
+        long nonExistentId = 99999L;
 
         MvcResult result = mockMvc.perform(delete("/api/v1/equipment/" + nonExistentId))
             .andReturn();
@@ -162,7 +162,7 @@ public class EquipmentEndpointTest {
 
     @Test
     public void updateEquipmentNotFoundNegTest() throws Exception {
-        Long nonExistentId = 99999L;
+        long nonExistentId = 99999L;
 
         String patchJson = """
         {
