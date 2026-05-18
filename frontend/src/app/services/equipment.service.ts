@@ -44,12 +44,11 @@ export class EquipmentService {
     return this.httpClient.post<Equipment>(this.equipmentBaseUri, equipment);
   }
 
-  //TODO maybe change to EquipmentUpdate
   /**
    * Updates equipment in backend.
    */
   update(id: number, equipment: EquipmentUpdate): Observable<Equipment> {
-    return this.httpClient.put<Equipment>(`${this.equipmentBaseUri}/${id}`, equipment);
+    return this.httpClient.patch<Equipment>(`${this.equipmentBaseUri}/${id}`, equipment);
 
   }
 

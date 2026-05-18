@@ -92,8 +92,6 @@ export class EquipmentCreateEditComponent {
           lancingSystem: data.lancingSystem
         };
 
-        //TODO If your backend returns the type-specific fields too, map them here as well.
-
         this.loading = false;
       },
       error: (err) => {
