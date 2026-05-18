@@ -6,7 +6,7 @@ import {AuthGuard} from './guards/auth.guard';
 import {MessageComponent} from './components/message/message.component';
 import { StaffComponent } from './components/staff/staff.component';
 import { InventoryComponent } from './components/staff/inventory/inventory.component';
-import { EquipmentCreateComponent } from "./components/staff/inventory/equipment-create/equipment-create.component";
+import { EquipmentCreateEditComponent, EquipmentCreateEditMode } from "./components/staff/inventory/equipment-create-edit/equipment-create-edit.component";
 
 const routes: Routes = [
   {path: '', component: HomeComponent},
@@ -15,7 +15,8 @@ const routes: Routes = [
 
   {path: 'staff', component: StaffComponent, children: [
       {path: 'inventory', component: InventoryComponent},
-      {path: 'inventory/create', component: EquipmentCreateComponent},
+      {path: 'inventory/create', component: EquipmentCreateEditComponent, data: {mode: EquipmentCreateEditMode.create}},
+      {path: 'inventory/edit/:id', component: EquipmentCreateEditComponent, data: {mode: EquipmentCreateEditMode.edit}},
   ]},
   {path: 'customer', component: HomeComponent} //TODO: Replace later with actual component for customer
 ];

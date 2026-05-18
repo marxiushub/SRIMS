@@ -57,6 +57,13 @@
             <td>
               <button
                 type="button"
+                class="btn btn-sm btn-outline-primary me-2"
+                (click)="openEditPage(item)">
+                {{ 'EQUIPMENT_EDIT.TITLE' | translate }}
+              </button>
+
+              <button
+                type="button"
                 class="btn btn-sm btn-outline-danger"
                 (click)="openDeleteDialog(item)">
                 {{ 'INVENTORY.DELETE' | translate }}

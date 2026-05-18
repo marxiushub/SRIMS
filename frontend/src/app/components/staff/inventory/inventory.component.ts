@@ -44,6 +44,10 @@ export class InventoryComponent implements OnInit{
     this.router.navigate(['/staff/inventory/create']);
   }
 
+  openEditPage(item: Equipment): void {
+    this.router.navigate(['/staff/inventory/edit', item.id])
+  }
+
   openDeleteDialog(item: Equipment): void {
     this.equipmentToDelete = item;
     this.deleteError = undefined;

@@ -63,5 +63,11 @@
     "LENGTH_REQUIRED": "Length is required.",
     "SIZE_REQUIRED": "Size is required.",
     "SOLE_LENGTH_REQUIRED": "Sole length is required."
+  },
+
+  "EQUIPMENT_EDIT": {
+    "TITLE": "Edit",
+    "SAVE": "Update",
+    "ERROR": "Equipment could not be updated."
   }
 }

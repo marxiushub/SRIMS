@@ -63,5 +63,11 @@
     "LENGTH_REQUIRED": "Länge ist erforderlich.",
     "SIZE_REQUIRED": "Größe ist erforderlich.",
     "SOLE_LENGTH_REQUIRED": "Sohlenlänge ist erforderlich."
+  },
+
+  "EQUIPMENT_EDIT": {
+    "TITLE": "Bearbeiten",
+    "SAVE": "Änderungen speichern",
+    "ERROR": "Equipment konnte nicht aktualisiert werden."
   }
 }
