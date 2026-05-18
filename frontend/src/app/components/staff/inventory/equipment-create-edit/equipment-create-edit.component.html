@@ -36,7 +36,9 @@
                   class="form-select"
                   required
                   [(ngModel)]="equipment.type"
-                  (ngModelChange)="onTypeChange()">
+                  [disabled]="mode === EquipmentCreateEditMode.edit"
+                  (ngModelChange)="mode === EquipmentCreateEditMode.create &&
+                   onTypeChange()">
                   @for (type of equipmentTypes; track type) {
                     <option [value]="type">
                       {{ 'EQUIPMENT_TYPE.' + type | translate }}

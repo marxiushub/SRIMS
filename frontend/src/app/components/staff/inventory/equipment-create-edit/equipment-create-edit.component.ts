@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {EquipmentCreation} from "../../../../dtos/equipment-creation";
 import {EquipmentUpdate} from "../../../../dtos/equipment-update";
 import {EquipmentType} from "../../../../dtos/equipmenttype";
@@ -19,7 +19,7 @@ export enum EquipmentCreateEditMode {
   styleUrl: './equipment-create-edit.component.scss',
   standalone: false
 })
-export class EquipmentCreateEditComponent {
+export class EquipmentCreateEditComponent implements OnInit {
   readonly EquipmentCreateEditMode = EquipmentCreateEditMode;
 
   mode: EquipmentCreateEditMode = EquipmentCreateEditMode.create;
