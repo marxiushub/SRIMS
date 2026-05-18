@@ -14,6 +14,13 @@
     "EQUIPMENT_STATUS": "Status",
     "EQUIPMENT_SKILL": "Skill Level",
     "EQUIPMENT_TYP": "Type",
+    "EQUIPMENT_ACTIONS": "Actions",
+    "DELETE": "Delete",
+    "DELETE_TITLE": "Delete Equipment",
+    "DELETE_CONFIRMATION": "Are you sure you want to delete this equipment?",
+    "DELETE_CANCEL": "Cancel",
+    "DELETE_CONFIRM": "Delete",
+    "DELETE_ERROR": "Equipment could not be deleted.",
     "AVAILABLE": "Available",
     "RENTED": "Rented"
   },
