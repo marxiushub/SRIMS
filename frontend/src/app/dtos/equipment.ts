@@ -10,4 +10,9 @@ export interface Equipment {
   status: RentalStatus;
   targetSkillLevel: SkillLevel;
   equipmentType: EquipmentType;
+
+  length?: number;
+  size?: number;
+  soleLengthMm?: number;
+  lancingSystem?: string;
 }
