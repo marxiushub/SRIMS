@@ -59,7 +59,7 @@ public abstract class Equipment {
     @OneToMany(mappedBy = "equipment")
     private List<TimePeriods> timePeriodsList;
 
-    private int unsageDurationDays;
+    private int usageDurationDays;
 
     @Enumerated(EnumType.STRING)
     private SkillLevel targetSkillLevel;
@@ -72,7 +72,7 @@ public abstract class Equipment {
         this.model = model;
         this.price = price;
         this.status = status;
-        unsageDurationDays = 0;
+        usageDurationDays = 0;
         this.targetSkillLevel = targetSkillLevel;
     }
 
@@ -117,11 +117,11 @@ public abstract class Equipment {
     }
 
     public void incrementUsageDurationDays() {
-        this.unsageDurationDays++;
+        this.usageDurationDays++;
     }
 
     public void resetUsageDurationDays() {
-        this.unsageDurationDays = 0;
+        this.usageDurationDays = 0;
     }
 
     public void addTimePeriod(Date start, Date end, PeriodType periodType) {

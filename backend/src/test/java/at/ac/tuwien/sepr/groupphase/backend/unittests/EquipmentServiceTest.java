@@ -112,6 +112,8 @@ public class EquipmentServiceTest {
 
 
     @Test
+    @Transactional
+    @Rollback
     void getEquipmentByTypeUnknownTypeThrowsNotFound() {
         NotFoundException exception = assertThrows(NotFoundException.class, () ->
             equipmentService.equipmentByType("invalid_type"));
@@ -135,6 +137,8 @@ public class EquipmentServiceTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void getEquipmentByIdUnknownIdThrowsNotFoundException() {
         Long invalidId = 99999L;
 
