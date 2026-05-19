@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.HelmetDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.HelmetUpdateDto;
@@ -102,8 +103,8 @@ public class EquipmentServiceTest {
     @Transactional
     @Rollback
     void deleteEquipmentInvalidIdThrowsIllegalArgumentException() {
-        Long invalidId = -1L;
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+        long invalidId = -1L;
+        assertThrows(IllegalArgumentException.class, () ->
             equipmentService.deleteEquipment(invalidId)
         );
 
@@ -137,9 +138,7 @@ public class EquipmentServiceTest {
     public void getEquipmentByIdUnknownIdThrowsNotFoundException() {
         Long invalidId = 99999L;
 
-        assertThrows(NotFoundException.class, () -> {
-            equipmentService.equipmentById(invalidId);
-        });
+        assertThrows(NotFoundException.class, () -> equipmentService.equipmentById(invalidId));
     }
 
     @Test
@@ -190,5 +189,56 @@ public class EquipmentServiceTest {
 
         assertTrue(exception.getMessage().contains("Type mismatch"),
             "Exception message should indicate type mismatch");
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void searchEquipment_withSpecificTypeAndModel_returnsFilteredList() {
+        helmetRepository.save(new Helmet("Atomic Redster Helmet", 120.0, 58.0, RentalStatus.FREE, SkillLevel.ADVANCED));
+        helmetRepository.save(new Helmet("Fischer Ranger Helmet", 100.0, 56.0, RentalStatus.FREE, SkillLevel.BEGINNER));
+
+        EquipmentSearchDto searchDto = new EquipmentSearchDto();
+        searchDto.setType(EquipmentType.HELMET);
+        searchDto.setModel("Atomic");
+
+        List<EquipmentDetailDto> result = equipmentService.searchEquipment(searchDto);
+
+        assertAll(
+            "Check that only the correct helmet is found",
+            () -> assertThat(result).isNotEmpty(),
+            () -> assertThat(result.size()).isEqualTo(1),
+            () -> assertThat(result.getFirst().getModel()).isEqualTo("Atomic Redster Helmet")
+        );
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void searchEquipment_withNullDto_returnsAllItemsSafely() {
+        helmetRepository.save(new Helmet("Universal Helmet", 80.0, 54.0, RentalStatus.FREE, SkillLevel.BEGINNER));
+
+        List<EquipmentDetailDto> result = equipmentService.searchEquipment(null);
+
+        assertAll(
+            "Check if an empty/null DTO is treated as 'find all'",
+            () -> assertThat(result).isNotEmpty(),
+            () -> assertTrue(result.stream().anyMatch(dto -> dto.getModel().equals("Universal Helmet")))
+        );
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void searchEquipment_withNoMatchingCriteria_returnsEmptyList() {
+        helmetRepository.save(new Helmet("Standard Helmet", 80.0, 54.0, RentalStatus.FREE, SkillLevel.BEGINNER));
+
+        EquipmentSearchDto searchDto = new EquipmentSearchDto();
+        searchDto.setType(EquipmentType.SKI);
+        searchDto.setModel("Ghost Ski");
+
+        List<EquipmentDetailDto> result = equipmentService.searchEquipment(searchDto);
+
+        assertThat(result).isEmpty();
     }
 }

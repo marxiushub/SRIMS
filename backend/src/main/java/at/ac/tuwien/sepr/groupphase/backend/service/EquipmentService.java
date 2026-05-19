@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 
@@ -11,14 +12,6 @@ import java.util.List;
  * Service interface for managing equipment-related operations.
  */
 public interface EquipmentService {
-
-
-    /**
-     * Retrieves a list of all equipment available in the system.
-     *
-     * @return a list of {@link EquipmentDetailDto} representing the equipment information
-     */
-    List<EquipmentDetailDto> allEquipment();
 
     /**
      * Retrieves a list of equipment filtered by the specified type.
@@ -51,6 +44,26 @@ public interface EquipmentService {
      */
     void deleteEquipment(Long id);
 
-    @org.springframework.transaction.annotation.Transactional
+    /**
+     * Partially updates an existing piece of equipment.
+     * Only the non-null fields provided in the {@code updateDto} will be applied to the existing entity.
+     *
+     * @param id the unique identifier of the equipment to update
+     * @param updateDto the data transfer object containing the new values
+     * @return an {@link EquipmentDetailDto} representing the updated equipment
+     * @throws at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException if no equipment with the given ID exists in the database
+     * @throws IllegalArgumentException if the type specified in the {@code updateDto} does not match the actual type of the existing equipment
+     */
     EquipmentDetailDto updateEquipment(Long id, EquipmentUpdateDto updateDto);
+
+    /**
+     * Searches for equipment based on dynamic criteria.
+     * All properties within the {@code searchDto} are optional. If a property is {@code null},
+     * it will be ignored during the search process. If the entire DTO is {@code null} or empty,
+     * all available equipment will be returned.
+     *
+     * @param searchDto the data transfer object containing the optional filter parameters
+     * @return a list of {@link EquipmentDetailDto} matching the given criteria; an empty list if no matches are found
+     */
+    List<EquipmentDetailDto> searchEquipment(EquipmentSearchDto searchDto);
 }
