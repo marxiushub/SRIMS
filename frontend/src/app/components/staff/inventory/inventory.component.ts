@@ -1,8 +1,12 @@
-import { Component, OnInit } from '@angular/core';
-import { Equipment } from '../../../dtos/equipment';
-import { EquipmentService } from '../../../services/equipment.service';
-import { TranslateService } from '@ngx-translate/core';
-import { Router } from '@angular/router';
+import {Component, OnInit} from '@angular/core';
+import {Equipment} from '../../../dtos/equipment';
+import {EquipmentService} from '../../../services/equipment.service';
+import {TranslateService} from '@ngx-translate/core';
+import {Router} from '@angular/router';
+import {EquipmentType} from "../../../dtos/equipmenttype";
+import {RentalStatus} from "../../../dtos/rentalstatus";
+import {SkillLevel} from "../../../dtos/skilllevel";
+import {EquipmentSearch} from '../../../dtos/equipment-search';
 
 @Component({
   selector: 'app-inventory',
@@ -10,7 +14,7 @@ import { Router } from '@angular/router';
   styleUrl: './inventory.component.scss',
   standalone: false
 })
-export class InventoryComponent implements OnInit{
+export class InventoryComponent implements OnInit {
 
   equipment: Equipment[] = [];
   loading = false;
@@ -19,7 +23,35 @@ export class InventoryComponent implements OnInit{
   deleteLoading = false;
   deleteError?: string;
 
-  constructor (private equipmentService: EquipmentService, public translateService: TranslateService, private router: Router) { }
+  modelFilter = '';
+  typeFilter = null;
+  statusFilter = null;
+  skillFilter = null;
+
+  equipmentTypes = [
+    EquipmentType.HELMET,
+    EquipmentType.SKI,
+    EquipmentType.POLE,
+    EquipmentType.SKIBOOT,
+    EquipmentType.SNOWBOARD,
+    EquipmentType.SNOWBOARDBOOT,
+  ];
+
+  rentalStatuses = [
+    RentalStatus.FREE,
+    RentalStatus.RESERVED,
+    RentalStatus.RENTED,
+    RentalStatus.MAINTENANCE
+  ];
+
+  skillLevels = [
+    SkillLevel.BEGINNER,
+    SkillLevel.INTERMEDIATE,
+    SkillLevel.ADVANCED
+  ];
+
+  constructor(private equipmentService: EquipmentService, public translateService: TranslateService, private router: Router) {
+  }
 
   ngOnInit(): void {
     this.loadEquipment();
@@ -79,13 +111,13 @@ export class InventoryComponent implements OnInit{
 
       error: (err) => {
         console.error('Failed to delete equipment', err);
-        this.deleteError = 'Eqipment could not be deleted.';
+        this.deleteError = 'Equipment could not be deleted.';
         this.deleteLoading = false;
       }
     });
   }
 
-  getStatusClass(status: string):string {
+  getStatusClass(status: string): string {
     switch (status) {
       case 'FREE':
         return 'bg-success';
@@ -98,5 +130,27 @@ export class InventoryComponent implements OnInit{
       default:
         return 'bg-light text-dark';
     }
+  }
+
+  searchEquipment(): void {
+    this.loading = true;
+
+    const searchRequest: EquipmentSearch = {
+      model: this.modelFilter.trim() || undefined,
+      type: this.typeFilter ?? undefined,
+      status: this.statusFilter ?? undefined,
+      targetSkillLevel: this.skillFilter ?? undefined,
+    };
+
+    this.equipmentService.search(searchRequest).subscribe({
+      next: (data) => {
+        this.equipment = data;
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Failed to search equipment', err);
+        this.loading = false;
+      }
+    });
   }
 }
