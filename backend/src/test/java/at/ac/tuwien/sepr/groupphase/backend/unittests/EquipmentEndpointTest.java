@@ -10,10 +10,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.context.ActiveProfiles;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.MediaType;
@@ -23,6 +26,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+
 import org.springframework.test.web.servlet.MvcResult;
 
 @ActiveProfiles({"test", "datagenerator"})
@@ -36,34 +40,40 @@ public class EquipmentEndpointTest {
     private EquipmentService equipmentService;
 
     @Test
-    public void createEquipServicePosTest() throws Exception{
+    public void createEquipment_withValidDto_returns200AndSavedData() {
 
         String json = """
-        {
-          "type": "HELMET",
-          "price": 199.99,
-          "model": "Poc Skull X",
-          "status": "FREE",
-          "targetSkillLevel": "ADVANCED",
-          "size": 58
+            {
+              "type": "HELMET",
+              "price": 199.99,
+              "model": "Poc Skull X",
+              "status": "FREE",
+              "targetSkillLevel": "ADVANCED",
+              "size": 58
+            }
+            """;
+
+        try {
+            MvcResult result = mockMvc.perform(post("/api/v1/equipment")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(json))
+                .andReturn();
+
+            String responseBody = result.getResponse().getContentAsString();
+
+            assertAll(
+                "Check if equipment was successfully created",
+                () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
+                () -> assertThat(responseBody).contains("Poc Skull X"),
+                () -> assertThat(responseBody).contains("199.99")
+            );
+        } catch (Exception e) {
+            fail("Test failed because of unexpected exception");
         }
-        """;
-        MvcResult result = mockMvc.perform(post("/api/v1/equipment")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
-            .andReturn();
-
-
-        assertThat(result.getResponse().getStatus()).isEqualTo(200);
-
-        String responseBody = result.getResponse().getContentAsString();
-
-        assertThat(responseBody).contains("Poc Skull X");
-        assertThat(responseBody).contains("199.99");
     }
 
     @Test
-    public void deleteEquipmentPosTest() throws Exception {
+    public void deleteEquipment_withValidId_returns204AndDeletesEntity() {
         SkiCreationDto dto = new SkiCreationDto();
         dto.setPrice(67);
         dto.setModel("Test Ski für Delete");
@@ -74,28 +84,40 @@ public class EquipmentEndpointTest {
         Equipment savedEquip = equipmentService.createEquipment(dto);
         Long generatedId = savedEquip.getId();
 
-        MvcResult result = mockMvc.perform(delete("/api/v1/equipment/" + generatedId))
-            .andReturn();
+        try {
 
 
-        assertThat(result.getResponse().getStatus()).isEqualTo(204);
+            MvcResult result = mockMvc.perform(delete("/api/v1/equipment/" + generatedId))
+                .andReturn();
 
-       assertThrows(NotFoundException.class, () ->
-            equipmentService.deleteEquipment(generatedId));
+
+            assertAll(
+                "Check that the status is 204 and the element was really deleted from the DB",
+                () -> assertThat(result.getResponse().getStatus()).isEqualTo(204),
+                () -> assertThrows(NotFoundException.class, () -> equipmentService.deleteEquipment(generatedId))
+            );
+        } catch (Exception e) {
+            fail("Test failed because of unexpected exception");
+        }
     }
 
     @Test
-    public void deleteEquipmentNegTest() throws Exception {
+    public void deleteEquipment_withNonExistentId_returns404AndThrowsNotFoundException() {
         long nonExistentId = 99999L;
 
-        MvcResult result = mockMvc.perform(delete("/api/v1/equipment/" + nonExistentId))
-            .andReturn();
+        try {
 
-        assertThat(result.getResponse().getStatus()).isEqualTo(404);
+            MvcResult result = mockMvc.perform(delete("/api/v1/equipment/" + nonExistentId))
+                .andReturn();
+
+            assertThat(result.getResponse().getStatus()).isEqualTo(404);
+        } catch (Exception e) {
+            fail("Test failed because of unexpected exception");
+        }
     }
 
     @Test
-    public void updateEquipmentPosTest() throws Exception {
+    public void updateEquipment_withValidDto_returns200AndUpdatedFields() {
         SkiCreationDto dto = new SkiCreationDto();
         dto.setPrice(100);
         dto.setModel("Atomic Ski");
@@ -108,32 +130,37 @@ public class EquipmentEndpointTest {
 
 
         String patchJson = """
-        {
-          "type": "SKI",
-          "price": 149.99,
-          "length": 165
+            {
+              "type": "SKI",
+              "price": 149.99,
+              "length": 165
+            }
+            """;
+
+        try {
+
+            MvcResult result = mockMvc.perform(patch("/api/v1/equipment/" + generatedId)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(patchJson))
+                .andReturn();
+
+            String responseBody = result.getResponse().getContentAsString();
+
+            assertAll(
+                "Check HTTP-Status and whether only the sent fields were changed",
+                () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
+                () -> assertThat(responseBody).contains("149.99"),
+                () -> assertThat(responseBody).contains("165"),
+                () -> assertThat(responseBody).contains("Atomic Ski"),
+                () -> assertThat(responseBody).contains("FREE")
+            );
+        } catch (Exception e) {
+            fail("Test failed because of unexpected exception");
         }
-        """;
-
-
-        MvcResult result = mockMvc.perform(patch("/api/v1/equipment/" + generatedId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(patchJson))
-            .andReturn();
-
-        assertThat(result.getResponse().getStatus()).isEqualTo(200);
-
-        String responseBody = result.getResponse().getContentAsString();
-
-        assertThat(responseBody).contains("149.99");
-        assertThat(responseBody).contains("165");
-
-        assertThat(responseBody).contains("Atomic Ski");
-        assertThat(responseBody).contains("FREE");
     }
 
     @Test
-    public void updateEquipmentTypeMismatchNegTest() throws Exception {
+    public void updateEquipment_withMismatchedType_returns400AndThrowsIllegalArgumentException() {
         SkiCreationDto dto = new SkiCreationDto();
         dto.setPrice(80);
         dto.setModel("Type-Conflict Ski");
@@ -145,43 +172,71 @@ public class EquipmentEndpointTest {
         Long generatedId = savedEquip.getId();
 
         String invalidPatchJson = """
-        {
-          "type": "HELMET",
-          "price": 50.0,
-          "size": 58
+            {
+              "type": "HELMET",
+              "price": 50.0,
+              "size": 58
+            }
+            """;
+
+        try {
+
+
+            MvcResult result = mockMvc.perform(patch("/api/v1/equipment/" + generatedId)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(invalidPatchJson))
+                .andReturn();
+
+            Exception resolvedException = result.getResolvedException();
+
+            assertAll(
+                "Check that a mismatched type (helmet update on a ski entity) is rejected with 400",
+                () -> assertThat(result.getResponse().getStatus()).isEqualTo(400),
+                () -> assertThat(resolvedException).isNotNull(),
+                () -> assertThat(resolvedException).isInstanceOf(IllegalArgumentException.class)
+            );
+
+
+        } catch (Exception e) {
+            fail("Test failed because of unexpected exception");
         }
-        """;
-
-        MvcResult result = mockMvc.perform(patch("/api/v1/equipment/" + generatedId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(invalidPatchJson))
-            .andReturn();
-
-        assertThat(result.getResponse().getStatus()).isEqualTo(400);
     }
 
     @Test
-    public void updateEquipmentNotFoundNegTest() throws Exception {
+    public void updateEquipment_withNonExistentId_returns404AndThrowsNotFoundException() {
         long nonExistentId = 99999L;
 
         String patchJson = """
-        {
-          "type": "SKI",
-          "price": 120.0,
-          "length": 150
+            {
+              "type": "SKI",
+              "price": 120.0,
+              "length": 150
+            }
+            """;
+
+        try {
+
+
+            MvcResult result = mockMvc.perform(patch("/api/v1/equipment/" + nonExistentId)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(patchJson))
+                .andReturn();
+
+            Exception resolvedException = result.getResolvedException();
+
+            assertAll(
+                "test, if Update with unknown ID throws NotFoundException",
+                () -> assertThat(result.getResponse().getStatus()).isEqualTo(404),
+                () -> assertThat(resolvedException).isNotNull(),
+                () -> assertThat(resolvedException).isInstanceOf(NotFoundException.class)
+            );
+        } catch (Exception e) {
+            fail("Test failed because of unexpected exception");
         }
-        """;
-
-        MvcResult result = mockMvc.perform(patch("/api/v1/equipment/" + nonExistentId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(patchJson))
-            .andReturn();
-
-        assertThat(result.getResponse().getStatus()).isEqualTo(404);
     }
 
     @Test
-    public void searchEquipment_withSpecificTypeAndModel_returnsFilteredList() throws Exception {
+    public void searchEquipment_withSpecificTypeAndModel_returnsFilteredList() {
         SkiCreationDto ski1 = new SkiCreationDto();
         ski1.setPrice(100);
         ski1.setModel("Atomic Redster");
@@ -198,25 +253,30 @@ public class EquipmentEndpointTest {
         ski2.setLength(160);
         equipmentService.createEquipment(ski2);
 
-        MvcResult result = mockMvc.perform(get("/api/v1/equipment")
-                .param("type", "SKI")
-                .param("model", "atomic")
-                .contentType(MediaType.APPLICATION_JSON))
-            .andReturn();
+        try {
+
+            MvcResult result = mockMvc.perform(get("/api/v1/equipment")
+                    .param("type", "SKI")
+                    .param("model", "atomic")
+                    .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
 
 
-        String responseBody = result.getResponse().getContentAsString();
+            String responseBody = result.getResponse().getContentAsString();
 
-        assertAll(
-            "test if only the ski with the correct model was found",
-            () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
-            () -> assertThat(responseBody).contains("Atomic Redster"),
-            () -> assertThat(responseBody).doesNotContain("Fischer Ranger")
-        );
+            assertAll(
+                "test if only the ski with the correct model was found",
+                () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
+                () -> assertThat(responseBody).contains("Atomic Redster"),
+                () -> assertThat(responseBody).doesNotContain("Fischer Ranger")
+            );
+        } catch (Exception e) {
+            fail("Test failed because of unexpected exception");
+        }
     }
 
     @Test
-    public void searchEquipment_withoutParameters_returnsAllItems() throws Exception {
+    public void searchEquipment_withoutParameters_returnsAllItems() {
         SkiCreationDto ski = new SkiCreationDto();
         ski.setPrice(100);
         ski.setModel("Universal Ski");
@@ -225,23 +285,26 @@ public class EquipmentEndpointTest {
         ski.setLength(160);
         equipmentService.createEquipment(ski);
 
+        try {
 
-        MvcResult result = mockMvc.perform(get("/api/v1/equipment")
-                .contentType(MediaType.APPLICATION_JSON))
-            .andReturn();
+            MvcResult result = mockMvc.perform(get("/api/v1/equipment")
+                    .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
 
-        String responseBody = result.getResponse().getContentAsString();
+            String responseBody = result.getResponse().getContentAsString();
 
-        assertAll(
-            "test if it returns everything without parameters",
-            () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
-            () -> assertThat(responseBody).contains("Universal Ski")
-        );
+            assertAll(
+                "test if it returns everything without parameters",
+                () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
+                () -> assertThat(responseBody).contains("Universal Ski")
+            );
+        } catch (Exception e) {
+            fail("Test failed because of unexpected exception");
+        }
     }
 
     @Test
-    public void searchEquipment_withNoMatchingCriteria_returnsEmptyList() throws Exception {
-        // Arrange (Given)
+    public void searchEquipment_withNoMatchingCriteria_returnsEmptyList() {
         SkiCreationDto ski = new SkiCreationDto();
         ski.setPrice(100);
         ski.setModel("Universal Ski");
@@ -250,41 +313,49 @@ public class EquipmentEndpointTest {
         ski.setLength(160);
         equipmentService.createEquipment(ski);
 
-        MvcResult result = mockMvc.perform(get("/api/v1/equipment")
-                .param("type", "SNOWBOARD")
-                .contentType(MediaType.APPLICATION_JSON))
-            .andReturn();
+        try {
 
-        String responseBody = result.getResponse().getContentAsString();
+            MvcResult result = mockMvc.perform(get("/api/v1/equipment")
+                    .param("type", "SNOWBOARD")
+                    .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
 
-        assertAll(
-            "Check that an empty search is correctly processed as an empty JSON array",
-            () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
-            () -> assertThat(responseBody).isEqualTo("[]"),
-            () -> assertThat(responseBody).doesNotContain("Universal Ski")
-        );
+            String responseBody = result.getResponse().getContentAsString();
+
+            assertAll(
+                "Check that an empty search is correctly processed as an empty JSON array",
+                () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
+                () -> assertThat(responseBody).isEqualTo("[]"),
+                () -> assertThat(responseBody).doesNotContain("Universal Ski")
+            );
+        } catch (Exception e) {
+            fail("Test failed because of unexpected exception");
+        }
     }
 
     @Test
-    public void searchEquipment_withInvalidEnumParameter_returns400BadRequest() throws Exception {
+    public void searchEquipment_withInvalidEnumParameter_returns400BadRequest() {
+
+        try {
 
 
-        MvcResult result = mockMvc.perform(get("/api/v1/equipment")
-                .param("type", "UFO")
-                .contentType(MediaType.APPLICATION_JSON))
-            .andReturn();
+            MvcResult result = mockMvc.perform(get("/api/v1/equipment")
+                    .param("type", "UFO")
+                    .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
 
 
-        Exception resolvedException = result.getResolvedException();
+            Exception resolvedException = result.getResolvedException();
 
-        assertAll(
-            "Check if invalid enum values in the URL parameter are blocked as 400 Bad Request",
-            () -> assertThat(result.getResponse().getStatus()).isEqualTo(400),
-            () -> assertThat(resolvedException).isNotNull(),
-            () -> assertThat(resolvedException.getClass().getSimpleName()).contains("MethodArgumentNotValidException")        );
+            assertAll(
+                "Check if invalid enum values in the URL parameter are blocked as 400 Bad Request",
+                () -> assertThat(result.getResponse().getStatus()).isEqualTo(400),
+                () -> assertThat(resolvedException).isNotNull(),
+                () -> assertThat(resolvedException.getClass().getSimpleName()).contains("MethodArgumentNotValidException"));
+        } catch (Exception e) {
+            fail("Test failed because of unexpected exception");
+        }
     }
-
-
 
 
 }
