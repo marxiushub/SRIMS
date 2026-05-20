@@ -48,7 +48,7 @@ public class EquipmentEndpoint {
      */
     @PermitAll
     @PostMapping()
-    public Equipment createEquipment(@Valid @RequestBody EquipmentCreationDto dto) {
+    public List<Equipment> createEquipment(@Valid @RequestBody EquipmentCreationDto dto) {
         LOGGER.info("POST /api/v1/equipment - {}", dto);
         return equipmentService.createEquipment(dto);
     }

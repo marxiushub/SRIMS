@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -98,19 +99,22 @@ public class EquipmentServiceImpl implements EquipmentService {
     }
 
     @Override
-    public Equipment createEquipment(EquipmentCreationDto dto) {
+    public List<Equipment> createEquipment(EquipmentCreationDto dto) {
         LOGGER.trace("Creation of an {}", dto.getType());
 
-        Equipment equipment = dto.toEntity();
 
+        List<Equipment> created = new ArrayList<>();
         JpaRepository<Equipment, Long> repo =
             (JpaRepository<Equipment, Long>) repositoryMap.get(dto.getType());
 
         if (repo == null) {
             throw new IllegalArgumentException("Unknown equipment type: " + dto.getType());
         }
-
-        return repo.save(equipment);
+        for (int i = 0; i < dto.getCreationNumber(); i++) {
+            Equipment equipment = dto.toEntity();
+            created.add(repo.save(equipment));
+        }
+        return created;
     }
 
     @Override

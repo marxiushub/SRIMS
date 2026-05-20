@@ -35,7 +35,7 @@ public interface EquipmentService {
      * @param dto the data transfer object containing the information needed to create the equipment
      * @return the created {@link Equipment} entity
      */
-    Equipment createEquipment(EquipmentCreationDto dto);
+    List<Equipment> createEquipment(EquipmentCreationDto dto);
 
     /**
      * Deletes an equipment entry from the system based on the specified type and ID.

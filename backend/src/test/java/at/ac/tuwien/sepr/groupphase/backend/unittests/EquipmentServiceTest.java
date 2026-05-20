@@ -62,14 +62,16 @@ public class EquipmentServiceTest {
         dto.setStatus(RentalStatus.FREE);
         dto.setTargetSkillLevel(SkillLevel.ADVANCED);
         dto.setLength(200);
+        dto.setCreationNumber(1);
 
-        Equipment equip = equipmentService.createEquipment(dto);
+        List<Equipment> equip = equipmentService.createEquipment(dto);
 
         assertAll(
             "Verify that the equipment is saved correctly and assigned an ID",
             () -> assertThat(equip).isNotNull(),
-            () -> assertThat(equip).isInstanceOf(Ski.class),
-            () -> assertThat(equip.getId()).isNotNull()
+            () -> assertThat(equip).hasSize(1),
+            () -> assertThat(equip.get(0)).isInstanceOf(Ski.class),
+            () -> assertThat(equip.get(0).getId()).isNotNull()
         );
 
     }
