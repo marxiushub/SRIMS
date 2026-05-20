@@ -1,20 +1,23 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule } from "@ngx-translate/core";
-import { of, throwError } from "rxjs";
-import { provideHttpClient } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
+import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {TranslateModule} from "@ngx-translate/core";
+import {of, throwError} from "rxjs";
+import {provideHttpClient} from "@angular/common/http";
+import {provideHttpClientTesting} from "@angular/common/http/testing";
 
 import {InventoryComponent} from "./inventory.component";
 import {EquipmentService} from "../../../services/equipment.service";
 import {RouterModule} from "@angular/router";
 
+import {EquipmentType} from '../../../dtos/equipmenttype';
+import {RentalStatus} from '../../../dtos/rentalstatus';
+import {SkillLevel} from '../../../dtos/skilllevel';
 
 describe('InventoryComponent', () => {
   let component: InventoryComponent;
   let fixture: ComponentFixture<InventoryComponent>;
   let equipmentServiceMock: jasmine.SpyObj<EquipmentService>;
 
-  const testEquipment : any[] = [
+  const testEquipment: any[] = [
     {
       id: 1,
       model: 'Test Ski',
@@ -34,9 +37,10 @@ describe('InventoryComponent', () => {
   ]
 
   beforeEach(async () => {
-    equipmentServiceMock = jasmine.createSpyObj('EqipmentService', ['getAll', 'delete']);
+    equipmentServiceMock = jasmine.createSpyObj('EquipmentService', ['getAll', 'delete', 'search']);
     equipmentServiceMock.getAll.and.returnValue(of([]));
     equipmentServiceMock.delete.and.returnValue(of(void 0));
+    equipmentServiceMock.search.and.returnValue(of([]));
 
 
     await TestBed.configureTestingModule({
@@ -49,7 +53,7 @@ describe('InventoryComponent', () => {
         provideHttpClientTesting(),
         {provide: EquipmentService, useValue: equipmentServiceMock},]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(InventoryComponent);
     component = fixture.componentInstance;
@@ -93,4 +97,75 @@ describe('InventoryComponent', () => {
     expect(component.deleteLoading).toBeFalse();
   });
 
+  it('should call search with trimmed model and selected filters', () => {
+    component.modelFilter = 'Test Ski';
+    component.typeFilter = EquipmentType.SKI as any;
+    component.statusFilter = RentalStatus.FREE as any;
+    component.skillFilter = SkillLevel.BEGINNER as any;
+
+    equipmentServiceMock.search.and.returnValue(of([...testEquipment]));
+
+    component.searchEquipment();
+
+    expect(equipmentServiceMock.search).toHaveBeenCalledWith({
+      model: 'Test Ski',
+      type: EquipmentType.SKI,
+      status: RentalStatus.FREE,
+      targetSkillLevel: SkillLevel.BEGINNER
+    });
+    expect(component.loading).toBeFalse();
+  });
+
+  it('should pass undefined for empty filters', () => {
+    component.modelFilter = '   ';
+    component.typeFilter = null;
+    component.statusFilter = null;
+    component.skillFilter = null;
+
+    equipmentServiceMock.search.and.returnValue(of([]));
+
+    component.searchEquipment();
+
+    expect(equipmentServiceMock.search).toHaveBeenCalledWith({
+      model: undefined,
+      type: undefined,
+      status: undefined,
+      targetSkillLevel: undefined
+    });
+  });
+
+  it('should clear filters, reset sort, and reload equipment', () => {
+    component.modelFilter = 'foo';
+    component.typeFilter = EquipmentType.SKI as any;
+    component.statusFilter = RentalStatus.FREE as any;
+    component.skillFilter = SkillLevel.BEGINNER as any;
+    component.priceSortDirection = 'desc';
+
+    const loaded = [
+      {...testEquipment[0], id: 1, price: 20},
+      {...testEquipment[1], id: 2, price: 10}
+    ];
+    equipmentServiceMock.getAll.and.returnValue(of(loaded as any));
+
+    component.clearFilters();
+
+    expect(component.modelFilter).toBe('');
+    expect(component.typeFilter).toBeNull();
+    expect(component.statusFilter).toBeNull();
+    expect(component.skillFilter).toBeNull();
+    expect(component.priceSortDirection).toBe('asc');
+    expect(equipmentServiceMock.getAll).toHaveBeenCalled();
+    expect(component.equipment.map(e => e.id)).toEqual([2, 1]); // asc after reload
+  });
+
+  it('should set loading false when search fails', () => {
+    component.loading = false;
+    equipmentServiceMock.search.and.returnValue(
+      throwError(() => new Error('search failed'))
+    );
+
+    component.searchEquipment();
+
+    expect(component.loading).toBeFalse();
+  });
 });
