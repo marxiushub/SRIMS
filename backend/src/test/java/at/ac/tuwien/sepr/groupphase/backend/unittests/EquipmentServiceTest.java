@@ -53,7 +53,7 @@ public class EquipmentServiceTest {
     @Test
     @Transactional
     @Rollback
-    public void equipmentCreationTest() {
+    public void createEquipment_withValidDto_returnsSavedEquipmentWithId() {
 
         SkiCreationDto dto = new SkiCreationDto();
 
@@ -65,9 +65,12 @@ public class EquipmentServiceTest {
 
         Equipment equip = equipmentService.createEquipment(dto);
 
-        assertThat(equip != null);
-        assertThat(equip instanceof Ski);
-        assertThat(equip.getId()).isNotNull();
+        assertAll(
+            "Verify that the equipment is saved correctly and assigned an ID",
+            () -> assertThat(equip).isNotNull(),
+            () -> assertThat(equip).isInstanceOf(Ski.class),
+            () -> assertThat(equip.getId()).isNotNull()
+        );
 
     }
 
@@ -145,7 +148,6 @@ public class EquipmentServiceTest {
     @Transactional
     @Rollback
     void updateEquipment_validPartialUpdate_updatesOnlyProvidedFieldsAndReturnsDto() {
-        // Arrange: Ein existierendes Equipment in der DB anlegen
         Helmet savedHelmet = helmetRepository.save(
             new Helmet("Poc Skull", 199.99, 58.0, RentalStatus.FREE, SkillLevel.BEGINNER)
         );
@@ -157,7 +159,6 @@ public class EquipmentServiceTest {
 
         EquipmentDetailDto result = equipmentService.updateEquipment(id, updateDto);
 
-        assertThat(result).isNotNull();
         assertThat(result).isInstanceOf(HelmetDetailDto.class);
 
         HelmetDetailDto helmetResult = (HelmetDetailDto) result;
@@ -187,8 +188,11 @@ public class EquipmentServiceTest {
             equipmentService.updateEquipment(helmetId, mismatchDto)
         );
 
-        assertTrue(exception.getMessage().contains("Type mismatch"),
-            "Exception message should indicate type mismatch");
+        assertAll(
+            "Verify the exception details when updating a helmet with ski data",
+            () -> assertThat(exception).isNotNull(),
+            () -> assertThat(exception.getMessage()).containsIgnoringCase("Type mismatch")
+        );
     }
 
     @Test
