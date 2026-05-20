@@ -24,7 +24,10 @@
     "EQUIPMENT_TYP": "Typ",
     "AVAILABLE": "Verfügbar",
     "RENTED": "Verliehen",
-    "EQUIPMENT_ALL": "Alle"
+    "EQUIPMENT_ALL": "Alle",
+    "CLEAR": "Zurücksetzen",
+    "LOWEST_FIRST": "Preis aufsteigend",
+    "HIGHEST_FIRST": "Preis absteigend"
   },
   "RENTAL_STATUS": {
     "FREE": "Verfügbar",

@@ -24,7 +24,10 @@
     "DELETE_ERROR": "Equipment could not be deleted.",
     "AVAILABLE": "Available",
     "RENTED": "Rented",
-    "EQUIPMENT_ALL": "All"
+    "EQUIPMENT_ALL": "All",
+    "CLEAR": "Clear",
+    "LOWEST_FIRST": "Lowest first",
+    "HIGHEST_FIRST": "Highest first"
   },
   "RENTAL_STATUS": {
     "FREE": "Available",

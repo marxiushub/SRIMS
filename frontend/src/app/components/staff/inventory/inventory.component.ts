@@ -27,6 +27,7 @@ export class InventoryComponent implements OnInit {
   typeFilter = null;
   statusFilter = null;
   skillFilter = null;
+  priceSortDirection: 'asc' | 'desc' = 'asc';
 
   equipmentTypes = [
     EquipmentType.HELMET,
@@ -62,7 +63,7 @@ export class InventoryComponent implements OnInit {
 
     this.equipmentService.getAll().subscribe({
       next: (data) => {
-        this.equipment = data;
+        this.equipment = this.sortByPrice(data);
         this.loading = false;
       },
       error: (err) => {
@@ -144,7 +145,7 @@ export class InventoryComponent implements OnInit {
 
     this.equipmentService.search(searchRequest).subscribe({
       next: (data) => {
-        this.equipment = data;
+        this.equipment = this.sortByPrice(data);
         this.loading = false;
       },
       error: (err) => {
@@ -152,5 +153,28 @@ export class InventoryComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  private sortByPrice(items: Equipment[]): Equipment[] {
+    if (!this.priceSortDirection) {
+      return items;
+    }
+
+    return [...items].sort((a, b) =>
+      this.priceSortDirection === 'asc' ? a.price - b.price : b.price - a.price
+    );
+  }
+
+  onPriceSortChange(): void {
+    this.equipment = this.sortByPrice(this.equipment);
+  }
+
+  clearFilters(): void {
+    this.modelFilter = '';
+    this.typeFilter = null;
+    this.statusFilter = null;
+    this.skillFilter = null;
+    this.priceSortDirection = 'asc';
+    this.loadEquipment();
   }
 }
