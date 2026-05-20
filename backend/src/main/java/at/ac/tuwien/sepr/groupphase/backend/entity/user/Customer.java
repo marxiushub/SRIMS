@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-public class Customer extends User {
+public class Customer extends ApplicationUser {
     private String firstName;
     private String lastName;
     private LocalDate dateOfBirth;
@@ -22,7 +22,7 @@ public class Customer extends User {
     protected Customer() {}
 
     public Customer(String userName, String hashedPassword, String email, String firstName, String lastName, LocalDate dateOfBirth) {
-        super(userName, hashedPassword, email);
+        super(email, hashedPassword, false, userName);
         this.firstName = firstName;
         this.lastName = lastName;
         this.dateOfBirth = dateOfBirth;

@@ -3,12 +3,12 @@ package at.ac.tuwien.sepr.groupphase.backend.entity.user;
 import jakarta.persistence.Entity;
 
 @Entity
-public class Staff extends User {
+public class Staff extends ApplicationUser {
 
     protected Staff() {}
 
-    protected  Staff(String userName, String hashedPassword, String email) {
-        super(userName, hashedPassword, email);
+    public  Staff(String userName, String hashedPassword, String email) {
+        super(email, hashedPassword, true, userName);
     }
 
 }
