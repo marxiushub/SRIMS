@@ -1,18 +1,17 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentSearchDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentUpdateDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.HelmetDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.HelmetUpdateDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.SkiCreationDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.SkiUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.creation.SkiCreationDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.detail.EquipmentDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.detail.HelmetDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.detail.SkiDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.search.EquipmentSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.update.EquipmentUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.update.HelmetUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.update.SkiUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.EquipmentType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
-import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Helmet;
-import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Ski;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.HelmetRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.EquipmentServiceImpl;
@@ -62,16 +61,17 @@ public class EquipmentServiceTest {
         dto.setStatus(RentalStatus.FREE);
         dto.setTargetSkillLevel(SkillLevel.ADVANCED);
         dto.setLength(200);
-        dto.setCreationNumber(1);
+        dto.setCreationNumber(3);
 
-        List<Equipment> equip = equipmentService.createEquipment(dto);
+        List<EquipmentDetailDto> equip = equipmentService.createEquipment(dto);
 
         assertAll(
             "Verify that the equipment is saved correctly and assigned an ID",
             () -> assertThat(equip).isNotNull(),
-            () -> assertThat(equip).hasSize(1),
-            () -> assertThat(equip.get(0)).isInstanceOf(Ski.class),
-            () -> assertThat(equip.get(0).getId()).isNotNull()
+            () -> assertThat(equip).hasSize(3),
+
+            () -> assertThat(equip).allMatch(e -> e instanceof SkiDetailDto),
+            () -> assertThat(equip).extracting(EquipmentDetailDto :: getId).doesNotContainNull()
         );
 
     }

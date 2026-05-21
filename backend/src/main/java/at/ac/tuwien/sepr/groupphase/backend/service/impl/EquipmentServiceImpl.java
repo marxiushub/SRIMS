@@ -1,8 +1,8 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentCreationDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.creation.EquipmentCreationDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.detail.EquipmentDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.search.EquipmentSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EquipmentMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.EquipmentType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
@@ -21,7 +21,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.SkiRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.SnowboardBootRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.SnowboardRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.EquipmentService;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.update.EquipmentUpdateDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,11 +99,11 @@ public class EquipmentServiceImpl implements EquipmentService {
     }
 
     @Override
-    public List<Equipment> createEquipment(EquipmentCreationDto dto) {
+    public List<EquipmentDetailDto> createEquipment(EquipmentCreationDto dto) {
         LOGGER.trace("Creation of an {}", dto.getType());
 
 
-        List<Equipment> created = new ArrayList<>();
+        List<EquipmentDetailDto> created = new ArrayList<>();
         JpaRepository<Equipment, Long> repo =
             (JpaRepository<Equipment, Long>) repositoryMap.get(dto.getType());
 
@@ -112,7 +112,7 @@ public class EquipmentServiceImpl implements EquipmentService {
         }
         for (int i = 0; i < dto.getCreationNumber(); i++) {
             Equipment equipment = dto.toEntity();
-            created.add(repo.save(equipment));
+            created.add(mapper.entityToDto(repo.save(equipment)));
         }
         return created;
     }

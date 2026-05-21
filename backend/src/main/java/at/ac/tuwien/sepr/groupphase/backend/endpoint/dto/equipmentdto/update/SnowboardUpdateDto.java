@@ -1,13 +1,12 @@
-package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto;
+package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.update;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 
-public class PoleUpdateDto extends EquipmentUpdateDto {
-    @Max(value = 145, message = "Pole is too long")
-    @Min(value = 70, message = "Pole is too short")
+public class SnowboardUpdateDto extends EquipmentUpdateDto {
 
-
+    @Max(value = 180, message = "Snowboard is too long")
+    @Min(value = 80, message = "Snowboard is too short")
     private Double length;
 
     public Double getLength() {
@@ -17,5 +16,4 @@ public class PoleUpdateDto extends EquipmentUpdateDto {
     public void setLength(Double length) {
         this.length = length;
     }
-
 }

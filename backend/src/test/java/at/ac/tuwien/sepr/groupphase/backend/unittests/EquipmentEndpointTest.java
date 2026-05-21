@@ -1,9 +1,9 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.SkiCreationDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.detail.EquipmentDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.creation.SkiCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
-import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.service.EquipmentService;
 import jakarta.transaction.Transactional;
@@ -89,7 +89,7 @@ public class EquipmentEndpointTest {
         dto.setTargetSkillLevel(SkillLevel.ADVANCED);
         dto.setLength(200);
 
-        List<Equipment> savedEquip = equipmentService.createEquipment(dto);
+        List<EquipmentDetailDto> savedEquip = equipmentService.createEquipment(dto);
         Long generatedId = savedEquip.get(0).getId();
 
         try {
@@ -137,7 +137,7 @@ public class EquipmentEndpointTest {
         dto.setTargetSkillLevel(SkillLevel.BEGINNER);
         dto.setLength(160);
 
-        List<Equipment> savedEquip = equipmentService.createEquipment(dto);
+        List<EquipmentDetailDto> savedEquip = equipmentService.createEquipment(dto);
         Long generatedId = savedEquip.get(0).getId();
 
 
@@ -182,7 +182,7 @@ public class EquipmentEndpointTest {
         dto.setTargetSkillLevel(SkillLevel.BEGINNER);
         dto.setLength(170);
 
-        List<Equipment> savedEquip = equipmentService.createEquipment(dto);
+        List<EquipmentDetailDto> savedEquip = equipmentService.createEquipment(dto);
         Long generatedId = savedEquip.get(0).getId();
 
         String invalidPatchJson = """

@@ -1,9 +1,9 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentCreationDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentSearchDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.creation.EquipmentCreationDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.detail.EquipmentDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.search.EquipmentSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.update.EquipmentUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 
 import java.util.List;
@@ -35,7 +35,7 @@ public interface EquipmentService {
      * @param dto the data transfer object containing the information needed to create the equipment
      * @return the created {@link Equipment} entity
      */
-    List<Equipment> createEquipment(EquipmentCreationDto dto);
+    List<EquipmentDetailDto> createEquipment(EquipmentCreationDto dto);
 
     /**
      * Deletes an equipment entry from the system based on the specified type and ID.
