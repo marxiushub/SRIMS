@@ -14,9 +14,7 @@ public class Customer extends ApplicationUser {
     private String lastName;
     private LocalDate dateOfBirth;
 
-    @OneToMany(mappedBy = "customer",
-        cascade = CascadeType.ALL,
-        orphanRemoval = true)
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CustomerProfile> profiles = new ArrayList<>();
 
     protected Customer() {}
@@ -59,26 +57,6 @@ public class Customer extends ApplicationUser {
 
     public List<CustomerProfile> getProfiles() {
         return profiles;
-    }
-
-    /**
-     * Adds a new profile to a customer account.
-     *
-     * @param profile that should be added to the profile list
-     */
-    public void addProfile(CustomerProfile profile) {
-        profiles.add(profile);
-        profile.setCustomer(this);
-    }
-
-    /**
-     * Removes a profile from a customer account.
-     *
-     * @param profile that should be removed
-     */
-    public void removeProfile(CustomerProfile profile) {
-        profiles.remove(profile);
-        profile.setCustomer(null);
     }
 
 }

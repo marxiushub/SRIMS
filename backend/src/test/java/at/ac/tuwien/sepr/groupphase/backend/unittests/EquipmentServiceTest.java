@@ -14,7 +14,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Helmet;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Ski;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
-import at.ac.tuwien.sepr.groupphase.backend.repository.HelmetRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.HelmetRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.EquipmentServiceImpl;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;

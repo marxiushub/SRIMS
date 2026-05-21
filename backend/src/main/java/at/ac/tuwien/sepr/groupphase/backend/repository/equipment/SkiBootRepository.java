@@ -1,4 +1,4 @@
-package at.ac.tuwien.sepr.groupphase.backend.repository;
+package at.ac.tuwien.sepr.groupphase.backend.repository.equipment;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.SkiBoot;
 import org.springframework.data.jpa.repository.JpaRepository;

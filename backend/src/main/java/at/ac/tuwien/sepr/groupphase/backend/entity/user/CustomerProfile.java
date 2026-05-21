@@ -8,15 +8,26 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
 
 @Entity
+@Table(
+    uniqueConstraints = {
+        @UniqueConstraint(
+            columnNames = {"customer_id", "profile_name"}
+        )
+    }
+)
 public class CustomerProfile {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = false, length = 100)
+    @Column(length = 100, nullable = false)
     private String profileName;
 
     @Column
@@ -28,7 +39,7 @@ public class CustomerProfile {
     @Column
     private double shoeSize;
 
-    @Column
+    @Enumerated(EnumType.STRING)
     private SkillLevel skillLevel;
 
     @ManyToOne

@@ -1,7 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Ski;
-import at.ac.tuwien.sepr.groupphase.backend.repository.SkiRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.SkiRepository;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
 
