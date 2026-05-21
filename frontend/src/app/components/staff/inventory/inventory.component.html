@@ -14,6 +14,95 @@
     </button>
   </div>
 
+  <form class="d-flex flex-row w-auto mb-3 align-items-end" (ngSubmit)="searchEquipment()">
+    <div class="me-2">
+      <label for="searchEquipmentModel" class="col-form-label">{{ 'INVENTORY.EQUIPMENT_MODEL' | translate }}</label>
+      <input
+        type="text"
+        id="searchEquipmentModel"
+        name="searchEquipmentModel"
+        [(ngModel)]="modelFilter"
+        [ngModelOptions]="{ standalone: true }"
+        [ngbTypeahead]="searchModel"
+        (ngModelChange)="searchEquipment()"
+        class="form-control">
+    </div>
+
+    <div class="me-2">
+      <label for="searchEquipmentType" class="col-form-label">{{ 'INVENTORY.EQUIPMENT_TYP' | translate }}</label>
+      <select
+        id="searchEquipmentType"
+        name="searchEquipmentType"
+        [(ngModel)]="typeFilter"
+        [ngModelOptions]="{ standalone: true }"
+        (ngModelChange)="searchEquipment()"
+        class="form-select">
+        <option [ngValue]="null">{{ 'INVENTORY.EQUIPMENT_ALL' | translate }}</option>
+        @for (type of equipmentTypes; track type) {
+          <option [value]="type">
+            {{ 'EQUIPMENT_TYPE.' + type | translate }}
+          </option>
+        }
+      </select>
+    </div>
+
+    <div class="me-2">
+      <label for="searchEquipmentStatus" class="col-form-label">{{ 'INVENTORY.EQUIPMENT_STATUS' | translate }}</label>
+      <select
+        id="searchEquipmentStatus"
+        name="searchEquipmentStatus"
+        [(ngModel)]="statusFilter"
+        [ngModelOptions]="{ standalone: true }"
+        (ngModelChange)="searchEquipment()"
+        class="form-select">
+        <option [ngValue]="null">{{ 'INVENTORY.EQUIPMENT_ALL' | translate }}</option>
+        @for (status of rentalStatuses; track status) {
+          <option [value]="status">
+            {{ 'RENTAL_STATUS.' + status | translate }}
+          </option>
+        }
+      </select>
+    </div>
+
+    <div class="me-2">
+      <label for="searchEquipmentSkill" class="col-form-label">{{ 'INVENTORY.EQUIPMENT_SKILL' | translate }}</label>
+      <select
+        id="searchEquipmentSkill"
+        name="searchEquipmentSkill"
+        [(ngModel)]="skillFilter"
+        [ngModelOptions]="{ standalone: true }"
+        (ngModelChange)="searchEquipment()"
+        class="form-select">
+        <option [ngValue]="null">{{ 'INVENTORY.EQUIPMENT_ALL' | translate }}</option>
+        @for (skillLevel of skillLevels; track skillLevel) {
+          <option [value]="skillLevel">
+            {{ 'SKILL_LEVEL.' + skillLevel | translate }}
+          </option>
+        }
+      </select>
+    </div>
+
+    <div class="me-2">
+      <label for="searchEquipmentPriceSort" class="col-form-label">{{ 'INVENTORY.EQUIPMENT_PRICE' | translate }}</label>
+      <select
+        id="searchEquipmentPriceSort"
+        name="searchEquipmentPriceSort"
+        [(ngModel)]="priceSortDirection"
+        [ngModelOptions]="{ standalone: true }"
+        (ngModelChange)="onPriceSortChange()"
+        class="form-select">
+        <option value="asc">{{ 'INVENTORY.LOWEST_FIRST' | translate }}</option>
+        <option value="desc">{{ 'INVENTORY.HIGHEST_FIRST' | translate }}</option>
+      </select>
+    </div>
+
+    <div class="me-2">
+      <button class="btn btn-primary w-100" type="button" (click)="clearFilters()">
+        {{ 'INVENTORY.CLEAR' | translate }}
+      </button>
+    </div>
+  </form>
+
   @if (loading) {
     <div class="alert alert-info">
       {{ 'INVENTORY.LOADING' | translate }}
@@ -27,7 +116,7 @@
   }
 
   @if (!loading && equipment.length > 0) {
-    <table class="table table-hover table-striped">
+    <table class="table table-hover table-striped align-middle">
 
       <thead>
       <tr>
@@ -36,7 +125,7 @@
         <th>{{ 'INVENTORY.EQUIPMENT_STATUS' | translate }}</th>
         <th>{{ 'INVENTORY.EQUIPMENT_SKILL' | translate }}</th>
         <th>{{ 'INVENTORY.EQUIPMENT_PRICE' | translate }}</th>
-        <th>{{ 'INVENTORY.EQUIPMENT_ACTIONS' | translate}}</th>
+        <th>{{ 'INVENTORY.EQUIPMENT_ACTIONS' | translate }}</th>
       </tr>
       </thead>
 
@@ -49,11 +138,11 @@
               <span
                 class="badge"
                 [ngClass]="getStatusClass(item.status)">
-                {{ 'RENTAL_STATUS.' + item.status | translate}}
+                {{ 'RENTAL_STATUS.' + item.status | translate }}
               </span>
             </td>
             <td>{{ 'SKILL_LEVEL.' + item.targetSkillLevel | translate }}</td>
-            <td>{{ item.price | currency:'EUR':'symbol':'1.2-2':(translateService.currentLang || 'de')}}</td>
+            <td>{{ item.price | currency:'EUR':'symbol':'1.2-2':(translateService.currentLang || 'de') }}</td>
             <td>
               <button
                 type="button"
@@ -83,7 +172,7 @@
 
           <div class="modal-header">
             <h5 class="modal-title">
-              {{'INVENTORY.DELETE_TITLE' | translate}}
+              {{ 'INVENTORY.DELETE_TITLE' | translate }}
             </h5>
             <button
               type="button"
@@ -96,7 +185,7 @@
 
           <div class="modal-body">
             <p>
-              {{ 'INVENTORY.DELETE_CONFIRMATION' | translate}}
+              {{ 'INVENTORY.DELETE_CONFIRMATION' | translate }}
             </p>
 
             <p class="fw-bold mb-0">
@@ -104,9 +193,9 @@
             </p>
 
 
-            @if (deleteError){
+            @if (deleteError) {
               <div class="alert alert-danger mt-3 mb-0">
-                {{ 'INVENTORY.DELETE_ERROR' | translate}}
+                {{ 'INVENTORY.DELETE_ERROR' | translate }}
               </div>
             }
           </div>
@@ -117,7 +206,7 @@
               class="btn btn-secondary"
               [disabled]="deleteLoading"
               (click)="cancelDelete()">
-              {{ 'INVENTORY.DELETE_CANCEL' | translate}}
+              {{ 'INVENTORY.DELETE_CANCEL' | translate }}
             </button>
 
             <button
@@ -126,9 +215,9 @@
               [disabled]="deleteLoading"
               (click)="confirmDelete()">
               @if (deleteLoading) {
-                {{ 'INVENTORY.DELETE_CONFIRM' | translate}}...
+                {{ 'INVENTORY.DELETE_CONFIRM' | translate }}...
               } @else {
-                {{ 'INVENTORY.DELETE_CONFIRM' | translate}}
+                {{ 'INVENTORY.DELETE_CONFIRM' | translate }}
               }
             </button>
           </div>

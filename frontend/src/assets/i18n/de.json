@@ -23,7 +23,11 @@
     "DELETE_ERROR": "Ausrüstung konnte nicht gelöscht werden.",
     "EQUIPMENT_TYP": "Typ",
     "AVAILABLE": "Verfügbar",
-    "RENTED": "Verliehen"
+    "RENTED": "Verliehen",
+    "EQUIPMENT_ALL": "Alle",
+    "CLEAR": "Zurücksetzen",
+    "LOWEST_FIRST": "Preis aufsteigend",
+    "HIGHEST_FIRST": "Preis absteigend"
   },
   "RENTAL_STATUS": {
     "FREE": "Verfügbar",
@@ -39,8 +43,8 @@
   "EQUIPMENT_TYPE": {
     "HELMET": "Helm",
     "POLE": "Skistöcke",
-    "SKI":  "Skier",
-    "SKIBOOT":  "Skischuhe",
+    "SKI": "Skier",
+    "SKIBOOT": "Skischuhe",
     "SNOWBOARD": "Snowboard",
     "SNOWBOARDBOOT": "Snowboardschuhe"
   },
@@ -64,7 +68,6 @@
     "SIZE_REQUIRED": "Größe ist erforderlich.",
     "SOLE_LENGTH_REQUIRED": "Sohlenlänge ist erforderlich."
   },
-
   "EQUIPMENT_EDIT": {
     "TITLE": "Bearbeiten",
     "SAVE": "Änderungen speichern",

@@ -1,10 +1,11 @@
 import {Injectable} from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {Globals} from '../global/globals';
 import {Equipment} from '../dtos/equipment';
 import {EquipmentCreation} from '../dtos/equipment-creation';
 import {EquipmentUpdate} from '../dtos/equipment-update';
+import {EquipmentSearch} from '../dtos/equipment-search';
 
 @Injectable({
   providedIn: 'root'
@@ -50,6 +51,24 @@ export class EquipmentService {
   update(id: number, equipment: EquipmentUpdate): Observable<Equipment> {
     return this.httpClient.patch<Equipment>(`${this.equipmentBaseUri}/${id}`, equipment);
 
+  }
+
+  search(search: EquipmentSearch): Observable<Equipment[]> {
+    let params = new HttpParams();
+    if (search.model) {
+      params = params.set('model', search.model);
+    }
+    if (search.type) {
+      params = params.set('type', search.type);
+    }
+    if (search.status) {
+      params = params.set('status', search.status);
+    }
+    if (search.targetSkillLevel) {
+      params = params.set('targetSkillLevel', search.targetSkillLevel);
+    }
+
+    return this.httpClient.get<Equipment[]>(this.equipmentBaseUri, {params});
   }
 
 }

@@ -23,7 +23,11 @@
     "DELETE_CONFIRM": "Delete",
     "DELETE_ERROR": "Equipment could not be deleted.",
     "AVAILABLE": "Available",
-    "RENTED": "Rented"
+    "RENTED": "Rented",
+    "EQUIPMENT_ALL": "All",
+    "CLEAR": "Clear",
+    "LOWEST_FIRST": "Lowest first",
+    "HIGHEST_FIRST": "Highest first"
   },
   "RENTAL_STATUS": {
     "FREE": "Available",
@@ -39,8 +43,8 @@
   "EQUIPMENT_TYPE": {
     "HELMET": "Helmet",
     "POLE": "Poles",
-    "SKI":  "Ski",
-    "SKIBOOT":  "Ski Boots",
+    "SKI": "Ski",
+    "SKIBOOT": "Ski Boots",
     "SNOWBOARD": "Snowboard",
     "SNOWBOARDBOOT": "Snowboard Boots"
   },
@@ -64,7 +68,6 @@
     "SIZE_REQUIRED": "Size is required.",
     "SOLE_LENGTH_REQUIRED": "Sole length is required."
   },
-
   "EQUIPMENT_EDIT": {
     "TITLE": "Edit",
     "SAVE": "Update",
