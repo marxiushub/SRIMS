@@ -1,4 +1,4 @@
-package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto;
+package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.detail;
 
 /**
  * Data Transfer Object (DTO) for representing the details of a ski boot equipment item.

@@ -1,4 +1,4 @@
-package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto;
+package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.update;
 
 
 public class SnowboardBootUpdateDto extends EquipmentUpdateDto {

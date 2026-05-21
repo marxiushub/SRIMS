@@ -1,12 +1,12 @@
-package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto;
+package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.creation;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.EquipmentType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
-import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.SnowboardBoot;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -46,6 +46,8 @@ public abstract class EquipmentCreationDto {
     @NotNull(message = "skillevel is empty")
     private SkillLevel targetSkillLevel;
 
+    @Min(value = 1, message = "number of equipment can not be zero or negative")
+    private int creationNumber = 1;
 
     /**
      * Getter and Setter.
@@ -81,6 +83,14 @@ public abstract class EquipmentCreationDto {
 
     public void setTargetSkillLevel(SkillLevel targetSkillLevel) {
         this.targetSkillLevel = targetSkillLevel;
+    }
+
+    public int getCreationNumber() {
+        return creationNumber;
+    }
+
+    public void setCreationNumber(int creationNumber) {
+        this.creationNumber = creationNumber;
     }
 
     /**

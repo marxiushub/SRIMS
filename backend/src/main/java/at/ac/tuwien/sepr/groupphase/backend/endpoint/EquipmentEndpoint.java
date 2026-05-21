@@ -1,10 +1,9 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentCreationDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentSearchDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.EquipmentUpdateDto;
-import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.creation.EquipmentCreationDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.detail.EquipmentDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.search.EquipmentSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.update.EquipmentUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.service.EquipmentService;
 import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
@@ -48,7 +47,7 @@ public class EquipmentEndpoint {
      */
     @PermitAll
     @PostMapping()
-    public Equipment createEquipment(@Valid @RequestBody EquipmentCreationDto dto) {
+    public List<EquipmentDetailDto> createEquipment(@Valid @RequestBody EquipmentCreationDto dto) {
         LOGGER.info("POST /api/v1/equipment - {}", dto);
         return equipmentService.createEquipment(dto);
     }

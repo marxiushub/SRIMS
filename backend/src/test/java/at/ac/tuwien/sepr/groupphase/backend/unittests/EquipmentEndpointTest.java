@@ -1,14 +1,16 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.SkiCreationDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.detail.EquipmentDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.creation.SkiCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
-import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.service.EquipmentService;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,6 +31,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.List;
+
 @ActiveProfiles({"test", "datagenerator"})
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -40,6 +44,8 @@ public class EquipmentEndpointTest {
     private EquipmentService equipmentService;
 
     @Test
+    @Transactional
+    @Rollback
     public void createEquipment_withValidDto_returns200AndSavedData() {
 
         String json = """
@@ -73,6 +79,8 @@ public class EquipmentEndpointTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void deleteEquipment_withValidId_returns204AndDeletesEntity() {
         SkiCreationDto dto = new SkiCreationDto();
         dto.setPrice(67);
@@ -81,8 +89,8 @@ public class EquipmentEndpointTest {
         dto.setTargetSkillLevel(SkillLevel.ADVANCED);
         dto.setLength(200);
 
-        Equipment savedEquip = equipmentService.createEquipment(dto);
-        Long generatedId = savedEquip.getId();
+        List<EquipmentDetailDto> savedEquip = equipmentService.createEquipment(dto);
+        Long generatedId = savedEquip.get(0).getId();
 
         try {
 
@@ -102,6 +110,8 @@ public class EquipmentEndpointTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void deleteEquipment_withNonExistentId_returns404AndThrowsNotFoundException() {
         long nonExistentId = 99999L;
 
@@ -117,6 +127,8 @@ public class EquipmentEndpointTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void updateEquipment_withValidDto_returns200AndUpdatedFields() {
         SkiCreationDto dto = new SkiCreationDto();
         dto.setPrice(100);
@@ -125,8 +137,8 @@ public class EquipmentEndpointTest {
         dto.setTargetSkillLevel(SkillLevel.BEGINNER);
         dto.setLength(160);
 
-        Equipment savedEquip = equipmentService.createEquipment(dto);
-        Long generatedId = savedEquip.getId();
+        List<EquipmentDetailDto> savedEquip = equipmentService.createEquipment(dto);
+        Long generatedId = savedEquip.get(0).getId();
 
 
         String patchJson = """
@@ -160,6 +172,8 @@ public class EquipmentEndpointTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void updateEquipment_withMismatchedType_returns400AndThrowsIllegalArgumentException() {
         SkiCreationDto dto = new SkiCreationDto();
         dto.setPrice(80);
@@ -168,8 +182,8 @@ public class EquipmentEndpointTest {
         dto.setTargetSkillLevel(SkillLevel.BEGINNER);
         dto.setLength(170);
 
-        Equipment savedEquip = equipmentService.createEquipment(dto);
-        Long generatedId = savedEquip.getId();
+        List<EquipmentDetailDto> savedEquip = equipmentService.createEquipment(dto);
+        Long generatedId = savedEquip.get(0).getId();
 
         String invalidPatchJson = """
             {
@@ -203,6 +217,8 @@ public class EquipmentEndpointTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void updateEquipment_withNonExistentId_returns404AndThrowsNotFoundException() {
         long nonExistentId = 99999L;
 
@@ -236,6 +252,8 @@ public class EquipmentEndpointTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void searchEquipment_withSpecificTypeAndModel_returnsFilteredList() {
         SkiCreationDto ski1 = new SkiCreationDto();
         ski1.setPrice(100);
@@ -276,6 +294,8 @@ public class EquipmentEndpointTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void searchEquipment_withoutParameters_returnsAllItems() {
         SkiCreationDto ski = new SkiCreationDto();
         ski.setPrice(100);
@@ -304,6 +324,8 @@ public class EquipmentEndpointTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void searchEquipment_withNoMatchingCriteria_returnsEmptyList() {
         SkiCreationDto ski = new SkiCreationDto();
         ski.setPrice(100);
@@ -334,6 +356,8 @@ public class EquipmentEndpointTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void searchEquipment_withInvalidEnumParameter_returns400BadRequest() {
 
         try {
