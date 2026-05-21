@@ -23,6 +23,7 @@
         name="searchEquipmentModel"
         [(ngModel)]="modelFilter"
         [ngModelOptions]="{ standalone: true }"
+        [ngbTypeahead]="searchModel"
         (ngModelChange)="searchEquipment()"
         class="form-control">
     </div>

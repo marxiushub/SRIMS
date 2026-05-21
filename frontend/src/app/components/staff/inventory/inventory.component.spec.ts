@@ -1,6 +1,6 @@
-import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {ComponentFixture, fakeAsync, TestBed, tick} from '@angular/core/testing';
 import {TranslateModule} from "@ngx-translate/core";
-import {of, throwError} from "rxjs";
+import {of, Subject, throwError} from "rxjs";
 import {provideHttpClient} from "@angular/common/http";
 import {provideHttpClientTesting} from "@angular/common/http/testing";
 
@@ -167,5 +167,50 @@ describe('InventoryComponent', () => {
     component.searchEquipment();
 
     expect(component.loading).toBeFalse();
+  });
+
+  it('should return case-insensitive model suggestions with debounce and max 10 results', fakeAsync(() => {
+    component.modelOptions = [
+      'Ski Alpha',
+      'ski Beta',
+      'Helmet Pro',
+      'Ski Carbon',
+      'Ski Touring',
+      'Ski Race',
+      'Ski Junior',
+      'Ski Women',
+      'Ski Men',
+      'Ski Kids',
+      'Ski Extra',
+      'Pole Basic'
+    ];
+
+    const text$ = new Subject<string>();
+    let suggestions: readonly string[] = [];
+
+    component.searchModel(text$).subscribe(result => {
+      suggestions = result;
+    });
+
+    text$.next('SKI');
+    tick(150);
+
+    expect(suggestions.length).toBe(10);
+    expect(suggestions.every(s => s.toLowerCase().includes('ski'))).toBeTrue();
+  }));
+
+  it('should build unique, sorted model options when equipment is loaded', () => {
+    const loaded = [
+      {...testEquipment[0], id: 1, model: 'Ski Z'},
+      {...testEquipment[1], id: 2, model: 'Ski A'},
+      {...testEquipment[0], id: 3, model: 'Ski A'}, // duplicate
+      {...testEquipment[1], id: 4, model: 'Helmet Pro'}
+    ];
+
+    equipmentServiceMock.getAll.and.returnValue(of(loaded as any));
+
+    component.loadEquipment();
+
+    expect(component.modelOptions).toEqual(['Helmet Pro', 'Ski A', 'Ski Z']);
   });
 });
