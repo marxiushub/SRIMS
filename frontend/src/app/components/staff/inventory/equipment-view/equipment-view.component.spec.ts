@@ -7,6 +7,10 @@ import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http'
 import { TranslateModule } from '@ngx-translate/core';
 import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
+import { registerLocaleData } from '@angular/common';
+import localeDe from '@angular/common/locales/de';
+
+registerLocaleData(localeDe, 'de');
 
 //AI-assisted: Code generated with Google Gemini and adapted
 describe('EquipmentViewComponent', () => {
