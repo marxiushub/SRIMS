@@ -48,6 +48,7 @@ public class ReservationServiceTest {
     CustomerRepository customerRepository;
 
     private CustomerProfile testCustomerProfile;
+    private CustomerProfile testCustomerProfile2;
     private Equipment testEquipment;
     private Equipment testEquipment2;
     private Customer testCustomer;
@@ -61,6 +62,8 @@ public class ReservationServiceTest {
         testCustomer = customerRepository.save(testCustomer);
         testCustomerProfile = new CustomerProfile("Max Mustermann",180,67,33, SkillLevel.BEGINNER,testCustomer);
         testCustomerProfile = customerProfileRepository.save(testCustomerProfile);
+        testCustomerProfile2 = new CustomerProfile("Hans hansi",130,80,33, SkillLevel.BEGINNER,testCustomer);
+        testCustomerProfile2 = customerProfileRepository.save(testCustomerProfile2);
         testEquipment = new Helmet("Test Helmet Model", 10.0, 55.0, RentalStatus.FREE, SkillLevel.BEGINNER);
         testEquipment = equipmentRepository.save(testEquipment);
         testEquipment2 = new Pole("ATI", 6.0, 105.0, RentalStatus.FREE, SkillLevel.ADVANCED);
@@ -146,6 +149,7 @@ public class ReservationServiceTest {
         updateDto.setEquipmentIds(
             List.of(secondEquipment.getId())
         );
+        updateDto.setCustomerProfileId(testCustomerProfile2.getId());
 
         /*
          * execute update
@@ -169,7 +173,7 @@ public class ReservationServiceTest {
                 .isEqualTo(createdReservation.getId()),
 
             () -> assertThat(updatedReservation.getCustomerName())
-                .isEqualTo("Max Mustermann"),
+                .isEqualTo("Hans hansi"),
 
             () -> assertThat(updatedReservation.getPickUpDate())
                 .isEqualTo(LocalDate.now().plusDays(5)),

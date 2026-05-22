@@ -20,6 +20,15 @@ public class ReservationUpdateDto {
 
     private List<Long> equipmentIds;
 
+    private Long customerProfileId;
+
+    public Long getCustomerProfileId() {
+        return customerProfileId;
+    }
+
+    public void setCustomerProfileId(Long customerProfileId) {
+        this.customerProfileId = customerProfileId;
+    }
 
     public LocalTime getPickUpTime() {
         return pickUpTime;

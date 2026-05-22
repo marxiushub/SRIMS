@@ -86,6 +86,9 @@ public class Reservation {
         this.pickUpTime = pickUpTime;
     }
 
+    public void setCustomerProfile(CustomerProfile customerProfile) {
+        this.customerProfile = customerProfile;
+    }
 
     /**
      * Getter.

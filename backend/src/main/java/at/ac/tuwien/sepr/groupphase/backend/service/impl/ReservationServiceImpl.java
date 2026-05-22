@@ -142,15 +142,26 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
             reservation.setRentDurationDays(dto.getRentDurationDays());
         }
 
+        //update Customer
 
+        if (dto.getCustomerProfileId() != null) {
 
+            CustomerProfile profile =
+                customerProfileRepository.findById(dto.getCustomerProfileId())
+                    .orElseThrow(() ->
+                        new NotFoundException(
+                            "Customer profile with ID "
+                                + dto.getCustomerProfileId()
+                                + " not found."
+                        )
+                    );
 
-
+            reservation.setCustomerProfile(profile);
+        }
 
         /*
          * equipment
          */
-
         if (dto.getEquipmentIds() != null) {
 
             reservation.getItems().clear();
