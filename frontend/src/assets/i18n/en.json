@@ -72,5 +72,34 @@
     "TITLE": "Edit",
     "SAVE": "Update",
     "ERROR": "Equipment could not be updated."
+  },
+  "CUSTOMER_PROFILE": {
+    "TITLE": "Profiles",
+    "HEIGHT": "Height",
+    "NAME": "Profile Name",
+    "SHOE_SIZE": "Shoe size",
+    "SKILL_LEVEL": "Skill level",
+    "WEIGHT": "Weight",
+    "ADD_PROFILE": "Add Profile"
+  },
+  "CUSTOMER_PROFILE_CREATE": {
+    "TITLE": "Add Profile",
+    "HEIGHT": "Body Height (cm)",
+    "NAME": "Profile Name",
+    "SHOE_SIZE": "Shoe size",
+    "SKILL_LEVEL": "Skill level",
+    "WEIGHT": "Weight",
+    "SAVE": "Save",
+    "CANCEL": "Cancel",
+    "ERROR": "Profile could not be created.",
+    "NAME_REQUIRED": "Profile name is required.",
+    "HEIGHT_REQUIRED": "Height is required.",
+    "SHOE_SIZE_REQUIRED": "Shoe size is required.",
+    "WEIGHT_REQUIRED": "Weight is required."
+  },
+  "CUSTOMER_PROFILE_EDIT": {
+    "TITLE": "Edit Profile",
+    "SAVE": "Update",
+    "ERROR": "Profile could not be updated."
   }
 }

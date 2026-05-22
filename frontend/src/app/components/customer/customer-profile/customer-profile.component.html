@@ -1,0 +1,38 @@
+<div class="container-fluid pt-4">
+
+  <div class="d-flex align-items-center mb-3">
+    <h2 class="mb-0">{{ 'CUSTOMER_PROFILE.TITLE' | translate }}</h2>
+
+    <span style="flex: 1"></span>
+
+    <button class="btn btn-primary" (click)="openCreatePage()">
+      {{ 'CUSTOMER_PROFILE.ADD_PROFILE' | translate }}
+    </button>
+
+    <button class="btn btn-primary" (click)="loadEquipment()">
+      {{ 'INVENTORY.RELOAD' | translate }}
+    </button>
+  </div>
+
+  @if (!loading) {
+    <table class="table table-hover table-striped align-middle">
+
+      <thead>
+      <tr>
+        <th>{{ 'CUSTOMER_PROFILE.HEIGHT' | translate }}</th>
+        <th>{{ 'CUSTOMER_PROFILE.NAME' | translate }}</th>
+        <th>{{ 'CUSTOMER_PROFILE.SHOE_SIZE' | translate }}</th>
+        <th>{{ 'CUSTOMER_PROFILE.SKILL_LEVEL' | translate }}</th>
+        <th>{{ 'CUSTOMER_PROFILE.WEIGHT' | translate }}</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <!-- TODO implement table once the backend endpoint for getAll exists-->
+
+      </tbody>
+
+    </table>
+  }
+
+</div>
