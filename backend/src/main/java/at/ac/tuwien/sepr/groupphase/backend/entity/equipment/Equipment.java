@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.ArrayList;
 
 /**
  * This Entity represents a generic piece of equipment.
@@ -58,8 +59,8 @@ public abstract class Equipment {
         }
     }
 
-    @OneToMany(mappedBy = "equipment")
-    private List<TimePeriods> timePeriodsList;
+    @OneToMany(mappedBy = "equipment", orphanRemoval = true)
+    private List<TimePeriods> timePeriodsList = new ArrayList<>();
 
     private int usageDurationDays;
 
