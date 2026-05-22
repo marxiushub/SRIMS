@@ -44,7 +44,7 @@ public class TimePeriods {
     @Enumerated(EnumType.STRING)
     private PeriodType periodType;
 
-    public PeriodType getPeriodType(){
+    public PeriodType getPeriodType() {
         return this.periodType;
     }
 

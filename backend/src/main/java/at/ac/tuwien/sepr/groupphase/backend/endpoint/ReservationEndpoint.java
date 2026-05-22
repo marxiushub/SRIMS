@@ -25,7 +25,7 @@ public class ReservationEndpoint {
     private final ReservationServiceImpl service;
 
     @Autowired
-    public  ReservationEndpoint(ReservationServiceImpl service){
+    public  ReservationEndpoint(ReservationServiceImpl service) {
         this.service = service;
     }
 
@@ -33,7 +33,7 @@ public class ReservationEndpoint {
      * Endpoint to rent Equipment .
      *
      * @param dto an {@link at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationCreationDto}
-     * @return
+     * @return an {@link at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationDetailDto}
      *
      */
     @PermitAll

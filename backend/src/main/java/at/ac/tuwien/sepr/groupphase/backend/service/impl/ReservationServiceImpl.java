@@ -33,7 +33,11 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
     private final CustomerProfileRepository customerProfileRepository;
 
     @Autowired
-    public ReservationServiceImpl(ReservationMapper reservationMapper, ReservationRepository reservationRepository, EquipmentRepository equipmentRepository, CustomerProfileRepository customerProfileRepository, ReservationValidator validator) {
+    public ReservationServiceImpl(ReservationMapper reservationMapper,
+                                  ReservationRepository reservationRepository,
+                                  EquipmentRepository equipmentRepository,
+                                  CustomerProfileRepository customerProfileRepository,
+                                  ReservationValidator validator) {
         this.mapper = reservationMapper;
         this.reservationRepository = reservationRepository;
         this.equipmentRepository = equipmentRepository;
@@ -80,7 +84,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
 
             LocalDate pickUpDate = dto.getPickUpDate();
             LocalDate dropOffDate =  pickUpDate.plusDays(dto.getRentDurationDays());
-            validator.isEquiomentAvailable(equipment, pickUpDate, dropOffDate);
+            validator.isEquipmentAvailable(equipment, pickUpDate, dropOffDate);
             reservation.addItem(equipment);
 
             equipment.addTimePeriod(pickUpDate, dropOffDate, PeriodType.RENTED);
