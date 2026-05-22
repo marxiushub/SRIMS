@@ -7,9 +7,11 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.Reservat
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ReservationMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Reservation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
+import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
-import at.ac.tuwien.sepr.groupphase.backend.repository.EquipmentRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.EquipmentRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ReservationRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerProfileRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,8 +61,11 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
     @Transactional
     public ReservationDetailDto createReservation(ReservationCreationDto dto) {
 
+        CustomerProfile profile = customerProfileRepository.findById(dto.getCustomerProfileId())
+            .orElseThrow(() -> new NotFoundException("Customer profile with ID " + dto.getCustomerProfileId() + " not found."));
+
         Reservation reservation = new Reservation(
-            dto.getCustomerProfileId(),
+            profile,
             dto.getPickUpTime(),
             dto.getPickUpDate(),
             dto.getRentDurationDays()
@@ -71,11 +76,15 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
                 .orElseThrow(() -> new NotFoundException("Equipment with ID " + equipmentId + " not found."));
 
             // Testen ob das Equipment verfügbar ist (z.B. nicht bereits reserviert oder defekt)
-            //zu time Period hinzufügen
 
             reservation.addItem(equipment);
+
+            //zu time Period hinzufügen
         }
-        return null;
+
+        Reservation savedReservation = reservationRepository.save(reservation);
+        //bestätigungs-email senden
+        return mapper.entityToDetailDto(savedReservation);
     }
 
     @Override

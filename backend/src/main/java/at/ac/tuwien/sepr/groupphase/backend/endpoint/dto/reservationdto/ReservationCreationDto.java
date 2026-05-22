@@ -28,18 +28,43 @@ public class ReservationCreationDto {
 
     public ReservationCreationDto() {}
 
-    public Long getCustomerProfileId() { return customerProfileId; }
-    public void setCustomerProfileId(Long customerProfileId) { this.customerProfileId = customerProfileId; }
+    public Long getCustomerProfileId() {
+        return customerProfileId;
+    }
 
-    public List<Long> getEquipmentIds() { return equipmentIds; }
-    public void setEquipmentIds(List<Long> equipmentIds) { this.equipmentIds = equipmentIds; }
+    public void setCustomerProfileId(Long customerProfileId) {
+        this.customerProfileId = customerProfileId;
+    }
 
-    public LocalTime getPickUpTime() { return pickUpTime; }
-    public void setPickUpTime(LocalTime pickUpTime) { this.pickUpTime = pickUpTime; }
+    public List<Long> getEquipmentIds() {
+        return equipmentIds;
+    }
 
-    public LocalDate getPickUpDate() { return pickUpDate; }
-    public void setPickUpDate(LocalDate pickUpDate) { this.pickUpDate = pickUpDate; }
+    public void setEquipmentIds(List<Long> equipmentIds) {
+        this.equipmentIds = equipmentIds;
+    }
 
-    public int getRentDurationDays() { return rentDurationDays; }
-    public void setRentDurationDays(int rentDurationDays) { this.rentDurationDays = rentDurationDays; }
+    public LocalTime getPickUpTime() {
+        return pickUpTime;
+    }
+
+    public void setPickUpTime(LocalTime pickUpTime) {
+        this.pickUpTime = pickUpTime;
+    }
+
+    public LocalDate getPickUpDate() {
+        return pickUpDate;
+    }
+
+    public void setPickUpDate(LocalDate pickUpDate) {
+        this.pickUpDate = pickUpDate;
+    }
+
+    public int getRentDurationDays() {
+        return rentDurationDays;
+    }
+
+    public void setRentDurationDays(int rentDurationDays) {
+        this.rentDurationDays = rentDurationDays;
+    }
 }

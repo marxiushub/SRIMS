@@ -9,6 +9,7 @@ import java.util.List;
 public class ReservationDetailDto {
 
     private Long id;
+    private Long customerProfileId;
     private String customerName;
     private LocalTime pickUpTime;
     private LocalDate pickUpDate;
@@ -35,6 +36,14 @@ public class ReservationDetailDto {
 
     public void setCustomerName(String customerName) {
         this.customerName = customerName;
+    }
+
+    public Long getCustomerProfileId() {
+        return customerProfileId;
+    }
+
+    public void setCustomerProfileId(Long customerProfileId) {
+        this.customerProfileId = customerProfileId;
     }
 
     public LocalTime getPickUpTime() {

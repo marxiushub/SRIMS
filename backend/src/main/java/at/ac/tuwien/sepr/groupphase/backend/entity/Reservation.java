@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
+import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -44,7 +45,7 @@ public class Reservation {
 
     protected Reservation() {}
 
-    public Reservation(CustomerProfile customerProfile , LocalTime pickUpTime,LocalDate pickUpDate, int rentDurationDays) {
+    public Reservation(CustomerProfile customerProfile, LocalTime pickUpTime, LocalDate pickUpDate, int rentDurationDays) {
         this.customerProfile = customerProfile;
         this.pickUpTime = pickUpTime;
         this.pickUpDate = pickUpDate;
@@ -98,6 +99,7 @@ public class Reservation {
     public LocalTime getPickUpTime() {
         return pickUpTime;
     }
+
     public CustomerProfile getCustomerProfile() {
         return customerProfile;
     }

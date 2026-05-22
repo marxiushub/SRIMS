@@ -6,14 +6,23 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Reservation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ReservationRelation;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-
-import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper(componentModel = "spring", uses = {EquipmentMapper.class})
-public interface ReservationMapper {
-    @Mapping(source = "customerProfile.name", target = "customerName")
-    ReservationDetailDto entityToDetailDto(Reservation reservation);
+public abstract class ReservationMapper {
 
-    @Mapping(source = ".", target = "equipment")
-    EquipmentDetailDto relationToEquipmentDto(ReservationRelation relation);
+    @Autowired
+    protected EquipmentMapper equipmentMapper;
+
+    @Mapping(source = "customerProfile.id", target = "customerProfileId")
+    @Mapping(source = "customerProfile.profileName", target = "customerName")
+    public abstract ReservationDetailDto entityToDetailDto(Reservation reservation);
+
+    public EquipmentDetailDto relationToEquipmentDto(ReservationRelation relation) {
+        if (relation == null || relation.getEquipment() == null) {
+            return null;
+        }
+
+        return equipmentMapper.entityToDto(relation.getEquipment());
+    }
 }

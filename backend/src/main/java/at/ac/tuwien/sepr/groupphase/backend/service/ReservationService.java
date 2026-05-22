@@ -8,9 +8,8 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.Reservat
 import java.util.List;
 
 /**
- * Service interface for managing reservation-related operations
+ * Service interface for managing reservation-related operations.
  */
-
 public interface ReservationService {
 
     /**
