@@ -13,9 +13,9 @@ public class SnowboardBoot extends Equipment {
     protected SnowboardBoot() {
     }
 
-    public SnowboardBoot(String model, double price, String lancingSystem, RentalStatus status, SkillLevel targetSkillLevel) {
+    public SnowboardBoot(String model, double price, String lacingSystem, RentalStatus status, SkillLevel targetSkillLevel) {
         super(model, price, status, targetSkillLevel);
-        this.lacingSystem = lancingSystem;
+        this.lacingSystem = lacingSystem;
     }
 
     public String getLacingSystem() {

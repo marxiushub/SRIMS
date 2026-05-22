@@ -57,7 +57,7 @@
     "LENGTH": "Length (cm)",
     "SIZE": "Size (cm)",
     "SOLE_LENGTH_MM": "Sole length (mm)",
-    "LANCING_SYSTEM": "Lacing system",
+    "LACING_SYSTEM": "Lacing system",
     "SAVE": "Save",
     "CANCEL": "Cancel",
     "ERROR": "Equipment could not be created.",

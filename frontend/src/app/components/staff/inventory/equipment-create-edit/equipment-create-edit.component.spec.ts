@@ -134,7 +134,7 @@ describe('EquipmentCreateEditComponent', () => {
       length: null,
       size: 58,
       soleLengthMm: null,
-      lancingSystem: null
+      lacingSystem: null
     });
     expect(routerMock.navigate).toHaveBeenCalledWith(['/staff/inventory']);
     expect(component.loading).toBeFalse();

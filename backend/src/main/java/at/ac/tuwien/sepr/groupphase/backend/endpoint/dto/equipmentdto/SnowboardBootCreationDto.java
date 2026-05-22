@@ -9,14 +9,14 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.SnowboardBoot;
 public class SnowboardBootCreationDto extends EquipmentCreationDto {
 
 
-    private String lancingSystem;
+    private String lacingSystem;
 
-    public String getLancingSystem() {
-        return lancingSystem;
+    public String getLacingSystem() {
+        return lacingSystem;
     }
 
-    public void setLancingSystem(String lancingSystem) {
-        this.lancingSystem = lancingSystem;
+    public void setLacingSystem(String lacingSystem) {
+        this.lacingSystem = lacingSystem;
     }
 
     private final EquipmentType type = EquipmentType.SNOWBOARDBOOT;
@@ -28,7 +28,7 @@ public class SnowboardBootCreationDto extends EquipmentCreationDto {
 
     @Override
     public Equipment toEntity() {
-        return new SnowboardBoot(getModel(), getPrice(), lancingSystem, getStatus(), getTargetSkillLevel());
+        return new SnowboardBoot(getModel(), getPrice(), lacingSystem, getStatus(), getTargetSkillLevel());
     }
 
 }
