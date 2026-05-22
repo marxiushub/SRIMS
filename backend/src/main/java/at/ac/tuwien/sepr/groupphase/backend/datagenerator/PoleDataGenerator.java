@@ -1,7 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Pole;
-import at.ac.tuwien.sepr.groupphase.backend.repository.PoleRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.PoleRepository;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
 

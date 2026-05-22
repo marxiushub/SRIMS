@@ -13,7 +13,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Helmet;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
-import at.ac.tuwien.sepr.groupphase.backend.repository.HelmetRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.HelmetRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.EquipmentServiceImpl;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
@@ -117,6 +117,8 @@ public class EquipmentServiceTest {
 
 
     @Test
+    @Transactional
+    @Rollback
     void getEquipmentByTypeUnknownTypeThrowsNotFound() {
         NotFoundException exception = assertThrows(NotFoundException.class, () ->
             equipmentService.equipmentByType("invalid_type"));
@@ -140,6 +142,8 @@ public class EquipmentServiceTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void getEquipmentByIdUnknownIdThrowsNotFoundException() {
         Long invalidId = 99999L;
 

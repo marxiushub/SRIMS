@@ -1,7 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.SnowboardBoot;
-import at.ac.tuwien.sepr.groupphase.backend.repository.SnowboardBootRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.SnowboardBootRepository;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
 

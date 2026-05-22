@@ -1,6 +1,6 @@
-package at.ac.tuwien.sepr.groupphase.backend.repository;
+package at.ac.tuwien.sepr.groupphase.backend.repository.user;
 
-import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
+import at.ac.tuwien.sepr.groupphase.backend.entity.user.ApplicationUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
