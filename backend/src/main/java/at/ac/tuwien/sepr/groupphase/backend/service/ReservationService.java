@@ -39,14 +39,13 @@ public interface ReservationService {
      * Partially updates an existing reservation.
      * Only the non-null fields provided in the {@code updateDto} will be applied to the existing entity.
      *
-     * @param id        the unique identifier of the reservation to update
      * @param updateDto the data transfer object containing the new values
      * @return an {@link ReservationDetailDto} representing the updated equipment
      * @throws at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException if no reservation with the given ID exists in the database
      * @throws IllegalArgumentException                                         if any provided field value is invalid
      *
      */
-    ReservationDetailDto updateReservation(Long id, ReservationUpdateDto updateDto);
+    ReservationDetailDto updateReservation(ReservationUpdateDto updateDto);
 
     /**
      * Searches for reservations based on dynamic criteria

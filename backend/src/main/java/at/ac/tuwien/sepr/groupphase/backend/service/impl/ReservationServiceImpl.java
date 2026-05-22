@@ -84,12 +84,11 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
 
             LocalDate pickUpDate = dto.getPickUpDate();
             LocalDate dropOffDate =  pickUpDate.plusDays(dto.getRentDurationDays());
+
             validator.isEquipmentAvailable(equipment, pickUpDate, dropOffDate);
             reservation.addItem(equipment);
 
             equipment.addTimePeriod(pickUpDate, dropOffDate, PeriodType.RENTED);
-
-            //zu time Period hinzufügen
         }
 
         Reservation savedReservation = reservationRepository.save(reservation);
@@ -120,8 +119,59 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
     }
 
     @Override
-    public ReservationDetailDto updateReservation(Long id, ReservationUpdateDto updateDto) {
-        return null;
+    @Transactional
+    public ReservationDetailDto updateReservation(ReservationUpdateDto dto) {
+        Long id = dto.getId();
+
+        LOGGER.trace("update reservation {}", id);
+
+        Reservation reservation = reservationRepository.findById(id)
+            .orElseThrow(() ->
+                new NotFoundException("Reservation not found")
+            );
+
+        if (dto.getPickUpTime() != null) {
+            reservation.setPickUpTime(dto.getPickUpTime());
+        }
+
+        if (dto.getPickUpDate() != null) {
+            reservation.setPickUpDate(dto.getPickUpDate());
+        }
+
+        if (dto.getRentDurationDays() != null) {
+            reservation.setRentDurationDays(dto.getRentDurationDays());
+        }
+
+
+
+
+
+
+        /*
+         * equipment
+         */
+
+        if (dto.getEquipmentIds() != null) {
+
+            reservation.getItems().clear();
+
+            List<Equipment> equipmentList =
+                equipmentRepository.findAllById(dto.getEquipmentIds());
+
+            for (Equipment equipment : equipmentList) {
+
+                validator.isEquipmentAvailable(
+                    equipment,
+                    reservation.getPickUpDate(),
+                    reservation.getReturnDate()
+                );
+
+                reservation.addItem(equipment);
+            }
+        }
+
+        Reservation saved = reservationRepository.save(reservation);
+        return mapper.entityToDetailDto(saved);
     }
 
     @Override

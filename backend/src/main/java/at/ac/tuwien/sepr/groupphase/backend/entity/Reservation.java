@@ -43,7 +43,8 @@ public class Reservation {
 
     private Boolean confirmationEmailSent;
 
-    protected Reservation() {}
+    protected Reservation() {
+    }
 
     public Reservation(CustomerProfile customerProfile, LocalTime pickUpTime, LocalDate pickUpDate, int rentDurationDays) {
         this.customerProfile = customerProfile;
@@ -62,7 +63,8 @@ public class Reservation {
 
     /**
      * Setter.
-     * */
+     *
+     */
     public void addItem(Equipment equipment) {
         ReservationRelation item = new ReservationRelation(this, equipment);
         items.add(item);
@@ -80,10 +82,15 @@ public class Reservation {
         this.pickUpDate = pickUpDate;
     }
 
+    public void setPickUpTime(LocalTime pickUpTime) {
+        this.pickUpTime = pickUpTime;
+    }
+
 
     /**
      * Getter.
-     * */
+     *
+     */
     public List<ReservationRelation> getItems() {
         return items;
     }
@@ -106,6 +113,10 @@ public class Reservation {
 
     public Long getId() {
         return id;
+    }
+
+    public LocalDate getPickUpDate() {
+        return pickUpDate;
     }
 
 }

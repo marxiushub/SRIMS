@@ -2,13 +2,16 @@ package at.ac.tuwien.sepr.groupphase.backend.unittests;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Helmet;
+import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Pole;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.Customer;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ReservationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.EquipmentRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerProfileRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
@@ -46,7 +49,10 @@ public class ReservationServiceTest {
 
     private CustomerProfile testCustomerProfile;
     private Equipment testEquipment;
+    private Equipment testEquipment2;
     private Customer testCustomer;
+    @Autowired
+    private ReservationRepository reservationRepository;
 
 
     @BeforeEach
@@ -57,6 +63,8 @@ public class ReservationServiceTest {
         testCustomerProfile = customerProfileRepository.save(testCustomerProfile);
         testEquipment = new Helmet("Test Helmet Model", 10.0, 55.0, RentalStatus.FREE, SkillLevel.BEGINNER);
         testEquipment = equipmentRepository.save(testEquipment);
+        testEquipment2 = new Pole("ATI", 6.0, 105.0, RentalStatus.FREE, SkillLevel.ADVANCED);
+        testEquipment2 = equipmentRepository.save(testEquipment2);
     }
 
     @Test
@@ -104,6 +112,77 @@ public class ReservationServiceTest {
         );
     }
 
+    @Test
+    @Transactional
+    @Rollback
+    public void updateReservation_withValidData_returnsUpdatedReservationDto() {
 
+        /*
+         * create initial reservation
+         */
+
+        ReservationCreationDto createDto = new ReservationCreationDto();
+        createDto.setCustomerProfileId(testCustomerProfile.getId());
+        createDto.setEquipmentIds(List.of(testEquipment.getId()));
+        createDto.setPickUpDate(LocalDate.now().plusDays(2));
+        createDto.setPickUpTime(LocalTime.of(10, 0));
+        createDto.setRentDurationDays(3);
+
+        ReservationDetailDto createdReservation =
+            reservationService.createReservation(createDto);
+
+        assertThat(createdReservation.getId()).isNotNull();
+
+        Equipment secondEquipment = testEquipment2;
+        /*
+         * create update dto
+         */
+
+        ReservationUpdateDto updateDto = new ReservationUpdateDto();
+        updateDto.setId(createdReservation.getId());
+        updateDto.setPickUpDate(LocalDate.now().plusDays(5));
+        updateDto.setPickUpTime(LocalTime.of(14, 30));
+        updateDto.setRentDurationDays(7);
+        updateDto.setEquipmentIds(
+            List.of(secondEquipment.getId())
+        );
+
+        /*
+         * execute update
+         */
+
+        ReservationDetailDto updatedReservation =
+            reservationService.updateReservation(
+                updateDto
+            );
+
+        /*
+         * assertions
+         */
+
+        assertAll(
+            "Verify that the reservation was updated correctly",
+
+            () -> assertThat(updatedReservation).isNotNull(),
+
+            () -> assertThat(updatedReservation.getId())
+                .isEqualTo(createdReservation.getId()),
+
+            () -> assertThat(updatedReservation.getCustomerName())
+                .isEqualTo("Max Mustermann"),
+
+            () -> assertThat(updatedReservation.getPickUpDate())
+                .isEqualTo(LocalDate.now().plusDays(5)),
+
+            () -> assertThat(updatedReservation.getPickUpTime())
+                .isEqualTo(LocalTime.of(14, 30)),
+
+            () -> assertThat(updatedReservation.getRentDurationDays())
+                .isEqualTo(7),
+
+            () -> assertThat(updatedReservation.getReturnDate())
+                .isEqualTo(LocalDate.now().plusDays(12))
+        );
+    }
 
 }
