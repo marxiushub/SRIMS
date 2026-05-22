@@ -47,14 +47,7 @@ public class EquipmentServiceImpl implements EquipmentService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private final EquipmentRepository equipmentRepository;
-    private final HelmetRepository helmetRepository;
-    private final PoleRepository poleRepository;
-    private final SkiRepository skiRepository;
-    private final SkiBootRepository skiBootRepository;
-    private final SnowboardRepository snowboardRepository;
-    private final SnowboardBootRepository snowboardBootRepository;
     private final EquipmentMapper mapper;
-
     private final Map<EquipmentType, JpaRepository<? extends Equipment, Long>> repositoryMap;
 
     /**
@@ -81,12 +74,6 @@ public class EquipmentServiceImpl implements EquipmentService {
         EquipmentMapper mapper
     ) {
         this.equipmentRepository = equipmentRepository;
-        this.helmetRepository = helmetRepository;
-        this.poleRepository = poleRepository;
-        this.skiRepository = skiRepository;
-        this.skiBootRepository = skiBootRepository;
-        this.snowboardRepository = snowboardRepository;
-        this.snowboardBootRepository = snowboardBootRepository;
         this.mapper = mapper;
         this.repositoryMap = Map.of(
             HELMET, helmetRepository,
@@ -101,7 +88,6 @@ public class EquipmentServiceImpl implements EquipmentService {
     @Override
     public List<EquipmentDetailDto> createEquipment(EquipmentCreationDto dto) {
         LOGGER.trace("Creation of an {}", dto.getType());
-
 
         List<EquipmentDetailDto> created = new ArrayList<>();
         JpaRepository<Equipment, Long> repo =

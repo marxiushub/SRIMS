@@ -13,6 +13,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.EnumType;
 
 import jakarta.persistence.ManyToOne;
+
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -22,17 +24,17 @@ public class TimePeriods {
     private Long id;
 
     @Column(nullable = false)
-    private Date startDate;
+    private LocalDate startDate;
 
     @Column(nullable = false)
-    private Date endDate;
+    private LocalDate endDate;
 
     @ManyToOne
     private Equipment equipment;
 
     protected TimePeriods() {}
 
-    public TimePeriods(Equipment equipment, Date startDate, Date endDate, PeriodType periodType) {
+    public TimePeriods(Equipment equipment, LocalDate startDate, LocalDate endDate, PeriodType periodType) {
         this.endDate = endDate;
         this.equipment = equipment;
         this.startDate = startDate;
@@ -41,4 +43,17 @@ public class TimePeriods {
 
     @Enumerated(EnumType.STRING)
     private PeriodType periodType;
+
+    public PeriodType getPeriodType(){
+        return this.periodType;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
 }

@@ -6,6 +6,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.Reservat
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ReservationMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Reservation;
+import at.ac.tuwien.sepr.groupphase.backend.entity.enums.PeriodType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
@@ -19,23 +20,25 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
 public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.backend.service.ReservationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final ReservationMapper mapper;
-
+    private final ReservationValidator validator;
     private final ReservationRepository reservationRepository;
     private final EquipmentRepository equipmentRepository;
     private final CustomerProfileRepository customerProfileRepository;
 
     @Autowired
-    public ReservationServiceImpl(ReservationMapper reservationMapper, ReservationRepository reservationRepository, EquipmentRepository equipmentRepository, CustomerProfileRepository customerProfileRepository) {
+    public ReservationServiceImpl(ReservationMapper reservationMapper, ReservationRepository reservationRepository, EquipmentRepository equipmentRepository, CustomerProfileRepository customerProfileRepository, ReservationValidator validator) {
         this.mapper = reservationMapper;
         this.reservationRepository = reservationRepository;
         this.equipmentRepository = equipmentRepository;
         this.customerProfileRepository = customerProfileRepository;
+        this.validator = validator;
     }
 
 
@@ -75,9 +78,12 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
             Equipment equipment = equipmentRepository.findById(equipmentId)
                 .orElseThrow(() -> new NotFoundException("Equipment with ID " + equipmentId + " not found."));
 
-            // Testen ob das Equipment verfügbar ist (z.B. nicht bereits reserviert oder defekt)
-
+            LocalDate pickUpDate = dto.getPickUpDate();
+            LocalDate dropOffDate =  pickUpDate.plusDays(dto.getRentDurationDays());
+            validator.isEquiomentAvailable(equipment, pickUpDate, dropOffDate);
             reservation.addItem(equipment);
+
+            equipment.addTimePeriod(pickUpDate, dropOffDate, PeriodType.RENTED);
 
             //zu time Period hinzufügen
         }

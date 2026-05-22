@@ -17,8 +17,10 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 /**
@@ -124,7 +126,7 @@ public abstract class Equipment {
         this.usageDurationDays = 0;
     }
 
-    public void addTimePeriod(Date start, Date end, PeriodType periodType) {
+    public void addTimePeriod(LocalDate start, LocalDate end, PeriodType periodType) {
         TimePeriods period = new TimePeriods(this, start, end, periodType);
         timePeriodsList.add(period);
     }
