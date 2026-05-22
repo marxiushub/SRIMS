@@ -17,7 +17,7 @@ export class EquipmentService {
   }
 
   /**
-   * Loads all equipment from the backend
+   * Loads all equipment from the backend.
    */
   getAll(): Observable<Equipment[]> {
     return this.httpClient.get<Equipment[]>(this.equipmentBaseUri);
