@@ -80,7 +80,17 @@
     "SHOE_SIZE": "Schuhgröße",
     "SKILL_LEVEL": "Erfahrungslevel",
     "WEIGHT": "Gewicht",
-    "ADD_PROFILE": "Profil hinzufügen"
+    "ADD_PROFILE": "Profil hinzufügen",
+    "LOADING": "Profile werden geladen",
+    "RELOAD": "Aktualisieren",
+    "NO_PROFILES": "Keine Profile gefunden.",
+    "PROFILE_ACTIONS": "Aktionen",
+    "DELETE": "Löschen",
+    "DELETE_TITLE": "Ausrüstung löschen",
+    "DELETE_CONFIRMATION": "Sind Sie sicher, dass Sie diese Ausrüstung löschen wollen?",
+    "DELETE_CANCEL": "Abbrechen",
+    "DELETE_CONFIRM": "Löschen",
+    "DELETE_ERROR": "Ausrüstung konnte nicht gelöscht werden."
   },
   "CUSTOMER_PROFILE_CREATE": {
     "TITLE": "Profil hinzufügen",
@@ -88,7 +98,7 @@
     "NAME": "Profilname",
     "SHOE_SIZE": "Schuhgröße",
     "SKILL_LEVEL": "Erfahrungslevel",
-    "WEIGHT": "Gewicht",
+    "WEIGHT": "Gewicht (kg)",
     "SAVE": "Speichern",
     "CANCEL": "Abbrechen",
     "ERROR": "Profil konnte nicht erstellt werden.",

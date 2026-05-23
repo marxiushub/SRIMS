@@ -5,34 +5,134 @@
 
     <span style="flex: 1"></span>
 
-    <button class="btn btn-primary" (click)="openCreatePage()">
+    <button class="btn btn-primary m-md-2" (click)="openCreatePage()">
       {{ 'CUSTOMER_PROFILE.ADD_PROFILE' | translate }}
     </button>
 
-    <button class="btn btn-primary" (click)="loadEquipment()">
-      {{ 'INVENTORY.RELOAD' | translate }}
+    <button class="btn btn-primary" (click)="loadProfiles()">
+      {{ 'CUSTOMER_PROFILE.RELOAD' | translate }}
     </button>
   </div>
 
-  @if (!loading) {
+  @if (loading) {
+    <div class="alert alert-info">
+      {{ 'CUSTOMER_PROFILE.LOADING' | translate }}
+    </div>
+  }
+
+  @if (!loading && profiles.length === 0) {
+    <div class="alert alert-warning">
+      {{ 'CUSTOMER_PROFILE.NO_PROFILES' | translate }}
+    </div>
+  }
+
+  @if (!loading && profiles.length > 0) {
     <table class="table table-hover table-striped align-middle">
 
       <thead>
       <tr>
-        <th>{{ 'CUSTOMER_PROFILE.HEIGHT' | translate }}</th>
         <th>{{ 'CUSTOMER_PROFILE.NAME' | translate }}</th>
+        <th>{{ 'CUSTOMER_PROFILE.HEIGHT' | translate }}</th>
         <th>{{ 'CUSTOMER_PROFILE.SHOE_SIZE' | translate }}</th>
         <th>{{ 'CUSTOMER_PROFILE.SKILL_LEVEL' | translate }}</th>
         <th>{{ 'CUSTOMER_PROFILE.WEIGHT' | translate }}</th>
+        <th>{{ 'CUSTOMER_PROFILE.PROFILE_ACTIONS' | translate }}</th>
       </tr>
       </thead>
 
       <tbody>
-      <!-- TODO implement table once the backend endpoint for getAll exists-->
-
       </tbody>
+      @for (item of profiles; track item.id) {
+        <tr>
+          <td>{{ item.profileName }}</td>
+          <td>{{ item.height + 'cm' }}</td>
+          <td>{{ item.shoeSize }}</td>
+          <td>{{ 'SKILL_LEVEL.' + item.skillLevel | translate }}</td>
+          <td>{{ item.weight + 'kg' }}</td>
 
+          <td>
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-primary me-2"
+              (click)="openEditPage(item)">
+              {{ 'CUSTOMER_PROFILE_EDIT.TITLE' | translate }}
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-danger"
+              (click)="openDeleteDialog(item)">
+              {{ 'CUSTOMER_PROFILE.DELETE' | translate }}
+            </button>
+          </td>
+        </tr>
+      }
     </table>
+  }
+
+  @if (profileToDelete) {
+    <div class="modal fade show d-block" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+          <div class="modal-header">
+            <h5 class="modal-title">
+              {{ 'CUSTOMER_PROFILE.DELETE_TITLE' | translate }}
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              aria-label="Close"
+              [disabled]="deleteLoading"
+              (click)="cancelDelete()">
+            </button>
+          </div>
+
+          <div class="modal-body">
+            <p>
+              {{ 'CUSTOMER_PROFILE.DELETE_CONFIRMATION' | translate }}
+            </p>
+
+            <p class="fw-bold mb-0">
+              {{ profileToDelete.profileName }}
+            </p>
+
+
+            @if (deleteError) {
+              <div class="alert alert-danger mt-3 mb-0">
+                {{ 'CUSTOMER_PROFILE.DELETE_ERROR' | translate }}
+              </div>
+            }
+          </div>
+
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              [disabled]="deleteLoading"
+              (click)="cancelDelete()">
+              {{ 'CUSTOMER_PROFILE.DELETE_CANCEL' | translate }}
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-danger"
+              [disabled]="deleteLoading"
+              (click)="confirmDelete()">
+              @if (deleteLoading) {
+                {{ 'CUSTOMER_PROFILE.DELETE_CONFIRM' | translate }}...
+              } @else {
+                {{ 'CUSTOMER_PROFILE.DELETE_CONFIRM' | translate }}
+              }
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop fade show"></div>
+
   }
 
 </div>

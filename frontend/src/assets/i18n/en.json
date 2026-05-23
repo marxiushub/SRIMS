@@ -80,7 +80,17 @@
     "SHOE_SIZE": "Shoe size",
     "SKILL_LEVEL": "Skill level",
     "WEIGHT": "Weight",
-    "ADD_PROFILE": "Add Profile"
+    "ADD_PROFILE": "Add Profile",
+    "LOADING": "Loading profiles...",
+    "RELOAD": "Reload",
+    "NO_PROFILES": "No profiles found.",
+    "PROFILE_ACTIONS": "Actions",
+    "DELETE": "Delete",
+    "DELETE_TITLE": "Delete Profile",
+    "DELETE_CONFIRMATION": "Are you sure you want to delete this profile?",
+    "DELETE_CANCEL": "Cancel",
+    "DELETE_CONFIRM": "Delete",
+    "DELETE_ERROR": "Profile could not be deleted."
   },
   "CUSTOMER_PROFILE_CREATE": {
     "TITLE": "Add Profile",
@@ -88,7 +98,7 @@
     "NAME": "Profile Name",
     "SHOE_SIZE": "Shoe size",
     "SKILL_LEVEL": "Skill level",
-    "WEIGHT": "Weight",
+    "WEIGHT": "Weight (kg)",
     "SAVE": "Save",
     "CANCEL": "Cancel",
     "ERROR": "Profile could not be created.",

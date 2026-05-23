@@ -9,7 +9,8 @@ import {InventoryComponent} from './components/staff/inventory/inventory.compone
 import {CustomerComponent} from './components/customer/customer.component';
 import {CustomerProfileComponent} from './components/customer/customer-profile/customer-profile.component';
 import {
-  CustomerProfileCreateEditComponent
+  CustomerProfileCreateEditComponent,
+  ProfileCreateEditMode
 } from './components/customer/customer-profile/customer-profile-create-edit/customer-profile-create-edit.component';
 import {
   EquipmentCreateEditComponent,
@@ -31,7 +32,17 @@ const routes: Routes = [
 
   {path: 'customer', component: CustomerComponent},
   {path: 'customer/profiles', component: CustomerProfileComponent},
-  {path: 'customer/profiles/create', component: CustomerProfileCreateEditComponent}
+  {
+    path: 'customer/profiles/create',
+    component: CustomerProfileCreateEditComponent,
+    data: {mode: ProfileCreateEditMode.create}
+  },
+  {
+    path: 'customer/profiles/edit/:id',
+    component: CustomerProfileCreateEditComponent,
+    data: {mode: ProfileCreateEditMode.edit}
+  },
+
 ];
 
 @NgModule({

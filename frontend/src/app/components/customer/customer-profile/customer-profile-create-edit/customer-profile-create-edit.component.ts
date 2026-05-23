@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {CustomerService} from "../../../../services/customer.service";
-import {CustomerProfileCreation} from "../../../../dtos/customer-profile-creation";
+import {CustomerProfileCreationUpdate} from "../../../../dtos/customer-profile-creation-update";
 import {SkillLevel} from "../../../../dtos/skilllevel";
 import {ActivatedRoute, Router} from "@angular/router";
 
@@ -19,16 +19,16 @@ export class CustomerProfileCreateEditComponent {
   readonly ProfileCreateEditMode = ProfileCreateEditMode;
 
   mode: ProfileCreateEditMode = ProfileCreateEditMode.create;
+  profileId?: number;
   loading = false;
   error = false;
 
-  profile: CustomerProfileCreation = {
+  profile: CustomerProfileCreationUpdate = {
     height: 0,
     profileName: '',
     shoeSize: 0,
     skillLevel: SkillLevel.BEGINNER,
     weight: 0,
-    customerId: 0
   };
 
   skillLevels = [
@@ -40,30 +40,64 @@ export class CustomerProfileCreateEditComponent {
   constructor(private customerService: CustomerService, private router: Router, private route: ActivatedRoute) {
   }
 
+  ngOnInit(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+
+    if (id) {
+      this.mode = ProfileCreateEditMode.edit;
+      this.profileId = Number(id);
+      this.loadProfile(this.profileId);
+    }
+  }
+
+  private loadProfile(id: number): void {
+    this.loading = true;
+    this.customerService.getById(id).subscribe({
+      next: (data) => {
+        this.profile = {
+          height: data.height,
+          profileName: data.profileName,
+          shoeSize: data.shoeSize,
+          skillLevel: data.skillLevel,
+          weight: data.weight,
+        };
+
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Failed to load profile', err);
+        this.error = true;
+        this.loading = false;
+      }
+    });
+  }
+
   onSubmit(): void {
     this.loading = true;
     this.error = false;
 
-    if (this.mode === ProfileCreateEditMode.create) {
-      //TODO implement create once the backend endpoint exists
-      /*const request: EquipmentCreation = this.buildCreateRequest();
+    const request: CustomerProfileCreationUpdate = {
+      height: this.profile.height,
+      profileName: this.profile.profileName,
+      shoeSize: this.profile.shoeSize,
+      skillLevel: this.profile.skillLevel,
+      weight: this.profile.weight,
+    };
 
+    if (this.mode === ProfileCreateEditMode.create) {
       this.customerService.create(request).subscribe({
         next: () => {
           this.loading = false;
           this.router.navigate(['/customer/profiles']);
         },
         error: err => {
-          console.error('Failed to create equipment', err);
+          console.error('Failed to create profile', err);
           this.error = true;
           this.loading = false;
         }
-      });*/
+      });
     } else {
-      //TODO implement update once the backend endpoint exists
-      /*const request: EquipmentUpdate = this.buildUpdateRequest();
-
-      this.customerService.update(this.equipmentId!, request).subscribe({
+      this.customerService.update(this.profileId!, request).subscribe({
         next: () => {
           this.loading = false;
           this.router.navigate(['/customer/profiles']);
@@ -73,7 +107,7 @@ export class CustomerProfileCreateEditComponent {
           this.error = true;
           this.loading = false;
         }
-      });*/
+      });
     }
   }
 
