@@ -4,6 +4,8 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.Reservat
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
+import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 
 import java.util.List;
 
@@ -57,4 +59,24 @@ public interface ReservationService {
      * @return a list of {@link ReservationDetailDto} matching the given criteria; an empty list if no matches are found
      */
     List<ReservationDetailDto> searchReservations(ReservationSearchDto searchDto);
+
+    /**
+     * Adds equipment items to an existing reservation.
+     *
+     * @param equipments the list of equipment items to add to the reservation
+     * @param reservationId the unique identifier of the reservation to which equipment will be added
+     * @return a {@link ReservationDetailDto} representing the updated reservation with the added equipment
+     * @throws NotFoundException if no reservation with the given ID exists in the database
+     */
+    ReservationDetailDto addEquipmentToReservation(List<Equipment> equipments, Long reservationId);
+
+    /**
+     * Removes equipment items from an existing reservation.
+     *
+     * @param equipments the list of equipment items to remove from the reservation
+     * @param reservationId the unique identifier of the reservation from which equipment will be removed
+     * @return a {@link ReservationDetailDto} representing the updated reservation with the removed equipment
+     * @throws NotFoundException if no reservation with the given ID exists in the database
+     */
+    ReservationDetailDto removeEquipmentFromReservation(List<Equipment> equipments, Long reservationId);
 }

@@ -189,4 +189,14 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
     public List<ReservationDetailDto> searchReservations(ReservationSearchDto searchDto) {
         return List.of();
     }
+
+    @Override
+    public ReservationDetailDto addEquipmentToReservation(List<Equipment> equipments, Long reservationId) {
+        return null;
+    }
+
+    @Override
+    public ReservationDetailDto removeEquipmentFromReservation(List<Equipment> equipments, Long reservationId) {
+        return null;
+    }
 }
