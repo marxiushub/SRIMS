@@ -8,9 +8,10 @@ import {CustomerProfileCreationUpdate} from '../dtos/customer-profile-creation-u
 @Injectable({
   providedIn: 'root'
 })
-export class CustomerService {
+export class CustomerProfileService {
 
-  private customerBaseUri: string = this.globals.backendUri + '/customer';
+  //TODO update according to backend
+  private customerBaseUri: string = this.globals.backendUri + '/profiles';
 
   constructor(private httpClient: HttpClient, private globals: Globals) {
   }

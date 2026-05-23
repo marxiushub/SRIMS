@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {CustomerService} from "../../../../services/customer.service";
+import {CustomerProfileService} from "../../../../services/customer-profile.service";
 import {CustomerProfileCreationUpdate} from "../../../../dtos/customer-profile-creation-update";
 import {SkillLevel} from "../../../../dtos/skilllevel";
 import {ActivatedRoute, Router} from "@angular/router";
@@ -37,7 +37,7 @@ export class CustomerProfileCreateEditComponent {
     SkillLevel.ADVANCED
   ]
 
-  constructor(private customerService: CustomerService, private router: Router, private route: ActivatedRoute) {
+  constructor(private customerProfileService: CustomerProfileService, private router: Router, private route: ActivatedRoute) {
   }
 
   ngOnInit(): void {
@@ -52,7 +52,7 @@ export class CustomerProfileCreateEditComponent {
 
   private loadProfile(id: number): void {
     this.loading = true;
-    this.customerService.getById(id).subscribe({
+    this.customerProfileService.getById(id).subscribe({
       next: (data) => {
         this.profile = {
           height: data.height,
@@ -85,7 +85,7 @@ export class CustomerProfileCreateEditComponent {
     };
 
     if (this.mode === ProfileCreateEditMode.create) {
-      this.customerService.create(request).subscribe({
+      this.customerProfileService.create(request).subscribe({
         next: () => {
           this.loading = false;
           this.router.navigate(['/customer/profiles']);
@@ -97,7 +97,7 @@ export class CustomerProfileCreateEditComponent {
         }
       });
     } else {
-      this.customerService.update(this.profileId!, request).subscribe({
+      this.customerProfileService.update(this.profileId!, request).subscribe({
         next: () => {
           this.loading = false;
           this.router.navigate(['/customer/profiles']);

@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {Router} from '@angular/router';
-import {CustomerService} from '../../../services/customer.service';
+import {CustomerProfileService} from '../../../services/customer-profile.service';
 import {CustomerProfile} from '../../../dtos/customer-profile';
 import {TranslateService} from '@ngx-translate/core';
 
@@ -18,7 +18,7 @@ export class CustomerProfileComponent {
   deleteLoading = false;
   deleteError?: string;
 
-  constructor(private customerService: CustomerService, public translateService: TranslateService, private router: Router) {
+  constructor(private customerProfileService: CustomerProfileService, public translateService: TranslateService, private router: Router) {
   }
 
   ngOnInit(): void {
@@ -28,7 +28,7 @@ export class CustomerProfileComponent {
   loadProfiles(): void {
     this.loading = true;
 
-    this.customerService.getAll().subscribe({
+    this.customerProfileService.getAll().subscribe({
       next: (data) => {
         this.profiles = data;
         this.loading = false;
@@ -67,7 +67,7 @@ export class CustomerProfileComponent {
     this.deleteLoading = true;
     this.deleteError = undefined;
 
-    this.customerService.delete(this.profileToDelete.id).subscribe({
+    this.customerProfileService.delete(this.profileToDelete.id).subscribe({
       next: () => {
         this.profiles = this.profiles.filter(
           item => item.id !== this.profileToDelete?.id
