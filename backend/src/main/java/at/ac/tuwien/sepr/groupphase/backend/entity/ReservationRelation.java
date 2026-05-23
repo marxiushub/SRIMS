@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Id;
 
@@ -17,19 +18,18 @@ public class ReservationRelation {
     private Long id;
 
     @ManyToOne
+    @JoinColumn(name = "equipment_id", nullable = false)
      private Equipment equipment;
 
     @ManyToOne
+    @JoinColumn(name = "reservation_id", nullable = false)
      private Reservation reservation;
-
-    private int quantity;
 
     protected ReservationRelation() {}
 
-    public ReservationRelation(Reservation reservation, Equipment equipment, int quantity) {
+    public ReservationRelation(Reservation reservation, Equipment equipment) {
         this.equipment = equipment;
         this.reservation = reservation;
-        this.quantity = quantity;
     }
 
     public Reservation getReservation() {
@@ -40,8 +40,8 @@ public class ReservationRelation {
         return equipment;
     }
 
-    public int getQuantity() {
-        return quantity;
+    public Long getId() {
+        return id;
     }
 
 }

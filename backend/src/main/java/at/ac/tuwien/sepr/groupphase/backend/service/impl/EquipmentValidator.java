@@ -12,7 +12,4 @@ import java.lang.invoke.MethodHandles;
 @Component
 public class EquipmentValidator {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-
-
 }

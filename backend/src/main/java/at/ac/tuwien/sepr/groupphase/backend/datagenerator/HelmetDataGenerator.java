@@ -46,7 +46,7 @@ public class HelmetDataGenerator {
             LOGGER.debug("Helmets already generated");
             return;
         } else {
-            LOGGER.debug("Generating "  + helmets.size() + " helmets");
+            LOGGER.info("Generating "  + helmets.size() + " helmets");
             for (Helmet helmet : helmets) {
                 helmetRepository.save(helmet);
             }
