@@ -29,9 +29,6 @@ import java.util.ArrayList;
  *
  */
 
-//PS: Dominik: Ich würde für die Vererbung Joined subclasses verwenden, wobei jede art von equipment
-//seine eigene tabelle hat. ist gut für erweiterbarkeit (müssen keine bestehenden tabellen ändern
-//wenn was dazu kommt und ist am intuitivsten, wir können das aber natürlich noch ändern
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Equipment {
