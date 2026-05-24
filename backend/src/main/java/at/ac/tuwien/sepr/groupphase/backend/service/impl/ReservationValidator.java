@@ -118,6 +118,7 @@ public class ReservationValidator {
         LocalDate start = reservation.getPickUpDate();
         LocalDate end = reservation.getReturnDate();
 
+
         if (dto.getEquipmentIds() != null) {
             for (Long id : dto.getEquipmentIds()) {
                 Equipment equipment = equipmentRepository.findById(id)

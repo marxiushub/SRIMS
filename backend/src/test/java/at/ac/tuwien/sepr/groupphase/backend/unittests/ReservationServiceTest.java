@@ -235,4 +235,41 @@ public class ReservationServiceTest {
         );
     }
 
+    @Test
+    @Transactional
+    @Rollback
+    public void deleteReservation_withValidId_deletesReservation() {
+
+
+        ReservationCreationDto createDto = new ReservationCreationDto();
+        createDto.setCustomerProfileId(testCustomerProfile.getId());
+        createDto.setEquipmentIds(List.of(testEquipment.getId()));
+        createDto.setPickUpDate(LocalDate.now().plusDays(3));
+        createDto.setPickUpTime(LocalTime.of(10, 0));
+        createDto.setRentDurationDays(2);
+
+        ReservationDetailDto created =
+            reservationService.createReservation(createDto);
+
+        Long id = created.getId();
+
+
+        assertThat(reservationRepository.existsById(id)).isTrue();
+
+
+        reservationService.deleteReservation(id);
+
+
+        assertThat(reservationRepository.existsById(id)).isFalse();
+    }
+    @Test
+    @Transactional
+    @Rollback
+    public void deleteReservation_withUnknownId_throwsNotFoundException() {
+
+        assertThrows(NotFoundException.class, () ->
+            reservationService.deleteReservation(99999L)
+        );
+    }
+
 }

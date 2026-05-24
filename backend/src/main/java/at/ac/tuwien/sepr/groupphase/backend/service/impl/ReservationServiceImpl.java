@@ -99,6 +99,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
     }
 
     @Override
+    @Transactional
     public void deleteReservation(Long id) {
         LOGGER.trace("Deleting reservation with id {}", id);
 
@@ -110,13 +111,14 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
             throw new IllegalArgumentException("id is negative");
         }
 
-        if (!reservationRepository.existsById(id)) {
-            throw new NotFoundException("Reservation with ID " + id + " was not found.");
-        }
+        Reservation reservation = reservationRepository.findById(id)
+            .orElseThrow(() ->
+                new NotFoundException("Reservation with ID " + id + " was not found.")
+            );
 
         //bestätigungs-mail senden
 
-        reservationRepository.deleteById(id);
+        reservationRepository.delete(reservation);
 
     }
 
