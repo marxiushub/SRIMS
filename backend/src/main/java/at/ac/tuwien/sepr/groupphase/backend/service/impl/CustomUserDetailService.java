@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.UserCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.detail.UserDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.UserUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.UserMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.UserType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
@@ -135,12 +136,41 @@ public class CustomUserDetailService implements UserService {
 
         ApplicationUser user = userCreationDto.toEntity();
 
-        user.setPassword(
-            passwordEncoder.encode(userCreationDto.getPassword())
-        );
+        user.setPassword(passwordEncoder.encode(userCreationDto.getPassword()));
 
         UserDetailDto created = mapper.entityToDto(repo.save(user));
 
         return created;
+    }
+
+
+    @Override
+    public UserDetailDto updateUser(Long id, UserUpdateDto updateDto) {
+
+        LOGGER.info("Updating user with id {}", id);
+
+        if (id == null) {
+            throw new IllegalArgumentException("id is null");
+        }
+
+        if (id < 0) {
+            throw new IllegalArgumentException("id is negative");
+        }
+
+        ApplicationUser existingUser = userRepository.findById(id)
+            .orElseThrow(() ->
+                new NotFoundException("User with ID " + id + " was not found.")
+            );
+
+        mapper.updateEntityFromDto(updateDto, existingUser);
+
+
+        if (updateDto.getPassword() != null && !updateDto.getPassword().isBlank()) {
+            existingUser.setPassword(passwordEncoder.encode(updateDto.getPassword()));
+        }
+
+        ApplicationUser savedUser = userRepository.save(existingUser);
+
+        return mapper.entityToDto(savedUser);
     }
 }

@@ -3,6 +3,8 @@ package at.ac.tuwien.sepr.groupphase.backend.unittests;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.CustomerCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.StaffCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.detail.UserDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.CustomerUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.StaffUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.Customer;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.Staff;
@@ -132,6 +134,111 @@ public class UserServiceTest {
             () -> assertThat(savedStaff.getId()).isEqualTo(created.getId()),
             () -> assertThat(savedStaff.getEmail()).isEqualTo(dto.getEmail()),
             () -> assertThat(savedStaff.getUserName()).isEqualTo(dto.getUserName())
+        );
+    }
+
+
+    @Test
+    @Transactional
+    @Rollback
+    public void updateCustomer_withValidDto_updatesCustomerCorrectly() {
+
+        Customer existingCustomer = customerRepository
+            .findAll()
+            .stream()
+            .findFirst()
+            .orElseThrow();
+
+        CustomerUpdateDto dto = new CustomerUpdateDto();
+
+        dto.setUserName("updated_customer");
+        dto.setPassword("NewPassword123!");
+        dto.setEmail("updated.customer@test.at");
+        dto.setFirstName("UpdatedFirst");
+        dto.setLastName("UpdatedLast");
+        dto.setDateOfBirth(LocalDate.of(2000, 1, 1));
+
+        UserDetailDto updated = userService.updateUser(existingCustomer.getId(), dto);
+
+        ApplicationUser savedApplicationUser = userRepository
+            .findById(existingCustomer.getId())
+            .orElseThrow();
+
+        Customer savedCustomer = customerRepository
+            .findById(existingCustomer.getId())
+            .orElseThrow();
+
+        assertAll(
+            "Verify that the customer was updated correctly",
+
+            //Returned DTO
+            () -> assertThat(updated).isNotNull(),
+            () -> assertThat(updated.getId()).isEqualTo(existingCustomer.getId()),
+            () -> assertThat(updated.getUserName()).isEqualTo(dto.getUserName()),
+            () -> assertThat(updated.getEmail()).isEqualTo(dto.getEmail()),
+
+            //User repository
+            () -> assertThat(savedApplicationUser.getUserName()).isEqualTo(dto.getUserName()),
+            () -> assertThat(savedApplicationUser.getEmail()).isEqualTo(dto.getEmail()),
+
+            () -> assertThat(passwordEncoder.matches(
+                dto.getPassword(),
+                savedApplicationUser.getPassword()
+            )).isTrue(),
+
+            //Customer specific fields
+            () -> assertThat(savedCustomer.getFirstName()).isEqualTo(dto.getFirstName()),
+            () -> assertThat(savedCustomer.getLastName()).isEqualTo(dto.getLastName()),
+            () -> assertThat(savedCustomer.getDateOfBirth()).isEqualTo(dto.getDateOfBirth())
+        );
+    }
+
+
+    @Test
+    @Transactional
+    @Rollback
+    public void updateStaff_withValidDto_updatesStaffCorrectly() {
+
+        Staff existingStaff = staffRepository
+            .findAll()
+            .stream()
+            .findFirst()
+            .orElseThrow();
+
+        StaffUpdateDto dto = new StaffUpdateDto();
+
+        dto.setUserName("updated_staff");
+        dto.setPassword("UpdatedPassword123!");
+        dto.setEmail("updated.staff@test.at");
+
+        UserDetailDto updated = userService.updateUser(existingStaff.getId(), dto);
+
+        ApplicationUser savedApplicationUser = userRepository
+            .findById(existingStaff.getId())
+            .orElseThrow();
+
+        Staff savedStaff = staffRepository
+            .findById(existingStaff.getId())
+            .orElseThrow();
+
+        assertAll(
+            "Verify that the staff user was updated correctly",
+
+            //Returned DTO
+            () -> assertThat(updated).isNotNull(),
+            () -> assertThat(updated.getId()).isEqualTo(existingStaff.getId()),
+            () -> assertThat(updated.getUserName()).isEqualTo(dto.getUserName()),
+            () -> assertThat(updated.getEmail()).isEqualTo(dto.getEmail()),
+
+            //Repository state
+            () -> assertThat(savedStaff.getUserName()).isEqualTo(dto.getUserName()),
+            () -> assertThat(savedStaff.getEmail()).isEqualTo(dto.getEmail()),
+
+            //Password encoded correctly
+            () -> assertThat(passwordEncoder.matches(
+                dto.getPassword(),
+                savedApplicationUser.getPassword()
+            )).isTrue()
         );
     }
 }
