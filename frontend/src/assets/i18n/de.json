@@ -86,11 +86,7 @@
     "NO_PROFILES": "Keine Profile gefunden.",
     "PROFILE_ACTIONS": "Aktionen",
     "DELETE": "Löschen",
-    "DELETE_TITLE": "Ausrüstung löschen",
-    "DELETE_CONFIRMATION": "Sind Sie sicher, dass Sie diese Ausrüstung löschen wollen?",
-    "DELETE_CANCEL": "Abbrechen",
-    "DELETE_CONFIRM": "Löschen",
-    "DELETE_ERROR": "Ausrüstung konnte nicht gelöscht werden."
+    "DETAILS": "Details"
   },
   "CUSTOMER_PROFILE_CREATE": {
     "TITLE": "Profil hinzufügen",
@@ -111,5 +107,23 @@
     "TITLE": "Profil bearbeiten",
     "SAVE": "Änderungen speichern",
     "ERROR": "Profil konnte nicht aktualisiert werden."
+  },
+  "CUSTOMER_PROFILE_DELETE": {
+    "TITLE": "Profil löschen",
+    "CONFIRMATION": "Sind Sie sicher, dass Sie dieses Profil löschen wollen?",
+    "CANCEL": "Abbrechen",
+    "CONFIRM": "Löschen",
+    "ERROR": "Profil konnte nicht gelöscht werden."
+  },
+  "CUSTOMER_PROFILE_DETAILS": {
+    "TITLE": "Profil Details",
+    "NAME": "Profilname",
+    "HEIGHT": "Körpergröße (cm)",
+    "WEIGHT": "Gewicht (kg)",
+    "SHOE_SIZE": "Schuhgröße",
+    "SKILL_LEVEL": "Erfahrungslevel",
+    "BACK": "Zurück",
+    "EDIT": "Bearbeiten",
+    "DELETE": "Löschen"
   }
 }

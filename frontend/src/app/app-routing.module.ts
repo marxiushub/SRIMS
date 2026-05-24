@@ -13,6 +13,9 @@ import {
   ProfileCreateEditMode
 } from './components/customer/customer-profile/customer-profile-create-edit/customer-profile-create-edit.component';
 import {
+  CustomerProfileDetailsComponent
+} from './components/customer/customer-profile/customer-profile-details/customer-profile-details.component';
+import {
   EquipmentCreateEditComponent,
   EquipmentCreateEditMode
 } from "./components/staff/inventory/equipment-create-edit/equipment-create-edit.component";
@@ -42,6 +45,7 @@ const routes: Routes = [
     component: CustomerProfileCreateEditComponent,
     data: {mode: ProfileCreateEditMode.edit}
   },
+  {path: 'customer/profiles/details/:id', component: CustomerProfileDetailsComponent},
 
 ];
 

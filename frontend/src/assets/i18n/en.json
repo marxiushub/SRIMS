@@ -86,11 +86,7 @@
     "NO_PROFILES": "No profiles found.",
     "PROFILE_ACTIONS": "Actions",
     "DELETE": "Delete",
-    "DELETE_TITLE": "Delete Profile",
-    "DELETE_CONFIRMATION": "Are you sure you want to delete this profile?",
-    "DELETE_CANCEL": "Cancel",
-    "DELETE_CONFIRM": "Delete",
-    "DELETE_ERROR": "Profile could not be deleted."
+    "DETAILS": "Details"
   },
   "CUSTOMER_PROFILE_CREATE": {
     "TITLE": "Add Profile",
@@ -111,5 +107,23 @@
     "TITLE": "Edit Profile",
     "SAVE": "Update",
     "ERROR": "Profile could not be updated."
+  },
+  "CUSTOMER_PROFILE_DELETE": {
+    "TITLE": "Delete Profile",
+    "CONFIRMATION": "Are you sure you want to delete this profile?",
+    "CANCEL": "Cancel",
+    "CONFIRM": "Delete",
+    "ERROR": "Profile could not be deleted."
+  },
+  "CUSTOMER_PROFILE_DETAILS": {
+    "TITLE": "Profile Details",
+    "NAME": "Profile Name",
+    "HEIGHT": "Height (cm)",
+    "WEIGHT": "Weight (kg)",
+    "SHOE_SIZE": "Shoe size",
+    "SKILL_LEVEL": "Skill level",
+    "BACK": "Back to Profiles",
+    "EDIT": "Edit",
+    "DELETE": "Delete"
   }
 }

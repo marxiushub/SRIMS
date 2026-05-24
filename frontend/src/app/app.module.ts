@@ -23,6 +23,9 @@ import {CustomerProfileComponent} from "./components/customer/customer-profile/c
 import {
   CustomerProfileCreateEditComponent
 } from "./components/customer/customer-profile/customer-profile-create-edit/customer-profile-create-edit.component";
+import {
+  CustomerProfileDetailsComponent
+} from "./components/customer/customer-profile/customer-profile-details/customer-profile-details.component";
 
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 
@@ -53,6 +56,7 @@ export function HttpLoaderFactory(http: HttpClient): TranslateLoader {
     CustomerComponent,
     CustomerProfileComponent,
     CustomerProfileCreateEditComponent,
+    CustomerProfileDetailsComponent,
   ],
   bootstrap: [AppComponent],
   imports: [BrowserModule,

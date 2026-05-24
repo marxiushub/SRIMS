@@ -48,6 +48,10 @@ export class CustomerProfileComponent {
     this.router.navigate(['/customer/profiles/edit', item.id])
   }
 
+  openDetailsPage(item: CustomerProfile): void {
+    this.router.navigate(['customer/profiles/details', item.id])
+  }
+
   openDeleteDialog(item: CustomerProfile): void {
     this.profileToDelete = item;
     this.deleteError = undefined;
