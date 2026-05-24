@@ -51,17 +51,15 @@ public class ReservationEndpoint {
     /**
      * Partially updates an existing reservation.
      *
-     * @param id the ID of the equipment to update
      * @param updateDto the DTO containing the fields to update
      * @return the updated equipment as a detail DTO
      */
     @PermitAll
     @ResponseStatus(HttpStatus.OK)
-    public ReservationDetailDto updatereservation(
-        @PathVariable("id") Long id,
+    public ReservationDetailDto updateReservation(
         @Valid @RequestBody ReservationUpdateDto updateDto
     ) {
-        LOGGER.info("PATCH /api/v1/reservation/{} - Body: {}", id, updateDto);
+        LOGGER.info("PATCH /api/v1/reservation/{} - Body: {}", updateDto.getId(), updateDto);
         return service.updateReservation(updateDto);
     }
 

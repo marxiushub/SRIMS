@@ -68,7 +68,7 @@ public interface ReservationService {
      * @return a {@link ReservationDetailDto} representing the updated reservation with the added equipment
      * @throws NotFoundException if no reservation with the given ID exists in the database
      */
-    ReservationDetailDto addEquipmentToReservation(List<Equipment> equipments, Long reservationId);
+    ReservationDetailDto addEquipmentToReservation(List<Long> equipments, Long reservationId);
 
     /**
      * Removes equipment items from an existing reservation.

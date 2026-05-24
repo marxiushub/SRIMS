@@ -67,7 +67,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
     @Override
     @Transactional
     public ReservationDetailDto createReservation(ReservationCreationDto dto) {
-
+        LOGGER.trace("create reservation");
         CustomerProfile profile = customerProfileRepository.findById(dto.getCustomerProfileId())
             .orElseThrow(() -> new NotFoundException("Customer profile with ID " + dto.getCustomerProfileId() + " not found."));
 
@@ -122,8 +122,9 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
     @Transactional
     public ReservationDetailDto updateReservation(ReservationUpdateDto dto) {
         Long id = dto.getId();
-
         LOGGER.trace("update reservation {}", id);
+        validator.validateUpdateDto(dto);
+
 
         Reservation reservation = reservationRepository.findById(id)
             .orElseThrow(() ->
@@ -170,13 +171,6 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
                 equipmentRepository.findAllById(dto.getEquipmentIds());
 
             for (Equipment equipment : equipmentList) {
-
-                validator.isEquipmentAvailable(
-                    equipment,
-                    reservation.getPickUpDate(),
-                    reservation.getReturnDate()
-                );
-
                 reservation.addItem(equipment);
             }
         }
@@ -191,8 +185,20 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
     }
 
     @Override
-    public ReservationDetailDto addEquipmentToReservation(List<Equipment> equipments, Long reservationId) {
-        return null;
+    @Transactional
+    public ReservationDetailDto addEquipmentToReservation(ReservationUpdateDto dto) {
+        validator.validateUpdateDto(dto);
+
+        Reservation reservation = reservationRepository.findById(dto.getId()).orElse(null);
+
+        List<Equipment> equipmentList =
+            equipmentRepository.findAllById(dto.getEquipmentIds());
+
+        for (Equipment equipment : equipmentList) {
+            reservation.addItem(equipment);
+        }
+
+        return mapper.entityToDetailDto(reservation);
     }
 
     @Override
