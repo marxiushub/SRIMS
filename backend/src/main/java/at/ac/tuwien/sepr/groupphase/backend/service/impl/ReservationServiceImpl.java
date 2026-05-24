@@ -1,9 +1,11 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
+
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationAddEquipmentDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ReservationMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Reservation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.PeriodType;
@@ -85,7 +87,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
             LocalDate pickUpDate = dto.getPickUpDate();
             LocalDate dropOffDate =  pickUpDate.plusDays(dto.getRentDurationDays());
 
-            validator.isEquipmentAvailable(equipment, pickUpDate, dropOffDate);
+            //muss noch validiert werden
             reservation.addItem(equipment);
 
             equipment.addTimePeriod(pickUpDate, dropOffDate, PeriodType.RENTED);
@@ -123,6 +125,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
     public ReservationDetailDto updateReservation(ReservationUpdateDto dto) {
         Long id = dto.getId();
         LOGGER.trace("update reservation {}", id);
+
         validator.validateUpdateDto(dto);
 
 
@@ -186,8 +189,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
 
     @Override
     @Transactional
-    public ReservationDetailDto addEquipmentToReservation(ReservationUpdateDto dto) {
-        validator.validateUpdateDto(dto);
+    public ReservationDetailDto addEquipmentToReservation(ReservationAddEquipmentDto dto) {
 
         Reservation reservation = reservationRepository.findById(dto.getId()).orElse(null);
 

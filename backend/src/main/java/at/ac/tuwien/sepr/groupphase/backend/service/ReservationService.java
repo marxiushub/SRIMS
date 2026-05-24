@@ -1,9 +1,11 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
+
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationAddEquipmentDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 
@@ -63,12 +65,11 @@ public interface ReservationService {
     /**
      * Adds equipment items to an existing reservation.
      *
-     * @param equipments the list of equipment items to add to the reservation
-     * @param reservationId the unique identifier of the reservation to which equipment will be added
+     * @param dto the dto used for adding equipment
      * @return a {@link ReservationDetailDto} representing the updated reservation with the added equipment
      * @throws NotFoundException if no reservation with the given ID exists in the database
      */
-    ReservationDetailDto addEquipmentToReservation(List<Long> equipments, Long reservationId);
+    ReservationDetailDto addEquipmentToReservation(ReservationAddEquipmentDto dto);
 
     /**
      * Removes equipment items from an existing reservation.

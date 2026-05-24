@@ -1,11 +1,11 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
+
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Reservation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.TimePeriods;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.PeriodType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
-import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ReservationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.TimePeriodsRepository;
@@ -42,10 +42,17 @@ public class ReservationValidator {
 
     public void validateUpdateDto(ReservationUpdateDto dto) {
         List<String> validationErrors = new ArrayList<>();
-        List<String> notFoundErrors = new ArrayList<>();
+
 
         LocalDate pickUpDate;
         LocalDate returnDate;
+
+        if (dto == null) {
+            throw new ValidationException(
+                "Reservation update dto must not be null",
+                List.of("dto is null")
+            );
+        }
 
         if (!reservationRepository.existsById(dto.getId())) {
             validationErrors.add("No such reservation");
@@ -62,34 +69,43 @@ public class ReservationValidator {
                 returnDate = pickUpDate.plusDays(dto.getRentDurationDays());
             }
 
-            if (!customerProfileRepository.existsById(dto.getCustomerProfileId())) {
-                notFoundErrors.add("No such CustomerProfile with id: " + dto.getCustomerProfileId());
+            if (dto.getCustomerProfileId() == null) {
+                validationErrors.add("CustomerProfileId must not be null");
+            } else if (!customerProfileRepository.existsById(dto.getCustomerProfileId())) {
+                validationErrors.add(
+                    "No such CustomerProfile with id: "
+                        + dto.getCustomerProfileId()
+                );
             }
 
-            if (!dto.getEquipmentIds().isEmpty()) {
-                List<Long> doesNotExistEquip = validateEquipmentList(dto.getEquipmentIds(), validationErrors, notFoundErrors);
+            if (dto.getEquipmentIds() != null) {
+                List<Long> doesNotExistEquip = validateEquipmentList(dto.getEquipmentIds(), validationErrors);
 
-
-                for (Long equipmentId : dto.getEquipmentIds()) {
-                    if (!doesNotExistEquip.contains(equipmentId)) {
-                        Equipment equipment = equipmentRepository.findById(equipmentId).orElse(null);
-                        isEquipmentAvailable(equipment, pickUpDate, returnDate, validationErrors, notFoundErrors);
+                if (returnDate.isBefore(pickUpDate)) {
+                    validationErrors.add("start is after end");
+                } else {
+                    for (Long equipmentId : dto.getEquipmentIds()) {
+                        if (!doesNotExistEquip.contains(equipmentId)) {
+                            Equipment equipment = equipmentRepository.findById(equipmentId).orElse(null);
+                            isEquipmentAvailable(equipment, pickUpDate, returnDate, validationErrors);
+                        }
                     }
+
                 }
             }
         }
 
         if (!validationErrors.isEmpty()) {
-            throw new ValidationException("Validation of horse for create failed", validationErrors);
+            throw new ValidationException("Validation of the dto for update failed", validationErrors);
         }
+
 
     }
 
-    private void isEquipmentAvailable(Equipment equipment, LocalDate start, LocalDate end, List<String> validationErrors, List<String> notFoundErrors) {
-        if (end.isBefore(start) || end.isEqual(start)) {
-            validationErrors.add("start is after end");
-        }
 
+
+
+    private void isEquipmentAvailable(Equipment equipment, LocalDate start, LocalDate end, List<String> validationErrors) {
         List<TimePeriods> timePeriodsList = timeRepo.findByEquipment(equipment);
 
         for (TimePeriods time : timePeriodsList) {
@@ -103,20 +119,22 @@ public class ReservationValidator {
         }
     }
 
-    private List<Long>  validateEquipmentList(List<Long> equipmentList, List<String> validationErrors, List<String> notFoundErrors) {
-        List <Long> doesNotExist = new ArrayList<>();
+    private List<Long>  validateEquipmentList(List<Long> equipmentList, List<String> validationErrors) {
+        List<Long> doesNotExist = new ArrayList<>();
 
-            Set<Long> buffer = new HashSet<>();
-            for (Long equipId : equipmentList) {
-                if (!buffer.add(equipId)) {
-                    validationErrors.add("equipment with id: " + equipId + "is double in list");
-                }
-                if (!equipmentRepository.existsById(equipId)) {
-                    notFoundErrors.add("equipment from updateList does not exists");
-                    doesNotExist.add(equipId);
-                }
+        Set<Long> buffer = new HashSet<>();
+        for (Long equipId : equipmentList) {
+            if (!buffer.add(equipId)) {
+                validationErrors.add("equipment with id: " + equipId + "is double in list");
             }
+            if (!equipmentRepository.existsById(equipId)) {
+                validationErrors.add("equipment from updateList does not exists");
+                doesNotExist.add(equipId);
+            }
+        }
 
         return doesNotExist;
     }
+
+
 }
