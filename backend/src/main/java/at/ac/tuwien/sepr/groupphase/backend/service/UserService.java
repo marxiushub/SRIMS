@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.UserCreationDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.detail.UserDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.ApplicationUser;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -50,5 +51,5 @@ public interface UserService extends UserDetailsService {
      * @throws IllegalArgumentException if the user type is unknown or invalid
      * @throws org.springframework.dao.DataIntegrityViolationException if a user with the same email already exists
      */
-    //ApplicationUser createUser(UserCreationDto userCreationDto);
+    UserDetailDto createUser(UserCreationDto userCreationDto);
 }

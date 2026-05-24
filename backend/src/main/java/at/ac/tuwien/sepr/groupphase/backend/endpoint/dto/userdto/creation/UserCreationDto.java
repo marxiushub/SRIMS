@@ -41,7 +41,6 @@ public abstract class UserCreationDto {
     @Email(message = "Invalid E-Mail format")
     private String email;
 
-
     //Getter and Setter
     public String getUserName() {
         return userName;
@@ -70,4 +69,6 @@ public abstract class UserCreationDto {
 
     //Helper methods:
     public abstract UserType getType();
+
+    public abstract ApplicationUser toEntity();
 }

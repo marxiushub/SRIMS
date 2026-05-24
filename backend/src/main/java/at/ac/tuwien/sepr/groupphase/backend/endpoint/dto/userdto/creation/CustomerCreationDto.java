@@ -10,7 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.time.LocalDate;
 
 /**
- * Dto for creating Customers
+ * Dto for creating Customers.
  */
 
 public class CustomerCreationDto extends UserCreationDto {
@@ -57,5 +57,10 @@ public class CustomerCreationDto extends UserCreationDto {
     @Override
     public UserType getType() {
         return UserType.CUSTOMER;
+    }
+
+    @Override
+    public Customer toEntity() {
+        return new Customer(getUserName(), getPassword(), getEmail(),  getFirstName(), getLastName(), getDateOfBirth());
     }
 }
