@@ -191,6 +191,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
     @Transactional
     public ReservationDetailDto addEquipmentToReservation(ReservationAddEquipmentDto dto) {
 
+        validator.validateReservationAddEquip(dto);
 
         Reservation reservation = reservationRepository.findById(dto.getId()).orElseThrow(() ->
             new NotFoundException("Reservation with ID " + dto.getId() + " not found.")
