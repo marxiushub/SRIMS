@@ -10,6 +10,7 @@ public class ReservationDetailDto {
 
     private Long id;
     private Long customerProfileId;
+    private Long accountId;
     private String customerName;
     private LocalTime pickUpTime;
     private LocalDate pickUpDate;
@@ -92,6 +93,14 @@ public class ReservationDetailDto {
 
     public void setItems(List<EquipmentDetailDto> items) {
         this.items = items;
+    }
+
+    public void setAccountId(Long accountId) {
+        this.accountId = accountId;
+    }
+
+    public Long getAccountId() {
+        return accountId;
     }
 
 }

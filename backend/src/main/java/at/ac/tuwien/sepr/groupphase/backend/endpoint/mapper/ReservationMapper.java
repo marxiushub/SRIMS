@@ -16,6 +16,7 @@ public abstract class ReservationMapper {
 
     @Mapping(source = "customerProfile.id", target = "customerProfileId")
     @Mapping(source = "customerProfile.profileName", target = "customerName")
+    @Mapping(source = "customerProfile.customer.id", target = "accountId")
     public abstract ReservationDetailDto entityToDetailDto(Reservation reservation);
 
     public EquipmentDetailDto relationToEquipmentDto(ReservationRelation relation) {
