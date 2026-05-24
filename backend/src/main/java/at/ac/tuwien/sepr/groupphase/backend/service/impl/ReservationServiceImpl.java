@@ -196,9 +196,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
             reservation.setCustomerProfile(profile);
         }
 
-        /*
-         * equipment
-         */
+
         if (dto.getEquipmentIds() != null) {
 
             for (ReservationRelation relation : reservation.getItems()) {
