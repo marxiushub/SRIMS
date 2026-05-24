@@ -1,11 +1,13 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationAddEquipmentDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Reservation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.TimePeriods;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.PeriodType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
+import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ReservationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.TimePeriodsRepository;
@@ -102,7 +104,37 @@ public class ReservationValidator {
 
     }
 
+    public void validateReservationAddEquip(ReservationAddEquipmentDto dto) {
 
+        List<String> validationErrors = new ArrayList<>();
+
+        if (dto == null) {
+            throw new IllegalArgumentException("dto must not be null");
+        }
+
+        Reservation reservation = reservationRepository.findById(dto.getId()).orElseThrow(() ->
+            new NotFoundException("Reservation with ID " + dto.getId() + " not found.")
+        );
+        LocalDate start = reservation.getPickUpDate();
+        LocalDate end = reservation.getReturnDate();
+
+        if (dto.getEquipmentIds() != null) {
+            for (Long id : dto.getEquipmentIds()) {
+                Equipment equipment = equipmentRepository.findById(id)
+                    .orElseThrow(() ->
+                        new NotFoundException("Equipment with ID " + id + " not found.")
+                   );
+
+                isEquipmentAvailable(equipment, start, end, validationErrors);
+            }
+        }
+        if (!validationErrors.isEmpty()) {
+            throw new ValidationException(
+                "Validation failed for adding equipment",
+                validationErrors
+            );
+        }
+    }
 
 
     private void isEquipmentAvailable(Equipment equipment, LocalDate start, LocalDate end, List<String> validationErrors) {

@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationAddEquipmentDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationUpdateDto;
@@ -186,6 +187,51 @@ public class ReservationServiceTest {
 
             () -> assertThat(updatedReservation.getReturnDate())
                 .isEqualTo(LocalDate.now().plusDays(12))
+        );
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void addEquipmentToReservation_withValidData_addsEquipment() {
+
+
+        ReservationCreationDto createDto = new ReservationCreationDto();
+        createDto.setCustomerProfileId(testCustomerProfile.getId());
+        createDto.setEquipmentIds(List.of(testEquipment.getId()));
+        createDto.setPickUpDate(LocalDate.now().plusDays(10));
+        createDto.setPickUpTime(LocalTime.of(10, 0));
+        createDto.setRentDurationDays(5);
+
+        ReservationDetailDto created = reservationService.createReservation(createDto);
+
+        assertThat(created.getId()).isNotNull();
+        assertThat(created.getItems()).hasSize(1);
+
+
+        ReservationAddEquipmentDto addDto = new ReservationAddEquipmentDto();
+        addDto.setId(created.getId());
+        addDto.setEquipmentIds(List.of(testEquipment2.getId()));
+
+        ReservationDetailDto result =
+            reservationService.addEquipmentToReservation(addDto);
+
+
+        assertAll(
+            "Verify equipment was added successfully",
+
+            () -> assertThat(result).isNotNull(),
+
+            () -> assertThat(result.getId())
+                .isEqualTo(created.getId()),
+
+            () -> assertThat(result.getItems())
+                .hasSize(2),
+
+            () -> assertThat(
+                result.getItems().stream()
+                    .anyMatch(e -> e.getId().equals(testEquipment2.getId()))
+            ).isTrue()
         );
     }
 
