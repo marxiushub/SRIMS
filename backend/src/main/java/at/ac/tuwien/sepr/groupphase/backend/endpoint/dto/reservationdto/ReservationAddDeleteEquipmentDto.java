@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
-public class ReservationAddEquipmentDto {
+public class ReservationAddDeleteEquipmentDto {
     @NotNull(message = "id should not be null")
     private Long id;
 

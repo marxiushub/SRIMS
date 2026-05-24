@@ -1,9 +1,10 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationAddEquipmentDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationAddDeleteEquipmentDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Reservation;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ReservationRelation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.TimePeriods;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.PeriodType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
@@ -104,7 +105,7 @@ public class ReservationValidator {
 
     }
 
-    public void validateReservationAddEquip(ReservationAddEquipmentDto dto) {
+    public void validateReservationAddEquip(ReservationAddDeleteEquipmentDto dto) {
 
         List<String> validationErrors = new ArrayList<>();
 
@@ -135,6 +136,42 @@ public class ReservationValidator {
                 validationErrors
             );
         }
+    }
+
+    public void validateReservationRemoveEquipment(ReservationAddDeleteEquipmentDto dto) {
+
+        List<String> validationErrors = new ArrayList<>();
+
+        if (dto == null) {
+            throw new IllegalArgumentException("dto must not be null");
+        }
+
+        Reservation reservation = reservationRepository.findById(dto.getId()).orElseThrow(() ->
+            new NotFoundException("Reservation with ID " + dto.getId() + " not found.")
+        );
+
+        if (dto.getEquipmentIds() != null) {
+            validateEquipmentList(dto.getEquipmentIds(), validationErrors);
+
+
+            for (Long equipmentId : dto.getEquipmentIds()) {
+                boolean equipmentInReservation = false;
+                for (ReservationRelation item : reservation.getItems()) {
+                    if (item.getEquipment().getId().equals(equipmentId)) {
+                        equipmentInReservation = true;
+                        break;
+                    }
+                }
+                if (!equipmentInReservation) {
+                    validationErrors.add("Equipment with ID " + equipmentId + " is not part of this reservation");
+                }
+            }
+        }
+
+        if (!validationErrors.isEmpty()) {
+            throw new ValidationException("Validation of the dto for update failed", validationErrors);
+        }
+
     }
 
 
@@ -168,6 +205,5 @@ public class ReservationValidator {
 
         return doesNotExist;
     }
-
 
 }
