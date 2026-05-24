@@ -17,7 +17,7 @@ public class SkiBoot extends Equipment {
         this.soleLengthMm = soleLengthMm;
     }
 
-    public double getLength() {
+    public double getSoleLengthMm() {
         return soleLengthMm;
     }
 

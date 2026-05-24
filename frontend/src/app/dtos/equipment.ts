@@ -14,5 +14,5 @@ export interface Equipment {
   length?: number;
   size?: number;
   soleLengthMm?: number;
-  lancingSystem?: string;
+  lacingSystem?: string;
 }

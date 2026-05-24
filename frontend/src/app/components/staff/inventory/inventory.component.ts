@@ -80,6 +80,10 @@ export class InventoryComponent implements OnInit {
     this.router.navigate(['/staff/inventory/create']);
   }
 
+  openDetailPage(item: Equipment): void {
+    this.router.navigate(['/staff/inventory/view', item.id]);
+  }
+
   openEditPage(item: Equipment): void {
     this.router.navigate(['/staff/inventory/edit', item.id])
   }

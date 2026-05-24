@@ -5,7 +5,7 @@
 
     <span style="flex: 1"></span>
 
-    <button class="btn btn-primary" (click)="openCreatePage()">
+    <button class="btn btn-primary me-2" (click)="openCreatePage()">
       {{ 'INVENTORY.ADD_EQUIPMENT' | translate }}
     </button>
 
@@ -131,7 +131,7 @@
 
       <tbody>
         @for (item of equipment; track item.id) {
-          <tr>
+          <tr (click)="openDetailPage(item)" class="clickable-row">
             <td>{{ item.model }}</td>
             <td>{{ 'EQUIPMENT_TYPE.' + item.equipmentType | translate }}</td>
             <td>
@@ -147,14 +147,14 @@
               <button
                 type="button"
                 class="btn btn-sm btn-outline-primary me-2"
-                (click)="openEditPage(item)">
+                (click)="openEditPage(item); $event.stopPropagation()">
                 {{ 'EQUIPMENT_EDIT.TITLE' | translate }}
               </button>
 
               <button
                 type="button"
                 class="btn btn-sm btn-outline-danger"
-                (click)="openDeleteDialog(item)">
+                (click)="openDeleteDialog(item); $event.stopPropagation()">
                 {{ 'INVENTORY.DELETE' | translate }}
               </button>
             </td>
