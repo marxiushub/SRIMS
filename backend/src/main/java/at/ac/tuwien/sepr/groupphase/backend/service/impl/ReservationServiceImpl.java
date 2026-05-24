@@ -161,6 +161,9 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
                 new NotFoundException("Reservation not found")
             );
 
+        final LocalDate oldStart = reservation.getPickUpDate();
+        final LocalDate oldEnd = reservation.getReturnDate();
+
         if (dto.getPickUpTime() != null) {
             reservation.setPickUpTime(dto.getPickUpTime());
         }
@@ -173,8 +176,8 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
             reservation.setRentDurationDays(dto.getRentDurationDays());
         }
 
-        LocalDate start = reservation.getPickUpDate();
-        LocalDate end = start.plusDays(reservation.getRentDurationDays());
+        LocalDate newStart = reservation.getPickUpDate();
+        LocalDate newEnd = newStart.plusDays(reservation.getRentDurationDays());
 
         //update Customer
 
@@ -198,6 +201,26 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
          */
         if (dto.getEquipmentIds() != null) {
 
+            for (ReservationRelation relation : reservation.getItems()) {
+
+                Equipment equipment = relation.getEquipment();
+
+                List<TimePeriods> periods =
+                    new ArrayList<>(equipment.getTimePeriodsList());
+
+                for (TimePeriods tp : periods) {
+
+                    boolean overlaps =
+                        tp.getStartDate().isBefore(oldEnd)
+                            && tp.getEndDate().isAfter(oldStart);
+
+                    if (overlaps && tp.getPeriodType() == PeriodType.RENTED) {
+                        equipment.getTimePeriodsList().remove(tp);
+                    }
+                }
+            }
+
+
             reservation.getItems().clear();
 
             List<Equipment> equipmentList =
@@ -205,7 +228,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
 
             for (Equipment equipment : equipmentList) {
                 reservation.addItem(equipment);
-                equipment.addTimePeriod(start, end, PeriodType.RENTED);
+                equipment.addTimePeriod(newStart, newEnd, PeriodType.RENTED);
             }
         }
 
