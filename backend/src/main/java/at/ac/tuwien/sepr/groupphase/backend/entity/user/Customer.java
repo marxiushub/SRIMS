@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity.user;
 
+import at.ac.tuwien.sepr.groupphase.backend.entity.enums.UserType;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
@@ -58,5 +59,4 @@ public class Customer extends ApplicationUser {
     public List<CustomerProfile> getProfiles() {
         return profiles;
     }
-
 }

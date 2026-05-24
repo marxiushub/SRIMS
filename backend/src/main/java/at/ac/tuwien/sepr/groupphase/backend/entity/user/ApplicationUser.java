@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity.user;
 
+import at.ac.tuwien.sepr.groupphase.backend.entity.enums.UserType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -64,6 +65,14 @@ public class ApplicationUser {
 
     public Long getId() {
         return id;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setPassword(String hashedPassword) {
+        this.hashedPassword = hashedPassword;
     }
 
 

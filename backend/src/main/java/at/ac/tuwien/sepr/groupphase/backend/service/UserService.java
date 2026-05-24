@@ -1,6 +1,8 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.UserCreationDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.detail.UserDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.ApplicationUser;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -37,4 +39,17 @@ public interface UserService extends UserDetailsService {
      * @throws org.springframework.security.authentication.BadCredentialsException if credentials are bad
      */
     String login(UserLoginDto userLoginDto);
+
+
+    /**
+     * Creates a new application user (Customer or Staff) based on the given DTO.
+     * <br>
+     * The concrete user type is determined by the subtype of {@link UserCreationDto}
+     *
+     * @param userCreationDto the DTO containing user creation data
+     * @return the persisted ApplicationUser entity
+     * @throws IllegalArgumentException if the user type is unknown or invalid
+     * @throws org.springframework.dao.DataIntegrityViolationException if a user with the same email already exists
+     */
+    UserDetailDto createUser(UserCreationDto userCreationDto);
 }

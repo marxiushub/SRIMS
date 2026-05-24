@@ -122,6 +122,7 @@ public class EquipmentServiceImpl implements EquipmentService {
         equipmentRepository.deleteById(id);
     }
 
+    @Override
     public List<EquipmentDetailDto> equipmentByType(String type) {
         LOGGER.trace("Get equipment by type: {}", type);
 
@@ -143,6 +144,7 @@ public class EquipmentServiceImpl implements EquipmentService {
         return mapper.entityToDto(equipmentList);
     }
 
+    @Override
     public EquipmentDetailDto equipmentById(Long id) {
         LOGGER.trace("Get equipment by id: {}", id);
 
