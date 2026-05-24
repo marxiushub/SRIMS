@@ -23,6 +23,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Snowboard;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.SnowboardBoot;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.SubclassExhaustiveStrategy;
@@ -42,6 +43,7 @@ public interface EquipmentMapper {
      * @param equipment the {@link Equipment} entity to be converted
      * @return the corresponding {@link EquipmentDetailDto} containing the data from the provided entity
      */
+    @Mapping(source = "timePeriodsList", target = "occupancy")
     @SubclassMapping(source = Ski.class, target = SkiDetailDto.class)
     @SubclassMapping(source = SkiBoot.class, target = SkiBootDetailDto.class)
     @SubclassMapping(source = Snowboard.class, target = SnowboardDetailDto.class)
