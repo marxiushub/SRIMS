@@ -28,7 +28,7 @@ export class CustomerProfileComponent {
   loadProfiles(): void {
     this.loading = true;
 
-    this.customerProfileService.getAll().subscribe({
+    this.customerProfileService.getAllByCustomerId(1).subscribe({ //Customer ID hardcoded to 1 until accounts are implemented
       next: (data) => {
         this.profiles = data;
         this.loading = false;

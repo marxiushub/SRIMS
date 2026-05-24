@@ -18,10 +18,10 @@ export class CustomerProfileService {
 
   //TODO update method once backend endpoint exists
   /**
-   * Loads all profiles from the backend
+   * Loads all profiles from the backend corresponding to the given customer ID
    */
-  getAll(): Observable<CustomerProfile[]> {
-    return this.httpClient.get<CustomerProfile[]>(this.customerBaseUri);
+  getAllByCustomerId(customerId: number): Observable<CustomerProfile[]> {
+    return this.httpClient.get<CustomerProfile[]>(`${this.customerBaseUri}/${customerId}`);
   }
 
   //TODO update method once backend endpoint exists
