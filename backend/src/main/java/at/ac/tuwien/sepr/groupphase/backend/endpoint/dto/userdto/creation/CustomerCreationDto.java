@@ -25,7 +25,7 @@ public class CustomerCreationDto extends UserCreationDto {
     private LocalDate dateOfBirth;
 
     // Constructors
-    public CustomerCreationDto(PasswordEncoder encoder) {
+    public CustomerCreationDto() {
     }
 
     // Getter and Setter
@@ -61,6 +61,6 @@ public class CustomerCreationDto extends UserCreationDto {
 
     @Override
     public Customer toEntity() {
-        return new Customer(getUserName(), getPassword(), getEmail(),  getFirstName(), getLastName(), getDateOfBirth());
+        return new Customer(getUserName(), getPassword(), getEmail(), getFirstName(), getLastName(), getDateOfBirth());
     }
 }

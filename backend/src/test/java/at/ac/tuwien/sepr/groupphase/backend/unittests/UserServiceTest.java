@@ -48,7 +48,7 @@ public class UserServiceTest {
     @Rollback
     public void createCustomer_withValidDto_returnsSavedCustomerWithId() {
 
-        CustomerCreationDto dto = new CustomerCreationDto(null);
+        CustomerCreationDto dto = new CustomerCreationDto();
 
         dto.setUserName("max_customer");
         dto.setPassword("Password123!");
