@@ -12,6 +12,9 @@ import {EquipmentType} from '../../../dtos/equipmenttype';
 import {RentalStatus} from '../../../dtos/rentalstatus';
 import {SkillLevel} from '../../../dtos/skilllevel';
 
+import { FormsModule } from '@angular/forms';
+import { NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
+
 describe('InventoryComponent', () => {
   let component: InventoryComponent;
   let fixture: ComponentFixture<InventoryComponent>;
@@ -47,7 +50,10 @@ describe('InventoryComponent', () => {
       declarations: [InventoryComponent],
       imports: [
         RouterModule.forRoot([]),
-        TranslateModule.forRoot()],
+        TranslateModule.forRoot(),
+        FormsModule,
+        NgbTypeaheadModule
+      ],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
@@ -159,6 +165,8 @@ describe('InventoryComponent', () => {
   });
 
   it('should set loading false when search fails', () => {
+    spyOn(console, 'error');
+
     component.loading = false;
     equipmentServiceMock.search.and.returnValue(
       throwError(() => new Error('search failed'))

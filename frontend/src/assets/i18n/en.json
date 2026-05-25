@@ -75,5 +75,30 @@
     "TITLE": "Edit",
     "SAVE": "Update",
     "ERROR": "Equipment could not be updated."
+  },
+  "STAFF": {
+    "DASHBOARD_TITLE": "Staff Dashboard",
+    "DASHBOARD_SUBTITLE": "Management & Rental Infrastructure",
+    "COMING_SOON": "Coming soon",
+    "INVENTORY": {
+      "TITLE": "Inventory & Equipment",
+      "DESC": "Create, edit or view skis, snowboards, etc."
+    },
+    "RESERVATIONS": {
+      "TITLE": "Reservations",
+      "DESC": "View and manage current and upcoming bookings."
+    },
+    "BARCODE": {
+      "TITLE": "Barcode Scanner",
+      "DESC": "Check-out or check-in equipment contactlessly."
+    },
+    "STATISTICS": {
+      "TITLE": "Statistics & Analytics",
+      "DESC": "Analyze utilization and popular rental items."
+    },
+    "OVERVIEW": {
+      "TITLE": "Graphical Overview",
+      "DESC": "Visual representation of the entire inventory status."
+    }
   }
 }
