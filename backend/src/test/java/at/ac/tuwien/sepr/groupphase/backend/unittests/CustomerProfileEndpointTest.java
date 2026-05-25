@@ -60,7 +60,7 @@ public class CustomerProfileEndpointTest {
             """.formatted(savedCustomer.getId());
 
         try {
-            MvcResult result = mockMvc.perform(post("/api/v1/customer-profiles")
+            MvcResult result = mockMvc.perform(post("/api/v1/customer/profiles")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(json))
                 .andReturn();
@@ -97,7 +97,7 @@ public class CustomerProfileEndpointTest {
             """;
 
         try {
-            MvcResult result = mockMvc.perform(post("/api/v1/customer-profiles")
+            MvcResult result = mockMvc.perform(post("/api/v1/customer/profiles")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(json))
                 .andReturn();
@@ -137,7 +137,7 @@ public class CustomerProfileEndpointTest {
             """.formatted(customer.getId());
 
         try {
-            MvcResult result = mockMvc.perform(post("/api/v1/customer-profiles")
+            MvcResult result = mockMvc.perform(post("/api/v1/customer/profiles")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(json))
                 .andReturn();

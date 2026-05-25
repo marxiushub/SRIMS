@@ -14,15 +14,18 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.GetMapping;
 
 
 import java.lang.invoke.MethodHandles;
+import java.util.List;
 
 /**
  * Represents the REST API endpoint for managing customer profile-related operations.
+ * TODO: Müssen noch die Pfade ändern, wenn wir mit den Tokens arbeiten und nicht mehr Ids übergeben
  */
 @RestController
-@RequestMapping("/api/v1/customer-profiles")
+@RequestMapping("/api/v1/customer")
 public class CustomerProfileEndpoint {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -33,10 +36,18 @@ public class CustomerProfileEndpoint {
     }
 
     @PermitAll
-    @PostMapping
+    @PostMapping("/profiles")
     @ResponseStatus(HttpStatus.CREATED)
     public CustomerProfileDetailDto createCustomerProfile(@Valid @RequestBody CustomerProfileCreationDto dto) {
-        LOGGER.info("POST /api/v1/customer-profiles - {}", dto);
+        LOGGER.info("POST /api/v1/customer/profiles - {}", dto);
         return customerProfileService.createCustomerProfile(dto);
+    }
+
+    @PermitAll
+    @GetMapping("/{customerId}/profiles")
+    @ResponseStatus(HttpStatus.OK)
+    public List<CustomerProfileDetailDto> getCustomerProfiles(@PathVariable("customerId") Long customerId) {
+        LOGGER.info("GET /api/v1/customer/{}/profiles", customerId);
+        return customerProfileService.getCustomerProfiles(customerId);
     }
 }
