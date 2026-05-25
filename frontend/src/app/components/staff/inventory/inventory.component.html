@@ -130,7 +130,7 @@
       </thead>
 
       <tbody>
-        @for (item of equipment; track item.id) {
+        @for (item of equipment | slice:startIndex - 1:endIndex; track item.id) {
           <tr (click)="openDetailPage(item)" class="clickable-row">
             <td>{{ item.model }}</td>
             <td>{{ 'EQUIPMENT_TYPE.' + item.equipmentType | translate }}</td>
@@ -161,8 +161,56 @@
           </tr>
         }
       </tbody>
-
     </table>
+
+    <div class="d-flex align-items-center">
+      <label for="itemLimit" class="me-2 mb-0">{{ 'INVENTORY.ROWS_PER_PAGE' | translate }}</label>
+      <select
+        id="itemLimit"
+        name="itemLimit"
+        class="form-select w-auto"
+        [(ngModel)]="itemLimit"
+        (ngModelChange)="onItemLimitChange()"
+        [ngModelOptions]="{ standalone: true }">
+        <option [value]="5">5</option>
+        <option [value]="10">10</option>
+        <option [value]="20">20</option>
+        <option [value]="50">50</option>
+      </select>
+
+      <span
+        class="ms-3 text-muted">{{ startIndex + '-' + endIndex }} {{ 'INVENTORY.OF' | translate }} {{ equipment.length }}</span>
+
+      <div class="btn-group ms-3">
+        <button
+          class="btn btn-sm btn-primary me-2"
+          [disabled]="currentPage === 1"
+          (click)="goToFirstPage()">
+          <span class="fs-5 lh-1">&laquo;</span>
+        </button>
+
+        <button
+          class="btn btn-sm btn-primary me-4"
+          [disabled]="currentPage === 1"
+          (click)="previousPage()">
+          <span class="fs-5 lh-1">&lsaquo;</span>
+        </button>
+
+        <button
+          class="btn btn-sm btn-primary me-2"
+          [disabled]="endIndex >= equipment.length"
+          (click)="nextPage()">
+          <span class="fs-5 lh-1">&rsaquo;</span>
+        </button>
+
+        <button
+          class="btn btn-sm btn-primary me-2"
+          [disabled]="endIndex >= equipment.length"
+          (click)="goToLastPage()">
+          <span class="fs-5 lh-1">&raquo;</span>
+        </button>
+      </div>
+    </div>
   }
 
   @if (equipmentToDelete) {

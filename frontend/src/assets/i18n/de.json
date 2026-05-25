@@ -30,7 +30,9 @@
     "EQUIPMENT_ALL": "Alle",
     "CLEAR": "Zurücksetzen",
     "LOWEST_FIRST": "Preis aufsteigend",
-    "HIGHEST_FIRST": "Preis absteigend"
+    "HIGHEST_FIRST": "Preis absteigend",
+    "ROWS_PER_PAGE": "Zeilen pro Seite",
+    "OF": "von"
   },
   "RENTAL_STATUS": {
     "FREE": "Verfügbar",

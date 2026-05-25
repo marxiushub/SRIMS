@@ -30,7 +30,9 @@
     "EQUIPMENT_ALL": "All",
     "CLEAR": "Clear",
     "LOWEST_FIRST": "Lowest first",
-    "HIGHEST_FIRST": "Highest first"
+    "HIGHEST_FIRST": "Highest first",
+    "ROWS_PER_PAGE": "Rows per page",
+    "OF": "of"
   },
   "RENTAL_STATUS": {
     "FREE": "Available",
