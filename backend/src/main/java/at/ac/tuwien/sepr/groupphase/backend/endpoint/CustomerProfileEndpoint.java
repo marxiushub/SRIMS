@@ -27,6 +27,7 @@ public class CustomerProfileEndpoint {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private final CustomerProfileService customerProfileService;
+
     public CustomerProfileEndpoint(CustomerProfileService customerProfileService) {
         this.customerProfileService = customerProfileService;
     }
