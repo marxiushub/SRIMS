@@ -164,6 +164,24 @@ public class EquipmentServiceImpl implements EquipmentService {
         return mapper.entityToDto(equipment);
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public EquipmentDetailDto equipmentByBarcodeId(String barcodeId) {
+        LOGGER.trace("Get equipment by barcodeId: {}", barcodeId);
+
+        if (barcodeId == null || barcodeId.isEmpty()) {
+            throw new IllegalArgumentException("barcodeId is null or empty");
+        }
+
+        Specification<Equipment> spec = (root, query, cb) ->
+            cb.equal(root.get("barcodeId"), barcodeId);
+
+        Equipment equipment = equipmentRepository.findOne(spec)
+            .orElseThrow(() -> new NotFoundException("Equipment with barcodeId " + barcodeId + " was not found."));
+
+        return mapper.entityToDto(equipment);
+    }
+
     @Transactional
     @Override
     public EquipmentDetailDto updateEquipment(Long id, EquipmentUpdateDto updateDto) {

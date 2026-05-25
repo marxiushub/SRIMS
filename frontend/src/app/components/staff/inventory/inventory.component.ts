@@ -31,7 +31,7 @@ export class InventoryComponent implements OnInit {
   skillFilter = null;
   priceSortDirection: 'asc' | 'desc' = 'asc';
 
-  itemLimit: number = 5;
+  itemLimit: number = 10;
   currentPage: number = 1;
 
   equipmentTypes = [
@@ -132,6 +132,7 @@ export class InventoryComponent implements OnInit {
     });
   }
 
+  //Helper-method to give RentalStatus-Enum-Values nice background coloring in HTML
   getStatusClass(status: string): string {
     switch (status) {
       case 'FREE':

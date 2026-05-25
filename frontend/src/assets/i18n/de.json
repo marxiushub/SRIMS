@@ -104,5 +104,26 @@
       "TITLE": "Grafische Übersicht",
       "DESC": "Visuelle Darstellung des gesamten Bestands-Status."
     }
+  },
+  "BARCODE_SCANNER": {
+    "TITLE": "Prototyp Barcode Scanner",
+    "MODE_LABEL": "Scanner-Modus auswählen:",
+    "MODE_RENTAL": "Modus 1: Ausleihen / Zurückgeben (FREE ↔ RENTED)",
+    "MODE_MAINTENANCE": "Modus 2: In Reparatur (FREE ↔ MAINTENANCE)",
+    "INPUT_PLACEHOLDER": "Barcode einscannen oder eingeben...",
+    "BTN_CHECK": "Barcode prüfen",
+    "ERROR_EMPTY": "Bitte gib eine Barcode-ID ein.",
+    "ERROR_NOT_FOUND": "Equipment mit der Barcode-ID \"{{value}}\" wurde nicht gefunden.",
+    "ERROR_UNEXPECTED": "Ein unerwarteter Fehler ist aufgetreten.",
+    "ERROR_ACTION_NOT_ALLOWED": "Aktion im gewählten Modus nicht möglich. Der Gegenstand befindet sich im Status {{status}}.",
+    "FOUND_TITLE": "Equipment gefunden!",
+    "MODEL": "Modell",
+    "TYPE": "Typ",
+    "STATUS": "Aktueller Status",
+    "ACTION_PREVIEW": "Aktion: Status wird geändert auf",
+    "BTN_CONFIRM": "Scan bestätigen & Status ändern",
+    "SUCCESS_CHANGE": "Status erfolgreich auf {{status}} geändert!",
+    "DEMO_TITLE": "⚠️ Temporär für Präsentationszwecke",
+    "DEMO_CLICK_HINT": "Klicke auf ein Gerät, um dessen Barcode direkt in den Scanner zu laden:"
   }
 }

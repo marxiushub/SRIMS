@@ -165,6 +165,46 @@ public class EquipmentServiceTest {
     @Test
     @Transactional
     @Rollback
+    public void getEquipmentByValidBarcodeIdReturnsCorrectDto() {
+        Helmet savedHelmet = helmetRepository.save(testEquipment);
+        String validBarcodeId = savedHelmet.getBarcodeId();
+
+        EquipmentDetailDto result = equipmentService.equipmentByBarcodeId(validBarcodeId);
+
+        assertAll(
+            () -> assertThat(result).isNotNull(),
+            () -> assertThat(result.getModel()).isEqualTo(testEquipment.getModel()),
+            () -> assertThat(result.getOccupancy()).as("Occupancy list should not be null").isNotNull(),
+            () -> assertThat(result.getOccupancy()).as("Occupancy list should contain exactly 1 element").hasSize(1),
+            () -> assertThat(result.getOccupancy().getFirst().getPeriodType()).as("Period type should match").isEqualTo(PeriodType.RENTED),
+            () -> assertThat(result.getOccupancy().getFirst().getStartDate()).as("Start date should match").isEqualTo(LocalDate.now()),
+            () -> assertThat(result.getOccupancy().getFirst().getEndDate()).as("End date should match").isEqualTo(LocalDate.now().plusDays(5))
+        );
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void getEquipmentByNonexistentBarcodeIdThrowsNotFoundException() {
+        String invalidBarcodeId = "invalid_barcode_id";
+
+        assertThrows(NotFoundException.class, () -> equipmentService.equipmentByBarcodeId(invalidBarcodeId));
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void getEquipmentByNullOrEmptyBarcodeIdThrowsIllegalArgumentException() {
+        assertAll(
+            "Verify that null or empty barcode strings throw IllegalArgumentException",
+            () -> assertThrows(IllegalArgumentException.class, () -> equipmentService.equipmentByBarcodeId(null)),
+            () -> assertThrows(IllegalArgumentException.class, () -> equipmentService.equipmentByBarcodeId(""))
+        );
+    }
+
+    @Test
+    @Transactional
+    @Rollback
     void updateEquipment_validPartialUpdate_updatesOnlyProvidedFieldsAndReturnsDto() {
         Helmet savedHelmet = helmetRepository.save(
             new Helmet("Poc Skull", 199.99, 58.0, RentalStatus.FREE, SkillLevel.BEGINNER)

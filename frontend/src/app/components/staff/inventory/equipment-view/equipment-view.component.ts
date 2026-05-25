@@ -94,6 +94,7 @@ export class EquipmentViewComponent implements OnInit {
     this.router.navigate(['/staff/inventory']);
   }
 
+  //Helper-method to give RentalStatus-Enum-Values nice background coloring in HTML
   getStatusClass(status: string): string {
     switch (status) {
       case 'FREE': return 'bg-success';
