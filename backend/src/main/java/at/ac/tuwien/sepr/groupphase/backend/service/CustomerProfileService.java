@@ -3,6 +3,8 @@ package at.ac.tuwien.sepr.groupphase.backend.service;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.customerprofile.CustomerProfileDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.customerprofile.CustomerProfileCreationDto;
 
+import java.util.List;
+
 /**
  * Service interface for managing customer profile-related operations.
  */
@@ -15,4 +17,12 @@ public interface CustomerProfileService {
      * @return a {@link CustomerProfileDetailDto} representing the created customer profile
      */
     CustomerProfileDetailDto createCustomerProfile(CustomerProfileCreationDto dto);
+
+    /**
+     * Retrieves all customer profiles belonging to a specific customer.
+     *
+     * @param customerId the ID of the customer whose profiles should be retrieved
+     * @return a list if {@link CustomerProfileDetailDto} belonging to the customer
+     */
+    List<CustomerProfileDetailDto> getCustomerProfiles(Long customerId);
 }
