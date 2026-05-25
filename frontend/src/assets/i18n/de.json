@@ -9,12 +9,15 @@
     "RELOAD": "Aktualisieren",
     "ADD_EQUIPMENT": "Ausrüstung hinzufügen",
     "LOADING": "Ausrüstung wird geladen",
+    "LOADING_ERROR": "Ausrüstungs-Details konnten nicht geladen werden",
+    "DETAILS": "Detailansicht",
     "NO_EQUIPMENT": "Keine Ausrüstung gefunden.",
     "EQUIPMENT_MODEL": "Modell",
     "EQUIPMENT_PRICE": "Preis/Tag",
     "EQUIPMENT_STATUS": "Status",
     "EQUIPMENT_SKILL": "Erfahrungslevel",
     "EQUIPMENT_ACTIONS": "Aktionen",
+    "EQUIPMENT_BARCODE_ID": "Barcode ID",
     "DELETE": "Löschen",
     "DELETE_TITLE": "Ausrüstung löschen",
     "DELETE_CONFIRMATION": "Sind Sie sicher, dass Sie diese Ausrüstung löschen wollen?",
@@ -27,7 +30,9 @@
     "EQUIPMENT_ALL": "Alle",
     "CLEAR": "Zurücksetzen",
     "LOWEST_FIRST": "Preis aufsteigend",
-    "HIGHEST_FIRST": "Preis absteigend"
+    "HIGHEST_FIRST": "Preis absteigend",
+    "ROWS_PER_PAGE": "Zeilen pro Seite",
+    "OF": "von"
   },
   "RENTAL_STATUS": {
     "FREE": "Verfügbar",
@@ -53,12 +58,12 @@
     "TYPE": "Equipment-Typ",
     "MODEL": "Modell",
     "STATUS": "Status",
-    "SKILL_LEVEL": "Skill Level",
+    "SKILL_LEVEL": "Erfahrungslevel",
     "PRICE": "Preis",
     "LENGTH": "Länge (cm)",
     "SIZE": "Größe (cm)",
     "SOLE_LENGTH_MM": "Sohlenlänge (mm)",
-    "LANCING_SYSTEM": "Schnürsystem",
+    "LACING_SYSTEM": "Schnürsystem",
     "SAVE": "Speichern",
     "CANCEL": "Abbrechen",
     "ERROR": "Equipment konnte nicht erstellt werden.",
@@ -66,12 +71,60 @@
     "PRICE_REQUIRED": "Preis ist erforderlich.",
     "LENGTH_REQUIRED": "Länge ist erforderlich.",
     "SIZE_REQUIRED": "Größe ist erforderlich.",
-    "SOLE_LENGTH_REQUIRED": "Sohlenlänge ist erforderlich."
+    "SOLE_LENGTH_REQUIRED": "Sohlenlänge ist erforderlich.",
+    "QUANTITY": "Anzahl",
+    "QUANTITY_REQUIRED": "Anzahl ist erforderlich."
   },
   "EQUIPMENT_EDIT": {
     "TITLE": "Bearbeiten",
     "SAVE": "Änderungen speichern",
     "ERROR": "Equipment konnte nicht aktualisiert werden."
+  },
+  "STAFF": {
+    "DASHBOARD_TITLE": "Mitarbeiter Dashboard",
+    "DASHBOARD_SUBTITLE": "Verwaltung & Verleih-Infrastruktur",
+    "COMING_SOON": "Demnächst verfügbar",
+    "INVENTORY": {
+      "TITLE": "Inventar & Equipment",
+      "DESC": "Skier, Snowboards, etc. anlegen, bearbeiten oder einsehen."
+    },
+    "RESERVATIONS": {
+      "TITLE": "Reservierungen",
+      "DESC": "Aktuelle und kommende Buchungen einsehen und verwalten."
+    },
+    "BARCODE": {
+      "TITLE": "Barcode-Scanner",
+      "DESC": "Equipment kontaktlos ausgeben oder zurücknehmen."
+    },
+    "STATISTICS": {
+      "TITLE": "Statistiken & Analytics",
+      "DESC": "Auslastung und beliebte Verleih-Artikel analysieren."
+    },
+    "OVERVIEW": {
+      "TITLE": "Grafische Übersicht",
+      "DESC": "Visuelle Darstellung des gesamten Bestands-Status."
+    }
+  },
+  "BARCODE_SCANNER": {
+    "TITLE": "Prototyp Barcode Scanner",
+    "MODE_LABEL": "Scanner-Modus auswählen:",
+    "MODE_RENTAL": "Modus 1: Ausleihen / Zurückgeben (FREE ↔ RENTED)",
+    "MODE_MAINTENANCE": "Modus 2: In Reparatur (FREE ↔ MAINTENANCE)",
+    "INPUT_PLACEHOLDER": "Barcode einscannen oder eingeben...",
+    "BTN_CHECK": "Barcode prüfen",
+    "ERROR_EMPTY": "Bitte gib eine Barcode-ID ein.",
+    "ERROR_NOT_FOUND": "Equipment mit der Barcode-ID \"{{value}}\" wurde nicht gefunden.",
+    "ERROR_UNEXPECTED": "Ein unerwarteter Fehler ist aufgetreten.",
+    "ERROR_ACTION_NOT_ALLOWED": "Aktion im gewählten Modus nicht möglich. Der Gegenstand befindet sich im Status {{status}}.",
+    "FOUND_TITLE": "Equipment gefunden!",
+    "MODEL": "Modell",
+    "TYPE": "Typ",
+    "STATUS": "Aktueller Status",
+    "ACTION_PREVIEW": "Aktion: Status wird geändert auf",
+    "BTN_CONFIRM": "Scan bestätigen & Status ändern",
+    "SUCCESS_CHANGE": "Status erfolgreich auf {{status}} geändert!",
+    "DEMO_TITLE": "⚠️ Temporär für Präsentationszwecke",
+    "DEMO_CLICK_HINT": "Klicke auf ein Gerät, um dessen Barcode direkt in den Scanner zu laden:"
   },
   "CUSTOMER_PROFILE": {
     "TITLE": "Profile",

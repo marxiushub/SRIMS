@@ -9,6 +9,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.update.Equ
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.update.HelmetUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.update.SkiUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.EquipmentType;
+import at.ac.tuwien.sepr.groupphase.backend.entity.enums.PeriodType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Helmet;
@@ -24,6 +25,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,6 +49,11 @@ public class EquipmentServiceTest {
     @BeforeEach
     public void setup() {
         testEquipment = new Helmet("Test Helmet Model", 10.0, 55.0, RentalStatus.FREE, SkillLevel.BEGINNER);
+        testEquipment.addTimePeriod(
+            LocalDate.now(),
+            LocalDate.now().plusDays(5),
+            PeriodType.RENTED
+        );
     }
 
     @Test
@@ -137,7 +144,12 @@ public class EquipmentServiceTest {
 
         assertAll(
             () -> assertThat(result).isNotNull(),
-            () -> assertThat(result.getModel()).isEqualTo(testEquipment.getModel())
+            () -> assertThat(result.getModel()).isEqualTo(testEquipment.getModel()),
+            () -> assertThat(result.getOccupancy()).as("Occupancy list should not be null").isNotNull(),
+            () -> assertThat(result.getOccupancy()).as("Occupancy list should contain exactly 1 element").hasSize(1),
+            () -> assertThat(result.getOccupancy().getFirst().getPeriodType()).as("Period type should match").isEqualTo(PeriodType.RENTED),
+            () -> assertThat(result.getOccupancy().getFirst().getStartDate()).as("Start date should match").isEqualTo(LocalDate.now()),
+            () -> assertThat(result.getOccupancy().getFirst().getEndDate()).as("End date should match").isEqualTo(LocalDate.now().plusDays(5))
         );
     }
 
@@ -148,6 +160,46 @@ public class EquipmentServiceTest {
         Long invalidId = 99999L;
 
         assertThrows(NotFoundException.class, () -> equipmentService.equipmentById(invalidId));
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void getEquipmentByValidBarcodeIdReturnsCorrectDto() {
+        Helmet savedHelmet = helmetRepository.save(testEquipment);
+        String validBarcodeId = savedHelmet.getBarcodeId();
+
+        EquipmentDetailDto result = equipmentService.equipmentByBarcodeId(validBarcodeId);
+
+        assertAll(
+            () -> assertThat(result).isNotNull(),
+            () -> assertThat(result.getModel()).isEqualTo(testEquipment.getModel()),
+            () -> assertThat(result.getOccupancy()).as("Occupancy list should not be null").isNotNull(),
+            () -> assertThat(result.getOccupancy()).as("Occupancy list should contain exactly 1 element").hasSize(1),
+            () -> assertThat(result.getOccupancy().getFirst().getPeriodType()).as("Period type should match").isEqualTo(PeriodType.RENTED),
+            () -> assertThat(result.getOccupancy().getFirst().getStartDate()).as("Start date should match").isEqualTo(LocalDate.now()),
+            () -> assertThat(result.getOccupancy().getFirst().getEndDate()).as("End date should match").isEqualTo(LocalDate.now().plusDays(5))
+        );
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void getEquipmentByNonexistentBarcodeIdThrowsNotFoundException() {
+        String invalidBarcodeId = "invalid_barcode_id";
+
+        assertThrows(NotFoundException.class, () -> equipmentService.equipmentByBarcodeId(invalidBarcodeId));
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void getEquipmentByNullOrEmptyBarcodeIdThrowsIllegalArgumentException() {
+        assertAll(
+            "Verify that null or empty barcode strings throw IllegalArgumentException",
+            () -> assertThrows(IllegalArgumentException.class, () -> equipmentService.equipmentByBarcodeId(null)),
+            () -> assertThrows(IllegalArgumentException.class, () -> equipmentService.equipmentByBarcodeId(""))
+        );
     }
 
     @Test

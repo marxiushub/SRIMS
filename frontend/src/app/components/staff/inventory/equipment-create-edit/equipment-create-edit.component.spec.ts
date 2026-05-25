@@ -48,12 +48,12 @@ describe('EquipmentCreateEditComponent', () => {
       declarations: [EquipmentCreateEditComponent],
       imports: [FormsModule, TranslateModule.forRoot()],
       providers: [
-        { provide: EquipmentService, useValue: equipmentServiceMock },
-        { provide: Router, useValue: routerMock },
-        { provide: ActivatedRoute, useValue: activatedRouteMock }
+        {provide: EquipmentService, useValue: equipmentServiceMock},
+        {provide: Router, useValue: routerMock},
+        {provide: ActivatedRoute, useValue: activatedRouteMock}
       ]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(EquipmentCreateEditComponent);
     component = fixture.componentInstance;
@@ -72,6 +72,7 @@ describe('EquipmentCreateEditComponent', () => {
       status: RentalStatus.FREE,
       targetSkillLevel: SkillLevel.BEGINNER,
       price: 20,
+      creationNumber: 1,
       length: 160
     };
 
@@ -83,6 +84,7 @@ describe('EquipmentCreateEditComponent', () => {
       status: RentalStatus.FREE,
       targetSkillLevel: SkillLevel.BEGINNER,
       price: 20,
+      creationNumber: 1,
       length: 160
     });
     expect(routerMock.navigate).toHaveBeenCalledWith(['/staff/inventory']);
@@ -93,6 +95,8 @@ describe('EquipmentCreateEditComponent', () => {
   it('should set error when create request fails', () => {
     equipmentServiceMock.create.and.returnValue(throwError(() => new Error('Create failed')));
 
+    spyOn(console, 'error');
+
     component.onSubmit();
 
     expect(component.error).toBeTrue();
@@ -101,7 +105,7 @@ describe('EquipmentCreateEditComponent', () => {
   });
 
   it('should switch to edit mode and load equipment when id route param exists', () => {
-    activatedRouteMock.snapshot.paramMap = convertToParamMap({ id: '42' });
+    activatedRouteMock.snapshot.paramMap = convertToParamMap({id: '42'});
 
     component.ngOnInit();
 
@@ -120,6 +124,7 @@ describe('EquipmentCreateEditComponent', () => {
       status: RentalStatus.FREE,
       targetSkillLevel: SkillLevel.INTERMEDIATE,
       price: 35,
+      creationNumber: 1,
       size: 58
     };
 
@@ -134,7 +139,7 @@ describe('EquipmentCreateEditComponent', () => {
       length: null,
       size: 58,
       soleLengthMm: null,
-      lancingSystem: null
+      lacingSystem: null
     });
     expect(routerMock.navigate).toHaveBeenCalledWith(['/staff/inventory']);
     expect(component.loading).toBeFalse();
@@ -146,10 +151,17 @@ describe('EquipmentCreateEditComponent', () => {
     component.equipmentId = 10;
     equipmentServiceMock.update.and.returnValue(throwError(() => new Error('Update failed')));
 
+    spyOn(console, 'error');
+
     component.onSubmit();
 
     expect(component.error).toBeTrue();
     expect(component.loading).toBeFalse();
     expect(routerMock.navigate).not.toHaveBeenCalled();
+  });
+
+  it('should initialize creationNumber to 1 in create mode', () => {
+    expect(component.mode).toBe(EquipmentCreateEditMode.create);
+    expect(component.equipment.creationNumber).toBe(1);
   });
 });

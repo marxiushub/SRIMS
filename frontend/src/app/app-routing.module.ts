@@ -4,8 +4,11 @@ import {HomeComponent} from './components/home/home.component';
 import {LoginComponent} from './components/login/login.component';
 import {AuthGuard} from './guards/auth.guard';
 import {MessageComponent} from './components/message/message.component';
-import {StaffComponent} from './components/staff/staff.component';
-import {InventoryComponent} from './components/staff/inventory/inventory.component';
+import { StaffComponent } from './components/staff/staff.component';
+import { InventoryComponent } from './components/staff/inventory/inventory.component';
+import { EquipmentCreateEditComponent, EquipmentCreateEditMode } from "./components/staff/inventory/equipment-create-edit/equipment-create-edit.component";
+import { EquipmentViewComponent } from "./components/staff/inventory/equipment-view/equipment-view.component";
+import {BarcodeScannerComponent} from "./components/staff/barcodescanner/barcode-scanner.component";
 import {CustomerComponent} from './components/customer/customer.component';
 import {CustomerProfileComponent} from './components/customer/customer-profile/customer-profile.component';
 import {
@@ -15,10 +18,6 @@ import {
 import {
   CustomerProfileDetailsComponent
 } from './components/customer/customer-profile/customer-profile-details/customer-profile-details.component';
-import {
-  EquipmentCreateEditComponent,
-  EquipmentCreateEditMode
-} from "./components/staff/inventory/equipment-create-edit/equipment-create-edit.component";
 
 const routes: Routes = [
   {path: '', component: HomeComponent},
@@ -30,9 +29,9 @@ const routes: Routes = [
       {path: 'inventory', component: InventoryComponent},
       {path: 'inventory/create', component: EquipmentCreateEditComponent, data: {mode: EquipmentCreateEditMode.create}},
       {path: 'inventory/edit/:id', component: EquipmentCreateEditComponent, data: {mode: EquipmentCreateEditMode.edit}},
-    ]
-  },
-
+      {path: 'inventory/view/:id', component: EquipmentViewComponent},
+      {path: 'barcode-scanner', component: BarcodeScannerComponent},
+  ]},
   {path: 'customer', component: CustomerComponent},
   {path: 'customer/profiles', component: CustomerProfileComponent},
   {
@@ -46,7 +45,6 @@ const routes: Routes = [
     data: {mode: ProfileCreateEditMode.edit}
   },
   {path: 'customer/profiles/view/:id', component: CustomerProfileDetailsComponent},
-
 ];
 
 @NgModule({

@@ -47,14 +47,7 @@ public class EquipmentServiceImpl implements EquipmentService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private final EquipmentRepository equipmentRepository;
-    private final HelmetRepository helmetRepository;
-    private final PoleRepository poleRepository;
-    private final SkiRepository skiRepository;
-    private final SkiBootRepository skiBootRepository;
-    private final SnowboardRepository snowboardRepository;
-    private final SnowboardBootRepository snowboardBootRepository;
     private final EquipmentMapper mapper;
-
     private final Map<EquipmentType, JpaRepository<? extends Equipment, Long>> repositoryMap;
 
     /**
@@ -81,12 +74,6 @@ public class EquipmentServiceImpl implements EquipmentService {
         EquipmentMapper mapper
     ) {
         this.equipmentRepository = equipmentRepository;
-        this.helmetRepository = helmetRepository;
-        this.poleRepository = poleRepository;
-        this.skiRepository = skiRepository;
-        this.skiBootRepository = skiBootRepository;
-        this.snowboardRepository = snowboardRepository;
-        this.snowboardBootRepository = snowboardBootRepository;
         this.mapper = mapper;
         this.repositoryMap = Map.of(
             HELMET, helmetRepository,
@@ -98,10 +85,10 @@ public class EquipmentServiceImpl implements EquipmentService {
         );
     }
 
+    @Transactional
     @Override
     public List<EquipmentDetailDto> createEquipment(EquipmentCreationDto dto) {
         LOGGER.trace("Creation of an {}", dto.getType());
-
 
         List<EquipmentDetailDto> created = new ArrayList<>();
         JpaRepository<Equipment, Long> repo =
@@ -117,6 +104,7 @@ public class EquipmentServiceImpl implements EquipmentService {
         return created;
     }
 
+    @Transactional
     @Override
     public void deleteEquipment(Long id) {
         LOGGER.trace("Deleting equipment with id {}", id);
@@ -136,6 +124,7 @@ public class EquipmentServiceImpl implements EquipmentService {
         equipmentRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
     public List<EquipmentDetailDto> equipmentByType(String type) {
         LOGGER.trace("Get equipment by type: {}", type);
 
@@ -157,6 +146,7 @@ public class EquipmentServiceImpl implements EquipmentService {
         return mapper.entityToDto(equipmentList);
     }
 
+    @Transactional(readOnly = true)
     public EquipmentDetailDto equipmentById(Long id) {
         LOGGER.trace("Get equipment by id: {}", id);
 
@@ -170,6 +160,24 @@ public class EquipmentServiceImpl implements EquipmentService {
 
         Equipment equipment = equipmentRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Equipment with ID " + id + " was not found."));
+
+        return mapper.entityToDto(equipment);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public EquipmentDetailDto equipmentByBarcodeId(String barcodeId) {
+        LOGGER.trace("Get equipment by barcodeId: {}", barcodeId);
+
+        if (barcodeId == null || barcodeId.isEmpty()) {
+            throw new IllegalArgumentException("barcodeId is null or empty");
+        }
+
+        Specification<Equipment> spec = (root, query, cb) ->
+            cb.equal(root.get("barcodeId"), barcodeId);
+
+        Equipment equipment = equipmentRepository.findOne(spec)
+            .orElseThrow(() -> new NotFoundException("Equipment with barcodeId " + barcodeId + " was not found."));
 
         return mapper.entityToDto(equipment);
     }
@@ -201,6 +209,7 @@ public class EquipmentServiceImpl implements EquipmentService {
         return mapper.entityToDto(savedEquipment);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<EquipmentDetailDto> searchEquipment(EquipmentSearchDto searchDto) {
         LOGGER.info("Searching equipment with parameters: {}", searchDto);

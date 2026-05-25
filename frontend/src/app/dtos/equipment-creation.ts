@@ -8,9 +8,10 @@ export interface EquipmentCreation {
   status: RentalStatus;
   targetSkillLevel: SkillLevel;
   price: number;
+  creationNumber: number;
 
   length?: number;
   size?: number;
   soleLengthMm?: number;
-  lancingSystem?: string;
+  lacingSystem?: string;
 }
