@@ -77,7 +77,7 @@ public class UserEndpointTest {
             );
 
         } catch (Exception e) {
-            fail("Test failed because of unexpected exception");
+            fail("Test failed because of unexpected exception" + e.getMessage(), e);
         }
     }
 
@@ -113,7 +113,7 @@ public class UserEndpointTest {
             );
 
         } catch (Exception e) {
-            fail("Test failed because of unexpected exception");
+            fail("Test failed because of unexpected exception" + e.getMessage(), e);
         }
     }
 
@@ -124,9 +124,30 @@ public class UserEndpointTest {
     public void updateCustomer_withGeneratedCustomer_returns200AndUpdatedCustomer() {
 
         try {
-            Long customerId = customerRepository.findByEmail("marcel.neumann@example.com")
+            String createJson = """
+            {
+              "type": "CUSTOMER",
+              "userName": "customer_to_update",
+              "password": "Password123!",
+              "email": "customer.to.update@test.at",
+              "firstName": "OldFirst",
+              "lastName": "OldLast",
+              "dateOfBirth": "1990-01-01"
+            }
+            """;
+
+            MvcResult createResult = mockMvc.perform(
+                    post("/api/v1/customer/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createJson))
+                .andReturn();
+
+            assertThat(createResult.getResponse().getStatus()).isEqualTo(200);
+
+            Long customerId = customerRepository.findByEmail("customer.to.update@test.at")
                 .orElseThrow()
                 .getId();
+
 
             String updateJson = """
         {
@@ -161,7 +182,7 @@ public class UserEndpointTest {
             );
 
         } catch (Exception e) {
-            fail("Test failed because of unexpected exception");
+            fail("Test failed because of unexpected exception" + e.getMessage(), e);
         }
     }
 
@@ -172,7 +193,24 @@ public class UserEndpointTest {
     public void updateStaff_withGeneratedStaff_returns200AndUpdatedStaff() {
 
         try {
-            Long staffId = staffRepository.findByEmail("admin.core@system.com")
+            String createJson = """
+            {
+              "type": "STAFF",
+              "userName": "staff_to_update",
+              "password": "Password123!",
+              "email": "staff.to.update@test.at"
+            }
+            """;
+
+            MvcResult createResult = mockMvc.perform(
+                    post("/api/v1/staff/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createJson))
+                .andReturn();
+
+            assertThat(createResult.getResponse().getStatus()).isEqualTo(200);
+
+            Long staffId = staffRepository.findByEmail("staff.to.update@test.at")
                 .orElseThrow()
                 .getId();
 
@@ -203,7 +241,7 @@ public class UserEndpointTest {
             );
 
         } catch (Exception e) {
-            fail("Test failed because of unexpected exception");
+            fail("Test failed because of unexpected exception" + e.getMessage(), e);
         }
     }
 
@@ -264,7 +302,7 @@ public class UserEndpointTest {
             );
 
         } catch (Exception e) {
-            fail("Test failed because of unexpected exception");
+            fail("Test failed because of unexpected exception" + e.getMessage(), e);
         }
     }
 }
