@@ -92,6 +92,59 @@
     </div>
   }
 
+  <div class="card shadow-sm mt-4">
+    <div class="card-header bg-light">
+      <h4 class="mb-0 fw-bold">{{ 'INVENTORY.RESERVATIONS_TITLE' | translate }}</h4>
+    </div>
+    <div class="card-body">
+
+      @if (reservationsLoading) {
+        <div class="d-flex align-items-center text-muted">
+          <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+          <span>{{ 'INVENTORY.RESERVATIONS_LOADING' | translate }}</span>
+        </div>
+      }
+
+      @if (reservationsError) {
+        <div class="alert alert-danger mb-0">{{ 'INVENTORY.RESERVATIONS_ERROR' | translate }}</div>
+      }
+
+      @if (!reservationsLoading && !reservationsError) {
+        @if (reservations.length === 0) {
+          <p class="text-muted mb-0">{{ 'INVENTORY.NO_RESERVATIONS' | translate }}</p>
+        } @else {
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+              <tr>
+                <th>ID</th>
+                <th>{{ 'RESERVATION.CUSTOMER' | translate }}</th>
+                <th>{{ 'RESERVATION.PICKUP_DATE' | translate }}</th>
+                <th>{{ 'RESERVATION.PICKUP_TIME' | translate }}</th>
+                <th>{{ 'RESERVATION.RETURN_DATE' | translate }}</th>
+                <th>{{ 'RESERVATION.DURATION' | translate }}</th>
+              </tr>
+              </thead>
+              <tbody>
+                @for (res of reservations; track res.id) {
+                  <tr>
+                    <td class="fw-bold">#{{ res.id }}</td>
+                    <td>{{ res.customerName }}</td>
+                    <td>{{ res.pickUpDate | date:'dd.MM.yyyy' }}</td>
+                    <td>{{ res.pickUpTime }}</td>
+                    <td>{{ res.returnDate | date:'dd.MM.yyyy' }}</td>
+                    <td>{{ res.rentDurationDays }} {{ 'RESERVATION.DAYS' | translate }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      }
+
+    </div>
+  </div>
+
   @if (showDeleteModal && equipment) {
     <div class="modal fade show d-block" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">
