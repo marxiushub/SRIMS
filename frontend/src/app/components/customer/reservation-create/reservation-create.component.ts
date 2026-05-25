@@ -206,7 +206,7 @@ export class ReservationCreateComponent implements OnInit {
     }
 
     if (this.selectedEquipment.length === 0) {
-      // TODO: Später im HTML abfangen, hier zur Sicherheit
+      //Also caught in HTML, but here again just to be sure.
       alert('Please choose at least 1 piece of equipment');
       return;
     }
