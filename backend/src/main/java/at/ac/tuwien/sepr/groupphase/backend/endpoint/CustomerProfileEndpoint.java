@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.customerprofile.CustomerProfileDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.customerprofile.CustomerProfileCreationDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.customerprofile.CustomerProfileUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.service.CustomerProfileService;
 import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 
 
 import java.lang.invoke.MethodHandles;
@@ -58,5 +60,14 @@ public class CustomerProfileEndpoint {
     public void deleteCustomerProfile(@PathVariable("profileId") Long profileId) {
         LOGGER.info("DELETE /api/v1/customer/{}/profiles", profileId);
         customerProfileService.deleteCustomerProfile(profileId);
+    }
+
+    @PermitAll
+    @PatchMapping("/profiles/{profileId}")
+    @ResponseStatus(HttpStatus.OK)
+    public CustomerProfileDetailDto updateCustomerProfile(@PathVariable("profileId") Long profileId, @Valid @RequestBody CustomerProfileUpdateDto dto) {
+        LOGGER.info("PATCH /api/v1/customer/profiles/{} - {}", profileId, dto);
+
+        return customerProfileService.updateCustomerProfile(profileId, dto);
     }
 }

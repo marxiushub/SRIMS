@@ -33,7 +33,6 @@ public class CustomerProfileCreationDto {
     @NotNull(message = "Skill level is required")
     private SkillLevel skillLevel;
 
-    //TODO: nur positive CustomerIds?
     @NotNull(message = "Customer id is required")
     private Long customerId;
 
