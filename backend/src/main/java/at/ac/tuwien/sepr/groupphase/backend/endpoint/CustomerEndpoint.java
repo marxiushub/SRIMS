@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 import java.lang.invoke.MethodHandles;
 
@@ -41,7 +42,7 @@ public class CustomerEndpoint {
      */
     @PermitAll
     @PostMapping("/create")
-    public UserDetailDto createEquipment(@Valid @RequestBody CustomerCreationDto dto) {
+    public UserDetailDto createCustomer(@Valid @RequestBody CustomerCreationDto dto) {
         LOGGER.info("POST /api/v1/customer/create - {}", dto);
         return userService.createUser(dto);
     }
@@ -58,5 +59,17 @@ public class CustomerEndpoint {
     public UserDetailDto updateCustomer(@PathVariable("id") Long id, @Valid @RequestBody CustomerUpdateDto dto) {
         LOGGER.info("PUT /api/v1/customer/update/{} - {}", id, dto);
         return userService.updateUser(id, dto);
+    }
+
+    /**
+     * Endpoint to delete an existing Customer account.
+     *
+     * @param id the ID of the Costumer user to delete
+     */
+    @PermitAll
+    @DeleteMapping("/delete/{id}")
+    public void deleteUser(@PathVariable("id") Long id) {
+        LOGGER.info("DELETE /api/v1/costumer/delete/{}", id);
+        userService.deleteUserById(id);
     }
 }

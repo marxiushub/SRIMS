@@ -1,6 +1,5 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.CustomerCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.StaffCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.detail.UserDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.StaffUpdateDto;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 
 import java.lang.invoke.MethodHandles;
@@ -38,12 +38,12 @@ public class StaffEndpoint {
     /**
      * Endpoint to create a new Staff account.
      *
-     * @param dto an {@link CustomerCreationDto}
+     * @param dto an {@link StaffCreationDto}
      * @return a Staff entity
      */
     @PermitAll
     @PostMapping("/create")
-    public UserDetailDto createEquipment(@Valid @RequestBody StaffCreationDto dto) {
+    public UserDetailDto createStaff(@Valid @RequestBody StaffCreationDto dto) {
         LOGGER.info("POST /api/v1/staff/create - {}", dto);
         return userService.createUser(dto);
     }
@@ -60,5 +60,17 @@ public class StaffEndpoint {
     public UserDetailDto updateStaff(@PathVariable("id") Long id, @Valid @RequestBody StaffUpdateDto dto) {
         LOGGER.info("PUT /api/v1/staff/update/{} - {}", id, dto);
         return userService.updateUser(id, dto);
+    }
+
+    /**
+     * Endpoint to delete an existing Staff account.
+     *
+     * @param id the ID of the staff user to delete
+     */
+    @PermitAll
+    @DeleteMapping("/delete/{id}")
+    public void deleteUser(@PathVariable("id") Long id) {
+        LOGGER.info("DELETE /api/v1/staff/delete/{}", id);
+        userService.deleteUserById(id);
     }
 }

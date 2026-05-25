@@ -72,4 +72,16 @@ public interface UserService extends UserDetailsService {
      * @throws IllegalArgumentException if the provided DTO is null or invalid
      */
     public UserDetailDto updateUser(Long id, UserUpdateDto userUpdateDto);
+
+
+    /**
+     * Deletes an application user (Customer or Staff) by its unique identifier.
+     * <br>
+     * If the user does not exist, no deletion is performed and an exception is thrown.
+     *
+     * @param userId the unique identifier of the user to be deleted
+     * @throws jakarta.persistence.EntityNotFoundException if no user with the given id exists
+     * @throws org.springframework.dao.DataIntegrityViolationException if the user cannot be deleted due to existing references or constraints
+     */
+    void deleteUserById(Long userId);
 }

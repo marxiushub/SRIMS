@@ -172,7 +172,6 @@ public class UserEndpointTest {
     public void updateStaff_withGeneratedStaff_returns200AndUpdatedStaff() {
 
         try {
-            // existierenden Staff aus Datagenerator holen
             Long staffId = staffRepository.findByEmail("admin.core@system.com")
                 .orElseThrow()
                 .getId();
@@ -201,6 +200,67 @@ public class UserEndpointTest {
                 // alle geänderten Felder prüfen
                 () -> assertThat(responseBody).contains("updated_admin"),
                 () -> assertThat(responseBody).contains("updated.admin@system.com")
+            );
+
+        } catch (Exception e) {
+            fail("Test failed because of unexpected exception");
+        }
+    }
+
+
+    @Test
+    @Transactional
+    @Rollback
+    public void deleteCustomer_withExistingId_returns200AndDeletesCustomer() {
+
+        try {
+            Long customerId = customerRepository.findByEmail("marcel.neumann@example.com")
+                .orElseThrow()
+                .getId();
+
+            MvcResult result = mockMvc.perform(
+                    org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                        .delete("/api/v1/customer/delete/" + customerId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andReturn();
+
+            assertAll(
+                "Check if customer was successfully deleted",
+                () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
+                () -> assertThat(userRepository.findById(customerId)).isEmpty(),
+                () -> assertThat(customerRepository.findById(customerId)).isEmpty()
+            );
+
+        } catch (Exception e) {
+            fail("Test failed because of unexpected exception");
+        }
+    }
+
+
+    @Test
+    @Transactional
+    @Rollback
+    public void deleteStaff_withExistingId_returns200AndDeletesStaff() {
+
+        try {
+            Long staffId = staffRepository.findByEmail("admin.core@system.com")
+                .orElseThrow()
+                .getId();
+
+            MvcResult result = mockMvc.perform(
+                    org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                        .delete("/api/v1/staff/delete/" + staffId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andReturn();
+
+            assertAll(
+                "Check if staff was successfully deleted",
+
+                () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
+                () -> assertThat(userRepository.findById(staffId)).isEmpty(),
+                () -> assertThat(staffRepository.findById(staffId)).isEmpty()
             );
 
         } catch (Exception e) {
