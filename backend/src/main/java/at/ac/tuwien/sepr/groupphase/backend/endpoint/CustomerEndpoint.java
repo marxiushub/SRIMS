@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.CustomerCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.detail.UserDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.UserSearchResponseDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.CustomerUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.CustomUserDetailService;
 import jakarta.annotation.security.PermitAll;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import java.lang.invoke.MethodHandles;
 
@@ -71,5 +73,18 @@ public class CustomerEndpoint {
     public void deleteUser(@PathVariable("id") Long id) {
         LOGGER.info("DELETE /api/v1/costumer/delete/{}", id);
         userService.deleteUserById(id);
+    }
+
+    /**
+     * Endpoint to retrieve a customer account.
+     *
+     * @param id the user of the customer that should be retrieved
+     * @return the user as UserSearchResponseDto
+     */
+    @PermitAll
+    @GetMapping("/{id}")
+    public UserSearchResponseDto getUserById(@PathVariable("id") Long id) {
+        LOGGER.info("GET /api/v1/customer/{}", id);
+        return userService.getUserById(id);
     }
 }

@@ -3,6 +3,9 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.detail.CustomerDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.detail.StaffDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.detail.UserDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.CustomerSearchResponseDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.StaffSearchResponseDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.UserSearchResponseDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.CustomerUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.StaffUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.UserUpdateDto;
@@ -24,10 +27,11 @@ import org.mapstruct.Mapping;
 public interface UserMapper {
 
 
-    //Entity => DetailDto (read)
+    //Entity => DetailDto (create)
     @SubclassMapping(source = Customer.class, target = CustomerDetailDto.class)
     @SubclassMapping(source = Staff.class, target = StaffDetailDto.class)
-    UserDetailDto entityToDto(ApplicationUser user);
+    UserDetailDto entityToDetailDto(ApplicationUser user);
+
 
     //Update
     //UserType specific
@@ -58,4 +62,10 @@ public interface UserMapper {
 
         throw new IllegalArgumentException("DTO type does not match entity type");
     }
+
+
+    //Entity => SearchResponseDto
+    @SubclassMapping(source = Customer.class, target = CustomerSearchResponseDto.class)
+    @SubclassMapping(source = Staff.class, target = StaffSearchResponseDto.class)
+    UserSearchResponseDto entityToSearchResponseDto(ApplicationUser user);
 }

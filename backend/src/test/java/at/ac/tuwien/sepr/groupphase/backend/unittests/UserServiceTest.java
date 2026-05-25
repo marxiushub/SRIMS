@@ -3,6 +3,9 @@ package at.ac.tuwien.sepr.groupphase.backend.unittests;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.CustomerCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.StaffCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.detail.UserDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.CustomerSearchResponseDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.StaffSearchResponseDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.UserSearchResponseDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.CustomerUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.StaffUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.ApplicationUser;
@@ -285,6 +288,80 @@ public class UserServiceTest {
 
             () -> assertThat(userRepository.findById(idToDelete)).isEmpty(),
             () -> assertThat(staffRepository.findById(idToDelete)).isEmpty()
+        );
+    }
+
+
+    @Test
+    @Transactional
+    @Rollback
+    public void getUserById_withCustomerId_returnsCustomerSearchResponseDto() {
+
+        Customer existingCustomer = customerRepository
+            .findAll()
+            .stream()
+            .findFirst()
+            .orElseThrow();
+
+        UserSearchResponseDto result =
+            userService.getUserById(existingCustomer.getId());
+
+        assertAll(
+            "Verify that customer is returned as CustomerSearchResponseDto",
+
+            () -> assertThat(result).isNotNull(),
+            () -> assertThat(result).isInstanceOf(CustomerSearchResponseDto.class),
+
+            () -> assertThat(result.getUserName())
+                .isEqualTo(existingCustomer.getUserName()),
+
+            () -> assertThat(result.getEmail())
+                .isEqualTo(existingCustomer.getEmail()),
+
+
+            //Customer specific fields
+            () -> {
+                CustomerSearchResponseDto customerDto =
+                    (CustomerSearchResponseDto) result;
+
+                assertThat(customerDto.getFirstName())
+                    .isEqualTo(existingCustomer.getFirstName());
+
+                assertThat(customerDto.getLastName())
+                    .isEqualTo(existingCustomer.getLastName());
+
+                assertThat(customerDto.getDateOfBirth())
+                    .isEqualTo(existingCustomer.getDateOfBirth());
+            }
+        );
+    }
+
+
+    @Test
+    @Transactional
+    @Rollback
+    public void getUserById_withStaffId_returnsStaffSearchResponseDto() {
+
+        Staff existingStaff = staffRepository
+            .findAll()
+            .stream()
+            .findFirst()
+            .orElseThrow();
+
+        UserSearchResponseDto result =
+            userService.getUserById(existingStaff.getId());
+
+        assertAll(
+            "Verify that staff is returned as StaffSearchResponseDto",
+
+            () -> assertThat(result).isNotNull(),
+            () -> assertThat(result).isInstanceOf(StaffSearchResponseDto.class),
+
+            () -> assertThat(result.getUserName())
+                .isEqualTo(existingStaff.getUserName()),
+
+            () -> assertThat(result.getEmail())
+                .isEqualTo(existingStaff.getEmail())
         );
     }
 }

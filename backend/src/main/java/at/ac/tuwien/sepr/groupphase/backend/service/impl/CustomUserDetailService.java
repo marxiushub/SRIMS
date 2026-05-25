@@ -3,10 +3,10 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.UserCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.detail.UserDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.UserSearchResponseDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.UserUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.UserMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.UserType;
-import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
@@ -138,7 +138,7 @@ public class CustomUserDetailService implements UserService {
 
         user.setPassword(passwordEncoder.encode(userCreationDto.getPassword()));
 
-        UserDetailDto created = mapper.entityToDto(repo.save(user));
+        UserDetailDto created = mapper.entityToDetailDto(repo.save(user));
 
         return created;
     }
@@ -168,7 +168,7 @@ public class CustomUserDetailService implements UserService {
 
         ApplicationUser savedUser = userRepository.save(existingUser);
 
-        return mapper.entityToDto(savedUser);
+        return mapper.entityToDetailDto(savedUser);
     }
 
 
@@ -186,5 +186,27 @@ public class CustomUserDetailService implements UserService {
         userRepository.delete(user);
 
         LOGGER.trace("Successfully deleted user with id {}", userId);
+    }
+
+
+    @Override
+    public UserSearchResponseDto getUserById(Long id) {
+
+        LOGGER.debug("Get user by id {}", id);
+
+        if (id == null) {
+            throw new IllegalArgumentException("id is null");
+        }
+
+        if (id < 0) {
+            throw new IllegalArgumentException("id is negative");
+        }
+
+        ApplicationUser user = userRepository.findById(id)
+            .orElseThrow(() ->
+                new NotFoundException("User with ID " + id + " was not found.")
+            );
+
+        return mapper.entityToSearchResponseDto(user);
     }
 }
