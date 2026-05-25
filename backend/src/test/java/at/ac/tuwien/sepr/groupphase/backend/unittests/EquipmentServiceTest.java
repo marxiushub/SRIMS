@@ -78,7 +78,7 @@ public class EquipmentServiceTest {
             () -> assertThat(equip).hasSize(3),
 
             () -> assertThat(equip).allMatch(e -> e instanceof SkiDetailDto),
-            () -> assertThat(equip).extracting(EquipmentDetailDto :: getId).doesNotContainNull()
+            () -> assertThat(equip).extracting(EquipmentDetailDto::getId).doesNotContainNull()
         );
 
     }
@@ -212,7 +212,8 @@ public class EquipmentServiceTest {
         Long id = savedHelmet.getId();
 
         HelmetUpdateDto updateDto = new HelmetUpdateDto();
-        ReflectionTestUtils.setField(updateDto, EquipmentUpdateDto.class, "type", EquipmentType.HELMET, EquipmentType.class);        updateDto.setPrice(150.00);
+        ReflectionTestUtils.setField(updateDto, EquipmentUpdateDto.class, "type", EquipmentType.HELMET, EquipmentType.class);
+        updateDto.setPrice(150.00);
         updateDto.setSize(60.0);
 
         EquipmentDetailDto result = equipmentService.updateEquipment(id, updateDto);
@@ -257,12 +258,12 @@ public class EquipmentServiceTest {
     @Transactional
     @Rollback
     void searchEquipment_withSpecificTypeAndModel_returnsFilteredList() {
-        helmetRepository.save(new Helmet("Atomic Redster Helmet", 120.0, 58.0, RentalStatus.FREE, SkillLevel.ADVANCED));
+        helmetRepository.save(new Helmet("UniqueAtomic Redster Helmet", 120.0, 58.0, RentalStatus.FREE, SkillLevel.ADVANCED));
         helmetRepository.save(new Helmet("Fischer Ranger Helmet", 100.0, 56.0, RentalStatus.FREE, SkillLevel.BEGINNER));
 
         EquipmentSearchDto searchDto = new EquipmentSearchDto();
         searchDto.setType(EquipmentType.HELMET);
-        searchDto.setModel("Atomic");
+        searchDto.setModel("UniqueAtomic");
 
         List<EquipmentDetailDto> result = equipmentService.searchEquipment(searchDto);
 
@@ -270,7 +271,7 @@ public class EquipmentServiceTest {
             "Check that only the correct helmet is found",
             () -> assertThat(result).isNotEmpty(),
             () -> assertThat(result.size()).isEqualTo(1),
-            () -> assertThat(result.getFirst().getModel()).isEqualTo("Atomic Redster Helmet")
+            () -> assertThat(result.getFirst().getModel()).isEqualTo("UniqueAtomic Redster Helmet")
         );
     }
 

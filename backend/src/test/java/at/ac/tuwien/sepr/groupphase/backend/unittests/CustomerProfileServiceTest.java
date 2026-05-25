@@ -326,4 +326,60 @@ public class CustomerProfileServiceTest {
             () -> assertThat(exception.getMessage()).containsIgnoringCase("Profile name must not be blank")
         );
     }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void getCustomerProfileById_withExistingProfile_returnsProfile() {
+        Customer customer = new Customer(
+            "get_by_id_profile_user",
+            "hashedPassword",
+            "get.by.id.profile@example.com",
+            "GetById",
+            "Tester",
+            LocalDate.of(1999, 1, 1)
+        );
+
+        Customer savedCustomer = customerRepository.save(customer);
+
+        CustomerProfile profile = new CustomerProfile(
+            "Profile By Id",
+            175,
+            70,
+            42,
+            SkillLevel.BEGINNER,
+            savedCustomer
+        );
+
+        CustomerProfile savedProfile = customerProfileRepository.save(profile);
+
+        CustomerProfileDetailDto result = customerProfileService.getCustomerProfileById(savedProfile.getId());
+
+        assertAll(
+            "Verify that a customer profile can be retrieved by ID",
+            () -> assertThat(result).isNotNull(),
+            () -> assertThat(result.getId()).isEqualTo(savedProfile.getId()),
+            () -> assertThat(result.getCustomerId()).isEqualTo(savedCustomer.getId()),
+            () -> assertThat(result.getProfileName()).isEqualTo("Profile By Id"),
+            () -> assertThat(result.getHeight()).isEqualTo(175),
+            () -> assertThat(result.getWeight()).isEqualTo(70),
+            () -> assertThat(result.getShoeSize()).isEqualTo(42),
+            () -> assertThat(result.getSkillLevel()).isEqualTo(SkillLevel.BEGINNER)
+        );
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void getCustomerProfileById_withUnknownProfile_throwsNotFoundException() {
+        NotFoundException exception = assertThrows(NotFoundException.class, () ->
+            customerProfileService.getCustomerProfileById(99999L)
+        );
+
+        assertAll(
+            "Verify that getting an unknown customer profile fails",
+            () -> assertThat(exception).isNotNull(),
+            () -> assertThat(exception.getMessage()).containsIgnoringCase("not found")
+        );
+    }
 }

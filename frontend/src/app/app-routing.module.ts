@@ -10,6 +10,15 @@ import { EquipmentCreateEditComponent, EquipmentCreateEditMode } from "./compone
 import { EquipmentViewComponent } from "./components/staff/inventory/equipment-view/equipment-view.component";
 import { ReservationCreateComponent } from "./components/customer/reservation-create/reservation-create.component";
 import {BarcodeScannerComponent} from "./components/staff/barcodescanner/barcode-scanner.component";
+import {CustomerComponent} from './components/customer/customer.component';
+import {CustomerProfileComponent} from './components/customer/customer-profile/customer-profile.component';
+import {
+  CustomerProfileCreateEditComponent,
+  ProfileCreateEditMode
+} from './components/customer/customer-profile/customer-profile-create-edit/customer-profile-create-edit.component';
+import {
+  CustomerProfileDetailsComponent
+} from './components/customer/customer-profile/customer-profile-details/customer-profile-details.component';
 
 const routes: Routes = [
   {path: '', component: HomeComponent},
@@ -23,10 +32,13 @@ const routes: Routes = [
       {path: 'inventory/view/:id', component: EquipmentViewComponent},
       {path: 'barcode-scanner', component: BarcodeScannerComponent},
   ]},
-  {path: 'customer', children: [
+  {path: 'customer', component: CustomerComponent, children: [
       {path: 'reservation/create', component: ReservationCreateComponent}
-    ]}
-  //TODO: Replace later with actual component for customer
+    ]},
+  {path: 'customer/profiles', component: CustomerProfileComponent},
+  {path: 'customer/profiles/create', component: CustomerProfileCreateEditComponent, data: {mode: ProfileCreateEditMode.create}},
+  {path: 'customer/profiles/edit/:id', component: CustomerProfileCreateEditComponent, data: {mode: ProfileCreateEditMode.edit}},
+  {path: 'customer/profiles/view/:id', component: CustomerProfileDetailsComponent},
 ];
 
 @NgModule({

@@ -16,21 +16,29 @@ import {RouterModule} from "@angular/router";
 import {InventoryComponent} from "./components/staff/inventory/inventory.component";
 import {StaffComponent} from "./components/staff/staff.component";
 import {EquipmentCreateEditComponent} from "./components/staff/inventory/equipment-create-edit/equipment-create-edit.component";
+import {CustomerComponent} from "./components/customer/customer.component";
+import {CustomerProfileComponent} from "./components/customer/customer-profile/customer-profile.component";
+import {
+  CustomerProfileCreateEditComponent
+} from "./components/customer/customer-profile/customer-profile-create-edit/customer-profile-create-edit.component";
+import {
+  CustomerProfileDetailsComponent
+} from "./components/customer/customer-profile/customer-profile-details/customer-profile-details.component";
 import {EquipmentViewComponent} from "./components/staff/inventory/equipment-view/equipment-view.component";
 
 import {ReservationCreateComponent} from "./components/customer/reservation-create/reservation-create.component";
 
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 
-import { registerLocaleData } from '@angular/common';
+import {registerLocaleData} from '@angular/common';
 import localeDe from '@angular/common/locales/de';
 import {BarcodeScannerComponent} from "./components/staff/barcodescanner/barcode-scanner.component";
 
 registerLocaleData(localeDe, 'de');
 
-export function HttpLoaderFactory(http: HttpClient): TranslateLoader{
+export function HttpLoaderFactory(http: HttpClient): TranslateLoader {
   return {
-    getTranslation(lang){
+    getTranslation(lang) {
       return http.get(`./assets/i18n/${lang}.json`) as any;
     }
   };
@@ -49,7 +57,12 @@ export function HttpLoaderFactory(http: HttpClient): TranslateLoader{
     EquipmentCreateEditComponent,
     EquipmentViewComponent,
     ReservationCreateComponent,
-    BarcodeScannerComponent
+    BarcodeScannerComponent,
+    CustomerComponent,
+    CustomerProfileComponent,
+    CustomerProfileCreateEditComponent,
+    CustomerProfileDetailsComponent,
+    BarcodeScannerComponent,
   ],
   bootstrap: [AppComponent],
   imports: [BrowserModule,
@@ -70,6 +83,7 @@ export function HttpLoaderFactory(http: HttpClient): TranslateLoader{
     httpInterceptorProviders,
     provideHttpClient(withInterceptorsFromDi()),
     provideZoneChangeDetection(),
-  ] })
+  ]
+})
 export class AppModule {
 }

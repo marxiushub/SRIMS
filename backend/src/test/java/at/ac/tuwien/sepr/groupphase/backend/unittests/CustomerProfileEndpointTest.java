@@ -394,4 +394,67 @@ public class CustomerProfileEndpointTest {
             fail("Test failed because of unexpected exception: " + e.getMessage(), e);
         }
     }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void getCustomerProfileById_withExistingProfile_returns200AndProfile() {
+        Customer customer = new Customer(
+            "endpoint_get_by_id_profile_user",
+            "hashedPassword",
+            "endpoint.get.by.id.profile@example.com",
+            "EndpointGetById",
+            "Tester",
+            LocalDate.of(1999, 1, 1)
+        );
+
+        Customer savedCustomer = customerRepository.save(customer);
+
+        CustomerProfile profile = new CustomerProfile(
+            "Endpoint Profile By Id",
+            175,
+            70,
+            42,
+            SkillLevel.BEGINNER,
+            savedCustomer
+        );
+
+        CustomerProfile savedProfile = customerProfileRepository.save(profile);
+
+        try {
+            MvcResult result = mockMvc.perform(get("/api/v1/customer/profiles/" + savedProfile.getId())
+                    .accept(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+            String responseBody = result.getResponse().getContentAsString();
+
+            assertAll(
+                "Check if customer profile was returned by ID",
+                () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
+                () -> assertThat(responseBody).contains("Endpoint Profile By Id"),
+                () -> assertThat(responseBody).contains("\"id\":" + savedProfile.getId()),
+                () -> assertThat(responseBody).contains("\"customerId\":" + savedCustomer.getId())
+            );
+        } catch (Exception e) {
+            fail("Test failed because of unexpected exception: " + e.getMessage(), e);
+        }
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void getCustomerProfileById_withUnknownProfile_returns404() {
+        try {
+            MvcResult result = mockMvc.perform(get("/api/v1/customer/profiles/99999")
+                    .accept(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+            assertAll(
+                "Check if getting an unknown customer profile returns 404",
+                () -> assertThat(result.getResponse().getStatus()).isEqualTo(404)
+            );
+        } catch (Exception e) {
+            fail("Test failed because of unexpected exception: " + e.getMessage(), e);
+        }
+    }
 }
