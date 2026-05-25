@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.exceptionhandler;
 
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -63,6 +64,21 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleIllegalArgument(IllegalArgumentException ex, WebRequest request) {
         LOGGER.warn(ex.getMessage());
         return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(value = {ValidationException.class})
+    protected ResponseEntity<Object> handleValidationException(
+        ValidationException ex,
+        WebRequest request
+    ) {
+        LOGGER.warn(ex.getMessage());
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("message", ex.getMessage());
+        body.put("errors", ex.getErrors());
+
+        return new ResponseEntity<>(
+            body, new HttpHeaders(), HttpStatus.BAD_REQUEST
+        );
     }
 
 
