@@ -13,6 +13,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.SkiBoot;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Snowboard;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.SnowboardBoot;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.EquipmentRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.HelmetRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.PoleRepository;
@@ -32,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 import java.lang.invoke.MethodHandles;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -236,6 +238,27 @@ public class EquipmentServiceImpl implements EquipmentService {
         List<Equipment> foundEquipment = equipmentRepository.findAll(spec);
 
         return mapper.entityToDto(foundEquipment);
+    }
+
+    @Override
+    @Transactional
+    public List<EquipmentDetailDto> searchAvailableEquipment(LocalDate start, LocalDate end) {
+
+        if (start == null || end == null) {
+            throw new ValidationException("one date is null");
+        }
+
+        if (start.isAfter(end)) {
+            throw new ValidationException("start is after end");
+        }
+        return equipmentRepository.findAll().stream()
+            .filter(equipment -> equipment.getTimePeriodsList().stream()
+                .noneMatch(timePeriods ->  timePeriods.getStartDate().isBefore(end)
+                    && timePeriods.getEndDate().isAfter(start)))
+            .map(equipment -> mapper.entityToDto(equipment)).toList();
+
+
+
     }
 
 }

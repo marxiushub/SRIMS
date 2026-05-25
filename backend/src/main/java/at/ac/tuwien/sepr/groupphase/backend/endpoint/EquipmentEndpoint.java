@@ -11,16 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 import java.lang.invoke.MethodHandles;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -122,5 +116,16 @@ public class EquipmentEndpoint {
     public List<EquipmentDetailDto> searchEquipment(EquipmentSearchDto searchDto) {
         LOGGER.info("GET /api/v1/equipment (Search) with parameters: {}", searchDto);
         return equipmentService.searchEquipment(searchDto);
+    }
+
+    @PermitAll
+    @GetMapping("/available")
+    @ResponseStatus(HttpStatus.OK)
+    public List<EquipmentDetailDto> searchAvailableEquipment(
+        @RequestParam LocalDate start,
+        @RequestParam LocalDate end
+    ) {
+        LOGGER.info("GET /api/v1/equipment/available?start={}&end={}", start, end);
+        return equipmentService.searchAvailableEquipment(start, end);
     }
 }
