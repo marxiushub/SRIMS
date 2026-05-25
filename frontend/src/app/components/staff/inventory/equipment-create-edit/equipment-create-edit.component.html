@@ -240,6 +240,33 @@
           }
         </div>
 
+        @if (mode === EquipmentCreateEditMode.create) {
+          <div class="row">
+            <div class="mb-2 col-lg-6">
+              <div class="row">
+                <label for="equipmentCreationNumber" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+                  {{ 'EQUIPMENT_CREATE.QUANTITY' | translate }}
+                </label>
+                <div class="col-md-10 col-lg-8">
+                  <div class="input-group">
+                    <input
+                      id="equipmentCreationNumber"
+                      name="equipmentCreationNumber"
+                      type="number"
+                      class="form-control"
+                      min="1"
+                      [(ngModel)]="equipment.creationNumber"
+                      required>
+                  </div>
+                  <div class="invalid-feedback">
+                    {{ 'EQUIPMENT_CREATE.QUANTITY_REQUIRED' | translate }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+
         <div class="mt-4 d-flex flex-row gap-2">
           <button
             class="btn btn-primary"

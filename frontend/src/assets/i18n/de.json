@@ -71,7 +71,9 @@
     "PRICE_REQUIRED": "Preis ist erforderlich.",
     "LENGTH_REQUIRED": "Länge ist erforderlich.",
     "SIZE_REQUIRED": "Größe ist erforderlich.",
-    "SOLE_LENGTH_REQUIRED": "Sohlenlänge ist erforderlich."
+    "SOLE_LENGTH_REQUIRED": "Sohlenlänge ist erforderlich.",
+    "QUANTITY": "Anzahl",
+    "QUANTITY_REQUIRED": "Anzahl ist erforderlich."
   },
   "EQUIPMENT_EDIT": {
     "TITLE": "Bearbeiten",
