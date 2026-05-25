@@ -4,6 +4,8 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.enums.EquipmentType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
 
+import java.time.LocalDate;
+
 /**
  * Data Transfer Object for searching and filtering equipment.
  * All fields are optional (nullable) to allow partial search queries.
@@ -14,6 +16,9 @@ public class EquipmentSearchDto {
     private EquipmentType type;
     private RentalStatus status;
     private SkillLevel targetSkillLevel;
+    private LocalDate start;
+    private LocalDate end;
+
 
     // --- Getter & Setter ---
 
@@ -47,5 +52,21 @@ public class EquipmentSearchDto {
 
     public void setTargetSkillLevel(SkillLevel targetSkillLevel) {
         this.targetSkillLevel = targetSkillLevel;
+    }
+
+    public void setStart(LocalDate start) {
+        this.start = start;
+    }
+
+    public LocalDate getStart() {
+        return start;
+    }
+
+    public void setEnd(LocalDate end) {
+        this.end = end;
+    }
+
+    public LocalDate getEnd() {
+        return end;
     }
 }

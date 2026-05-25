@@ -69,13 +69,4 @@ public interface EquipmentService {
      */
     List<EquipmentDetailDto> searchEquipment(EquipmentSearchDto searchDto);
 
-    /**
-     * Searches Equipment that is available in a give time period.
-     *
-     * @param start the start date
-     * @param end the end date
-     * @return a {@link List<EquipmentDetailDto>} representing the available equipment
-     * @throws NotFoundException if no equipment within the given time period is available in the database
-     */
-    public List<EquipmentDetailDto> searchAvailableEquipment(LocalDate start, LocalDate end);
 }

@@ -235,30 +235,27 @@ public class EquipmentServiceImpl implements EquipmentService {
                 cb.equal(root.get("targetSkillLevel"), equipmentSearchDto.getTargetSkillLevel()));
         }
 
-        List<Equipment> foundEquipment = equipmentRepository.findAll(spec);
 
-        return mapper.entityToDto(foundEquipment);
-    }
+        LocalDate start = searchDto.getStart();
+        LocalDate end = searchDto.getEnd();
+        List<Equipment> found = equipmentRepository.findAll(spec);
 
-    @Override
-    @Transactional
-    public List<EquipmentDetailDto> searchAvailableEquipment(LocalDate start, LocalDate end) {
-
-        if (start == null || end == null) {
-            throw new ValidationException("one date is null");
+        if (start != null && end != null) {
+            found = found.stream()
+                .filter(equipment ->
+                    equipment.getTimePeriodsList().stream()
+                        .noneMatch(tp ->
+                            tp.getStartDate().isBefore(end)
+                                && tp.getEndDate().isAfter(start)
+                        )
+                )
+                .toList();
         }
 
-        if (start.isAfter(end)) {
-            throw new ValidationException("start is after end");
-        }
-        return equipmentRepository.findAll().stream()
-            .filter(equipment -> equipment.getTimePeriodsList().stream()
-                .noneMatch(timePeriods ->  timePeriods.getStartDate().isBefore(end)
-                    && timePeriods.getEndDate().isAfter(start)))
-            .map(equipment -> mapper.entityToDto(equipment)).toList();
 
 
-
+        return mapper.entityToDto(found);
     }
+
 
 }
