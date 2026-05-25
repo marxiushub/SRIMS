@@ -15,9 +15,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
+import java.util.List;
 
 /**
  * Implementation of {@link CustomUserDetailService} for handling customer profile-related operations.
+ * TODO: change Id to token
  */
 @Service
 public class CustomerProfileServiceImpl implements CustomerProfileService {
@@ -51,5 +53,18 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
 
         CustomerProfile savedCustomerProfile = customerProfileRepository.save(customerProfile);
         return customerProfileMapper.entityToDetailDto(savedCustomerProfile);
+    }
+
+    @Override
+    public List<CustomerProfileDetailDto> getCustomerProfiles(Long customerId) {
+        LOGGER.trace("Get customer profiles for customer with id {}", customerId);
+
+        if (customerId == null) {
+            throw new IllegalArgumentException("Customer ID cannot be null.");
+        }
+        if (!customerRepository.existsById(customerId)) {
+            throw new NotFoundException("Customer with ID " + customerId + " was not found.");
+        }
+        return customerProfileRepository.findByCustomerId(customerId).stream().map(customerProfileMapper::entityToDetailDto).toList();
     }
 }
