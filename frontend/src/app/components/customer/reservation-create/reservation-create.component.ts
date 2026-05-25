@@ -74,6 +74,18 @@ export class ReservationCreateComponent implements OnInit {
   }
 
   /**
+   * Checks if the date configuration is invalid.
+   */
+  get isDateRangeInvalid(): boolean {
+    const start = this.reservationForm.get('pickUpDate')?.value;
+    const end = this.reservationForm.get('pickUpTime')?.value;
+    if(!start || !end){
+      return false;
+    }
+    return new Date(end) < new Date(start);
+  }
+
+  /**
    * Calculates the rentageDurationDays.
    * Pick-Up and Return on same day counts as 1 day.
    */
@@ -223,13 +235,18 @@ export class ReservationCreateComponent implements OnInit {
     };
 
     //Service-Call
+    this.submitLoading = true;
+    this.submitError = undefined;
     this.reservationService.create(reservationPayload).subscribe({
       next: (response) => {
         console.log('Reservation submitted successfully', response);
-        this.router.navigate(['/reservation']);
+        this.submitLoading = false;
+        this.router.navigate(['/customer']);
       },
       error: (err) => {
         console.error('Error during submission of reservation', err);
+        this.submitLoading = false;
+        this.submitError = err.error?.message || 'An error occurred while creating the reservation.';
       }
     });
   }

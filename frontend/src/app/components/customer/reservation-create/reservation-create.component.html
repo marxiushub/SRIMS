@@ -221,7 +221,7 @@
       <button
         type="submit"
         class="btn btn-success btn-lg w-100"
-        [disabled]="reservationForm.invalid || selectedEquipment.length === 0 || submitLoading">
+        [disabled]="reservationForm.invalid || selectedEquipment.length === 0 || isDateRangeInvalid || submitLoading">
         @if (submitLoading) {
           {{ 'INVENTORY.LOADING' | translate }}...
         } @else {
