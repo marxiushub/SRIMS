@@ -18,6 +18,8 @@ import {StaffComponent} from "./components/staff/staff.component";
 import {EquipmentCreateEditComponent} from "./components/staff/inventory/equipment-create-edit/equipment-create-edit.component";
 import {EquipmentViewComponent} from "./components/staff/inventory/equipment-view/equipment-view.component";
 
+import {ReservationCreateComponent} from "./components/customer/reservation-create/reservation-create.component";
+
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 
 import { registerLocaleData } from '@angular/common';
@@ -44,7 +46,8 @@ export function HttpLoaderFactory(http: HttpClient): TranslateLoader{
     StaffComponent,
     InventoryComponent,
     EquipmentCreateEditComponent,
-    EquipmentViewComponent
+    EquipmentViewComponent,
+    ReservationCreateComponent
   ],
   bootstrap: [AppComponent],
   imports: [BrowserModule,

@@ -75,5 +75,28 @@
     "TITLE": "Bearbeiten",
     "SAVE": "Änderungen speichern",
     "ERROR": "Equipment konnte nicht aktualisiert werden."
+  },
+  "RESERVATION": {
+    "TITLE_CREATE": "Neue Reservierung erstellen",
+    "SELECT_PROFILE": "Kundenprofil auswählen",
+    "CHOOSE_PROFILE_PLACEHOLDER": "-- Bitte wählen Sie ein Profil --",
+    "PICKUP_DATE": "Abholdatum",
+    "PICKUP_TIME": "Abholzeit",
+    "RETURN_DATE": "Rückgabedatum",
+    "DAYS": "Tag(e)",
+    "SELECTED_EQUIPMENT": "Ausgewähltes Equipment für diese Reservierung",
+    "NO_EQUIPMENT_SELECTED": "Noch kein Equipment ausgewählt. Nutzen Sie die Buttons unten, um Ausrüstung hinzuzufügen.",
+    "ADD_EQUIPMENT_PROMPT": "Ausrüstung hinzufügen:",
+    "ADD_HELMET": "Helm hinzufügen",
+    "ADD_POLE": "Skistöcke hinzufügen",
+    "ADD_SKI": "Ski hinzufügen",
+    "ADD_SKI_BOOT": "Skischuhe hinzufügen",
+    "ADD_SNOWBOARD": "Snowboard hinzufügen",
+    "ADD_SNOWBOARD_BOOT": "Snowboard-Boots hinzufügen",
+    "AVAILABLE": "Verfügbare",
+    "ACTION": "Aktion",
+    "ADD": "Hinzufügen",
+    "ADDED": "Hinzugefügt",
+    "SUBMIT": "Reservierung verbindlich abschicken"
   }
 }

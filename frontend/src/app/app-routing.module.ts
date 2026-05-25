@@ -8,6 +8,7 @@ import { StaffComponent } from './components/staff/staff.component';
 import { InventoryComponent } from './components/staff/inventory/inventory.component';
 import { EquipmentCreateEditComponent, EquipmentCreateEditMode } from "./components/staff/inventory/equipment-create-edit/equipment-create-edit.component";
 import { EquipmentViewComponent } from "./components/staff/inventory/equipment-view/equipment-view.component";
+import { ReservationCreateComponent } from "./components/customer/reservation-create/reservation-create.component";
 
 const routes: Routes = [
   {path: '', component: HomeComponent},
@@ -20,7 +21,10 @@ const routes: Routes = [
       {path: 'inventory/edit/:id', component: EquipmentCreateEditComponent, data: {mode: EquipmentCreateEditMode.edit}},
       {path: 'inventory/view/:id', component: EquipmentViewComponent},
   ]},
-  {path: 'customer', component: HomeComponent} //TODO: Replace later with actual component for customer
+  {path: 'customer', children: [
+      {path: 'reservation/create', component: ReservationCreateComponent}
+    ]}
+  //TODO: Replace later with actual component for customer
 ];
 
 @NgModule({

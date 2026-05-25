@@ -75,5 +75,28 @@
     "TITLE": "Edit",
     "SAVE": "Update",
     "ERROR": "Equipment could not be updated."
+  },
+  "RESERVATION": {
+    "TITLE_CREATE": "Create New Reservation",
+    "SELECT_PROFILE": "Select Customer Profile",
+    "CHOOSE_PROFILE_PLACEHOLDER": "-- Please choose a profile --",
+    "PICKUP_DATE": "Pick-up Date",
+    "PICKUP_TIME": "Pick-up Time",
+    "RETURN_DATE": "Return Date",
+    "DAYS": "Day(s)",
+    "SELECTED_EQUIPMENT": "Selected Equipment for this Reservation",
+    "NO_EQUIPMENT_SELECTED": "No equipment selected yet. Use the buttons below to add gear.",
+    "ADD_EQUIPMENT_PROMPT": "Add equipment:",
+    "ADD_HELMET": "Add Helmet",
+    "ADD_POLE": "Add Poles",
+    "ADD_SKI": "Add Skis",
+    "ADD_SKI_BOOT": "Add Ski Boots",
+    "ADD_SNOWBOARD": "Add Snowboard",
+    "ADD_SNOWBOARD_BOOT": "Add Snowboard Boots",
+    "AVAILABLE": "Available",
+    "ACTION": "Action",
+    "ADD": "Add",
+    "ADDED": "Added",
+    "SUBMIT": "Submit Binding Reservation"
   }
 }

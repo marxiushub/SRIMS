@@ -111,6 +111,8 @@ public abstract class Equipment {
         return barcodeId;
     }
 
+    //TODO: Getters and Setters for usageDurationDays, if necessary
+
     /**
      * Setter.
      *
