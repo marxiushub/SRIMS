@@ -1,4 +1,4 @@
-package at.ac.tuwien.sepr.groupphase.backend.unittests;
+package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.StaffRepository;
@@ -152,7 +152,6 @@ public class UserEndpointTest {
 
                 () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
 
-                // alle geänderten Felder prüfen
                 () -> assertThat(responseBody).contains("updated_retro_gamer"),
                 () -> assertThat(responseBody).contains("updated.marcel@example.com"),
                 () -> assertThat(responseBody).contains("UpdatedMarcel"),
@@ -197,7 +196,6 @@ public class UserEndpointTest {
 
                 () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
 
-                // alle geänderten Felder prüfen
                 () -> assertThat(responseBody).contains("updated_admin"),
                 () -> assertThat(responseBody).contains("updated.admin@system.com")
             );
@@ -261,6 +259,80 @@ public class UserEndpointTest {
                 () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
                 () -> assertThat(userRepository.findById(staffId)).isEmpty(),
                 () -> assertThat(staffRepository.findById(staffId)).isEmpty()
+            );
+
+        } catch (Exception e) {
+            fail("Test failed because of unexpected exception");
+        }
+    }
+
+
+    @Test
+    @Transactional
+    @Rollback
+    public void getUserById_withExistingCustomer_returns200AndCustomerDto() {
+
+        try {
+            Long customerId = customerRepository.findAll()
+                .stream()
+                .findFirst()
+                .orElseThrow()
+                .getId();
+
+            MvcResult result = mockMvc.perform(
+                    org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                        .get("/api/v1/customer/" + customerId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andReturn();
+
+            String responseBody = result.getResponse().getContentAsString();
+
+            assertAll(
+                "Check if customer was successfully retrieved",
+
+                () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
+
+                () -> assertThat(responseBody).contains("email"),
+                () -> assertThat(responseBody).contains("userName"),
+
+                () -> assertThat(responseBody).contains("CUSTOMER")
+            );
+
+        } catch (Exception e) {
+            fail("Test failed because of unexpected exception");
+        }
+    }
+
+
+    @Test
+    @Transactional
+    @Rollback
+    public void getUserById_withExistingStaff_returns200AndStaffDto() {
+
+        try {
+            Long staffId = staffRepository.findAll()
+                .stream()
+                .findFirst()
+                .orElseThrow()
+                .getId();
+
+            MvcResult result = mockMvc.perform(
+                    org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                        .get("/api/v1/staff/" + staffId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andReturn();
+
+            String responseBody = result.getResponse().getContentAsString();
+
+            assertAll(
+                "Check if staff is successfully retrieved via polymorphic endpoint",
+
+                () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
+                () -> assertThat(responseBody).contains("email"),
+                () -> assertThat(responseBody).contains("userName"),
+                () -> assertThat(responseBody).contains("STAFF")
             );
 
         } catch (Exception e) {
