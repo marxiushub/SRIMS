@@ -35,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @ActiveProfiles({"test", "datagenerator"})
 @AutoConfigureMockMvc
@@ -324,6 +325,71 @@ public class ReservationEndpointTest {
             assertAll(
                 "Check if deleting equipment from an unknown reservation returns 404",
                 () -> assertThat(result.getResponse().getStatus()).isEqualTo(404)
+            );
+        } catch (Exception e) {
+            fail("Test failed because of unexpected exception: " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void searchReservations_withMatchingParams_returns200AndFilteredList() {
+        ReservationCreationDto createDto = new ReservationCreationDto();
+        createDto.setCustomerProfileId(testProfile.getId());
+        createDto.setEquipmentIds(List.of(testEquipment1.getId()));
+        createDto.setPickUpDate(LocalDate.now().plusDays(10));
+        createDto.setPickUpTime(LocalTime.of(10, 0));
+        createDto.setRentDurationDays(3);
+
+        reservationService.createReservation(createDto);
+
+        try {
+            MvcResult result = mockMvc.perform(get("/api/v1/reservation")
+                    .param("customerProfileId", testProfile.getId().toString())
+                    .param("pickUpDate", LocalDate.now().plusDays(10).toString())
+                    .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+            String responseBody = result.getResponse().getContentAsString();
+
+            assertAll(
+                "Check if the search endpoint correctly filters and returns 200",
+                () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
+                () -> assertThat(responseBody).contains("Max Mustermann"),
+                () -> assertThat(responseBody).contains("Test Helmet")
+            );
+        } catch (Exception e) {
+            fail("Test failed because of unexpected exception: " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void searchReservations_withNoMatchingParams_returns200AndEmptyList() {
+        ReservationCreationDto createDto = new ReservationCreationDto();
+        createDto.setCustomerProfileId(testProfile.getId());
+        createDto.setEquipmentIds(List.of(testEquipment1.getId()));
+        createDto.setPickUpDate(LocalDate.now().plusDays(2));
+        createDto.setPickUpTime(LocalTime.of(10, 0));
+        createDto.setRentDurationDays(3);
+
+        reservationService.createReservation(createDto);
+
+        try {
+            MvcResult result = mockMvc.perform(get("/api/v1/reservation")
+                    .param("customerProfileId", "99999")
+                    .param("pickUpDate", "2099-01-01")
+                    .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+            String responseBody = result.getResponse().getContentAsString();
+
+            assertAll(
+                "Check if a search without matches returns an empty JSON array",
+                () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
+                () -> assertThat(responseBody).isEqualTo("[]")
             );
         } catch (Exception e) {
             fail("Test failed because of unexpected exception: " + e.getMessage());
