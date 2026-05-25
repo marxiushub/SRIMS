@@ -45,7 +45,7 @@ const routes: Routes = [
     component: CustomerProfileCreateEditComponent,
     data: {mode: ProfileCreateEditMode.edit}
   },
-  {path: 'customer/profiles/details/:id', component: CustomerProfileDetailsComponent},
+  {path: 'customer/profiles/view/:id', component: CustomerProfileDetailsComponent},
 
 ];
 

@@ -43,17 +43,10 @@
       <tbody>
       </tbody>
       @for (item of profiles; track item.id) {
-        <tr>
+        <tr (click)="openDetailPage(item)" class="clickable-row">
           <td>{{ item.profileName }}</td>
 
           <td>
-            <button
-              type="button"
-              class="btn btn-sm btn-outline-primary me-2"
-              (click)="openDetailsPage(item)">
-              {{ 'CUSTOMER_PROFILE_DETAILS.TITLE' | translate }}
-            </button>
-
             <button
               type="button"
               class="btn btn-sm btn-outline-primary me-2"
