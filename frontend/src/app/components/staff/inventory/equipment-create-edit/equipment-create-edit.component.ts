@@ -30,6 +30,7 @@ export class EquipmentCreateEditComponent implements OnInit {
     status: RentalStatus.FREE,
     targetSkillLevel: SkillLevel.BEGINNER,
     price: 0,
+    creationNumber: 1,
     length: undefined,
     size: undefined,
     soleLengthMm: undefined,
@@ -85,6 +86,7 @@ export class EquipmentCreateEditComponent implements OnInit {
           status: data.status,
           targetSkillLevel: data.targetSkillLevel,
           price: data.price,
+          creationNumber: 1,
 
           length: data.length,
           size: data.size,
@@ -156,10 +158,11 @@ export class EquipmentCreateEditComponent implements OnInit {
       status: this.equipment.status,
       targetSkillLevel: this.equipment.targetSkillLevel,
       price: this.equipment.price,
+      creationNumber: this.equipment.creationNumber,
     };
 
-    if (this.equipment.type === EquipmentType.SKI || this.equipment.type === EquipmentType.POLE || this.equipment.type === EquipmentType.SNOWBOARD){
-      request.length =  this.equipment.length;
+    if (this.equipment.type === EquipmentType.SKI || this.equipment.type === EquipmentType.POLE || this.equipment.type === EquipmentType.SNOWBOARD) {
+      request.length = this.equipment.length;
     }
 
     if (this.equipment.type === EquipmentType.HELMET) {
