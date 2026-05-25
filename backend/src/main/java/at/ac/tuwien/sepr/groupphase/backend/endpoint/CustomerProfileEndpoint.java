@@ -70,4 +70,12 @@ public class CustomerProfileEndpoint {
 
         return customerProfileService.updateCustomerProfile(profileId, dto);
     }
+
+    @PermitAll
+    @GetMapping("/profiles/{profileId}")
+    @ResponseStatus(HttpStatus.OK)
+    public CustomerProfileDetailDto getCustomerProfileById(@PathVariable("profileId") Long profileId) {
+        LOGGER.info("GET /api/v1/customer/profiles/{profileId}", profileId);
+        return customerProfileService.getCustomerProfileById(profileId);
+    }
 }
