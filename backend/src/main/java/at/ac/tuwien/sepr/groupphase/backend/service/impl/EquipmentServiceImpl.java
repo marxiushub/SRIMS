@@ -85,6 +85,7 @@ public class EquipmentServiceImpl implements EquipmentService {
         );
     }
 
+    @Transactional
     @Override
     public List<EquipmentDetailDto> createEquipment(EquipmentCreationDto dto) {
         LOGGER.trace("Creation of an {}", dto.getType());
@@ -103,6 +104,7 @@ public class EquipmentServiceImpl implements EquipmentService {
         return created;
     }
 
+    @Transactional
     @Override
     public void deleteEquipment(Long id) {
         LOGGER.trace("Deleting equipment with id {}", id);
@@ -122,7 +124,7 @@ public class EquipmentServiceImpl implements EquipmentService {
         equipmentRepository.deleteById(id);
     }
 
-    @Override
+    @Transactional(readOnly = true)
     public List<EquipmentDetailDto> equipmentByType(String type) {
         LOGGER.trace("Get equipment by type: {}", type);
 
@@ -144,7 +146,7 @@ public class EquipmentServiceImpl implements EquipmentService {
         return mapper.entityToDto(equipmentList);
     }
 
-    @Override
+    @Transactional(readOnly = true)
     public EquipmentDetailDto equipmentById(Long id) {
         LOGGER.trace("Get equipment by id: {}", id);
 
@@ -189,6 +191,7 @@ public class EquipmentServiceImpl implements EquipmentService {
         return mapper.entityToDto(savedEquipment);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<EquipmentDetailDto> searchEquipment(EquipmentSearchDto searchDto) {
         LOGGER.info("Searching equipment with parameters: {}", searchDto);

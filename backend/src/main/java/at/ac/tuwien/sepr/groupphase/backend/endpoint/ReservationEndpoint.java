@@ -1,10 +1,9 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.creation.EquipmentCreationDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.detail.EquipmentDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.update.EquipmentUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationAddDeleteEquipmentDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.ReservationServiceImpl;
 import jakarta.annotation.security.PermitAll;
@@ -13,12 +12,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.PathVariable;
+
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
@@ -48,22 +50,80 @@ public class ReservationEndpoint {
         return service.createReservation(dto);
     }
 
+
+    /**
+     * Delete reservation.
+     *
+     * @param deleteDto the DTO containing the fields to update
+     */
+    @PermitAll
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping
+    public void deleteReservation(
+        @Valid @RequestBody ReservationAddDeleteEquipmentDto deleteDto
+    ) {
+        LOGGER.info("DELETE /api/v1/reservation - Body: {}", deleteDto);
+
+        service.deleteReservation(deleteDto.getId());
+    }
+
     /**
      * Partially updates an existing reservation.
      *
-     * @param id the ID of the equipment to update
      * @param updateDto the DTO containing the fields to update
      * @return the updated equipment as a detail DTO
      */
     @PermitAll
     @ResponseStatus(HttpStatus.OK)
-    public ReservationDetailDto updatereservation(
-        @PathVariable("id") Long id,
+    @PatchMapping()
+    public ReservationDetailDto updateReservation(
         @Valid @RequestBody ReservationUpdateDto updateDto
     ) {
-        LOGGER.info("PATCH /api/v1/reservation/{} - Body: {}", id, updateDto);
+        LOGGER.info("PATCH /api/v1/reservation/{} - Body: {}", updateDto.getId(), updateDto);
         return service.updateReservation(updateDto);
     }
 
+    /**
+     * Removes specific equipment from an existing reservation.
+     *
+     * @param dto the DTO containing the reservation ID and the equipment IDs to remove
+     * @return the updated reservation as a detail DTO
+     */
+    @PermitAll
+    @DeleteMapping("/equipment")
+    @ResponseStatus(HttpStatus.OK)
+    public ReservationDetailDto removeEquipmentFromReservation(@Valid @RequestBody ReservationAddDeleteEquipmentDto dto) {
+        LOGGER.info("DELETE /api/v1/reservation/equipment - {}", dto);
+        return service.removeEquipmentFromReservation(dto);
+    }
+
+    /**
+     * Adds specific equipment to an existing reservation.
+     *
+     * @param dto the DTO containing the reservation ID and the equipment IDs to add
+     * @return the updated reservation as a detail DTO
+     */
+    @PermitAll
+    @PostMapping("/equipment")
+    @ResponseStatus(HttpStatus.OK)
+    public ReservationDetailDto addEquipmentToReservation(@Valid @RequestBody ReservationAddDeleteEquipmentDto dto) {
+        LOGGER.info("POST /api/v1/reservation/equipment - {}", dto);
+        return service.addEquipmentToReservation(dto);
+    }
+
+    /**
+     * Searches for reservations based on optional filter criteria.
+     * If no criteria are provided, all reservations might be returned (depending on service logic).
+     *
+     * @param searchDto the DTO containing the search parameters (mapped from URL query parameters)
+     * @return a list of reservations matching the criteria
+     */
+    @PermitAll
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public List<ReservationDetailDto> searchReservations(ReservationSearchDto searchDto) {
+        LOGGER.info("GET /api/v1/reservation - Search parameters: {}", searchDto);
+        return service.searchReservations(searchDto);
+    }
 
 }

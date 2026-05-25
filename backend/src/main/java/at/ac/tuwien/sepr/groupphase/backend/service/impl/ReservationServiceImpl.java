@@ -1,11 +1,15 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
+
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationAddDeleteEquipmentDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ReservationMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Reservation;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ReservationRelation;
+import at.ac.tuwien.sepr.groupphase.backend.entity.TimePeriods;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.PeriodType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
@@ -16,11 +20,13 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerProfileRepos
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -67,7 +73,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
     @Override
     @Transactional
     public ReservationDetailDto createReservation(ReservationCreationDto dto) {
-
+        LOGGER.trace("create reservation");
         CustomerProfile profile = customerProfileRepository.findById(dto.getCustomerProfileId())
             .orElseThrow(() -> new NotFoundException("Customer profile with ID " + dto.getCustomerProfileId() + " not found."));
 
@@ -83,9 +89,9 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
                 .orElseThrow(() -> new NotFoundException("Equipment with ID " + equipmentId + " not found."));
 
             LocalDate pickUpDate = dto.getPickUpDate();
-            LocalDate dropOffDate =  pickUpDate.plusDays(dto.getRentDurationDays());
+            LocalDate dropOffDate = pickUpDate.plusDays(dto.getRentDurationDays());
 
-            validator.isEquipmentAvailable(equipment, pickUpDate, dropOffDate);
+            //muss noch validiert werden
             reservation.addItem(equipment);
 
             equipment.addTimePeriod(pickUpDate, dropOffDate, PeriodType.RENTED);
@@ -97,6 +103,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
     }
 
     @Override
+    @Transactional
     public void deleteReservation(Long id) {
         LOGGER.trace("Deleting reservation with id {}", id);
 
@@ -108,13 +115,19 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
             throw new IllegalArgumentException("id is negative");
         }
 
-        if (!reservationRepository.existsById(id)) {
-            throw new NotFoundException("Reservation with ID " + id + " was not found.");
-        }
+        Reservation reservation = reservationRepository.findById(id)
+            .orElseThrow(() ->
+                new NotFoundException("Reservation with ID " + id + " was not found.")
+            );
+
+        LocalDate start = reservation.getPickUpDate();
+        LocalDate end = reservation.getReturnDate();
+
+        deleteTimePeriodsForEquipment(reservation.getItems().stream().map(ReservationRelation::getEquipment).toList(), start, end);
 
         //bestätigungs-mail senden
 
-        reservationRepository.deleteById(id);
+        reservationRepository.delete(reservation);
 
     }
 
@@ -122,13 +135,18 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
     @Transactional
     public ReservationDetailDto updateReservation(ReservationUpdateDto dto) {
         Long id = dto.getId();
-
         LOGGER.trace("update reservation {}", id);
+
+        validator.validateUpdateDto(dto);
+
 
         Reservation reservation = reservationRepository.findById(id)
             .orElseThrow(() ->
                 new NotFoundException("Reservation not found")
             );
+
+        final LocalDate oldStart = reservation.getPickUpDate();
+        final LocalDate oldEnd = reservation.getReturnDate();
 
         if (dto.getPickUpTime() != null) {
             reservation.setPickUpTime(dto.getPickUpTime());
@@ -141,6 +159,9 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
         if (dto.getRentDurationDays() != null) {
             reservation.setRentDurationDays(dto.getRentDurationDays());
         }
+
+        LocalDate newStart = reservation.getPickUpDate();
+        LocalDate newEnd = newStart.plusDays(reservation.getRentDurationDays());
 
         //update Customer
 
@@ -159,10 +180,11 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
             reservation.setCustomerProfile(profile);
         }
 
-        /*
-         * equipment
-         */
+
         if (dto.getEquipmentIds() != null) {
+
+            deleteTimePeriodsForEquipment(reservation.getItems().stream().map(ReservationRelation::getEquipment).toList(), oldStart, oldEnd);
+
 
             reservation.getItems().clear();
 
@@ -170,14 +192,8 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
                 equipmentRepository.findAllById(dto.getEquipmentIds());
 
             for (Equipment equipment : equipmentList) {
-
-                validator.isEquipmentAvailable(
-                    equipment,
-                    reservation.getPickUpDate(),
-                    reservation.getReturnDate()
-                );
-
                 reservation.addItem(equipment);
+                equipment.addTimePeriod(newStart, newEnd, PeriodType.RENTED);
             }
         }
 
@@ -185,8 +201,113 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
         return mapper.entityToDetailDto(saved);
     }
 
+    @Transactional
     @Override
     public List<ReservationDetailDto> searchReservations(ReservationSearchDto searchDto) {
-        return List.of();
+        if (searchDto == null) {
+            searchDto = new ReservationSearchDto();
+        }
+
+        final ReservationSearchDto finalSearchDto = searchDto;
+
+        Specification<Reservation> spec = (root, query, cb) -> cb.conjunction();
+
+        if (finalSearchDto.getCustomerProfileId() != null) {
+            spec = spec.and((root, query, cb) ->
+                cb.equal(root.get("customerProfile").get("id"), finalSearchDto.getCustomerProfileId())
+            );
+        }
+
+        if (finalSearchDto.getAccountId() != null) {
+            spec = spec.and((root, query, cb) ->
+                cb.equal(root.get("customerProfile").get("customer").get("id"), finalSearchDto.getAccountId())
+            );
+        }
+
+        if (finalSearchDto.getPickUpDate() != null) {
+            spec = spec.and((root, query, cb) ->
+                cb.equal(root.get("pickUpDate"), finalSearchDto.getPickUpDate())
+            );
+        }
+
+        if (finalSearchDto.getPickUpTime() != null) {
+            spec = spec.and((root, query, cb) ->
+                cb.equal(root.get("pickUpTime"), finalSearchDto.getPickUpTime())
+            );
+        }
+
+        if (finalSearchDto.getTimePeriod() != null) {
+            spec = spec.and((root, query, cb) ->
+                cb.equal(root.get("timePeriod"), finalSearchDto.getTimePeriod())
+            );
+        }
+
+        List<Reservation> foundReservations = reservationRepository.findAll(spec);
+
+        return foundReservations.stream()
+            .map(mapper::entityToDetailDto)
+            .toList();
+    }
+
+    @Override
+    @Transactional
+    public ReservationDetailDto addEquipmentToReservation(ReservationAddDeleteEquipmentDto dto) {
+
+        validator.validateReservationAddEquip(dto);
+
+        Reservation reservation = reservationRepository.findById(dto.getId()).orElseThrow(() ->
+            new NotFoundException("Reservation with ID " + dto.getId() + " not found.")
+        );
+
+        List<Equipment> equipmentList =
+            equipmentRepository.findAllById(dto.getEquipmentIds());
+
+        LocalDate start = reservation.getPickUpDate();
+        LocalDate end = start.plusDays(reservation.getRentDurationDays());
+
+        for (Equipment equipment : equipmentList) {
+            reservation.addItem(equipment);
+            equipment.addTimePeriod(start, end, PeriodType.RENTED);
+        }
+
+        return mapper.entityToDetailDto(reservation);
+    }
+
+    @Override
+    @Transactional
+    public ReservationDetailDto removeEquipmentFromReservation(ReservationAddDeleteEquipmentDto dto) {
+        validator.validateReservationRemoveEquipment(dto);
+
+        Reservation reservation = reservationRepository.findById(dto.getId()).orElseThrow(() ->
+            new NotFoundException("Reservation with ID " + dto.getId() + " not found.")
+        );
+
+        List<Equipment> equipmentList = equipmentRepository.findAllById(dto.getEquipmentIds());
+
+        LocalDate start = reservation.getPickUpDate();
+        LocalDate end = start.plusDays(reservation.getRentDurationDays());
+
+        deleteTimePeriodsForEquipment(equipmentList, start, end);
+
+        reservation.getItems().removeIf(relation -> dto.getEquipmentIds().contains(relation.getEquipment().getId()));
+
+        Reservation savedReservation = reservationRepository.save(reservation);
+        return mapper.entityToDetailDto(savedReservation);
+    }
+
+    private void deleteTimePeriodsForEquipment(List<Equipment> equipmentList, LocalDate start, LocalDate end) {
+        for (Equipment equipment : equipmentList) {
+            List<TimePeriods> periods = new ArrayList<>(equipment.getTimePeriodsList());
+
+            for (TimePeriods tp : periods) {
+                boolean overlaps =
+                    tp.getStartDate().isBefore(end)
+                        && tp.getEndDate().isAfter(start);
+
+                if (overlaps && tp.getPeriodType() == PeriodType.RENTED) {
+                    equipment.getTimePeriodsList().remove(tp);
+                }
+            }
+        }
     }
 }

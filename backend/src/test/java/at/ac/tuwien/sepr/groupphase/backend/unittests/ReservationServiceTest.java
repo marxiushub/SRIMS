@@ -1,8 +1,11 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationAddDeleteEquipmentDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.enums.PeriodType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
@@ -186,6 +189,249 @@ public class ReservationServiceTest {
 
             () -> assertThat(updatedReservation.getReturnDate())
                 .isEqualTo(LocalDate.now().plusDays(12))
+        );
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void addEquipmentToReservation_withValidData_addsEquipment() {
+
+
+        ReservationCreationDto createDto = new ReservationCreationDto();
+        createDto.setCustomerProfileId(testCustomerProfile.getId());
+        createDto.setEquipmentIds(List.of(testEquipment.getId()));
+        createDto.setPickUpDate(LocalDate.now().plusDays(10));
+        createDto.setPickUpTime(LocalTime.of(10, 0));
+        createDto.setRentDurationDays(5);
+
+        ReservationDetailDto created = reservationService.createReservation(createDto);
+
+        assertThat(created.getId()).isNotNull();
+        assertThat(created.getItems()).hasSize(1);
+
+
+        ReservationAddDeleteEquipmentDto addDto = new ReservationAddDeleteEquipmentDto();
+        addDto.setId(created.getId());
+        addDto.setEquipmentIds(List.of(testEquipment2.getId()));
+
+        ReservationDetailDto result =
+            reservationService.addEquipmentToReservation(addDto);
+
+        assertThat(result.getItems()).hasSize(2);
+
+        LocalDate expectedStart = createDto.getPickUpDate();
+        LocalDate expectedEnd = expectedStart.plusDays(createDto.getRentDurationDays());
+
+
+        Equipment updatedEquipment =
+            equipmentRepository.findById(testEquipment2.getId()).orElseThrow();
+
+        assertThat(updatedEquipment.getTimePeriodsList())
+            .anyMatch(tp ->
+                tp.getStartDate().equals(expectedStart) &&
+                    tp.getEndDate().equals(expectedEnd) &&
+                    tp.getPeriodType() == PeriodType.RENTED
+            );
+
+        assertAll(
+            "Verify equipment was added successfully",
+
+            () -> assertThat(result).isNotNull(),
+
+            () -> assertThat(result.getId())
+                .isEqualTo(created.getId()),
+
+            () -> assertThat(result.getItems())
+                .hasSize(2),
+
+            () -> assertThat(
+                result.getItems().stream()
+                    .anyMatch(e -> e.getId().equals(testEquipment2.getId()))
+            ).isTrue()
+        );
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void deleteReservation_withValidId_removesReservationAndTimePeriods() {
+
+        ReservationCreationDto createDto = new ReservationCreationDto();
+        createDto.setCustomerProfileId(testCustomerProfile.getId());
+        createDto.setEquipmentIds(List.of(testEquipment.getId()));
+        createDto.setPickUpDate(LocalDate.now().plusDays(10));
+        createDto.setPickUpTime(LocalTime.of(10, 0));
+        createDto.setRentDurationDays(5);
+
+        ReservationDetailDto created =
+            reservationService.createReservation(createDto);
+
+        Long reservationId = created.getId();
+
+        assertThat(reservationId).isNotNull();
+
+
+        LocalDate expectedStart = createDto.getPickUpDate();
+        LocalDate expectedEnd = expectedStart.plusDays(createDto.getRentDurationDays());
+
+        Equipment equipmentBeforeDelete =
+            equipmentRepository.findById(testEquipment.getId()).orElseThrow();
+
+        assertThat(equipmentBeforeDelete.getTimePeriodsList())
+            .anyMatch(tp ->
+                tp.getStartDate().equals(expectedStart) &&
+                    tp.getEndDate().equals(expectedEnd)
+            );
+
+        reservationService.deleteReservation(reservationId);
+
+
+        assertThat(reservationRepository.existsById(reservationId)).isFalse();
+
+
+        Equipment equipmentAfterDelete =
+            equipmentRepository.findById(testEquipment.getId()).orElseThrow();
+
+        assertThat(equipmentAfterDelete.getTimePeriodsList())
+            .noneMatch(tp ->
+                tp.getStartDate().equals(expectedStart) &&
+                    tp.getEndDate().equals(expectedEnd) &&
+                    tp.getPeriodType() == PeriodType.RENTED
+            );
+    }
+    @Test
+    @Transactional
+    @Rollback
+    public void deleteReservation_withUnknownId_throwsNotFoundException() {
+
+        assertThrows(NotFoundException.class, () ->
+            reservationService.deleteReservation(99999L)
+        );
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void removeEquipmentFromReservation_withValidData_removesEquipmentAndFreesTimePeriod() {
+        ReservationCreationDto createDto = new ReservationCreationDto();
+        createDto.setCustomerProfileId(testCustomerProfile.getId());
+        createDto.setEquipmentIds(List.of(testEquipment.getId(), testEquipment2.getId()));
+        createDto.setPickUpDate(LocalDate.now().plusDays(5));
+        createDto.setPickUpTime(LocalTime.of(9, 0));
+        createDto.setRentDurationDays(4);
+
+        ReservationDetailDto created = reservationService.createReservation(createDto);
+
+        assertThat(created.getId()).isNotNull();
+        assertThat(created.getItems()).hasSize(2);
+
+        LocalDate expectedStart = createDto.getPickUpDate();
+        LocalDate expectedEnd = expectedStart.plusDays(createDto.getRentDurationDays());
+
+        Equipment equipmentBeforeDelete = equipmentRepository.findById(testEquipment2.getId()).orElseThrow();
+        assertThat(equipmentBeforeDelete.getTimePeriodsList())
+            .anyMatch(tp ->
+                tp.getStartDate().equals(expectedStart) &&
+                    tp.getEndDate().equals(expectedEnd) &&
+                    tp.getPeriodType() == PeriodType.RENTED
+            );
+
+        ReservationAddDeleteEquipmentDto removeDto = new ReservationAddDeleteEquipmentDto();
+        removeDto.setId(created.getId());
+        removeDto.setEquipmentIds(List.of(testEquipment2.getId()));
+
+        ReservationDetailDto result = reservationService.removeEquipmentFromReservation(removeDto);
+
+        assertAll(
+            "Verify equipment was removed successfully",
+            () -> assertThat(result).isNotNull(),
+            () -> assertThat(result.getId()).isEqualTo(created.getId()),
+            () -> assertThat(result.getItems()).hasSize(1), // Nur noch 1 Item übrig
+            () -> assertThat(
+                result.getItems().stream()
+                    .noneMatch(item -> item.getId().equals(testEquipment2.getId()))
+            ).as("testEquipment2 should be removed").isTrue(),
+            () -> assertThat(
+                result.getItems().stream()
+                    .anyMatch(item -> item.getId().equals(testEquipment.getId()))
+            ).as("testEquipment should still be in the reservation").isTrue()
+        );
+
+        Equipment equipmentAfterDelete = equipmentRepository.findById(testEquipment2.getId()).orElseThrow();
+        assertThat(equipmentAfterDelete.getTimePeriodsList())
+            .noneMatch(tp ->
+                tp.getStartDate().equals(expectedStart) &&
+                    tp.getEndDate().equals(expectedEnd) &&
+                    tp.getPeriodType() == PeriodType.RENTED
+            );
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void removeEquipmentFromReservation_withUnknownReservationId_throwsNotFoundException() {
+        ReservationAddDeleteEquipmentDto removeDto = new ReservationAddDeleteEquipmentDto();
+        removeDto.setId(99999L);
+        removeDto.setEquipmentIds(List.of(testEquipment.getId()));
+
+        NotFoundException exception = assertThrows(NotFoundException.class, () ->
+            reservationService.removeEquipmentFromReservation(removeDto)
+        );
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void searchReservations_withMatchingCriteria_returnsFilteredList() {
+        ReservationCreationDto createDto = new ReservationCreationDto();
+        createDto.setCustomerProfileId(testCustomerProfile.getId());
+        createDto.setEquipmentIds(List.of(testEquipment.getId()));
+        LocalDate searchDate = LocalDate.now().plusDays(15);
+        createDto.setPickUpDate(searchDate);
+        createDto.setPickUpTime(LocalTime.of(10, 0));
+        createDto.setRentDurationDays(3);
+
+        ReservationDetailDto created = reservationService.createReservation(createDto);
+
+        ReservationSearchDto searchDto = new ReservationSearchDto();
+        searchDto.setCustomerProfileId(testCustomerProfile.getId());
+        searchDto.setPickUpDate(searchDate);
+
+        List<ReservationDetailDto> result = reservationService.searchReservations(searchDto);
+
+        assertAll(
+            "Verify that the search returns the correct reservation",
+            () -> assertThat(result).isNotNull(),
+            () -> assertThat(result).isNotEmpty(),
+            () -> assertThat(result.stream().anyMatch(res -> res.getId().equals(created.getId()))).isTrue(),
+            () -> assertThat(result.get(0).getCustomerName()).isEqualTo("Max Mustermann")
+        );
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void searchReservations_withNoMatchingCriteria_returnsEmptyList() {
+        ReservationCreationDto createDto = new ReservationCreationDto();
+        createDto.setCustomerProfileId(testCustomerProfile.getId());
+        createDto.setEquipmentIds(List.of(testEquipment.getId()));
+        createDto.setPickUpDate(LocalDate.now().plusDays(5));
+        createDto.setPickUpTime(LocalTime.of(10, 0));
+        createDto.setRentDurationDays(3);
+
+        reservationService.createReservation(createDto);
+
+        ReservationSearchDto searchDto = new ReservationSearchDto();
+        searchDto.setCustomerProfileId(99999L);
+        searchDto.setPickUpDate(LocalDate.of(2099, 1, 1));
+
+        List<ReservationDetailDto> result = reservationService.searchReservations(searchDto);
+
+        assertAll(
+            "Verify that searching with wrong criteria returns an empty list",
+            () -> assertThat(result).isNotNull(),
+            () -> assertThat(result).isEmpty()
         );
     }
 
