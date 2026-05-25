@@ -32,7 +32,11 @@
     "LOWEST_FIRST": "Lowest first",
     "HIGHEST_FIRST": "Highest first",
     "ROWS_PER_PAGE": "Rows per page",
-    "OF": "of"
+    "OF": "of",
+    "RESERVATIONS_TITLE": "Upcoming Reservations",
+    "RESERVATIONS_LOADING": "Loading reservations...",
+    "RESERVATIONS_ERROR": "Error loading reservations for this equipment.",
+    "NO_RESERVATIONS": "There are currently no reservations for this equipment."
   },
   "RENTAL_STATUS": {
     "FREE": "Available",
@@ -125,6 +129,14 @@
     "SUCCESS_CHANGE": "Status successfully changed to {{status}}!",
     "DEMO_TITLE": "⚠️ Temporary for Demonstration Purposes",
     "DEMO_CLICK_HINT": "Click on an item to load its barcode directly into the scanner:"
+  },
+  "RESERVATION": {
+    "CUSTOMER": "Customer (Account)",
+    "PICKUP_DATE": "Pickup Date",
+    "PICKUP_TIME": "Pickup Time",
+    "RETURN_DATE": "Return Date",
+    "DURATION": "Duration",
+    "DAYS": "Day(s)"
   },
   "CUSTOMER_PROFILE": {
     "TITLE": "Profiles",

@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.UserCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.detail.UserDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.UserSearchResponseDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.UserUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.UserMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.ApplicationUser;
@@ -84,4 +85,18 @@ public interface UserService extends UserDetailsService {
      * @throws org.springframework.dao.DataIntegrityViolationException if the user cannot be deleted due to existing references or constraints
      */
     void deleteUserById(Long userId);
+
+
+    /**
+     * Retrieves an application user (Customer or Staff) by its id.
+     * <br>
+     * The returned object is mapped to the corresponding subtype of
+     * {@link UserSearchResponseDto} depending on the actual user type.
+     *
+     * @param id the unique id of the user to retrieve
+     * @return the corresponding user as a {@link UserSearchResponseDto}
+     * @throws jakarta.persistence.EntityNotFoundException if no user with the given id exists
+     * @throws IllegalArgumentException if the provided id is null or negative
+     */
+    UserSearchResponseDto getUserById(Long id);
 }

@@ -11,7 +11,7 @@ import {CustomerProfileCreationUpdate} from '../dtos/customer-profile-creation-u
 export class CustomerProfileService {
 
   //TODO update according to backend
-  private customerBaseUri: string = this.globals.backendUri + '/profiles';
+  private customerBaseUri: string = this.globals.backendUri + '/customer-profiles';
 
   constructor(private httpClient: HttpClient, private globals: Globals) {
   }
@@ -40,7 +40,6 @@ export class CustomerProfileService {
     return this.httpClient.delete<void>(`${this.customerBaseUri}/${id}`);
   }
 
-  //TODO update method once backend endpoint exists
   /**
    * Creates new profile in backend
    */

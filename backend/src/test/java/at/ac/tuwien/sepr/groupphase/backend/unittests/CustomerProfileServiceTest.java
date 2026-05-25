@@ -18,6 +18,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -96,6 +97,121 @@ public class CustomerProfileServiceTest {
 
         assertAll(
             "Verify that creating a profile for an unknown customer fails",
+            () -> assertThat(exception).isNotNull(),
+            () -> assertThat(exception.getMessage()).containsIgnoringCase("not found")
+        );
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void getCustomerProfiles_withExistingCustomer_returnsProfiles() {
+        Customer customer = new Customer(
+            "list_profile_user",
+            "hashedPassword",
+            "list.profile@example.com",
+            "List",
+            "Tester",
+            LocalDate.of(1999, 1, 1)
+        );
+
+        Customer savedCustomer = customerRepository.save(customer);
+
+        CustomerProfile firstProfile = new CustomerProfile(
+            "First Test Profile",
+            175,
+            70,
+            42,
+            SkillLevel.BEGINNER,
+            savedCustomer
+        );
+
+        CustomerProfile secondProfile = new CustomerProfile(
+            "Second Test Profile",
+            180,
+            80,
+            44,
+            SkillLevel.ADVANCED,
+            savedCustomer
+        );
+
+        customerProfileRepository.save(firstProfile);
+        customerProfileRepository.save(secondProfile);
+
+        List<CustomerProfileDetailDto> result = customerProfileService.getCustomerProfiles(savedCustomer.getId());
+
+        assertAll(
+            "Verify that all profiles for the customer are returned",
+            () -> assertThat(result).isNotNull(),
+            () -> assertThat(result).hasSize(2),
+            () -> assertThat(result)
+                .extracting(CustomerProfileDetailDto::getProfileName)
+                .containsExactlyInAnyOrder("First Test Profile", "Second Test Profile"),
+            () -> assertThat(result)
+                .allMatch(profile -> profile.getCustomerId().equals(savedCustomer.getId()))
+        );
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void getCustomerProfiles_withUnknownCustomer_throwsNotFoundException() {
+        Long unknownCustomerId = 99999L;
+
+        NotFoundException exception = assertThrows(NotFoundException.class, () ->
+            customerProfileService.getCustomerProfiles(unknownCustomerId)
+        );
+
+        assertAll(
+            "Verify that getting profiles for an unknown customer fails",
+            () -> assertThat(exception).isNotNull(),
+            () -> assertThat(exception.getMessage()).containsIgnoringCase("not found")
+        );
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void deleteCustomerProfile_withExistingProfile_deletesProfile() {
+        Customer customer = new Customer(
+            "delete_profile_user",
+            "hashedPassword",
+            "delete.profile@example.com",
+            "Delete",
+            "Tester",
+            LocalDate.of(1989, 2, 2)
+        );
+
+        Customer savedCustomer = customerRepository.save(customer);
+
+        CustomerProfile profile = new CustomerProfile(
+            "Profile To Delete",
+            175,
+            70,
+            42,
+            SkillLevel.BEGINNER,
+            savedCustomer
+        );
+
+        CustomerProfile savedProfile = customerProfileRepository.save(profile);
+
+        customerProfileService.deleteCustomerProfile(savedProfile.getId());
+
+        assertThat(customerProfileRepository.existsById(savedProfile.getId())).isFalse();
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void deleteCustomerProfile_withUnknownProfile_throwsNotFoundException() {
+        Long unknownProfileId = 99999L;
+
+        NotFoundException exception = assertThrows(NotFoundException.class, () ->
+            customerProfileService.deleteCustomerProfile(unknownProfileId)
+        );
+
+        assertAll(
+            "Verify that deleting an unknown customer profile fails",
             () -> assertThat(exception).isNotNull(),
             () -> assertThat(exception.getMessage()).containsIgnoringCase("not found")
         );

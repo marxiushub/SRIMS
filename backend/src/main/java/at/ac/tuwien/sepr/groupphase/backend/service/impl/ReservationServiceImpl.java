@@ -242,6 +242,15 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
             );
         }
 
+        if (finalSearchDto.getEquipmentIds() != null && !finalSearchDto.getEquipmentIds().isEmpty()) {
+            spec = spec.and((root, query, cb) -> {
+                query.distinct(true);
+
+                return root.join("items").join("equipment").get("id")
+                    .in(finalSearchDto.getEquipmentIds());
+            });
+        }
+
         List<Reservation> foundReservations = reservationRepository.findAll(spec);
 
         return foundReservations.stream()

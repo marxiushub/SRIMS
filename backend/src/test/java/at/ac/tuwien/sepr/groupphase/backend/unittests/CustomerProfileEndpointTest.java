@@ -1,7 +1,9 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests;
 
 
+import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.Customer;
+import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerProfileRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
 import jakarta.transaction.Transactional;
@@ -20,7 +22,7 @@ import java.time.LocalDate;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 @ActiveProfiles({"test", "generateData"})
 @AutoConfigureMockMvc
@@ -60,7 +62,7 @@ public class CustomerProfileEndpointTest {
             """.formatted(savedCustomer.getId());
 
         try {
-            MvcResult result = mockMvc.perform(post("/api/v1/customer-profiles")
+            MvcResult result = mockMvc.perform(post("/api/v1/customer/profiles")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(json))
                 .andReturn();
@@ -97,7 +99,7 @@ public class CustomerProfileEndpointTest {
             """;
 
         try {
-            MvcResult result = mockMvc.perform(post("/api/v1/customer-profiles")
+            MvcResult result = mockMvc.perform(post("/api/v1/customer/profiles")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(json))
                 .andReturn();
@@ -137,7 +139,7 @@ public class CustomerProfileEndpointTest {
             """.formatted(customer.getId());
 
         try {
-            MvcResult result = mockMvc.perform(post("/api/v1/customer-profiles")
+            MvcResult result = mockMvc.perform(post("/api/v1/customer/profiles")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(json))
                 .andReturn();
@@ -148,6 +150,136 @@ public class CustomerProfileEndpointTest {
             );
         } catch (Exception e) {
             fail("Test failed because of unexpected exception: " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void getCustomerProfiles_withExistingCustomer_returns200AndProfiles() {
+        Customer customer = new Customer(
+            "endpoint_list_profile_user",
+            "hashedPassword",
+            "endpoint.list.profile@example.com",
+            "EndpointList",
+            "Tester",
+            LocalDate.of(1999, 1, 1)
+        );
+
+        Customer savedCustomer = customerRepository.save(customer);
+
+        CustomerProfile firstProfile = new CustomerProfile(
+            "Endpoint First Profile",
+            175,
+            70,
+            42,
+            SkillLevel.BEGINNER,
+            savedCustomer
+        );
+
+        CustomerProfile secondProfile = new CustomerProfile(
+            "Endpoint Second Profile",
+            180,
+            80,
+            44,
+            SkillLevel.ADVANCED,
+            savedCustomer
+        );
+
+        customerProfileRepository.save(firstProfile);
+        customerProfileRepository.save(secondProfile);
+
+        try {
+            MvcResult result = mockMvc.perform(get("/api/v1/customer/" + savedCustomer.getId() + "/profiles")
+                    .accept(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+            String responseBody = result.getResponse().getContentAsString();
+
+            assertAll(
+                "Check if customer profiles were successfully returned via endpoint",
+                () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
+                () -> assertThat(responseBody).contains("Endpoint First Profile"),
+                () -> assertThat(responseBody).contains("Endpoint Second Profile"),
+                () -> assertThat(responseBody).contains("\"customerId\":" + savedCustomer.getId())
+            );
+        } catch (Exception e) {
+            fail("Test failed because of unexpected exception: " + e.getMessage(), e);
+        }
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void getCustomerProfiles_withUnknownCustomer_returns404() {
+        try {
+            MvcResult result = mockMvc.perform(get("/api/v1/customer/99999/profiles")
+                    .accept(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+            assertAll(
+                "Check if getting profiles for an unknown customer returns 404",
+                () -> assertThat(result.getResponse().getStatus()).isEqualTo(404)
+            );
+        } catch (Exception e) {
+            fail("Test failed because of unexpected exception: " + e.getMessage(), e);
+        }
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void deleteCustomerProfile_withExistingProfile_returns204AndDeletesProfile() {
+        Customer customer = new Customer(
+            "endpoint_delete_profile_user",
+            "hashedPassword",
+            "endpoint.delete.profile@example.com",
+            "EndpointDelete",
+            "Tester",
+            LocalDate.of(1999, 1, 1)
+        );
+
+        Customer savedCustomer = customerRepository.save(customer);
+
+        CustomerProfile profile = new CustomerProfile(
+            "Endpoint Profile To Delete",
+            175,
+            70,
+            42,
+            SkillLevel.BEGINNER,
+            savedCustomer
+        );
+
+        CustomerProfile savedProfile = customerProfileRepository.save(profile);
+
+        try {
+            MvcResult result = mockMvc.perform(delete("/api/v1/customer/profiles/" + savedProfile.getId()))
+                .andReturn();
+
+            assertAll(
+                "Check if customer profile was deleted via endpoint",
+                () -> assertThat(result.getResponse().getStatus()).isEqualTo(204),
+                () -> assertThat(customerProfileRepository.existsById(savedProfile.getId())).isFalse()
+            );
+        } catch (Exception e) {
+            fail("Test failed because of unexpected exception: " + e.getMessage(), e);
+        }
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void deleteCustomerProfile_withUnknownProfile_returns404() {
+        try {
+            MvcResult result = mockMvc.perform(delete("/api/v1/customer/profiles/99999"))
+                .andReturn();
+
+            assertAll(
+                "Check if deleting an unknown customer profile returns 404",
+                () -> assertThat(result.getResponse().getStatus()).isEqualTo(404)
+            );
+        } catch (Exception e) {
+            fail("Test failed because of unexpected exception: " + e.getMessage(), e);
         }
     }
 }

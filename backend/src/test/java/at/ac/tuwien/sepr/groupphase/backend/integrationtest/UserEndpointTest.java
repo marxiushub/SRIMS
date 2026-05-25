@@ -1,4 +1,4 @@
-package at.ac.tuwien.sepr.groupphase.backend.unittests;
+package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.StaffRepository;
@@ -18,8 +18,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 
 @ActiveProfiles({"test", "generateData"})
@@ -173,7 +172,6 @@ public class UserEndpointTest {
 
                 () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
 
-                // alle geänderten Felder prüfen
                 () -> assertThat(responseBody).contains("updated_retro_gamer"),
                 () -> assertThat(responseBody).contains("updated.marcel@example.com"),
                 () -> assertThat(responseBody).contains("UpdatedMarcel"),
@@ -235,7 +233,6 @@ public class UserEndpointTest {
 
                 () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
 
-                // alle geänderten Felder prüfen
                 () -> assertThat(responseBody).contains("updated_admin"),
                 () -> assertThat(responseBody).contains("updated.admin@system.com")
             );
@@ -252,22 +249,115 @@ public class UserEndpointTest {
     public void deleteCustomer_withExistingId_returns200AndDeletesCustomer() {
 
         try {
-            Long customerId = customerRepository.findByEmail("marcel.neumann@example.com")
+            String createJson = """
+            {
+              "type": "CUSTOMER",
+              "userName": "customer_to_delete",
+              "password": "Password123!",
+              "email": "customer.to.delete@test.at",
+              "firstName": "Delete",
+              "lastName": "Customer",
+              "dateOfBirth": "1990-01-01"
+            }
+            """;
+
+            MvcResult createResult = mockMvc.perform(post("/api/v1/customer/create")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(createJson))
+                .andReturn();
+
+            assertThat(createResult.getResponse().getStatus()).isEqualTo(200);
+
+            Long customerId = customerRepository.findByEmail("customer.to.delete@test.at")
                 .orElseThrow()
                 .getId();
 
-            MvcResult result = mockMvc.perform(
-                    org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .delete("/api/v1/customer/delete/" + customerId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                )
+            MvcResult result = mockMvc.perform(delete("/api/v1/customer/delete/" + customerId))
                 .andReturn();
 
             assertAll(
                 "Check if customer was successfully deleted",
                 () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
-                () -> assertThat(userRepository.findById(customerId)).isEmpty(),
                 () -> assertThat(customerRepository.findById(customerId)).isEmpty()
+            );
+
+        } catch (Exception e) {
+            fail("Test failed because of unexpected exception: " + e.getMessage(), e);
+        }
+    }
+
+
+    @Test
+    @Transactional
+    @Rollback
+    public void deleteStaff_withExistingId_returns200AndDeletesStaff() {
+
+        try {
+            String createJson = """
+            {
+              "type": "STAFF",
+              "userName": "staff_to_delete",
+              "password": "Password123!",
+              "email": "staff.to.delete@test.at"
+            }
+            """;
+
+            MvcResult createResult = mockMvc.perform(post("/api/v1/staff/create")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(createJson))
+                .andReturn();
+
+            assertThat(createResult.getResponse().getStatus()).isEqualTo(200);
+
+            Long staffId = staffRepository.findByEmail("staff.to.delete@test.at")
+                .orElseThrow()
+                .getId();
+
+            MvcResult result = mockMvc.perform(delete("/api/v1/staff/delete/" + staffId))
+                .andReturn();
+
+            assertAll(
+                "Check if staff was successfully deleted",
+                () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
+                () -> assertThat(staffRepository.findById(staffId)).isEmpty()
+            );
+
+        } catch (Exception e) {
+            fail("Test failed because of unexpected exception: " + e.getMessage(), e);
+        }
+    }
+
+
+    @Test
+    @Transactional
+    @Rollback
+    public void getUserById_withExistingCustomer_returns200AndCustomerDto() {
+
+        try {
+            Long customerId = customerRepository.findAll()
+                .stream()
+                .findFirst()
+                .orElseThrow()
+                .getId();
+
+            MvcResult result = mockMvc.perform(
+                    org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                        .get("/api/v1/customer/" + customerId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andReturn();
+
+            String responseBody = result.getResponse().getContentAsString();
+
+            assertAll(
+                "Check if customer was successfully retrieved",
+
+                () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
+
+                () -> assertThat(responseBody).contains("email"),
+                () -> assertThat(responseBody).contains("userName"),
+
+                () -> assertThat(responseBody).contains("CUSTOMER")
             );
 
         } catch (Exception e) {
@@ -279,30 +369,35 @@ public class UserEndpointTest {
     @Test
     @Transactional
     @Rollback
-    public void deleteStaff_withExistingId_returns200AndDeletesStaff() {
+    public void getUserById_withExistingStaff_returns200AndStaffDto() {
 
         try {
-            Long staffId = staffRepository.findByEmail("admin.core@system.com")
+            Long staffId = staffRepository.findAll()
+                .stream()
+                .findFirst()
                 .orElseThrow()
                 .getId();
 
             MvcResult result = mockMvc.perform(
                     org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .delete("/api/v1/staff/delete/" + staffId)
+                        .get("/api/v1/staff/" + staffId)
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andReturn();
 
+            String responseBody = result.getResponse().getContentAsString();
+
             assertAll(
-                "Check if staff was successfully deleted",
+                "Check if staff is successfully retrieved via polymorphic endpoint",
 
                 () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
-                () -> assertThat(userRepository.findById(staffId)).isEmpty(),
-                () -> assertThat(staffRepository.findById(staffId)).isEmpty()
+                () -> assertThat(responseBody).contains("email"),
+                () -> assertThat(responseBody).contains("userName"),
+                () -> assertThat(responseBody).contains("STAFF")
             );
 
         } catch (Exception e) {
-            fail("Test failed because of unexpected exception" + e.getMessage(), e);
+            fail("Test failed because of unexpected exception");
         }
     }
 }
