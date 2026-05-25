@@ -213,4 +213,55 @@ describe('InventoryComponent', () => {
 
     expect(component.modelOptions).toEqual(['Helmet Pro', 'Ski A', 'Ski Z']);
   });
+
+  describe('Pagination', () => {
+    beforeEach(() => {
+      // Mock enough items to span over multiple pages (limit is 5)
+      const manyItems = Array.from({length: 12}).map((_, i) => ({
+        id: i + 1,
+        model: `Model ${i}`,
+        price: 10
+      })) as any[];
+
+      component.equipment = manyItems;
+      component.itemLimit = 5;
+      component.currentPage = 1;
+    });
+
+    it('should calculate correct startIndex and endIndex for page 1', () => {
+      expect(component.startIndex).toBe(1);
+      expect(component.endIndex).toBe(5);
+    });
+
+    it('should calculate correct startIndex and endIndex for the last page', () => {
+      component.goToLastPage();
+      expect(component.currentPage).toBe(3);
+      expect(component.startIndex).toBe(11);
+      expect(component.endIndex).toBe(12); // Should cap at 12 items
+    });
+
+    it('should navigate between pages correctly', () => {
+      component.nextPage();
+      expect(component.currentPage).toBe(2);
+
+      component.previousPage();
+      expect(component.currentPage).toBe(1);
+
+      // Should not go below page 1
+      component.previousPage();
+      expect(component.currentPage).toBe(1);
+    });
+
+    it('should go to previous page if the last item of the current page is deleted', () => {
+      component.goToLastPage();
+
+      component.equipmentToDelete = component.equipment[11];
+      component.confirmDelete();
+
+      component.equipmentToDelete = component.equipment[10];
+      component.confirmDelete();
+
+      expect(component.currentPage).toBe(2);
+    });
+  });
 });
