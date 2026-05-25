@@ -48,12 +48,12 @@ describe('EquipmentCreateEditComponent', () => {
       declarations: [EquipmentCreateEditComponent],
       imports: [FormsModule, TranslateModule.forRoot()],
       providers: [
-        { provide: EquipmentService, useValue: equipmentServiceMock },
-        { provide: Router, useValue: routerMock },
-        { provide: ActivatedRoute, useValue: activatedRouteMock }
+        {provide: EquipmentService, useValue: equipmentServiceMock},
+        {provide: Router, useValue: routerMock},
+        {provide: ActivatedRoute, useValue: activatedRouteMock}
       ]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(EquipmentCreateEditComponent);
     component = fixture.componentInstance;
@@ -72,6 +72,7 @@ describe('EquipmentCreateEditComponent', () => {
       status: RentalStatus.FREE,
       targetSkillLevel: SkillLevel.BEGINNER,
       price: 20,
+      creationNumber: 1,
       length: 160
     };
 
@@ -83,6 +84,7 @@ describe('EquipmentCreateEditComponent', () => {
       status: RentalStatus.FREE,
       targetSkillLevel: SkillLevel.BEGINNER,
       price: 20,
+      creationNumber: 1,
       length: 160
     });
     expect(routerMock.navigate).toHaveBeenCalledWith(['/staff/inventory']);
@@ -101,7 +103,7 @@ describe('EquipmentCreateEditComponent', () => {
   });
 
   it('should switch to edit mode and load equipment when id route param exists', () => {
-    activatedRouteMock.snapshot.paramMap = convertToParamMap({ id: '42' });
+    activatedRouteMock.snapshot.paramMap = convertToParamMap({id: '42'});
 
     component.ngOnInit();
 
@@ -120,6 +122,7 @@ describe('EquipmentCreateEditComponent', () => {
       status: RentalStatus.FREE,
       targetSkillLevel: SkillLevel.INTERMEDIATE,
       price: 35,
+      creationNumber: 1,
       size: 58
     };
 
@@ -151,5 +154,10 @@ describe('EquipmentCreateEditComponent', () => {
     expect(component.error).toBeTrue();
     expect(component.loading).toBeFalse();
     expect(routerMock.navigate).not.toHaveBeenCalled();
+  });
+
+  it('should initialize creationNumber to 1 in create mode', () => {
+    expect(component.mode).toBe(EquipmentCreateEditMode.create);
+    expect(component.equipment.creationNumber).toBe(1);
   });
 });
