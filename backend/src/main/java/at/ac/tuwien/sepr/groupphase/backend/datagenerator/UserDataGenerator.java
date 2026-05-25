@@ -18,7 +18,7 @@ import java.lang.invoke.MethodHandles;
 import java.time.LocalDate;
 import java.util.List;
 
-@Profile("generateData")
+@Profile({"generateData", "datagenerator"})
 @Component
 public class UserDataGenerator {
 

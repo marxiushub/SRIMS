@@ -158,19 +158,9 @@ public class CustomUserDetailService implements UserService {
         }
 
         ApplicationUser existingUser = userRepository.findById(id)
-            .orElseThrow(() ->
-                new NotFoundException("User with ID " + id + " was not found.")
-            );
+            .orElseThrow(() -> new NotFoundException("User with ID " + id + " was not found."));
 
         mapper.updateEntityFromDto(updateDto, existingUser);
-
-        /*if (updateDto.getUserName() != null && !updateDto.getUserName().isBlank()) {
-            existingUser.setUserName(updateDto.getUserName());
-        }
-
-        if (updateDto.getEmail() != null && !updateDto.getEmail().isBlank()) {
-            existingUser.setEmail(updateDto.getEmail());
-        }*/
 
         if (updateDto.getPassword() != null && !updateDto.getPassword().isBlank()) {
             existingUser.setPassword(passwordEncoder.encode(updateDto.getPassword()));
@@ -179,5 +169,22 @@ public class CustomUserDetailService implements UserService {
         ApplicationUser savedUser = userRepository.save(existingUser);
 
         return mapper.entityToDto(savedUser);
+    }
+
+
+    @Override
+    public void deleteUserById(Long userId) {
+        LOGGER.trace("Deleting user with id {}", userId);
+
+        if (userId == null) {
+            throw new IllegalArgumentException("userId is null");
+        }
+
+        ApplicationUser user = userRepository.findById(userId)
+            .orElseThrow(() -> new NotFoundException(String.format("Could not find user with id %d", userId)));
+
+        userRepository.delete(user);
+
+        LOGGER.trace("Successfully deleted user with id {}", userId);
     }
 }

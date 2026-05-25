@@ -23,7 +23,6 @@ import org.springframework.test.context.ActiveProfiles;
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 @ActiveProfiles({"test", "datagenerator"})
@@ -239,6 +238,53 @@ public class UserServiceTest {
                 dto.getPassword(),
                 savedApplicationUser.getPassword()
             )).isTrue()
+        );
+    }
+
+
+    @Test
+    @Transactional
+    @Rollback
+    public void deleteCustomer_withValidId_deletesCustomerSuccessfully() {
+
+        Customer existingCustomer = customerRepository
+            .findAll()
+            .stream()
+            .findFirst()
+            .orElseThrow();
+
+        Long idToDelete = existingCustomer.getId();
+
+        userService.deleteUserById(idToDelete);
+
+        assertAll(
+            "Verify that customer is deleted",
+            () -> assertThat(userRepository.findById(idToDelete)).isEmpty(),
+            () -> assertThat(customerRepository.findById(idToDelete)).isEmpty()
+        );
+    }
+
+
+    @Test
+    @Transactional
+    @Rollback
+    public void deleteStaff_withValidId_deletesStaffSuccessfully() {
+
+        Staff existingStaff = staffRepository
+            .findAll()
+            .stream()
+            .findFirst()
+            .orElseThrow();
+
+        Long idToDelete = existingStaff.getId();
+
+        userService.deleteUserById(idToDelete);
+
+        assertAll(
+            "Verify that staff is deleted",
+
+            () -> assertThat(userRepository.findById(idToDelete)).isEmpty(),
+            () -> assertThat(staffRepository.findById(idToDelete)).isEmpty()
         );
     }
 }
