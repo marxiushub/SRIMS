@@ -20,7 +20,7 @@ const routes: Routes = [
       {path: 'inventory/create', component: EquipmentCreateEditComponent, data: {mode: EquipmentCreateEditMode.create}},
       {path: 'inventory/edit/:id', component: EquipmentCreateEditComponent, data: {mode: EquipmentCreateEditMode.edit}},
       {path: 'inventory/view/:id', component: EquipmentViewComponent},
-      {path: 'barcodescanner', component: BarcodeScannerComponent},
+      {path: 'barcode-scanner', component: BarcodeScannerComponent},
   ]},
   {path: 'customer', component: HomeComponent} //TODO: Replace later with actual component for customer
 ];
