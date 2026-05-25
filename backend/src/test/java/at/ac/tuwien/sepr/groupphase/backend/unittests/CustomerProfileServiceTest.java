@@ -1,0 +1,103 @@
+package at.ac.tuwien.sepr.groupphase.backend.unittests;
+
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.customerprofile.CustomerProfileCreationDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.customerprofile.CustomerProfileDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
+import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
+import at.ac.tuwien.sepr.groupphase.backend.entity.user.Customer;
+
+import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerProfileRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
+import at.ac.tuwien.sepr.groupphase.backend.service.CustomerProfileService;
+import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ActiveProfiles;
+
+import java.time.LocalDate;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+@ActiveProfiles({"test", "generateData"})
+@SpringBootTest
+public class CustomerProfileServiceTest {
+
+    @Autowired
+    private CustomerProfileService customerProfileService;
+
+    @Autowired
+    private CustomerProfileRepository customerProfileRepository;
+
+    @Autowired
+    private CustomerRepository customerRepository;
+
+    @Test
+    @Transactional
+    @Rollback
+    public void createCustomerProfile_withValidDto_returnSavedProfileWithId() {
+        Customer customer = new Customer(
+            "profile_test_user",
+            "hashedPassword",
+            "profile.test@example.com",
+            "Profile",
+            "Tester",
+            LocalDate.of(1999,1,1)
+        );
+        Customer savedCustomer = customerRepository.save(customer);
+
+        CustomerProfileCreationDto dto = new CustomerProfileCreationDto();
+        dto.setCustomerId(savedCustomer.getId());
+        dto.setProfileName("Test Profile");
+        dto.setHeight(175);
+        dto.setWeight(70);
+        dto.setShoeSize(42);
+        dto.setSkillLevel(SkillLevel.BEGINNER);
+
+        CustomerProfileDetailDto created = customerProfileService.createCustomerProfile(dto);
+
+        CustomerProfile profile = customerProfileRepository.findById(created.getId()).orElseThrow();
+
+        assertAll(
+            "Verify that the customer profile is saved correctly and mapped to DTO",
+            () -> assertThat(created).isNotNull(),
+            () -> assertThat(created.getId()).isNotNull(),
+            () -> assertThat(created.getCustomerId()).isEqualTo(savedCustomer.getId()),
+            () -> assertThat(created.getProfileName()).isEqualTo(dto.getProfileName()),
+            () -> assertThat(created.getHeight()).isEqualTo(dto.getHeight()),
+            () -> assertThat(created.getWeight()).isEqualTo(dto.getWeight()),
+            () -> assertThat(created.getShoeSize()).isEqualTo(dto.getShoeSize()),
+            () -> assertThat(created.getSkillLevel()).isEqualTo(dto.getSkillLevel()),
+
+            () -> assertThat(profile.getCustomer().getId()).isEqualTo(savedCustomer.getId()),
+            () -> assertThat(profile.getProfileName()).isEqualTo(dto.getProfileName())
+        );
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void createCustomerProfile_withUnknownCustomerId_throwsNotFoundException() {
+        CustomerProfileCreationDto dto = new CustomerProfileCreationDto();
+        dto.setCustomerId(99999L);
+        dto.setProfileName("Unknown Customer Profile");
+        dto.setHeight(175);
+        dto.setWeight(70);
+        dto.setShoeSize(42);
+        dto.setSkillLevel(SkillLevel.BEGINNER);
+
+        NotFoundException exception = assertThrows(NotFoundException.class, () ->
+            customerProfileService.createCustomerProfile(dto)
+        );
+
+        assertAll(
+            "Verify that creating a profile for an unknown customer fails",
+            () -> assertThat(exception).isNotNull(),
+            () -> assertThat(exception.getMessage()).containsIgnoringCase("not found")
+        );
+    }
+}
