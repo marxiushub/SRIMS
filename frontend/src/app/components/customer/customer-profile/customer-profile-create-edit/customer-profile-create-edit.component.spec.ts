@@ -80,7 +80,8 @@ describe('CustomerProfileCreateEditComponent', () => {
       height: mockProfile.height,
       weight: mockProfile.weight,
       shoeSize: mockProfile.shoeSize,
-      skillLevel: mockProfile.skillLevel
+      skillLevel: mockProfile.skillLevel,
+      customerId: mockProfile.customerId
     });
   });
 
@@ -93,7 +94,8 @@ describe('CustomerProfileCreateEditComponent', () => {
       height: 180,
       weight: 80,
       shoeSize: 44,
-      skillLevel: SkillLevel.BEGINNER
+      skillLevel: SkillLevel.BEGINNER,
+      customerId: 1 //Customer ID hardcoded to 1 until accounts are implemented
     };
 
     component.onSubmit();
