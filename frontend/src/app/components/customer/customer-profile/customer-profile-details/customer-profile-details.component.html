@@ -16,37 +16,45 @@
     </div>
   }
 
-  <div>
-    <div class="mb-3">
-      <strong>{{ 'CUSTOMER_PROFILE_DETAILS.HEIGHT' | translate }}:</strong>
-      {{ profile.height }} cm
+  @if (loadError) {
+    <div class="alert alert-danger">
+      {{ 'CUSTOMER_PROFILE.LOADING_ERROR' | translate }}
+    </div>
+  }
+
+  @if (!loading && !loadError) {
+    <div>
+      <div class="mb-3">
+        <strong>{{ 'CUSTOMER_PROFILE_DETAILS.HEIGHT' | translate }}:</strong>
+        {{ profile.height }} cm
+      </div>
+
+      <div class="mb-3">
+        <strong>{{ 'CUSTOMER_PROFILE_DETAILS.SHOE_SIZE' | translate }}:</strong>
+        {{ profile.shoeSize }}
+      </div>
+
+      <div class="mb-3">
+        <strong>{{ 'CUSTOMER_PROFILE_DETAILS.SKILL_LEVEL' | translate }}:</strong>
+        {{ 'SKILL_LEVEL.' + profile.skillLevel | translate }}
+      </div>
+
+      <div class="mb-3">
+        <strong>{{ 'CUSTOMER_PROFILE_DETAILS.WEIGHT' | translate }}:</strong>
+        {{ profile.weight }} kg
+      </div>
     </div>
 
-    <div class="mb-3">
-      <strong>{{ 'CUSTOMER_PROFILE_DETAILS.SHOE_SIZE' | translate }}:</strong>
-      {{ profile.shoeSize }}
+    <div class="d-flex align-items-center mb-3">
+      <button class="btn btn-primary" (click)="openEditPage()">
+        {{ 'CUSTOMER_PROFILE_DETAILS.EDIT' | translate }}
+      </button>
+
+      <button class="btn btn-danger m-md-2" (click)="openDeleteDialog(this.profile)">
+        {{ 'CUSTOMER_PROFILE_DETAILS.DELETE' | translate }}
+      </button>
     </div>
-
-    <div class="mb-3">
-      <strong>{{ 'CUSTOMER_PROFILE_DETAILS.SKILL_LEVEL' | translate }}:</strong>
-      {{ 'SKILL_LEVEL.' + profile.skillLevel | translate }}
-    </div>
-
-    <div class="mb-3">
-      <strong>{{ 'CUSTOMER_PROFILE_DETAILS.WEIGHT' | translate }}:</strong>
-      {{ profile.weight }} kg
-    </div>
-  </div>
-
-  <div class="d-flex align-items-center mb-3">
-    <button class="btn btn-primary" (click)="openEditPage()">
-      {{ 'CUSTOMER_PROFILE_DETAILS.EDIT' | translate }}
-    </button>
-
-    <button class="btn btn-danger m-md-2" (click)="openDeleteDialog(this.profile)">
-      {{ 'CUSTOMER_PROFILE_DETAILS.DELETE' | translate }}
-    </button>
-  </div>
+  }
 
   @if (profileToDelete) {
     <div class="modal fade show d-block" tabindex="-1" role="dialog">

@@ -10,21 +10,18 @@ import {CustomerProfileCreationUpdate} from '../dtos/customer-profile-creation-u
 })
 export class CustomerProfileService {
 
-  //TODO update according to backend
-  private customerBaseUri: string = this.globals.backendUri + '/customer-profiles';
+  private customerBaseUri: string = this.globals.backendUri + '/customer/profiles';
 
   constructor(private httpClient: HttpClient, private globals: Globals) {
   }
 
-  //TODO update method once backend endpoint exists
   /**
    * Loads all profiles from the backend corresponding to the given customer ID
    */
-  getAllByCustomerId(customerId: number): Observable<CustomerProfile[]> {
-    return this.httpClient.get<CustomerProfile[]>(`${this.customerBaseUri}/${customerId}`);
+  getCustomerProfiles(customerId: number): Observable<CustomerProfile[]> {
+    return this.httpClient.get<CustomerProfile[]>(`${this.globals.backendUri}/customer/${customerId}/profiles`);
   }
-
-  //TODO update method once backend endpoint exists
+  
   /**
    * Loads profile by id from the backend.
    */
@@ -32,7 +29,6 @@ export class CustomerProfileService {
     return this.httpClient.get<CustomerProfile>(`${this.customerBaseUri}/${id}`);
   }
 
-  //TODO update method once backend endpoint exists
   /**
    * Deletes profile by id in backend.
    */
@@ -47,7 +43,6 @@ export class CustomerProfileService {
     return this.httpClient.post<CustomerProfile>(this.customerBaseUri, profile);
   }
 
-  //TODO update method once backend endpoint exists
   /**
    * Updates profile in backend.
    */

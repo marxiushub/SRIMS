@@ -39,8 +39,8 @@ describe('CustomerProfileComponent', () => {
   ];
 
   beforeEach(async () => {
-    customerProfileServiceMock = jasmine.createSpyObj('CustomerProfileService', ['getAllByCustomerId', 'delete']);
-    customerProfileServiceMock.getAllByCustomerId.and.returnValue(of(testProfiles));
+    customerProfileServiceMock = jasmine.createSpyObj('CustomerProfileService', ['getCustomerProfiles', 'delete']);
+    customerProfileServiceMock.getCustomerProfiles.and.returnValue(of(testProfiles));
     customerProfileServiceMock.delete.and.returnValue(of(void 0));
 
     routerMock.navigate.calls.reset();
@@ -66,7 +66,7 @@ describe('CustomerProfileComponent', () => {
   });
 
   it('should load profiles on init', () => {
-    expect(customerProfileServiceMock.getAllByCustomerId).toHaveBeenCalled();
+    expect(customerProfileServiceMock.getCustomerProfiles).toHaveBeenCalled();
     expect(component.profiles.length).toBe(2);
     expect(component.profiles).toEqual(testProfiles);
   });

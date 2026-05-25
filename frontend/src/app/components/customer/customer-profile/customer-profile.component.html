@@ -32,37 +32,33 @@
       <thead>
       <tr>
         <th>{{ 'CUSTOMER_PROFILE.NAME' | translate }}</th>
-        <th>{{ 'CUSTOMER_PROFILE.HEIGHT' | translate }}</th>
-        <th>{{ 'CUSTOMER_PROFILE.SHOE_SIZE' | translate }}</th>
-        <th>{{ 'CUSTOMER_PROFILE.SKILL_LEVEL' | translate }}</th>
-        <th>{{ 'CUSTOMER_PROFILE.WEIGHT' | translate }}</th>
         <th>{{ 'CUSTOMER_PROFILE.PROFILE_ACTIONS' | translate }}</th>
       </tr>
       </thead>
 
       <tbody>
+        @for (item of profiles; track item.id) {
+          <tr (click)="openDetailPage(item)" class="clickable-row">
+            <td>{{ item.profileName }}</td>
+
+            <td>
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-primary me-2"
+                (click)="openEditPage(item); $event.stopPropagation()">
+                {{ 'CUSTOMER_PROFILE_EDIT.TITLE' | translate }}
+              </button>
+
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-danger"
+                (click)="openDeleteDialog(item); $event.stopPropagation()">
+                {{ 'CUSTOMER_PROFILE.DELETE' | translate }}
+              </button>
+            </td>
+          </tr>
+        }
       </tbody>
-      @for (item of profiles; track item.id) {
-        <tr (click)="openDetailPage(item)" class="clickable-row">
-          <td>{{ item.profileName }}</td>
-
-          <td>
-            <button
-              type="button"
-              class="btn btn-sm btn-outline-primary me-2"
-              (click)="openEditPage(item)">
-              {{ 'CUSTOMER_PROFILE_EDIT.TITLE' | translate }}
-            </button>
-
-            <button
-              type="button"
-              class="btn btn-sm btn-outline-danger"
-              (click)="openDeleteDialog(item)">
-              {{ 'CUSTOMER_PROFILE.DELETE' | translate }}
-            </button>
-          </td>
-        </tr>
-      }
     </table>
   }
 

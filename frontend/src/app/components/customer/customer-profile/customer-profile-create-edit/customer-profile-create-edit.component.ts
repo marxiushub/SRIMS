@@ -21,6 +21,7 @@ export class CustomerProfileCreateEditComponent {
   mode: ProfileCreateEditMode = ProfileCreateEditMode.create;
   profileId?: number;
   loading = false;
+  loadError = false;
   error = false;
 
   profile: CustomerProfileCreationUpdate = {
@@ -53,6 +54,7 @@ export class CustomerProfileCreateEditComponent {
 
   private loadProfile(id: number): void {
     this.loading = true;
+    this.loadError = false;
     this.customerProfileService.getById(id).subscribe({
       next: (data) => {
         this.profile = {
@@ -68,7 +70,7 @@ export class CustomerProfileCreateEditComponent {
       },
       error: (err) => {
         console.error('Failed to load profile', err);
-        this.error = true;
+        this.loadError = true;
         this.loading = false;
       }
     });
@@ -76,6 +78,7 @@ export class CustomerProfileCreateEditComponent {
 
   onSubmit(): void {
     this.loading = true;
+    this.loadError = false;
     this.error = false;
 
     const request: CustomerProfileCreationUpdate = {

@@ -147,6 +147,7 @@
     "WEIGHT": "Weight",
     "ADD_PROFILE": "Add Profile",
     "LOADING": "Loading profiles...",
+    "LOADING_ERROR": "Profile details could not be loaded.",
     "RELOAD": "Reload",
     "NO_PROFILES": "No profiles found.",
     "PROFILE_ACTIONS": "Actions",

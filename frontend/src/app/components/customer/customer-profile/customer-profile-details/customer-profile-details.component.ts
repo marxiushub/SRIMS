@@ -14,6 +14,7 @@ export class CustomerProfileDetailsComponent {
 
   profileId?: number;
   loading = false;
+  loadError = false;
 
   profileToDelete?: CustomerProfile;
   deleteLoading = false;
@@ -43,6 +44,7 @@ export class CustomerProfileDetailsComponent {
 
   loadProfile(id: number): void {
     this.loading = true;
+    this.loadError = false;
     this.customerProfileService.getById(id).subscribe({
       next: (data) => {
         this.profile = data;
@@ -50,6 +52,7 @@ export class CustomerProfileDetailsComponent {
       },
       error: (err) => {
         console.error('Failed to load profile', err);
+        this.loadError = true;
         this.loading = false;
       }
     })
