@@ -93,6 +93,8 @@ describe('EquipmentCreateEditComponent', () => {
   it('should set error when create request fails', () => {
     equipmentServiceMock.create.and.returnValue(throwError(() => new Error('Create failed')));
 
+    spyOn(console, 'error');
+
     component.onSubmit();
 
     expect(component.error).toBeTrue();
@@ -145,6 +147,8 @@ describe('EquipmentCreateEditComponent', () => {
     component.mode = EquipmentCreateEditMode.edit;
     component.equipmentId = 10;
     equipmentServiceMock.update.and.returnValue(throwError(() => new Error('Update failed')));
+
+    spyOn(console, 'error');
 
     component.onSubmit();
 
