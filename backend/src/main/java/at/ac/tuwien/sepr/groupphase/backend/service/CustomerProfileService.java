@@ -11,6 +11,13 @@ import java.util.List;
 public interface CustomerProfileService {
 
     /**
+     * Deletes a customer profile by its ID.
+     *
+     * @param customerProfileId the ID of the customer profile to delete
+     */
+    void deleteCustomerProfile(Long customerProfileId);
+
+    /**
      * Creates a new customer profile for an existing customer.
      *
      * @param dto the data transfer object containing the information needed to create the customer profile

@@ -67,4 +67,18 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
         }
         return customerProfileRepository.findByCustomerId(customerId).stream().map(customerProfileMapper::entityToDetailDto).toList();
     }
+
+    @Override
+    public void deleteCustomerProfile(Long customerProfileId) {
+        LOGGER.trace("Deleting customer profile with id {}", customerProfileId);
+
+        if (customerProfileId == null) {
+            throw new IllegalArgumentException("Customer profile id is null");
+        }
+        if (!customerProfileRepository.existsById(customerProfileId)) {
+            throw new NotFoundException("Customer profile with id " + customerProfileId + " was not found.");
+        }
+
+        customerProfileRepository.deleteById(customerProfileId);
+    }
 }
