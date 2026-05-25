@@ -5,7 +5,6 @@ export interface ReservationDetail {
   customerProfileId: number;
   accountId: number;
   customerName: string;
-  equipmentIds: number[];
   pickUpTime: string;
   pickUpDate: string;
   returnDate: string;
