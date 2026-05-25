@@ -6,8 +6,6 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { By } from '@angular/platform-browser';
 import { StaffComponent } from './staff.component';
 import { RouterTestingModule } from '@angular/router/testing';
-import {InventoryComponent} from "./inventory/inventory.component";
-import * as url from "node:url";
 
 describe('StaffComponent', () => {
   let component: StaffComponent;
