@@ -16,12 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.*;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
@@ -49,6 +44,24 @@ public class ReservationEndpoint {
     public ReservationDetailDto createReservation(@Valid @RequestBody ReservationCreationDto dto) {
         LOGGER.info("POST /api/v1/reservation - {}", dto);
         return service.createReservation(dto);
+    }
+
+
+    /**
+     * Delete reservation
+     *
+     * @param deleteDto the DTO containing the fields to update
+     * @return the updated equipment as a detail DTO
+     */
+    @PermitAll
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping
+    public void deleteReservation(
+        @Valid @RequestBody ReservationAddDeleteEquipmentDto deleteDto
+    ) {
+        LOGGER.info("DELETE /api/v1/reservation - Body: {}", deleteDto);
+
+        service.deleteReservation(deleteDto.getId());
     }
 
     /**

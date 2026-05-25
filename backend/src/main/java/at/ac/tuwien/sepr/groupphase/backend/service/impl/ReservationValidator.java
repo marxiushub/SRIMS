@@ -126,7 +126,6 @@ public class ReservationValidator {
                     .orElseThrow(() ->
                         new NotFoundException("Equipment with ID " + id + " not found.")
                    );
-
                 isEquipmentAvailable(equipment, start, end, validationErrors);
             }
         }
