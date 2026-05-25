@@ -31,6 +31,9 @@ export class InventoryComponent implements OnInit {
   skillFilter = null;
   priceSortDirection: 'asc' | 'desc' = 'asc';
 
+  itemLimit: number = 10;
+  currentPage: number = 1;
+
   equipmentTypes = [
     EquipmentType.HELMET,
     EquipmentType.SKI,
@@ -67,6 +70,7 @@ export class InventoryComponent implements OnInit {
       next: (data) => {
         this.buildModelOptions(data);
         this.equipment = this.sortByPrice(data);
+        this.currentPage = 1;
         this.loading = false;
       },
       error: (err) => {
@@ -112,6 +116,9 @@ export class InventoryComponent implements OnInit {
         this.equipment = this.equipment.filter(
           item => item.id !== this.equipmentToDelete?.id
         );
+        if (this.startIndex > this.equipment.length && this.currentPage > 1) {
+          this.currentPage--;
+        }
 
         this.equipmentToDelete = undefined;
         this.deleteLoading = false;
@@ -125,6 +132,7 @@ export class InventoryComponent implements OnInit {
     });
   }
 
+  //Helper-method to give RentalStatus-Enum-Values nice background coloring in HTML
   getStatusClass(status: string): string {
     switch (status) {
       case 'FREE':
@@ -152,6 +160,7 @@ export class InventoryComponent implements OnInit {
 
     this.equipmentService.search(searchRequest).subscribe({
       next: (data) => {
+        this.currentPage = 1;
         this.equipment = this.sortByPrice(data);
         this.loading = false;
       },
@@ -203,5 +212,38 @@ export class InventoryComponent implements OnInit {
     this.skillFilter = null;
     this.priceSortDirection = 'asc';
     this.loadEquipment();
+  }
+
+  get startIndex(): number {
+    return (this.currentPage - 1) * this.itemLimit + 1;
+  }
+
+  get endIndex(): number {
+    const endIndex = this.currentPage * this.itemLimit;
+    return endIndex > this.equipment.length ? this.equipment.length : endIndex;
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+  nextPage(): void {
+    if (this.endIndex < this.equipment.length) {
+      this.currentPage++;
+    }
+  }
+
+  goToFirstPage(): void {
+    this.currentPage = 1;
+  }
+
+  goToLastPage(): void {
+    this.currentPage = Math.ceil(this.equipment.length / this.itemLimit);
+  }
+
+  onItemLimitChange(): void {
+    this.currentPage = 1;
   }
 }

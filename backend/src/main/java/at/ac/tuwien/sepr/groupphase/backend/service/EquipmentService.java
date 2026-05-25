@@ -30,6 +30,14 @@ public interface EquipmentService {
     EquipmentDetailDto equipmentById(Long id);
 
     /**
+     * Retrieves detailed information about a specific equipment item based on its unique barcodeID.
+     *
+     * @param barcodeId the unique barcodeID of the equipment to retrieve
+     * @return an {@link EquipmentDetailDto} containing detailed information of the specified equipment.
+     */
+    EquipmentDetailDto equipmentByBarcodeId(String barcodeId);
+
+    /**
      * Creates a new equipment entry in the system based on the provided creation data.
      *
      * @param dto the data transfer object containing the information needed to create the equipment

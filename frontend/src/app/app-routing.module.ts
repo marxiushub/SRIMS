@@ -9,6 +9,7 @@ import { InventoryComponent } from './components/staff/inventory/inventory.compo
 import { EquipmentCreateEditComponent, EquipmentCreateEditMode } from "./components/staff/inventory/equipment-create-edit/equipment-create-edit.component";
 import { EquipmentViewComponent } from "./components/staff/inventory/equipment-view/equipment-view.component";
 import { ReservationCreateComponent } from "./components/customer/reservation-create/reservation-create.component";
+import {BarcodeScannerComponent} from "./components/staff/barcodescanner/barcode-scanner.component";
 
 const routes: Routes = [
   {path: '', component: HomeComponent},
@@ -20,6 +21,7 @@ const routes: Routes = [
       {path: 'inventory/create', component: EquipmentCreateEditComponent, data: {mode: EquipmentCreateEditMode.create}},
       {path: 'inventory/edit/:id', component: EquipmentCreateEditComponent, data: {mode: EquipmentCreateEditMode.edit}},
       {path: 'inventory/view/:id', component: EquipmentViewComponent},
+      {path: 'barcode-scanner', component: BarcodeScannerComponent},
   ]},
   {path: 'customer', children: [
       {path: 'reservation/create', component: ReservationCreateComponent}

@@ -30,7 +30,13 @@
     "EQUIPMENT_ALL": "All",
     "CLEAR": "Clear",
     "LOWEST_FIRST": "Lowest first",
-    "HIGHEST_FIRST": "Highest first"
+    "HIGHEST_FIRST": "Highest first",
+    "ROWS_PER_PAGE": "Rows per page",
+    "OF": "of",
+    "RESERVATIONS_TITLE": "Upcoming Reservations",
+    "RESERVATIONS_LOADING": "Loading reservations...",
+    "RESERVATIONS_ERROR": "Error loading reservations for this equipment.",
+    "NO_RESERVATIONS": "There are currently no reservations for this equipment."
   },
   "RENTAL_STATUS": {
     "FREE": "Available",
@@ -69,12 +75,68 @@
     "PRICE_REQUIRED": "Price is required.",
     "LENGTH_REQUIRED": "Length is required.",
     "SIZE_REQUIRED": "Size is required.",
-    "SOLE_LENGTH_REQUIRED": "Sole length is required."
+    "SOLE_LENGTH_REQUIRED": "Sole length is required.",
+    "QUANTITY": "Quantity",
+    "QUANTITY_REQUIRED": "Quantity is required."
   },
   "EQUIPMENT_EDIT": {
     "TITLE": "Edit",
     "SAVE": "Update",
     "ERROR": "Equipment could not be updated."
+  },
+  "STAFF": {
+    "DASHBOARD_TITLE": "Staff Dashboard",
+    "DASHBOARD_SUBTITLE": "Management & Rental Infrastructure",
+    "COMING_SOON": "Coming soon",
+    "INVENTORY": {
+      "TITLE": "Inventory & Equipment",
+      "DESC": "Create, edit or view skis, snowboards, etc."
+    },
+    "RESERVATIONS": {
+      "TITLE": "Reservations",
+      "DESC": "View and manage current and upcoming bookings."
+    },
+    "BARCODE": {
+      "TITLE": "Barcode Scanner",
+      "DESC": "Check-out or check-in equipment contactlessly."
+    },
+    "STATISTICS": {
+      "TITLE": "Statistics & Analytics",
+      "DESC": "Analyze utilization and popular rental items."
+    },
+    "OVERVIEW": {
+      "TITLE": "Graphical Overview",
+      "DESC": "Visual representation of the entire inventory status."
+    }
+  },
+  "BARCODE_SCANNER": {
+    "TITLE": "Prototype Barcode Scanner",
+    "MODE_LABEL": "Select Scanner Mode:",
+    "MODE_RENTAL": "Mode 1: Rental / Return (FREE ↔ RENTED)",
+    "MODE_MAINTENANCE": "Mode 2: Send to Repair (FREE ↔ MAINTENANCE)",
+    "INPUT_PLACEHOLDER": "Scan or enter barcode...",
+    "BTN_CHECK": "Check Barcode",
+    "ERROR_EMPTY": "Please enter a barcode ID.",
+    "ERROR_NOT_FOUND": "Equipment with barcode ID \"{{value}}\" was not found.",
+    "ERROR_UNEXPECTED": "An unexpected error occurred.",
+    "ERROR_ACTION_NOT_ALLOWED": "Action not allowed in this mode. Item is currently in status {{status}}.",
+    "FOUND_TITLE": "Equipment Found!",
+    "MODEL": "Model",
+    "TYPE": "Type",
+    "STATUS": "Current Status",
+    "ACTION_PREVIEW": "Action: Status will change to",
+    "BTN_CONFIRM": "Confirm Scan & Change Status",
+    "SUCCESS_CHANGE": "Status successfully changed to {{status}}!",
+    "DEMO_TITLE": "⚠️ Temporary for Demonstration Purposes",
+    "DEMO_CLICK_HINT": "Click on an item to load its barcode directly into the scanner:"
+  },
+  "RESERVATION": {
+    "CUSTOMER": "Customer (Account)",
+    "PICKUP_DATE": "Pickup Date",
+    "PICKUP_TIME": "Pickup Time",
+    "RETURN_DATE": "Return Date",
+    "DURATION": "Duration",
+    "DAYS": "Day(s)"
   },
   "RESERVATION": {
     "TITLE_CREATE": "Create New Reservation",

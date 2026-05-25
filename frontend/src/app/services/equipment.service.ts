@@ -19,6 +19,8 @@ export class EquipmentService {
 
   /**
    * Loads all equipment from the backend.
+   *
+   * @return an Observable of all equipment
    */
   getAll(): Observable<Equipment[]> {
     return this.httpClient.get<Equipment[]>(this.equipmentBaseUri);
@@ -26,20 +28,38 @@ export class EquipmentService {
 
   /**
    * Loads equipment by id from the backend.
+   *
+   * @param id the unique id of the equipment
+   * @return an Observable of the found Equipment
    */
   getById(id: number): Observable<Equipment> {
     return this.httpClient.get<Equipment>(`${this.equipmentBaseUri}/${id}`);
   }
 
   /**
+   * Loads equipment by barcode ID from the backend.
+   *
+   * @param barcodeId the unique barcode string of the equipment
+   * @return an Observable of the found Equipment
+   */
+  getByBarcodeId(barcodeId: string): Observable<Equipment> {
+    return this.httpClient.get<Equipment>(`${this.equipmentBaseUri}/barcode/${barcodeId}`);
+  }
+
+  /**
    * Deletes equipment by id in backend.
+   *
+   * @param id the unique id of the equipment
+   * @return an Observable of the deleted Equipment
    */
   delete(id: number): Observable<void> {
     return this.httpClient.delete<void>(`${this.equipmentBaseUri}/${id}`);
   }
 
   /**
-   * Creates new equipment in backend
+   * Creates new equipment in backend.
+   *
+   * @return an Observable of the newly created Equipment
    */
   create(equipment: EquipmentCreation): Observable<Equipment> {
     return this.httpClient.post<Equipment>(this.equipmentBaseUri, equipment);
@@ -47,12 +67,20 @@ export class EquipmentService {
 
   /**
    * Updates equipment in backend.
+   *
+   * @return an Observable of the updated equipment
    */
   update(id: number, equipment: EquipmentUpdate): Observable<Equipment> {
     return this.httpClient.patch<Equipment>(`${this.equipmentBaseUri}/${id}`, equipment);
 
   }
 
+  /**
+   * Searches for pieces of equipment in backend as specified in the search parameters.
+   *
+   * @param search the searchParameters to be used in the search
+   * @return an Observable of the found equipment that conforms to the given searchParameters
+   */
   search(search: EquipmentSearch): Observable<Equipment[]> {
     let params = new HttpParams();
     if (search.model) {

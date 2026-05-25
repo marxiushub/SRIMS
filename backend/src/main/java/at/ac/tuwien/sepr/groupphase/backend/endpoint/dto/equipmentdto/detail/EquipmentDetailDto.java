@@ -1,10 +1,13 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.detail;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.occupancy.TimePeriodDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.EquipmentType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import java.util.List;
 
 /**
  * Represents a Data Transfer Object (DTO) for equipment information. This class
@@ -32,6 +35,7 @@ public abstract class EquipmentDetailDto {
     private String barcodeId;
     private SkillLevel targetSkillLevel;
     private EquipmentType equipmentType;
+    private List<TimePeriodDto> occupancy;
 
     public Long getId() {
         return id;
@@ -87,6 +91,14 @@ public abstract class EquipmentDetailDto {
 
     public void setEquipmentType(EquipmentType equipmentType) {
         this.equipmentType = equipmentType;
+    }
+
+    public List<TimePeriodDto> getOccupancy() {
+        return occupancy;
+    }
+
+    public void setOccupancy(List<TimePeriodDto> occupancy) {
+        this.occupancy = occupancy;
     }
 }
 

@@ -24,6 +24,7 @@ import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 
 import { registerLocaleData } from '@angular/common';
 import localeDe from '@angular/common/locales/de';
+import {BarcodeScannerComponent} from "./components/staff/barcodescanner/barcode-scanner.component";
 
 registerLocaleData(localeDe, 'de');
 
@@ -47,7 +48,8 @@ export function HttpLoaderFactory(http: HttpClient): TranslateLoader{
     InventoryComponent,
     EquipmentCreateEditComponent,
     EquipmentViewComponent,
-    ReservationCreateComponent
+    ReservationCreateComponent,
+    BarcodeScannerComponent
   ],
   bootstrap: [AppComponent],
   imports: [BrowserModule,

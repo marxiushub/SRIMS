@@ -30,7 +30,13 @@
     "EQUIPMENT_ALL": "Alle",
     "CLEAR": "Zurücksetzen",
     "LOWEST_FIRST": "Preis aufsteigend",
-    "HIGHEST_FIRST": "Preis absteigend"
+    "HIGHEST_FIRST": "Preis absteigend",
+    "ROWS_PER_PAGE": "Zeilen pro Seite",
+    "OF": "von",
+    "RESERVATIONS_TITLE": "Zukünftige Reservierungen",
+    "RESERVATIONS_LOADING": "Reservierungen werden geladen...",
+    "RESERVATIONS_ERROR": "Fehler beim Laden der Reservierungen für dieses Equipment.",
+    "NO_RESERVATIONS": "Für dieses Equipment liegen aktuell keine Reservierungen vor."
   },
   "RENTAL_STATUS": {
     "FREE": "Verfügbar",
@@ -69,12 +75,68 @@
     "PRICE_REQUIRED": "Preis ist erforderlich.",
     "LENGTH_REQUIRED": "Länge ist erforderlich.",
     "SIZE_REQUIRED": "Größe ist erforderlich.",
-    "SOLE_LENGTH_REQUIRED": "Sohlenlänge ist erforderlich."
+    "SOLE_LENGTH_REQUIRED": "Sohlenlänge ist erforderlich.",
+    "QUANTITY": "Anzahl",
+    "QUANTITY_REQUIRED": "Anzahl ist erforderlich."
   },
   "EQUIPMENT_EDIT": {
     "TITLE": "Bearbeiten",
     "SAVE": "Änderungen speichern",
     "ERROR": "Equipment konnte nicht aktualisiert werden."
+  },
+  "STAFF": {
+    "DASHBOARD_TITLE": "Mitarbeiter Dashboard",
+    "DASHBOARD_SUBTITLE": "Verwaltung & Verleih-Infrastruktur",
+    "COMING_SOON": "Demnächst verfügbar",
+    "INVENTORY": {
+      "TITLE": "Inventar & Equipment",
+      "DESC": "Skier, Snowboards, etc. anlegen, bearbeiten oder einsehen."
+    },
+    "RESERVATIONS": {
+      "TITLE": "Reservierungen",
+      "DESC": "Aktuelle und kommende Buchungen einsehen und verwalten."
+    },
+    "BARCODE": {
+      "TITLE": "Barcode-Scanner",
+      "DESC": "Equipment kontaktlos ausgeben oder zurücknehmen."
+    },
+    "STATISTICS": {
+      "TITLE": "Statistiken & Analytics",
+      "DESC": "Auslastung und beliebte Verleih-Artikel analysieren."
+    },
+    "OVERVIEW": {
+      "TITLE": "Grafische Übersicht",
+      "DESC": "Visuelle Darstellung des gesamten Bestands-Status."
+    }
+  },
+  "BARCODE_SCANNER": {
+    "TITLE": "Prototyp Barcode Scanner",
+    "MODE_LABEL": "Scanner-Modus auswählen:",
+    "MODE_RENTAL": "Modus 1: Ausleihen / Zurückgeben (FREE ↔ RENTED)",
+    "MODE_MAINTENANCE": "Modus 2: In Reparatur (FREE ↔ MAINTENANCE)",
+    "INPUT_PLACEHOLDER": "Barcode einscannen oder eingeben...",
+    "BTN_CHECK": "Barcode prüfen",
+    "ERROR_EMPTY": "Bitte gib eine Barcode-ID ein.",
+    "ERROR_NOT_FOUND": "Equipment mit der Barcode-ID \"{{value}}\" wurde nicht gefunden.",
+    "ERROR_UNEXPECTED": "Ein unerwarteter Fehler ist aufgetreten.",
+    "ERROR_ACTION_NOT_ALLOWED": "Aktion im gewählten Modus nicht möglich. Der Gegenstand befindet sich im Status {{status}}.",
+    "FOUND_TITLE": "Equipment gefunden!",
+    "MODEL": "Modell",
+    "TYPE": "Typ",
+    "STATUS": "Aktueller Status",
+    "ACTION_PREVIEW": "Aktion: Status wird geändert auf",
+    "BTN_CONFIRM": "Scan bestätigen & Status ändern",
+    "SUCCESS_CHANGE": "Status erfolgreich auf {{status}} geändert!",
+    "DEMO_TITLE": "⚠️ Temporär für Präsentationszwecke",
+    "DEMO_CLICK_HINT": "Klicke auf ein Gerät, um dessen Barcode direkt in den Scanner zu laden:"
+  },
+  "RESERVATION": {
+    "CUSTOMER": "Kunde (Account)",
+    "PICKUP_DATE": "Abholdatum",
+    "PICKUP_TIME": "Abholzeit",
+    "RETURN_DATE": "Rückgabedatum",
+    "DURATION": "Dauer",
+    "DAYS": "Tag(e)"
   },
   "RESERVATION": {
     "TITLE_CREATE": "Neue Reservierung erstellen",
