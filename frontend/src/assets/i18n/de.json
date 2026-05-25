@@ -137,5 +137,59 @@
     "RETURN_DATE": "Rückgabedatum",
     "DURATION": "Dauer",
     "DAYS": "Tag(e)"
+  },
+  "CUSTOMER_PROFILE": {
+    "TITLE": "Profile",
+    "HEIGHT": "Höhe",
+    "NAME": "Profilname",
+    "SHOE_SIZE": "Schuhgröße",
+    "SKILL_LEVEL": "Erfahrungslevel",
+    "WEIGHT": "Gewicht",
+    "ADD_PROFILE": "Profil hinzufügen",
+    "LOADING": "Profile werden geladen",
+    "LOADING_ERROR": "Profil Details konnten nicht geladen werden.",
+    "RELOAD": "Aktualisieren",
+    "NO_PROFILES": "Keine Profile gefunden.",
+    "PROFILE_ACTIONS": "Aktionen",
+    "DELETE": "Löschen",
+    "DETAILS": "Details"
+  },
+  "CUSTOMER_PROFILE_CREATE": {
+    "TITLE": "Profil hinzufügen",
+    "HEIGHT": "Körpergröße (cm)",
+    "NAME": "Profilname",
+    "SHOE_SIZE": "Schuhgröße",
+    "SKILL_LEVEL": "Erfahrungslevel",
+    "WEIGHT": "Gewicht (kg)",
+    "SAVE": "Speichern",
+    "CANCEL": "Abbrechen",
+    "ERROR": "Profil konnte nicht erstellt werden.",
+    "NAME_REQUIRED": "Profilname ist erforderlich.",
+    "HEIGHT_REQUIRED": "Körpergröße ist erforderlich.",
+    "SHOE_SIZE_REQUIRED": "Schuhgröße ist erforderlich.",
+    "WEIGHT_REQUIRED": "Gewicht ist erforderlich."
+  },
+  "CUSTOMER_PROFILE_EDIT": {
+    "TITLE": "Profil bearbeiten",
+    "SAVE": "Änderungen speichern",
+    "ERROR": "Profil konnte nicht aktualisiert werden."
+  },
+  "CUSTOMER_PROFILE_DELETE": {
+    "TITLE": "Profil löschen",
+    "CONFIRMATION": "Sind Sie sicher, dass Sie dieses Profil löschen wollen?",
+    "CANCEL": "Abbrechen",
+    "CONFIRM": "Löschen",
+    "ERROR": "Profil konnte nicht gelöscht werden."
+  },
+  "CUSTOMER_PROFILE_DETAILS": {
+    "TITLE": "Profil Details",
+    "NAME": "Profilname",
+    "HEIGHT": "Körpergröße (cm)",
+    "WEIGHT": "Gewicht (kg)",
+    "SHOE_SIZE": "Schuhgröße",
+    "SKILL_LEVEL": "Erfahrungslevel",
+    "BACK": "Zurück",
+    "EDIT": "Bearbeiten",
+    "DELETE": "Löschen"
   }
 }

@@ -137,5 +137,59 @@
     "RETURN_DATE": "Return Date",
     "DURATION": "Duration",
     "DAYS": "Day(s)"
+  },
+  "CUSTOMER_PROFILE": {
+    "TITLE": "Profiles",
+    "HEIGHT": "Height",
+    "NAME": "Profile Name",
+    "SHOE_SIZE": "Shoe size",
+    "SKILL_LEVEL": "Skill level",
+    "WEIGHT": "Weight",
+    "ADD_PROFILE": "Add Profile",
+    "LOADING": "Loading profiles...",
+    "LOADING_ERROR": "Profile details could not be loaded.",
+    "RELOAD": "Reload",
+    "NO_PROFILES": "No profiles found.",
+    "PROFILE_ACTIONS": "Actions",
+    "DELETE": "Delete",
+    "DETAILS": "Details"
+  },
+  "CUSTOMER_PROFILE_CREATE": {
+    "TITLE": "Add Profile",
+    "HEIGHT": "Body Height (cm)",
+    "NAME": "Profile Name",
+    "SHOE_SIZE": "Shoe size",
+    "SKILL_LEVEL": "Skill level",
+    "WEIGHT": "Weight (kg)",
+    "SAVE": "Save",
+    "CANCEL": "Cancel",
+    "ERROR": "Profile could not be created.",
+    "NAME_REQUIRED": "Profile name is required.",
+    "HEIGHT_REQUIRED": "Height is required.",
+    "SHOE_SIZE_REQUIRED": "Shoe size is required.",
+    "WEIGHT_REQUIRED": "Weight is required."
+  },
+  "CUSTOMER_PROFILE_EDIT": {
+    "TITLE": "Edit Profile",
+    "SAVE": "Update",
+    "ERROR": "Profile could not be updated."
+  },
+  "CUSTOMER_PROFILE_DELETE": {
+    "TITLE": "Delete Profile",
+    "CONFIRMATION": "Are you sure you want to delete this profile?",
+    "CANCEL": "Cancel",
+    "CONFIRM": "Delete",
+    "ERROR": "Profile could not be deleted."
+  },
+  "CUSTOMER_PROFILE_DETAILS": {
+    "TITLE": "Profile Details",
+    "NAME": "Profile Name",
+    "HEIGHT": "Height (cm)",
+    "WEIGHT": "Weight (kg)",
+    "SHOE_SIZE": "Shoe size",
+    "SKILL_LEVEL": "Skill level",
+    "BACK": "Back to Profiles",
+    "EDIT": "Edit",
+    "DELETE": "Delete"
   }
 }

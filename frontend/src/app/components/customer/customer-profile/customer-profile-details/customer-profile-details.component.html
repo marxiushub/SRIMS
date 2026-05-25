@@ -1,0 +1,123 @@
+<div class="container-fluid pt-4">
+
+  <div class="d-flex align-items-center mb-3">
+    <h2 class="mb-0">{{ profile.profileName + ' ' }} {{ 'CUSTOMER_PROFILE_DETAILS.TITLE' | translate }}</h2>
+
+    <span style="flex: 1"></span>
+
+    <button class="btn btn-primary" (click)="back()">
+      {{ 'CUSTOMER_PROFILE_DETAILS.BACK' | translate }}
+    </button>
+  </div>
+
+  @if (loading) {
+    <div class="alert alert-info">
+      {{ 'CUSTOMER_PROFILE.LOADING' | translate }}
+    </div>
+  }
+
+  @if (loadError) {
+    <div class="alert alert-danger">
+      {{ 'CUSTOMER_PROFILE.LOADING_ERROR' | translate }}
+    </div>
+  }
+
+  @if (!loading && !loadError) {
+    <div>
+      <div class="mb-3">
+        <strong>{{ 'CUSTOMER_PROFILE_DETAILS.HEIGHT' | translate }}:</strong>
+        {{ profile.height }} cm
+      </div>
+
+      <div class="mb-3">
+        <strong>{{ 'CUSTOMER_PROFILE_DETAILS.SHOE_SIZE' | translate }}:</strong>
+        {{ profile.shoeSize }}
+      </div>
+
+      <div class="mb-3">
+        <strong>{{ 'CUSTOMER_PROFILE_DETAILS.SKILL_LEVEL' | translate }}:</strong>
+        {{ 'SKILL_LEVEL.' + profile.skillLevel | translate }}
+      </div>
+
+      <div class="mb-3">
+        <strong>{{ 'CUSTOMER_PROFILE_DETAILS.WEIGHT' | translate }}:</strong>
+        {{ profile.weight }} kg
+      </div>
+    </div>
+
+    <div class="d-flex align-items-center mb-3">
+      <button class="btn btn-primary" (click)="openEditPage()">
+        {{ 'CUSTOMER_PROFILE_DETAILS.EDIT' | translate }}
+      </button>
+
+      <button class="btn btn-danger m-md-2" (click)="openDeleteDialog(this.profile)">
+        {{ 'CUSTOMER_PROFILE_DETAILS.DELETE' | translate }}
+      </button>
+    </div>
+  }
+
+  @if (profileToDelete) {
+    <div class="modal fade show d-block" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+          <div class="modal-header">
+            <h5 class="modal-title">
+              {{ 'CUSTOMER_PROFILE_DELETE.TITLE' | translate }}
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              aria-label="Close"
+              [disabled]="deleteLoading"
+              (click)="cancelDelete()">
+            </button>
+          </div>
+
+          <div class="modal-body">
+            <p>
+              {{ 'CUSTOMER_PROFILE_DELETE.CONFIRMATION' | translate }}
+            </p>
+
+            <p class="fw-bold mb-0">
+              {{ profileToDelete.profileName }}
+            </p>
+
+
+            @if (deleteError) {
+              <div class="alert alert-danger mt-3 mb-0">
+                {{ 'CUSTOMER_PROFILE_DELETE.ERROR' | translate }}
+              </div>
+            }
+          </div>
+
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              [disabled]="deleteLoading"
+              (click)="cancelDelete()">
+              {{ 'CUSTOMER_PROFILE_DELETE.CANCEL' | translate }}
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-danger"
+              [disabled]="deleteLoading"
+              (click)="confirmDelete()">
+              @if (deleteLoading) {
+                {{ 'CUSTOMER_PROFILE_DELETE.CONFIRM' | translate }}...
+              } @else {
+                {{ 'CUSTOMER_PROFILE_DELETE.CONFIRM' | translate }}
+              }
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop fade show"></div>
+  }
+
+</div>
