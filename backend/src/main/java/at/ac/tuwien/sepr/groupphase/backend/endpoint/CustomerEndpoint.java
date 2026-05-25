@@ -55,7 +55,7 @@ public class CustomerEndpoint {
      */
     @PermitAll
     @PutMapping("/update/{id}")
-    public UserDetailDto updateCustomer(@PathVariable Long id, @Valid @RequestBody CustomerUpdateDto dto) {
+    public UserDetailDto updateCustomer(@PathVariable("id") Long id, @Valid @RequestBody CustomerUpdateDto dto) {
         LOGGER.info("PUT /api/v1/customer/update/{} - {}", id, dto);
         return userService.updateUser(id, dto);
     }

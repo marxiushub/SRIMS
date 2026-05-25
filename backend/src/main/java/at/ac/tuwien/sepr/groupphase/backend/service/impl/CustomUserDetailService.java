@@ -164,6 +164,13 @@ public class CustomUserDetailService implements UserService {
 
         mapper.updateEntityFromDto(updateDto, existingUser);
 
+        /*if (updateDto.getUserName() != null && !updateDto.getUserName().isBlank()) {
+            existingUser.setUserName(updateDto.getUserName());
+        }
+
+        if (updateDto.getEmail() != null && !updateDto.getEmail().isBlank()) {
+            existingUser.setEmail(updateDto.getEmail());
+        }*/
 
         if (updateDto.getPassword() != null && !updateDto.getPassword().isBlank()) {
             existingUser.setPassword(passwordEncoder.encode(updateDto.getPassword()));

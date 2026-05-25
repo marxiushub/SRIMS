@@ -71,9 +71,16 @@ public class ApplicationUser {
         return userName;
     }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public void setPassword(String hashedPassword) {
         this.hashedPassword = hashedPassword;
     }
 
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 
 }

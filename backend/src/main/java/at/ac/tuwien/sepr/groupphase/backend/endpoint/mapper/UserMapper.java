@@ -15,6 +15,7 @@ import org.mapstruct.SubclassExhaustiveStrategy;
 import org.mapstruct.SubclassMapping;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.Mapping;
 
 @Mapper(
     componentModel = "spring",
@@ -36,22 +37,25 @@ public interface UserMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateStaff(StaffUpdateDto dto, @MappingTarget Staff entity);
 
+    //General Fields in User:
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "password", ignore = true)
     default void updateEntityFromDto(UserUpdateDto dto, @MappingTarget ApplicationUser entity) {
 
         if (dto == null || entity == null) {
             return;
         }
 
-        switch (dto) {
-            case CustomerUpdateDto customerDto when entity instanceof Customer customer ->
-                updateCustomer(customerDto, customer);
-
-            case StaffUpdateDto staffDto when entity instanceof Staff staff ->
-                updateStaff(staffDto, staff);
-
-            default -> throw new IllegalArgumentException(
-                "DTO type does not match entity type"
-            );
+        if (dto instanceof CustomerUpdateDto customerDto && entity instanceof Customer customer) {
+            updateCustomer(customerDto, customer);
+            return;
         }
+
+        if (dto instanceof StaffUpdateDto staffDto && entity instanceof Staff staff) {
+            updateStaff(staffDto, staff);
+            return;
+        }
+
+        throw new IllegalArgumentException("DTO type does not match entity type");
     }
 }

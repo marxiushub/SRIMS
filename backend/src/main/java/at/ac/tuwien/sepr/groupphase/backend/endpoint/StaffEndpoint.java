@@ -57,7 +57,7 @@ public class StaffEndpoint {
      */
     @PermitAll
     @PutMapping("/update/{id}")
-    public UserDetailDto updateStaff(@PathVariable Long id, @Valid @RequestBody StaffUpdateDto dto) {
+    public UserDetailDto updateStaff(@PathVariable("id") Long id, @Valid @RequestBody StaffUpdateDto dto) {
         LOGGER.info("PUT /api/v1/staff/update/{} - {}", id, dto);
         return userService.updateUser(id, dto);
     }

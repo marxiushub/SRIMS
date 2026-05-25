@@ -2,7 +2,6 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Email;
@@ -21,10 +20,8 @@ import jakarta.validation.constraints.Email;
 
 public abstract class UserUpdateDto {
 
-    @NotBlank(message = "Profile name is empty")
     private String userName;
 
-    @NotBlank(message = "Password is empty")
     @Size(min = 10, message = "Password must at least contain 10 characters ")
     @Pattern(
         regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[^A-Za-z0-9]).+$",
@@ -32,7 +29,6 @@ public abstract class UserUpdateDto {
     )
     private String password;
 
-    @NotBlank(message = "E-Mail is empty")
     @Email(message = "Invalid E-Mail format")
     private String email;
 
