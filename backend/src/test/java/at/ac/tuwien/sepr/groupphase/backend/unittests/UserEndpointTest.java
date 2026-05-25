@@ -19,9 +19,10 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
 
-@ActiveProfiles({"test", "datagenerator"})
+@ActiveProfiles({"test", "generateData"})
 @AutoConfigureMockMvc
 @SpringBootTest
 public class UserEndpointTest {
@@ -109,6 +110,97 @@ public class UserEndpointTest {
                 () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
                 () -> assertThat(responseBody).contains("staff@test.at"),
                 () -> assertThat(responseBody).contains("staff_user")
+            );
+
+        } catch (Exception e) {
+            fail("Test failed because of unexpected exception");
+        }
+    }
+
+
+    @Test
+    @Transactional
+    @Rollback
+    public void updateCustomer_withGeneratedCustomer_returns200AndUpdatedCustomer() {
+
+        try {
+            Long customerId = customerRepository.findByEmail("marcel.neumann@example.com")
+                .orElseThrow()
+                .getId();
+
+            String updateJson = """
+        {
+          "type": "CUSTOMER",
+          "userName": "updated_retro_gamer",
+          "email": "updated.marcel@example.com",
+          "firstName": "UpdatedMarcel",
+          "lastName": "UpdatedNeumann",
+          "dateOfBirth": "1993-03-03"
+        }
+        """;
+
+            MvcResult result = mockMvc.perform(
+                    put("/api/v1/customer/update/" + customerId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updateJson))
+                .andReturn();
+
+            String responseBody = result.getResponse().getContentAsString();
+
+            assertAll(
+                "Check if generated customer was successfully updated",
+
+                () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
+
+                // alle geänderten Felder prüfen
+                () -> assertThat(responseBody).contains("updated_retro_gamer"),
+                () -> assertThat(responseBody).contains("updated.marcel@example.com"),
+                () -> assertThat(responseBody).contains("UpdatedMarcel"),
+                () -> assertThat(responseBody).contains("UpdatedNeumann"),
+                () -> assertThat(responseBody).contains("1993-03-03")
+            );
+
+        } catch (Exception e) {
+            fail("Test failed because of unexpected exception");
+        }
+    }
+
+
+    @Test
+    @Transactional
+    @Rollback
+    public void updateStaff_withGeneratedStaff_returns200AndUpdatedStaff() {
+
+        try {
+            // existierenden Staff aus Datagenerator holen
+            Long staffId = staffRepository.findByEmail("admin.core@system.com")
+                .orElseThrow()
+                .getId();
+
+            String updateJson = """
+        {
+          "type": "STAFF",
+          "userName": "updated_admin",
+          "email": "updated.admin@system.com"
+        }
+        """;
+
+            MvcResult result = mockMvc.perform(
+                    put("/api/v1/staff/update/" + staffId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updateJson))
+                .andReturn();
+
+            String responseBody = result.getResponse().getContentAsString();
+
+            assertAll(
+                "Check if generated staff was successfully updated",
+
+                () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
+
+                // alle geänderten Felder prüfen
+                () -> assertThat(responseBody).contains("updated_admin"),
+                () -> assertThat(responseBody).contains("updated.admin@system.com")
             );
 
         } catch (Exception e) {

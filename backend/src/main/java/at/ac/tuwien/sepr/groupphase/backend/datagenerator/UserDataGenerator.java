@@ -215,6 +215,12 @@ public class UserDataGenerator {
 
 
     @PostConstruct
+    public void generateData() {
+        generateCustomer();
+        generateCustomerProfile();
+        generateStaff();
+    }
+
     public void generateCustomer() {
         if (!customerRepository.findAll().isEmpty()) {
             LOGGER.debug("Customer already generated");
@@ -224,7 +230,6 @@ public class UserDataGenerator {
         customerRepository.saveAll(customers);
     }
 
-    @PostConstruct
     public void generateCustomerProfile() {
         if (!profileRepository.findAll().isEmpty()) {
             LOGGER.debug("Customer profiles already generated");
@@ -234,7 +239,6 @@ public class UserDataGenerator {
         profileRepository.saveAll(profiles);
     }
 
-    @PostConstruct
     public void generateStaff() {
         if (!staffRepository.findAll().isEmpty()) {
             LOGGER.debug("Staff already generated");
