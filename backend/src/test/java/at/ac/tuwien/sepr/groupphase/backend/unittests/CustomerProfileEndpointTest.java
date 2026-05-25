@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
+//AI-assisted
 @ActiveProfiles({"test", "generateData"})
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -277,6 +278,117 @@ public class CustomerProfileEndpointTest {
             assertAll(
                 "Check if deleting an unknown customer profile returns 404",
                 () -> assertThat(result.getResponse().getStatus()).isEqualTo(404)
+            );
+        } catch (Exception e) {
+            fail("Test failed because of unexpected exception: " + e.getMessage(), e);
+        }
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void updateCustomerProfile_withValidDto_returns200AndUpdatedProfile() {
+        Customer customer = new Customer(
+            "endpoint_update_profile_user",
+            "hashedPassword",
+            "endpoint.update.profile@example.com",
+            "EndpointUpdate",
+            "Tester",
+            LocalDate.of(1999, 1, 1)
+        );
+
+        Customer savedCustomer = customerRepository.save(customer);
+
+        CustomerProfile profile = new CustomerProfile(
+            "Endpoint Old Profile",
+            175,
+            70,
+            42,
+            SkillLevel.BEGINNER,
+            savedCustomer
+        );
+
+        CustomerProfile savedProfile = customerProfileRepository.save(profile);
+
+        String json = """
+        {
+          "profileName": "Endpoint Updated Profile",
+          "height": 181,
+          "skillLevel": "INTERMEDIATE"
+        }
+        """;
+
+        try {
+            MvcResult result = mockMvc.perform(patch("/api/v1/customer/profiles/" + savedProfile.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(json))
+                .andReturn();
+
+            String responseBody = result.getResponse().getContentAsString();
+
+            CustomerProfile updatedProfile = customerProfileRepository.findById(savedProfile.getId()).orElseThrow();
+
+            assertAll(
+                "Check if customer profile was successfully updated via endpoint",
+                () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
+                () -> assertThat(responseBody).contains("Endpoint Updated Profile"),
+                () -> assertThat(responseBody).contains("\"height\":181.0"),
+                () -> assertThat(responseBody).contains("INTERMEDIATE"),
+
+                () -> assertThat(updatedProfile.getProfileName()).isEqualTo("Endpoint Updated Profile"),
+                () -> assertThat(updatedProfile.getHeight()).isEqualTo(181.0),
+                () -> assertThat(updatedProfile.getWeight()).isEqualTo(70),
+                () -> assertThat(updatedProfile.getShoeSize()).isEqualTo(42),
+                () -> assertThat(updatedProfile.getSkillLevel()).isEqualTo(SkillLevel.INTERMEDIATE)
+            );
+        } catch (Exception e) {
+            fail("Test failed because of unexpected exception: " + e.getMessage(), e);
+        }
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void updateCustomerProfile_withUnknownProfile_returns404() {
+        String json = """
+        {
+          "profileName": "Unknown Profile Update"
+        }
+        """;
+
+        try {
+            MvcResult result = mockMvc.perform(patch("/api/v1/customer/profiles/99999")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(json))
+                .andReturn();
+
+            assertAll(
+                "Check if updating an unknown customer profile returns 404",
+                () -> assertThat(result.getResponse().getStatus()).isEqualTo(404)
+            );
+        } catch (Exception e) {
+            fail("Test failed because of unexpected exception: " + e.getMessage(), e);
+        }
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void updateCustomerProfile_withEmptyDto_returns400() {
+        String json = """
+        {
+        }
+        """;
+
+        try {
+            MvcResult result = mockMvc.perform(patch("/api/v1/customer/profiles/1")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(json))
+                .andReturn();
+
+            assertAll(
+                "Check if empty update data returns 400",
+                () -> assertThat(result.getResponse().getStatus()).isEqualTo(400)
             );
         } catch (Exception e) {
             fail("Test failed because of unexpected exception: " + e.getMessage(), e);
