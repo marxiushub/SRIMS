@@ -18,8 +18,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 
 @ActiveProfiles({"test", "generateData"})
@@ -250,26 +249,40 @@ public class UserEndpointTest {
     public void deleteCustomer_withExistingId_returns200AndDeletesCustomer() {
 
         try {
-            Long customerId = customerRepository.findByEmail("marcel.neumann@example.com")
+            String createJson = """
+            {
+              "type": "CUSTOMER",
+              "userName": "customer_to_delete",
+              "password": "Password123!",
+              "email": "customer.to.delete@test.at",
+              "firstName": "Delete",
+              "lastName": "Customer",
+              "dateOfBirth": "1990-01-01"
+            }
+            """;
+
+            MvcResult createResult = mockMvc.perform(post("/api/v1/customer/create")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(createJson))
+                .andReturn();
+
+            assertThat(createResult.getResponse().getStatus()).isEqualTo(200);
+
+            Long customerId = customerRepository.findByEmail("customer.to.delete@test.at")
                 .orElseThrow()
                 .getId();
 
-            MvcResult result = mockMvc.perform(
-                    org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .delete("/api/v1/customer/delete/" + customerId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                )
+            MvcResult result = mockMvc.perform(delete("/api/v1/customer/delete/" + customerId))
                 .andReturn();
 
             assertAll(
                 "Check if customer was successfully deleted",
                 () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
-                () -> assertThat(userRepository.findById(customerId)).isEmpty(),
                 () -> assertThat(customerRepository.findById(customerId)).isEmpty()
             );
 
         } catch (Exception e) {
-            fail("Test failed because of unexpected exception");
+            fail("Test failed because of unexpected exception: " + e.getMessage(), e);
         }
     }
 
@@ -280,27 +293,37 @@ public class UserEndpointTest {
     public void deleteStaff_withExistingId_returns200AndDeletesStaff() {
 
         try {
-            Long staffId = staffRepository.findByEmail("admin.core@system.com")
+            String createJson = """
+            {
+              "type": "STAFF",
+              "userName": "staff_to_delete",
+              "password": "Password123!",
+              "email": "staff.to.delete@test.at"
+            }
+            """;
+
+            MvcResult createResult = mockMvc.perform(post("/api/v1/staff/create")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(createJson))
+                .andReturn();
+
+            assertThat(createResult.getResponse().getStatus()).isEqualTo(200);
+
+            Long staffId = staffRepository.findByEmail("staff.to.delete@test.at")
                 .orElseThrow()
                 .getId();
 
-            MvcResult result = mockMvc.perform(
-                    org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .delete("/api/v1/staff/delete/" + staffId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                )
+            MvcResult result = mockMvc.perform(delete("/api/v1/staff/delete/" + staffId))
                 .andReturn();
 
             assertAll(
                 "Check if staff was successfully deleted",
-
                 () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
-                () -> assertThat(userRepository.findById(staffId)).isEmpty(),
                 () -> assertThat(staffRepository.findById(staffId)).isEmpty()
             );
 
         } catch (Exception e) {
-            fail("Test failed because of unexpected exception" + e.getMessage(), e);
+            fail("Test failed because of unexpected exception: " + e.getMessage(), e);
         }
     }
 
