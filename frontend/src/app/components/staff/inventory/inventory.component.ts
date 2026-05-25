@@ -132,6 +132,7 @@ export class InventoryComponent implements OnInit {
     });
   }
 
+  //Helper-method to give RentalStatus-Enum-Values nice background coloring in HTML
   getStatusClass(status: string): string {
     switch (status) {
       case 'FREE':

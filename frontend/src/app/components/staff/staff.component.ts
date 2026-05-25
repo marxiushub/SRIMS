@@ -11,6 +11,7 @@ export class StaffComponent {
 
   constructor(private router: Router) { }
 
+  //Checks whether a child route of StaffComponent is currently active
   isChildRouteActive(): boolean {
     return this.router.url !== '/staff' && this.router.url !== '/staff/';
   }

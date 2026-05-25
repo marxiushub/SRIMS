@@ -25,6 +25,8 @@ export class BarcodeScannerComponent {
     public translateService: TranslateService
   ) {}
 
+  //Searches for equipment corresponding to the input barcodeId (using the getEquipmentByBarcodeId-method,
+  //not the search-method of equipmentservice)
   searchEquipment(): void {
     this.errorMessage = '';
     this.successMessage = '';
@@ -55,6 +57,8 @@ export class BarcodeScannerComponent {
     });
   }
 
+  //Returns the RentalStatus the equipment should have after the scan is confirmed, depending
+  //on the current mode as well as the current RentalStatus
   getNextStatus(): RentalStatus | null {
     if (!this.scannedEquipment) {
       return null;
@@ -115,6 +119,7 @@ export class BarcodeScannerComponent {
     });
   }
 
+  //Helper-method to give RentalStatus-Enum-Values nice background coloring in HTML
   getStatusClass(status: string): string {
     switch (status) {
       case 'FREE': return 'bg-success';
@@ -125,6 +130,7 @@ export class BarcodeScannerComponent {
     }
   }
 
+  //TODO: Remove later with Demo
   loadDemoBarcode(barcode: string): void {
     this.inputBarcodeId = barcode;
     this.searchEquipment();
