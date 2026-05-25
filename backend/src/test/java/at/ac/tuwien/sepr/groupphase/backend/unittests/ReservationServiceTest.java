@@ -397,6 +397,7 @@ public class ReservationServiceTest {
         ReservationSearchDto searchDto = new ReservationSearchDto();
         searchDto.setCustomerProfileId(testCustomerProfile.getId());
         searchDto.setPickUpDate(searchDate);
+        searchDto.setEquipmentIds(List.of(testEquipment.getId()));
 
         List<ReservationDetailDto> result = reservationService.searchReservations(searchDto);
 
@@ -405,7 +406,9 @@ public class ReservationServiceTest {
             () -> assertThat(result).isNotNull(),
             () -> assertThat(result).isNotEmpty(),
             () -> assertThat(result.stream().anyMatch(res -> res.getId().equals(created.getId()))).isTrue(),
-            () -> assertThat(result.get(0).getCustomerName()).isEqualTo("Max Mustermann")
+            () -> assertThat(result.get(0).getCustomerName()).isEqualTo("Max Mustermann"),
+            () -> assertThat(result.get(0).getItems().stream()
+                .anyMatch(item -> item.getId().equals(testEquipment.getId()))).isTrue()
         );
     }
 

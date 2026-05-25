@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.TimePeriods;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 public class ReservationSearchDto {
     private Long customerProfileId;
@@ -11,6 +12,7 @@ public class ReservationSearchDto {
     private LocalDate pickUpDate;
     private LocalTime pickUpTime;
     private TimePeriods timePeriod;
+    private List<Long> equipmentIds;
 
     public Long getCustomerProfileId() {
         return customerProfileId;
@@ -50,5 +52,13 @@ public class ReservationSearchDto {
 
     public void setTimePeriod(TimePeriods timePeriod) {
         this.timePeriod = timePeriod;
+    }
+
+    public List<Long> getEquipmentIds() {
+        return equipmentIds;
+    }
+
+    public void setEquipmentIds(List<Long> equipmentIds) {
+        this.equipmentIds = equipmentIds;
     }
 }
