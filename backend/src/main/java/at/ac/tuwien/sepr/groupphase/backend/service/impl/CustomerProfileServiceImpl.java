@@ -111,6 +111,20 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
     }
 
     @Override
+    public CustomerProfileDetailDto getCustomerProfileById(Long customerProfileId) {
+        LOGGER.trace("Get customer profile by id {}", customerProfileId);
+
+        if (customerProfileId == null) {
+            throw new IllegalArgumentException("Customer profile id is null.");
+        }
+
+        CustomerProfile profile = customerProfileRepository.findById(customerProfileId).orElseThrow(
+            () -> new NotFoundException("Customer profile with ID " + customerProfileId + " was not found."));
+
+        return customerProfileMapper.entityToDetailDto(profile);
+    }
+
+    @Override
     public void deleteCustomerProfile(Long customerProfileId) {
         LOGGER.trace("Deleting customer profile with id {}", customerProfileId);
 

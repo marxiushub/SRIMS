@@ -43,4 +43,12 @@ public interface CustomerProfileService {
      * @return a {@link CustomerProfileDetailDto} representing the updated customer profile
      */
     CustomerProfileDetailDto updateCustomerProfile(Long customerProfileId, CustomerProfileUpdateDto dto);
+
+    /**
+     * Retrieves a customer profile by its ID.
+     *
+     * @param customerProfileId the ID of the customer profile to retrieve
+     * @return a {@link CustomerProfileDetailDto} representing the customer profile
+     */
+    CustomerProfileDetailDto getCustomerProfileById(Long customerProfileId);
 }
