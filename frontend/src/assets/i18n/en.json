@@ -9,6 +9,8 @@
     "RELOAD": "Reload",
     "ADD_EQUIPMENT": "Add Equipment",
     "LOADING": "Loading equipment...",
+    "LOADING_ERROR": "Equipment details could not be loaded",
+    "DETAILS": "Detail View",
     "NO_EQUIPMENT": "No equipment found.",
     "EQUIPMENT_MODEL": "Model",
     "EQUIPMENT_PRICE": "Price/Day",
@@ -16,6 +18,7 @@
     "EQUIPMENT_SKILL": "Skill Level",
     "EQUIPMENT_TYP": "Type",
     "EQUIPMENT_ACTIONS": "Actions",
+    "EQUIPMENT_BARCODE_ID": "Barcode ID",
     "DELETE": "Delete",
     "DELETE_TITLE": "Delete Equipment",
     "DELETE_CONFIRMATION": "Are you sure you want to delete this equipment?",
@@ -58,7 +61,7 @@
     "LENGTH": "Length (cm)",
     "SIZE": "Size (cm)",
     "SOLE_LENGTH_MM": "Sole length (mm)",
-    "LANCING_SYSTEM": "Lacing system",
+    "LACING_SYSTEM": "Lacing system",
     "SAVE": "Save",
     "CANCEL": "Cancel",
     "ERROR": "Equipment could not be created.",
@@ -72,5 +75,30 @@
     "TITLE": "Edit",
     "SAVE": "Update",
     "ERROR": "Equipment could not be updated."
+  },
+  "STAFF": {
+    "DASHBOARD_TITLE": "Staff Dashboard",
+    "DASHBOARD_SUBTITLE": "Management & Rental Infrastructure",
+    "COMING_SOON": "Coming soon",
+    "INVENTORY": {
+      "TITLE": "Inventory & Equipment",
+      "DESC": "Create, edit or view skis, snowboards, etc."
+    },
+    "RESERVATIONS": {
+      "TITLE": "Reservations",
+      "DESC": "View and manage current and upcoming bookings."
+    },
+    "BARCODE": {
+      "TITLE": "Barcode Scanner",
+      "DESC": "Check-out or check-in equipment contactlessly."
+    },
+    "STATISTICS": {
+      "TITLE": "Statistics & Analytics",
+      "DESC": "Analyze utilization and popular rental items."
+    },
+    "OVERVIEW": {
+      "TITLE": "Graphical Overview",
+      "DESC": "Visual representation of the entire inventory status."
+    }
   }
 }

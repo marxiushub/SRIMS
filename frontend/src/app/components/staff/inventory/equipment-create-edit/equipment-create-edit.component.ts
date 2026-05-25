@@ -33,7 +33,7 @@ export class EquipmentCreateEditComponent implements OnInit {
     length: undefined,
     size: undefined,
     soleLengthMm: undefined,
-    lancingSystem: ''
+    lacingSystem: ''
   };
 
   equipmentTypes = [
@@ -89,7 +89,7 @@ export class EquipmentCreateEditComponent implements OnInit {
           length: data.length,
           size: data.size,
           soleLengthMm: data.soleLengthMm,
-          lancingSystem: data.lancingSystem
+          lacingSystem: data.lacingSystem
         };
 
         this.loading = false;
@@ -142,7 +142,7 @@ export class EquipmentCreateEditComponent implements OnInit {
     this.equipment.length = undefined;
     this.equipment.size = undefined;
     this.equipment.soleLengthMm = undefined;
-    this.equipment.lancingSystem = '';
+    this.equipment.lacingSystem = '';
   }
 
   cancel(): void {
@@ -171,7 +171,7 @@ export class EquipmentCreateEditComponent implements OnInit {
     }
 
     if (this.equipment.type === EquipmentType.SNOWBOARDBOOT) {
-      request.lancingSystem = this.equipment.lancingSystem;
+      request.lacingSystem = this.equipment.lacingSystem;
     }
 
     return request;
@@ -202,9 +202,9 @@ export class EquipmentCreateEditComponent implements OnInit {
           ? (this.equipment.soleLengthMm ?? null)
           : null,
 
-      lancingSystem:
+      lacingSystem:
         this.equipment.type === EquipmentType.SNOWBOARDBOOT
-          ? (this.equipment.lancingSystem?.trim() || null)
+          ? (this.equipment.lacingSystem?.trim() || null)
           : null
     }
   }

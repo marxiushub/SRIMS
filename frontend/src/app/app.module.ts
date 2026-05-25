@@ -16,6 +16,7 @@ import {RouterModule} from "@angular/router";
 import {InventoryComponent} from "./components/staff/inventory/inventory.component";
 import {StaffComponent} from "./components/staff/staff.component";
 import {EquipmentCreateEditComponent} from "./components/staff/inventory/equipment-create-edit/equipment-create-edit.component";
+import {EquipmentViewComponent} from "./components/staff/inventory/equipment-view/equipment-view.component";
 
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 
@@ -43,6 +44,7 @@ export function HttpLoaderFactory(http: HttpClient): TranslateLoader{
     StaffComponent,
     InventoryComponent,
     EquipmentCreateEditComponent,
+    EquipmentViewComponent
   ],
   bootstrap: [AppComponent],
   imports: [BrowserModule,
