@@ -168,4 +168,52 @@ public class CustomerProfileServiceTest {
             () -> assertThat(exception.getMessage()).containsIgnoringCase("not found")
         );
     }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void deleteCustomerProfile_withExistingProfile_deletesProfile() {
+        Customer customer = new Customer(
+            "delete_profile_user",
+            "hashedPassword",
+            "delete.profile@example.com",
+            "Delete",
+            "Tester",
+            LocalDate.of(1989, 2, 2)
+        );
+
+        Customer savedCustomer = customerRepository.save(customer);
+
+        CustomerProfile profile = new CustomerProfile(
+            "Profile To Delete",
+            175,
+            70,
+            42,
+            SkillLevel.BEGINNER,
+            savedCustomer
+        );
+
+        CustomerProfile savedProfile = customerProfileRepository.save(profile);
+
+        customerProfileService.deleteCustomerProfile(savedProfile.getId());
+
+        assertThat(customerProfileRepository.existsById(savedProfile.getId())).isFalse();
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void deleteCustomerProfile_withUnknownProfile_throwsNotFoundException() {
+        Long unknownProfileId = 99999L;
+
+        NotFoundException exception = assertThrows(NotFoundException.class, () ->
+            customerProfileService.deleteCustomerProfile(unknownProfileId)
+        );
+
+        assertAll(
+            "Verify that deleting an unknown customer profile fails",
+            () -> assertThat(exception).isNotNull(),
+            () -> assertThat(exception.getMessage()).containsIgnoringCase("not found")
+        );
+    }
 }
