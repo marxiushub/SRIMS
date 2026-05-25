@@ -1,4 +1,4 @@
-package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation;
+package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.customerprofile;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
 import jakarta.validation.constraints.NotBlank;
@@ -16,23 +16,25 @@ public class CustomerProfileCreationDto {
     private String profileName;
 
     @Positive(message = "Height must be positive")
-    @Max(value = 250, message = "helmet too large")
-    @Min(value = 50, message = "helmet too small")
+    @Max(value = 250, message = "Height too large")
+    @Min(value = 50, message = "Height too small")
     private double height;
 
     @Positive(message = "Weight must be positive")
-    @Max(value = 150, message = "helmet too large")
-    @Min(value = 20, message = "helmet too small")
+    @Max(value = 150, message = "Weight too large")
+    @Min(value = 20, message = "Weight too small")
     private double weight;
 
     @Positive(message = "Shoe size must be positive")
-    @Max(value = 50, message = "helmet too large")
-    @Min(value = 25, message = "helmet too small")
+    @Max(value = 50, message = "Shoe size too large")
+    @Min(value = 25, message = "Shoe size too small")
     private double shoeSize;
 
     @NotNull(message = "Skill level is required")
     private SkillLevel skillLevel;
 
+    //TODO: nur positive CustomerIds?
+    @NotNull(message = "Customer id is required")
     private Long customerId;
 
     public CustomerProfileCreationDto() {
