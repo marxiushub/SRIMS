@@ -18,6 +18,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -96,6 +97,73 @@ public class CustomerProfileServiceTest {
 
         assertAll(
             "Verify that creating a profile for an unknown customer fails",
+            () -> assertThat(exception).isNotNull(),
+            () -> assertThat(exception.getMessage()).containsIgnoringCase("not found")
+        );
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void getCustomerProfiles_withExistingCustomer_returnsProfiles() {
+        Customer customer = new Customer(
+            "list_profile_user",
+            "hashedPassword",
+            "list.profile@example.com",
+            "List",
+            "Tester",
+            LocalDate.of(1999, 1, 1)
+        );
+
+        Customer savedCustomer = customerRepository.save(customer);
+
+        CustomerProfile firstProfile = new CustomerProfile(
+            "First Test Profile",
+            175,
+            70,
+            42,
+            SkillLevel.BEGINNER,
+            savedCustomer
+        );
+
+        CustomerProfile secondProfile = new CustomerProfile(
+            "Second Test Profile",
+            180,
+            80,
+            44,
+            SkillLevel.ADVANCED,
+            savedCustomer
+        );
+
+        customerProfileRepository.save(firstProfile);
+        customerProfileRepository.save(secondProfile);
+
+        List<CustomerProfileDetailDto> result = customerProfileService.getCustomerProfiles(savedCustomer.getId());
+
+        assertAll(
+            "Verify that all profiles for the customer are returned",
+            () -> assertThat(result).isNotNull(),
+            () -> assertThat(result).hasSize(2),
+            () -> assertThat(result)
+                .extracting(CustomerProfileDetailDto::getProfileName)
+                .containsExactlyInAnyOrder("First Test Profile", "Second Test Profile"),
+            () -> assertThat(result)
+                .allMatch(profile -> profile.getCustomerId().equals(savedCustomer.getId()))
+        );
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void getCustomerProfiles_withUnknownCustomer_throwsNotFoundException() {
+        Long unknownCustomerId = 99999L;
+
+        NotFoundException exception = assertThrows(NotFoundException.class, () ->
+            customerProfileService.getCustomerProfiles(unknownCustomerId)
+        );
+
+        assertAll(
+            "Verify that getting profiles for an unknown customer fails",
             () -> assertThat(exception).isNotNull(),
             () -> assertThat(exception.getMessage()).containsIgnoringCase("not found")
         );
