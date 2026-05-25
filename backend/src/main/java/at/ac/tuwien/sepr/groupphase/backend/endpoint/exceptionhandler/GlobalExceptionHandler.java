@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-import org.jspecify.annotations.NonNull;
 
 import java.lang.invoke.MethodHandles;
 import java.util.LinkedHashMap;
@@ -68,9 +67,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(value = {ValidationException.class})
-    protected ResponseEntity<Object> handleValidation(@NonNull ValidationException ex, @NonNull WebRequest request) {
+    protected ResponseEntity<Object> handleValidationException(
+        ValidationException ex,
+        WebRequest request
+    ) {
         LOGGER.warn(ex.getMessage());
-        return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("message", ex.getMessage());
+        body.put("errors", ex.getErrors());
+
+        return new ResponseEntity<>(
+            body, new HttpHeaders(), HttpStatus.BAD_REQUEST
+        );
     }
 
 
