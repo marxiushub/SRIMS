@@ -148,6 +148,7 @@ public class UserEndpointTest {
                 .orElseThrow()
                 .getId();
 
+
             String updateJson = """
         {
           "type": "CUSTOMER",
@@ -240,7 +241,7 @@ public class UserEndpointTest {
             );
 
         } catch (Exception e) {
-            fail("Test failed because of unexpected exception");
+            fail("Test failed because of unexpected exception" + e.getMessage(), e);
         }
     }
 
