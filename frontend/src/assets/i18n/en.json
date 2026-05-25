@@ -104,5 +104,26 @@
       "TITLE": "Graphical Overview",
       "DESC": "Visual representation of the entire inventory status."
     }
+  },
+  "BARCODE_SCANNER": {
+    "TITLE": "Prototype Barcode Scanner",
+    "MODE_LABEL": "Select Scanner Mode:",
+    "MODE_RENTAL": "Mode 1: Rental / Return (FREE ↔ RENTED)",
+    "MODE_MAINTENANCE": "Mode 2: Send to Repair (FREE ↔ MAINTENANCE)",
+    "INPUT_PLACEHOLDER": "Scan or enter barcode...",
+    "BTN_CHECK": "Check Barcode",
+    "ERROR_EMPTY": "Please enter a barcode ID.",
+    "ERROR_NOT_FOUND": "Equipment with barcode ID \"{{value}}\" was not found.",
+    "ERROR_UNEXPECTED": "An unexpected error occurred.",
+    "ERROR_ACTION_NOT_ALLOWED": "Action not allowed in this mode. Item is currently in status {{status}}.",
+    "FOUND_TITLE": "Equipment Found!",
+    "MODEL": "Model",
+    "TYPE": "Type",
+    "STATUS": "Current Status",
+    "ACTION_PREVIEW": "Action: Status will change to",
+    "BTN_CONFIRM": "Confirm Scan & Change Status",
+    "SUCCESS_CHANGE": "Status successfully changed to {{status}}!",
+    "DEMO_TITLE": "⚠️ Temporary for Demonstration Purposes",
+    "DEMO_CLICK_HINT": "Click on an item to load its barcode directly into the scanner:"
   }
 }

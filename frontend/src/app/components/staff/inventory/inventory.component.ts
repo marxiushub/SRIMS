@@ -31,7 +31,7 @@ export class InventoryComponent implements OnInit {
   skillFilter = null;
   priceSortDirection: 'asc' | 'desc' = 'asc';
 
-  itemLimit: number = 5;
+  itemLimit: number = 10;
   currentPage: number = 1;
 
   equipmentTypes = [

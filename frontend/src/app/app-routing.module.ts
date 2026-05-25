@@ -8,6 +8,7 @@ import { StaffComponent } from './components/staff/staff.component';
 import { InventoryComponent } from './components/staff/inventory/inventory.component';
 import { EquipmentCreateEditComponent, EquipmentCreateEditMode } from "./components/staff/inventory/equipment-create-edit/equipment-create-edit.component";
 import { EquipmentViewComponent } from "./components/staff/inventory/equipment-view/equipment-view.component";
+import {BarcodeScannerComponent} from "./components/staff/barcodescanner/barcode-scanner.component";
 
 const routes: Routes = [
   {path: '', component: HomeComponent},
@@ -19,6 +20,7 @@ const routes: Routes = [
       {path: 'inventory/create', component: EquipmentCreateEditComponent, data: {mode: EquipmentCreateEditMode.create}},
       {path: 'inventory/edit/:id', component: EquipmentCreateEditComponent, data: {mode: EquipmentCreateEditMode.edit}},
       {path: 'inventory/view/:id', component: EquipmentViewComponent},
+      {path: 'barcodescanner', component: BarcodeScannerComponent},
   ]},
   {path: 'customer', component: HomeComponent} //TODO: Replace later with actual component for customer
 ];
