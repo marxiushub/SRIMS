@@ -1,5 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.detail.EquipmentDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.service.EquipmentService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +11,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -22,6 +26,9 @@ public class EquipmentEndpointTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private EquipmentService equipmentService;
 
     @Test
     public void getAllEquipmentWithGeneratedDataReturnsFullList() throws Exception {
@@ -65,6 +72,31 @@ public class EquipmentEndpointTest {
         Long nonExistentId = 99999L;
 
         mockMvc.perform(get("/api/v1/equipment/{id}", nonExistentId)
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void getEquipmentByBarcodeIdValidBarcodeReturnsEquipmentDetail() throws Exception {
+        at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.search.EquipmentSearchDto search =
+            new at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.search.EquipmentSearchDto();
+        List<EquipmentDetailDto> allGenerated = equipmentService.searchEquipment(search);
+
+        String validBarcodeId = allGenerated.getFirst().getBarcodeId();
+
+        mockMvc.perform(get("/api/v1/equipment/barcode/{barcodeId}", validBarcodeId)
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.barcodeId").value(validBarcodeId))
+            .andExpect(jsonPath("$.equipmentType").exists())
+            .andExpect(jsonPath("$.model").exists());
+    }
+
+    @Test
+    public void getEquipmentByBarcodeIdUnknownBarcodeReturnsNotFound() throws Exception {
+        String nonExistentBarcode = "NON-EXISTENT-BARCODE-99999";
+
+        mockMvc.perform(get("/api/v1/equipment/barcode/{barcodeId}", nonExistentBarcode)
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound());
     }
