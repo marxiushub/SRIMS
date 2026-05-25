@@ -22,8 +22,7 @@ import java.time.LocalDate;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 @ActiveProfiles({"test", "generateData"})
 @AutoConfigureMockMvc
@@ -220,6 +219,63 @@ public class CustomerProfileEndpointTest {
 
             assertAll(
                 "Check if getting profiles for an unknown customer returns 404",
+                () -> assertThat(result.getResponse().getStatus()).isEqualTo(404)
+            );
+        } catch (Exception e) {
+            fail("Test failed because of unexpected exception: " + e.getMessage(), e);
+        }
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void deleteCustomerProfile_withExistingProfile_returns204AndDeletesProfile() {
+        Customer customer = new Customer(
+            "endpoint_delete_profile_user",
+            "hashedPassword",
+            "endpoint.delete.profile@example.com",
+            "EndpointDelete",
+            "Tester",
+            LocalDate.of(1999, 1, 1)
+        );
+
+        Customer savedCustomer = customerRepository.save(customer);
+
+        CustomerProfile profile = new CustomerProfile(
+            "Endpoint Profile To Delete",
+            175,
+            70,
+            42,
+            SkillLevel.BEGINNER,
+            savedCustomer
+        );
+
+        CustomerProfile savedProfile = customerProfileRepository.save(profile);
+
+        try {
+            MvcResult result = mockMvc.perform(delete("/api/v1/customer/profiles/" + savedProfile.getId()))
+                .andReturn();
+
+            assertAll(
+                "Check if customer profile was deleted via endpoint",
+                () -> assertThat(result.getResponse().getStatus()).isEqualTo(204),
+                () -> assertThat(customerProfileRepository.existsById(savedProfile.getId())).isFalse()
+            );
+        } catch (Exception e) {
+            fail("Test failed because of unexpected exception: " + e.getMessage(), e);
+        }
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void deleteCustomerProfile_withUnknownProfile_returns404() {
+        try {
+            MvcResult result = mockMvc.perform(delete("/api/v1/customer/profiles/99999"))
+                .andReturn();
+
+            assertAll(
+                "Check if deleting an unknown customer profile returns 404",
                 () -> assertThat(result.getResponse().getStatus()).isEqualTo(404)
             );
         } catch (Exception e) {

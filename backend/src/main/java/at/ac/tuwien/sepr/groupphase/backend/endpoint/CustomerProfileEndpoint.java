@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 
 import java.lang.invoke.MethodHandles;
@@ -49,5 +50,13 @@ public class CustomerProfileEndpoint {
     public List<CustomerProfileDetailDto> getCustomerProfiles(@PathVariable("customerId") Long customerId) {
         LOGGER.info("GET /api/v1/customer/{}/profiles", customerId);
         return customerProfileService.getCustomerProfiles(customerId);
+    }
+
+    @PermitAll
+    @DeleteMapping("/profiles/{profileId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteCustomerProfile(@PathVariable("profileId") Long profileId) {
+        LOGGER.info("DELETE /api/v1/customer/{}/profiles", profileId);
+        customerProfileService.deleteCustomerProfile(profileId);
     }
 }
