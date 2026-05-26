@@ -58,6 +58,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
 
 
     @Override
+    @Transactional
     public ReservationDetailDto reservationById(Long id) {
         LOGGER.trace("Get reservation by id: {}", id);
 
@@ -142,9 +143,6 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
         Long id = dto.getId();
         LOGGER.trace("update reservation {}", id);
 
-        validator.validateUpdateDto(dto);
-
-
         Reservation reservation = reservationRepository.findById(id)
             .orElseThrow(() ->
                 new NotFoundException("Reservation not found")
@@ -152,6 +150,13 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
 
         final LocalDate oldStart = reservation.getPickUpDate();
         final LocalDate oldEnd = reservation.getReturnDate();
+
+        if (dto.getEquipmentIds() != null) {
+            deleteTimePeriodsForEquipment(reservation.getItems().stream().map(ReservationRelation::getEquipment).toList(), oldStart, oldEnd);
+            reservation.getItems().clear();
+        }
+
+        validator.validateUpdateDto(dto);
 
         if (dto.getPickUpTime() != null) {
             reservation.setPickUpTime(dto.getPickUpTime());
