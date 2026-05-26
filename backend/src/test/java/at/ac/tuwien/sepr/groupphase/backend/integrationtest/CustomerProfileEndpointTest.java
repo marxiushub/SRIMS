@@ -1,4 +1,4 @@
-package at.ac.tuwien.sepr.groupphase.backend.unittests;
+package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 //AI-assisted
-@ActiveProfiles({"test", "generateData"})
+@ActiveProfiles({"test"})
 @AutoConfigureMockMvc
 @SpringBootTest
 public class CustomerProfileEndpointTest {
