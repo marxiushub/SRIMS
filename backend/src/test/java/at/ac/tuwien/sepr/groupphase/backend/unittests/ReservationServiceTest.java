@@ -271,7 +271,6 @@ public class ReservationServiceTest {
 
         assertThat(reservationId).isNotNull();
 
-
         LocalDate expectedStart = createDto.getPickUpDate();
         LocalDate expectedEnd = expectedStart.plusDays(createDto.getRentDurationDays());
 
@@ -286,9 +285,7 @@ public class ReservationServiceTest {
 
         reservationService.deleteReservation(reservationId);
 
-
         assertThat(reservationRepository.existsById(reservationId)).isFalse();
-
 
         Equipment equipmentAfterDelete =
             equipmentRepository.findById(testEquipment.getId()).orElseThrow();

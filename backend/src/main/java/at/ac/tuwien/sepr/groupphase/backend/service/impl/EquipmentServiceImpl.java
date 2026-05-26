@@ -252,8 +252,6 @@ public class EquipmentServiceImpl implements EquipmentService {
                 .toList();
         }
 
-
-
         return mapper.entityToDto(found);
     }
 
