@@ -4,12 +4,12 @@ import {ReactiveFormsModule, FormBuilder, FormsModule} from '@angular/forms';
 import { Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { ReservationCreateComponent } from './reservation-create.component';
-import { ReservationService } from '../../../services/reservation.service';
-import { EquipmentService } from '../../../services/equipment.service';
-import { CustomerProfileService } from '../../../services/customer-profile.service';
-import { EquipmentType } from '../../../dtos/equipmenttype';
-import { RentalStatus } from '../../../dtos/rentalstatus';
-import { SkillLevel } from '../../../dtos/skilllevel';
+import { ReservationService } from '../../../../services/reservation.service';
+import { EquipmentService } from '../../../../services/equipment.service';
+import { CustomerProfileService } from '../../../../services/customer-profile.service';
+import { EquipmentType } from '../../../../dtos/equipmenttype';
+import { RentalStatus } from '../../../../dtos/rentalstatus';
+import { SkillLevel } from '../../../../dtos/skilllevel';
 import { TranslateModule } from '@ngx-translate/core';
 
 //TODO: Add tests for triggering equipment validation after date change and for removing unavailable equipment
@@ -143,6 +143,6 @@ describe('ReservationCreateComponent', () => {
     component.submitReservation();
 
     expect(reservationServiceMock.create).toHaveBeenCalled();
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/customer']);
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/customer/reservation']);
   });
 });

@@ -5,6 +5,7 @@ import { Globals } from '../global/globals';
 import { ReservationCreation } from '../dtos/reservation-creation';
 import { ReservationDetail } from '../dtos/reservation-detail';
 import { ReservationSearch } from '../dtos/reservation-search';
+import {ReservationAddDeleteEquipment} from "../dtos/reservation-add-delete-equipment";
 
 @Injectable({
     providedIn: 'root'
@@ -61,5 +62,21 @@ export class ReservationService {
   update(id: number, reservation: any): Observable<ReservationDetail> {
     return this.httpClient.patch<ReservationDetail>(`${this.reservationBaseUri}/${id}`, reservation);
   }
+
+  /**
+   * Deletes an entire reservation in the backend.
+   * Maps to DELETE /api/v1/reservation with ReservationAddDeleteEquipment in body
+   * * @param reservationId the ID of the reservation to delete
+   */
+  delete(reservationId: number): Observable<void> {
+      const deletePayload: ReservationAddDeleteEquipment = {
+          id: reservationId,
+          equipmentIds: []
+      };
+
+      return this.httpClient.delete<void>(this.reservationBaseUri, {
+          body: deletePayload
+      });
+    }
 
 }

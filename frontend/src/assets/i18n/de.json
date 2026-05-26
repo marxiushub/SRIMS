@@ -132,6 +132,7 @@
   },
   "RESERVATION": {
     "CUSTOMER_NAME": "Kunde (Account)",
+    "CUSTOMER_PROFILE_NAME": "Kunde (Profil)",
     "PICKUP_DATE": "Abholdatum",
     "PICKUP_TIME": "Abholzeit",
     "RETURN_DATE": "Rückgabedatum",
@@ -159,7 +160,15 @@
     "ADDED": "Hinzugefügt",
     "SUBMIT": "Reservierung verbindlich abschicken",
     "VALIDATION_WARNING": "Einige bereits ausgewählte Gegenstände wurden entfernt, da sie im neu gewählten Zeitraum nicht verfügbar sind.",
-    "CUSTOMER_PROFILES_LOADING_FAILED": "Kunden-Profile konnten nicht geladen werden"
+    "CUSTOMER_PROFILES_LOADING_FAILED": "Kunden-Profile konnten nicht geladen werden",
+    "TITLE_OVERVIEW": "Meine Reservierungen",
+    "ADD_RESERVATION": "Neue Reservierung erstellen",
+    "NO_RESERVATIONS_FOUND": "Keine Reservierungen für dieses Konto gefunden.",
+    "ID": "Reservierungs-ID",
+    "EQUIPMENT_COUNT": "Ausrüstung",
+    "ITEMS": "Teil(e)",
+    "DELETE_TITLE": "Reservierung stornieren",
+    "DELETE_CONFIRMATION": "Sind Sie sicher, dass Sie diese Reservierung stornieren möchten?"
   },
   "CUSTOMER": {
     "DASHBOARD_TITLE": "Kundenportal",

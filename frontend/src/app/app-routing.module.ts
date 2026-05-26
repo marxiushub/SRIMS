@@ -8,7 +8,7 @@ import { StaffComponent } from './components/staff/staff.component';
 import { InventoryComponent } from './components/staff/inventory/inventory.component';
 import { EquipmentCreateEditComponent, EquipmentCreateEditMode } from "./components/staff/inventory/equipment-create-edit/equipment-create-edit.component";
 import { EquipmentViewComponent } from "./components/staff/inventory/equipment-view/equipment-view.component";
-import { ReservationCreateComponent } from "./components/customer/reservation-create/reservation-create.component";
+import { ReservationCreateComponent } from "./components/customer/reservation/reservation-create/reservation-create.component";
 import {BarcodeScannerComponent} from "./components/staff/barcodescanner/barcode-scanner.component";
 import {CustomerComponent} from './components/customer/customer.component';
 import {CustomerProfileComponent} from './components/customer/customer-profile/customer-profile.component';
@@ -23,6 +23,7 @@ import {CustomerInventoryComponent} from "./components/customer/customer-invento
 import {
   CustomerEquipmentViewComponent
 } from "./components/customer/customer-inventory/equipment-view/equipment-view.component";
+import {ReservationComponent} from "./components/customer/reservation/reservation.component";
 
 const routes: Routes = [
   {path: '', component: HomeComponent},
@@ -37,7 +38,9 @@ const routes: Routes = [
       {path: 'barcode-scanner', component: BarcodeScannerComponent},
   ]},
   {path: 'customer', component: CustomerComponent, children: [
-    {path: 'reservation/create', component: ReservationCreateComponent}, {path: 'inventory', component: CustomerInventoryComponent},
+    {path: 'reservation', component: ReservationComponent},
+    {path: 'reservation/create', component: ReservationCreateComponent},
+    {path: 'inventory', component: CustomerInventoryComponent},
     {path: 'inventory/view/:id', component: CustomerEquipmentViewComponent}
     ]},
   {path: 'customer/profiles', component: CustomerProfileComponent},

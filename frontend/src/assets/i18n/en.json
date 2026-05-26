@@ -132,6 +132,7 @@
   },
   "RESERVATION": {
     "CUSTOMER_NAME": "Customer (Account)",
+    "CUSTOMER_PROFILE_NAME": "Customer (Profile)",
     "PICKUP_DATE": "Pickup Date",
     "PICKUP_TIME": "Pickup Time",
     "RETURN_DATE": "Return Date",
@@ -159,7 +160,15 @@
     "ADDED": "Added",
     "SUBMIT": "Submit Binding Reservation",
     "VALIDATION_WARNING": "Some previously selected items have been removed because they are not available in the newly selected period.",
-    "CUSTOMER_PROFILES_LOADING_FAILED": "Loading of customer profiles failed"
+    "CUSTOMER_PROFILES_LOADING_FAILED": "Loading of customer profiles failed",
+    "TITLE_OVERVIEW": "My Reservations",
+    "ADD_RESERVATION": "Create New Reservation",
+    "NO_RESERVATIONS_FOUND": "No reservations found for this account.",
+    "ID": "Reservation ID",
+    "EQUIPMENT_COUNT": "Equipment",
+    "ITEMS": "item(s)",
+    "DELETE_TITLE": "Cancel Reservation",
+    "DELETE_CONFIRMATION": "Are you sure you want to cancel this reservation?"
   },
   "CUSTOMER": {
     "DASHBOARD_TITLE": "Customer Portal",

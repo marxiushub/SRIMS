@@ -1,17 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ReservationService } from '../../../services/reservation.service';
-import { EquipmentService } from '../../../services/equipment.service';
-import { ReservationCreation } from '../../../dtos/reservation-creation';
-import { Equipment } from '../../../dtos/equipment';
-import { EquipmentSearch } from '../../../dtos/equipment-search';
-import { CustomerProfile } from '../../../dtos/customer-profile';
-import {EquipmentType} from "../../../dtos/equipmenttype";
-import {RentalStatus} from "../../../dtos/rentalstatus";
-import {SkillLevel} from "../../../dtos/skilllevel";
+import { ReservationService } from '../../../../services/reservation.service';
+import { EquipmentService } from '../../../../services/equipment.service';
+import { ReservationCreation } from '../../../../dtos/reservation-creation';
+import { Equipment } from '../../../../dtos/equipment';
+import { EquipmentSearch } from '../../../../dtos/equipment-search';
+import { CustomerProfile } from '../../../../dtos/customer-profile';
+import {EquipmentType} from "../../../../dtos/equipmenttype";
+import {RentalStatus} from "../../../../dtos/rentalstatus";
+import {SkillLevel} from "../../../../dtos/skilllevel";
 import {debounceTime, distinctUntilChanged} from "rxjs";
-import {CustomerProfileService} from "../../../services/customer-profile.service";
+import {CustomerProfileService} from "../../../../services/customer-profile.service";
 
 @Component({
   selector: 'app-reservation-create',
@@ -326,7 +326,7 @@ export class ReservationCreateComponent implements OnInit {
       next: (response) => {
         console.log('Reservation submitted successfully', response);
         this.submitLoading = false;
-        this.router.navigate(['/customer']);
+        this.router.navigate(['/customer/reservation']);
       },
       error: (err) => {
         console.error('Error during submission of reservation', err);
