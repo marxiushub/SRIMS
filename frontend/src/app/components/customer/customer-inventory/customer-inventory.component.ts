@@ -1,13 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import { debounceTime, distinctUntilChanged, map, OperatorFunction } from 'rxjs';
-import { Equipment } from '../../../dtos/equipment';
-import { EquipmentService } from '../../../services/equipment.service';
-import { TranslateService } from '@ngx-translate/core';
-import { Router } from '@angular/router';
-import { EquipmentType } from "../../../dtos/equipmenttype";
-import { RentalStatus } from "../../../dtos/rentalstatus";
-import { SkillLevel } from "../../../dtos/skilllevel";
-import { EquipmentSearch } from '../../../dtos/equipment-search';
+import {Component, OnInit} from '@angular/core';
+import {debounceTime, distinctUntilChanged, map, OperatorFunction} from 'rxjs';
+import {Equipment} from '../../../dtos/equipment';
+import {EquipmentService} from '../../../services/equipment.service';
+import {TranslateService} from '@ngx-translate/core';
+import {Router} from '@angular/router';
+import {EquipmentType} from "../../../dtos/equipmenttype";
+import {RentalStatus} from "../../../dtos/rentalstatus";
+import {SkillLevel} from "../../../dtos/skilllevel";
+import {EquipmentSearch} from '../../../dtos/equipment-search';
 
 @Component({
   selector: 'app-customer-inventory',
@@ -25,6 +25,8 @@ export class CustomerInventoryComponent implements OnInit {
   typeFilter = null;
   statusFilter = null;
   skillFilter = null;
+  startFilter: string | null = null;
+  endFilter: string | null = null;
   priceSortDirection: 'asc' | 'desc' = 'asc';
 
   itemLimit: number = 10;
@@ -56,7 +58,8 @@ export class CustomerInventoryComponent implements OnInit {
     private equipmentService: EquipmentService,
     public translateService: TranslateService,
     private router: Router
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.loadEquipment();
@@ -84,11 +87,16 @@ export class CustomerInventoryComponent implements OnInit {
 
   getStatusClass(status: string): string {
     switch (status) {
-      case 'FREE': return 'bg-success';
-      case 'RESERVED': return 'bg-warning text-dark';
-      case 'RENTED': return 'bg-danger';
-      case 'MAINTENANCE': return 'bg-secondary';
-      default: return 'bg-light text-dark';
+      case 'FREE':
+        return 'bg-success';
+      case 'RESERVED':
+        return 'bg-warning text-dark';
+      case 'RENTED':
+        return 'bg-danger';
+      case 'MAINTENANCE':
+        return 'bg-secondary';
+      default:
+        return 'bg-light text-dark';
     }
   }
 
@@ -99,6 +107,8 @@ export class CustomerInventoryComponent implements OnInit {
       type: this.typeFilter ?? undefined,
       status: this.statusFilter ?? undefined,
       targetSkillLevel: this.skillFilter ?? undefined,
+      start: this.startFilter || this.endFilter || undefined,
+      end: this.endFilter || this.startFilter || undefined,
     };
 
     this.equipmentService.search(searchRequest).subscribe({
@@ -148,18 +158,52 @@ export class CustomerInventoryComponent implements OnInit {
     this.typeFilter = null;
     this.statusFilter = null;
     this.skillFilter = null;
+    this.startFilter = null;
+    this.endFilter = null;
     this.priceSortDirection = 'asc';
     this.loadEquipment();
   }
 
-  get startIndex(): number { return (this.currentPage - 1) * this.itemLimit + 1; }
+  get startIndex(): number {
+    return (this.currentPage - 1) * this.itemLimit + 1;
+  }
+
   get endIndex(): number {
     const endIndex = this.currentPage * this.itemLimit;
     return endIndex > this.equipment.length ? this.equipment.length : endIndex;
   }
-  previousPage(): void { if (this.currentPage > 1) this.currentPage--; }
-  nextPage(): void { if (this.endIndex < this.equipment.length) this.currentPage++; }
-  goToFirstPage(): void { this.currentPage = 1; }
-  goToLastPage(): void { this.currentPage = Math.ceil(this.equipment.length / this.itemLimit); }
-  onItemLimitChange(): void { this.currentPage = 1; }
+
+  previousPage(): void {
+    if (this.currentPage > 1) this.currentPage--;
+  }
+
+  nextPage(): void {
+    if (this.endIndex < this.equipment.length) this.currentPage++;
+  }
+
+  goToFirstPage(): void {
+    this.currentPage = 1;
+  }
+
+  goToLastPage(): void {
+    this.currentPage = Math.ceil(this.equipment.length / this.itemLimit);
+  }
+
+  onItemLimitChange(): void {
+    this.currentPage = 1;
+  }
+
+  onStartDateChange(): void {
+    if (this.startFilter && this.endFilter && this.startFilter > this.endFilter) {
+      this.endFilter = null;
+    }
+    this.searchEquipment();
+  }
+
+  onEndDateChange(): void {
+    if (this.startFilter && this.endFilter && this.startFilter > this.endFilter) {
+      this.endFilter = null;
+    }
+    this.searchEquipment();
+  }
 }

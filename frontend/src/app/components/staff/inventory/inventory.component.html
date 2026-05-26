@@ -83,6 +83,31 @@
     </div>
 
     <div class="me-2">
+      <label for="searchEquipmentStart" class="col-form-label">{{ 'INVENTORY.START_DATE' | translate }}</label>
+      <input
+        type="date"
+        id="searchEquipmentStart"
+        name="searchEquipmentStart"
+        [(ngModel)]="startFilter"
+        [ngModelOptions]="{ standalone: true }"
+        (ngModelChange)="onStartDateChange()"
+        class="form-control">
+    </div>
+
+    <div class="me-2">
+      <label for="searchEquipmentEnd" class="col-form-label">{{ 'INVENTORY.END_DATE' | translate }}</label>
+      <input
+        type="date"
+        id="searchEquipmentEnd"
+        name="searchEquipmentEnd"
+        [(ngModel)]="endFilter"
+        [min]="startFilter"
+        [ngModelOptions]="{ standalone: true }"
+        (ngModelChange)="onEndDateChange()"
+        class="form-control">
+    </div>
+
+    <div class="me-2">
       <label for="searchEquipmentPriceSort" class="col-form-label">{{ 'INVENTORY.EQUIPMENT_PRICE' | translate }}</label>
       <select
         id="searchEquipmentPriceSort"

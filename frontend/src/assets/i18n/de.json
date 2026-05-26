@@ -29,6 +29,8 @@
     "RENTED": "Verliehen",
     "EQUIPMENT_ALL": "Alle",
     "CLEAR": "Zurücksetzen",
+    "START_DATE": "Verfügbar ab",
+    "END_DATE": "Bis",
     "LOWEST_FIRST": "Preis aufsteigend",
     "HIGHEST_FIRST": "Preis absteigend",
     "ROWS_PER_PAGE": "Zeilen pro Seite",
