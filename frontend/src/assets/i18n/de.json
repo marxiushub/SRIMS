@@ -77,7 +77,16 @@
     "SIZE_REQUIRED": "Größe ist erforderlich.",
     "SOLE_LENGTH_REQUIRED": "Sohlenlänge ist erforderlich.",
     "QUANTITY": "Anzahl",
-    "QUANTITY_REQUIRED": "Anzahl ist erforderlich."
+    "QUANTITY_REQUIRED": "Anzahl ist erforderlich.",
+    "PRICE_MIN": "Der Preis muss größer als 0 sein.",
+    "LENGTH_MIN": "Die Länge ist zu klein.",
+    "LENGTH_MAX": "Die Länge ist zu groß.",
+    "SIZE_MIN": "Die Größe ist zu klein.",
+    "SIZE_MAX": "Die Größe ist zu groß.",
+    "SOLE_LENGTH_MIN": "Die Sohlenlänge ist zu klein.",
+    "SOLE_LENGTH_MAX": "Die Sohlenlänge ist zu groß.",
+    "QUANTITY_MIN": "Die Anzahl muss mindestens 1 sein.",
+    "MODEL_NOT_BLANK": "Das Modell darf nicht nur aus Leerzeichen bestehen."
   },
   "EQUIPMENT_EDIT": {
     "TITLE": "Bearbeiten",
