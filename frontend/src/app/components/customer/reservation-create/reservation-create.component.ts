@@ -6,10 +6,12 @@ import { EquipmentService } from '../../../services/equipment.service';
 import { ReservationCreation } from '../../../dtos/reservation-creation';
 import { Equipment } from '../../../dtos/equipment';
 import { EquipmentSearch } from '../../../dtos/equipment-search';
-
+import { CustomerProfile } from '../../../dtos/customer-profile';
 import {EquipmentType} from "../../../dtos/equipmenttype";
 import {RentalStatus} from "../../../dtos/rentalstatus";
 import {SkillLevel} from "../../../dtos/skilllevel";
+import {debounceTime, distinctUntilChanged} from "rxjs";
+import {CustomerProfileService} from "../../../services/customer-profile.service";
 
 @Component({
   selector: 'app-reservation-create',
@@ -26,6 +28,7 @@ export class ReservationCreateComponent implements OnInit {
 
   selectedEquipment: Equipment[] = [];
   availableEquipmentList: Equipment[] = [];
+  customerProfiles: CustomerProfile[] = [];
 
   currentActiveType: EquipmentType | null = null;
   modelFilter: string ='';
@@ -36,22 +39,20 @@ export class ReservationCreateComponent implements OnInit {
   loading: boolean = false;
   submitLoading: boolean = false;
   submitError: string | undefined = undefined;
-
-  //TODO: Später removen, sobald ich mit echten Profiles arbeiten kann
-  fakeProfiles = [
-    { id: 1, name: 'Standard Profil (Account Besitzer)' },
-    { id: 2, name: 'Kind-Profil (Max Mustermann)' }
-  ];
+  validationWarning: string | undefined = undefined;
 
   constructor(
     private fb: FormBuilder,
     private reservationService: ReservationService,
     private equipmentService: EquipmentService,
+    private customerProfileService: CustomerProfileService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
     this.initForm();
+    this.initDateChangeWatcher();
+    this.loadCustomerProfiles();
   }
 
   /**
@@ -65,7 +66,6 @@ export class ReservationCreateComponent implements OnInit {
       returnDate: [null, Validators.required]
     });
 
-    // TODO: Profil-abhängige Suchfilter einstellen, wenn Profile fertig sind
     this.reservationForm.get('customerProfileId')?.valueChanges.subscribe(profileId => {
       if (profileId) {
         this.applyProfileFilters(profileId);
@@ -80,11 +80,78 @@ export class ReservationCreateComponent implements OnInit {
   }
 
   /**
+   * Loads genuine customer profiles from backend for the hardcoded customer ID 1.
+   * TODO: Remove hard-coding this to 1 once proper Accounts with AccoundId exist
+   */
+  private loadCustomerProfiles(): void {
+    const hardcodedCustomerId = 1;
+    this.customerProfileService.getCustomerProfiles(hardcodedCustomerId).subscribe({
+      next: (profiles) => {
+        this.customerProfiles = profiles;
+        if (this.customerProfiles.length > 0) {
+          this.reservationForm.patchValue({ customerProfileId: this.customerProfiles[0].id });
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load customer profiles from backend', err);
+        this.submitError = 'Kundenprofile konnten nicht geladen werden.';
+      }
+    });
+  }
+
+  /**
+   * Watches for changes in pickUpDate or returnDate to re-validate already selected equipment.
+   */
+  private initDateChangeWatcher(): void {
+    this.reservationForm.valueChanges.pipe(
+        debounceTime(300),
+        distinctUntilChanged((prev, curr) =>
+            prev.pickUpDate === curr.pickUpDate && prev.returnDate === curr.returnDate
+        )
+    ).subscribe(values => {
+      if (this.selectedEquipment.length > 0 && values.pickUpDate && values.returnDate && !this.isDateRangeInvalid) {
+        this.validateSelectedEquipmentForNewDates(values.pickUpDate, values.returnDate);
+      }
+    });
+  }
+
+  /**
+   * Validates already selected equipment against a newly chosen date range.
+   * Removes equipment that is no longer available.
+   */
+  private validateSelectedEquipmentForNewDates(startDate: string, endDate: string): void {
+    const searchRequest: EquipmentSearch = {
+      start: startDate,
+      end: endDate
+    };
+
+    this.equipmentService.search(searchRequest).subscribe({
+      next: (availableEquipment) => {
+        const availableIds = availableEquipment.map(e => e.id);
+
+        const filteredList = this.selectedEquipment.filter(item => availableIds.includes(item.id));
+
+        if (filteredList.length !== this.selectedEquipment.length) {
+          this.selectedEquipment = filteredList;
+          this.validationWarning = 'RESERVATION.VALIDATION_WARNING';
+
+          setTimeout(() => this.validationWarning = undefined, 8000);
+        } else {
+          this.validationWarning = undefined;
+        }
+      },
+      error: (err) => {
+        console.error('Failed to validate selected equipment on date change', err);
+      }
+    });
+  }
+
+  /**
    * Checks if the date configuration is invalid.
    */
   get isDateRangeInvalid(): boolean {
     const start = this.reservationForm.get('pickUpDate')?.value;
-    const end = this.reservationForm.get('pickUpTime')?.value;
+    const end = this.reservationForm.get('returnDate')?.value;
     if(!start || !end){
       return false;
     }
@@ -201,11 +268,18 @@ export class ReservationCreateComponent implements OnInit {
   }
 
   /**
-   * Placeholder for profile-dependent filters.
-   * //TODO: Profil-abhängige Filter, sobald Profile da sind!
+   * Implements profile-dependent filters.
    */
   private applyProfileFilters(profileId: number): void {
-    console.log(`Profile changed to ID: ${profileId}. TODO: Filter voreinstellen.`);
+    const selectedProfile = this.customerProfiles.find(p => p.id === profileId);
+
+    if (selectedProfile) {
+      this.skillFilter = selectedProfile.skillLevel;
+
+      if (this.currentActiveType) {
+        this.searchEquipment();
+      }
+    }
   }
 
   /**

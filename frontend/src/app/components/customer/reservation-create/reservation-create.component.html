@@ -14,9 +14,9 @@
           <label for="profile" class="form-label fw-bold">{{ 'RESERVATION.SELECT_PROFILE' | translate }} *</label>
           <select id="profile" formControlName="customerProfileId" class="form-select">
             <option [ngValue]="null" disabled>{{ 'RESERVATION.CHOOSE_PROFILE_PLACEHOLDER' | translate }}</option>
-            @for (profile of fakeProfiles; track profile.id) {
+            @for (profile of customerProfiles; track profile.id) {
               <option [ngValue]="profile.id">
-                {{ profile.name }}
+                {{ profile.profileName }}
               </option>
             }
           </select>
@@ -46,6 +46,12 @@
         </div>
       </div>
     </div>
+
+      @if (validationWarning) {
+          <div class="alert alert-warning animate-fade-in">
+              {{ validationWarning | translate }}
+          </div>
+      }
 
     <div class="card p-3 mb-4">
       <h4 class="mb-3">{{ 'RESERVATION.SELECTED_EQUIPMENT' | translate }}</h4>

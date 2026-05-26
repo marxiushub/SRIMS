@@ -157,7 +157,8 @@
     "ACTION": "Action",
     "ADD": "Add",
     "ADDED": "Added",
-    "SUBMIT": "Submit Binding Reservation"
+    "SUBMIT": "Submit Binding Reservation",
+    "VALIDATION_WARNING": "Some previously selected items have been removed because they are not available in the newly selected period."
   },
   "CUSTOMER": {
     "DASHBOARD_TITLE": "Customer Portal",
