@@ -6,6 +6,7 @@ import { ReservationCreation } from '../dtos/reservation-creation';
 import { ReservationDetail } from '../dtos/reservation-detail';
 import { ReservationSearch } from '../dtos/reservation-search';
 import {ReservationAddDeleteEquipment} from "../dtos/reservation-add-delete-equipment";
+import {ReservationUpdate} from "../dtos/reservation-update";
 
 @Injectable({
     providedIn: 'root'
@@ -71,7 +72,7 @@ export class ReservationService {
    * Updates an existing reservation in the backend.
    * Maps to PATCH /api/v1/reservation/{id}
    */
-  update(id: number, reservation: any): Observable<ReservationDetail> {
+  update(id: number, reservation: ReservationUpdate): Observable<ReservationDetail> {
     return this.httpClient.patch<ReservationDetail>(`${this.reservationBaseUri}/${id}`, reservation);
   }
 

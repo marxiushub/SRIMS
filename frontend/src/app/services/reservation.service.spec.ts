@@ -6,7 +6,7 @@ import { Globals } from '../global/globals';
 import { ReservationSearch } from '../dtos/reservation-search';
 import { ReservationDetail } from '../dtos/reservation-detail';
 
-//TODO: Add missing tests for getById
+//TODO: Add missing tests for getById, update, etc.
 
 //AI-assisted: Code generated with Google Gemini and adapted
 describe('ReservationService', () => {

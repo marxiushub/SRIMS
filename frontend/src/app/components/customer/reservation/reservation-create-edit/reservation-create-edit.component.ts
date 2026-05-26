@@ -12,6 +12,7 @@ import {RentalStatus} from "../../../../dtos/rentalstatus";
 import {SkillLevel} from "../../../../dtos/skilllevel";
 import {debounceTime, distinctUntilChanged} from "rxjs";
 import {CustomerProfileService} from "../../../../services/customer-profile.service";
+import {ReservationUpdate} from "../../../../dtos/reservation-update";
 
 export enum ReservationCreateEditMode {
   create,
@@ -161,7 +162,7 @@ export class ReservationCreateEditComponent implements OnInit {
           returnDate: returnDateString
         });
 
-        this.selectedEquipment = data.equipment || data.equipments || data.equipmentList || [];
+        this.selectedEquipment = data.items || data.equipment || data.equipments || data.equipmentList || [];
         this.loading = false;
       },
       error: (err) => {
@@ -393,20 +394,20 @@ export class ReservationCreateEditComponent implements OnInit {
 
     const formValue = this.reservationForm.value;
 
-    //Creation of DTO
-    const reservationPayload: ReservationCreation = {
-      customerProfileId: formValue.customerProfileId,
-      equipmentIds: this.selectedEquipment.map(e => e.id),
-      pickUpTime: formValue.pickUpTime + ':00',
-      pickUpDate: formValue.pickUpDate,
-      rentDurationDays: duration
-    };
-
     //Service-Call
     this.submitLoading = true;
     this.submitError = undefined;
 
     if(this.mode === ReservationCreateEditMode.create) {
+      //Creation of Create-DTO
+      const reservationPayload: ReservationCreation = {
+        customerProfileId: formValue.customerProfileId,
+        equipmentIds: this.selectedEquipment.map(e => e.id),
+        pickUpTime: formValue.pickUpTime + ':00',
+        pickUpDate: formValue.pickUpDate,
+        rentDurationDays: duration
+      };
+
       this.reservationService.create(reservationPayload).subscribe({
         next: (response) => {
           console.log('Reservation submitted successfully', response);
@@ -421,6 +422,16 @@ export class ReservationCreateEditComponent implements OnInit {
       });
     }
     else {
+      //Creation of Update-DTO
+      const reservationPayload: ReservationUpdate = {
+        id: this.reservationId!,
+        customerProfileId: formValue.customerProfileId,
+        equipmentIds: this.selectedEquipment.map(e => e.id),
+        pickUpTime: formValue.pickUpTime.length === 5 ? formValue.pickUpTime + ':00' : formValue.pickUpTime,
+        pickUpDate: formValue.pickUpDate,
+        rentDurationDays: duration
+      };
+
       this.reservationService.update(this.reservationId!, reservationPayload).subscribe({
         next: (response) => {
           console.log('Reservation updated successfully', response);
