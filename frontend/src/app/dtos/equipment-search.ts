@@ -7,4 +7,6 @@ export interface EquipmentSearch {
   type?: EquipmentType;
   status?: RentalStatus;
   targetSkillLevel?: SkillLevel;
+  start?: string;
+  end?: string;
 }

@@ -16,12 +16,12 @@ export class CustomerProfileService {
   }
 
   /**
-   * Loads all profiles from the backend corresponding to the given customer ID
+   * Loads all profiles from the backend corresponding to the given customer ID.
    */
   getCustomerProfiles(customerId: number): Observable<CustomerProfile[]> {
     return this.httpClient.get<CustomerProfile[]>(`${this.globals.backendUri}/customer/${customerId}/profiles`);
   }
-  
+
   /**
    * Loads profile by id from the backend.
    */
@@ -37,7 +37,7 @@ export class CustomerProfileService {
   }
 
   /**
-   * Creates new profile in backend
+   * Creates new profile in backend.
    */
   create(profile: CustomerProfileCreationUpdate): Observable<CustomerProfile> {
     return this.httpClient.post<CustomerProfile>(this.customerBaseUri, profile);

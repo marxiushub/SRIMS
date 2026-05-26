@@ -264,8 +264,8 @@ public class EquipmentServiceImpl implements EquipmentService {
                 .filter(equipment ->
                     equipment.getTimePeriodsList().stream()
                         .noneMatch(tp ->
-                            tp.getStartDate().isBefore(end)
-                                && tp.getEndDate().isAfter(start)
+                            !tp.getStartDate().isAfter(end)
+                                && !tp.getEndDate().isBefore(start)
                         )
                 )
                 .toList();

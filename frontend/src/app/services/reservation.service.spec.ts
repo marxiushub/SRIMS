@@ -6,6 +6,8 @@ import { Globals } from '../global/globals';
 import { ReservationSearch } from '../dtos/reservation-search';
 import { ReservationDetail } from '../dtos/reservation-detail';
 
+//TODO: Add missing tests for getById, update, etc.
+
 //AI-assisted: Code generated with Google Gemini and adapted
 describe('ReservationService', () => {
   let service: ReservationService;
@@ -120,5 +122,47 @@ describe('ReservationService', () => {
     const req = httpMock.expectOne((request) => request.url === `${globals.backendUri}/reservation`);
 
     req.flush(mockResponse);
+  });
+
+  it('should make a DELETE request with the reservation ID in the body', () => {
+    const targetReservationId = 42;
+
+    service.delete(targetReservationId).subscribe({
+      next: () => {
+        expect(true).toBeTrue();
+      },
+      error: () => {
+        fail('Should not have failed');
+      }
+    });
+
+    const req = httpMock.expectOne(`${globals.backendUri}/reservation`);
+    expect(req.request.method).toBe('DELETE');
+
+    expect(req.request.body).toEqual({
+      id: targetReservationId,
+      equipmentIds: []
+    });
+
+    req.flush(null);
+  });
+
+  it('should forward backend errors correctly when deleting a reservation fails', () => {
+    const targetReservationId = 999;
+
+    service.delete(targetReservationId).subscribe({
+      next: () => {
+        fail('Should have failed with a 404 error');
+      },
+      error: (error) => {
+        expect(error).toBeTruthy();
+        expect(error.status).toBe(404);
+      }
+    });
+
+    const req = httpMock.expectOne(`${globals.backendUri}/reservation`);
+    expect(req.request.method).toBe('DELETE');
+
+    req.flush('Reservation not found', { status: 404, statusText: 'Not Found' });
   });
 });
