@@ -8,7 +8,10 @@ import { StaffComponent } from './components/staff/staff.component';
 import { InventoryComponent } from './components/staff/inventory/inventory.component';
 import { EquipmentCreateEditComponent, EquipmentCreateEditMode } from "./components/staff/inventory/equipment-create-edit/equipment-create-edit.component";
 import { EquipmentViewComponent } from "./components/staff/inventory/equipment-view/equipment-view.component";
-import { ReservationCreateComponent } from "./components/customer/reservation/reservation-create/reservation-create.component";
+import {
+  ReservationCreateEditComponent,
+  ReservationCreateEditMode
+} from "./components/customer/reservation/reservation-create-edit/reservation-create-edit.component";
 import {BarcodeScannerComponent} from "./components/staff/barcodescanner/barcode-scanner.component";
 import {CustomerComponent} from './components/customer/customer.component';
 import {CustomerProfileComponent} from './components/customer/customer-profile/customer-profile.component';
@@ -39,7 +42,8 @@ const routes: Routes = [
   ]},
   {path: 'customer', component: CustomerComponent, children: [
     {path: 'reservation', component: ReservationComponent},
-    {path: 'reservation/create', component: ReservationCreateComponent},
+    {path: 'reservation/create', component: ReservationCreateEditComponent, data: {mode: ReservationCreateEditMode.create}},
+    {path: 'reservation/edit/:id', component: ReservationCreateEditComponent, data: {mode: ReservationCreateEditMode.edit}},
     {path: 'inventory', component: CustomerInventoryComponent},
     {path: 'inventory/view/:id', component: CustomerEquipmentViewComponent}
     ]},

@@ -24,6 +24,18 @@ export class ReservationService {
   create(reservation: ReservationCreation): Observable<ReservationDetail> {
     return this.httpClient.post<ReservationDetail>(this.reservationBaseUri, reservation);
   }
+
+    /**
+     * Fetches a single reservation by its unique ID.
+     * Maps to GET /api/v1/reservation/{id}
+     *
+     * @param id the unique identifier of the reservation
+     * @return an Observable of the specific ReservationDetail
+     */
+    getById(id: number): Observable<ReservationDetail> {
+        return this.httpClient.get<ReservationDetail>(`${this.reservationBaseUri}/${id}`);
+    }
+
   /**
    * Searches for reservations in backend as specified in the search parameters.
    *

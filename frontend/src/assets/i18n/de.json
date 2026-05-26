@@ -168,7 +168,11 @@
     "EQUIPMENT_COUNT": "Ausrüstung",
     "ITEMS": "Teil(e)",
     "DELETE_TITLE": "Reservierung stornieren",
-    "DELETE_CONFIRMATION": "Sind Sie sicher, dass Sie diese Reservierung stornieren möchten?"
+    "DELETE_CONFIRMATION": "Sind Sie sicher, dass Sie diese Reservierung stornieren möchten?",
+    "TITLE_EDIT": "Reservierung bearbeiten",
+    "UPDATE": "Änderungen speichern",
+    "LOADING_FAILED": "Die Reservierungsdetails konnten nicht geladen werden.",
+    "NOT_FOUND": "Die angeforderte Reservierung wurde nicht gefunden."
   },
   "CUSTOMER": {
     "DASHBOARD_TITLE": "Kundenportal",

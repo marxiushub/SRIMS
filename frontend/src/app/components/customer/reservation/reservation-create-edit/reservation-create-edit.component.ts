@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import {ActivatedRoute, Router } from '@angular/router';
 import { ReservationService } from '../../../../services/reservation.service';
 import { EquipmentService } from '../../../../services/equipment.service';
 import { ReservationCreation } from '../../../../dtos/reservation-creation';
@@ -13,18 +13,26 @@ import {SkillLevel} from "../../../../dtos/skilllevel";
 import {debounceTime, distinctUntilChanged} from "rxjs";
 import {CustomerProfileService} from "../../../../services/customer-profile.service";
 
+export enum ReservationCreateEditMode {
+  create,
+  edit
+}
+
 @Component({
   selector: 'app-reservation-create',
-  templateUrl: './reservation-create.component.html',
-  styleUrls: ['./reservation-create.component.scss'],
+  templateUrl: './reservation-create-edit.component.html',
+  styleUrls: ['./reservation-create-edit.component.scss'],
   standalone: false
 })
-export class ReservationCreateComponent implements OnInit {
+export class ReservationCreateEditComponent implements OnInit {
 
-  reservationForm!: FormGroup;
-
+  readonly ReservationCreateEditMode = ReservationCreateEditMode;
   //To give HTML access to Equipment-Type-Enum
   readonly EquipmentTypeEnum = EquipmentType;
+
+  mode: ReservationCreateEditMode = ReservationCreateEditMode.create;
+  reservationId?: number;
+  reservationForm!: FormGroup;
 
   selectedEquipment: Equipment[] = [];
   availableEquipmentList: Equipment[] = [];
@@ -46,13 +54,28 @@ export class ReservationCreateComponent implements OnInit {
     private reservationService: ReservationService,
     private equipmentService: EquipmentService,
     private customerProfileService: CustomerProfileService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
     this.initForm();
     this.initDateChangeWatcher();
-    this.loadCustomerProfiles();
+
+    if (this.route.snapshot.data['mode'] === ReservationCreateEditMode.edit) {
+      this.mode = ReservationCreateEditMode.edit;
+      const id = this.route.snapshot.paramMap.get('id');
+      if (id) {
+        this.reservationId = Number(id);
+        this.loadCustomerProfilesAndInit(this.reservationId);
+      } else {
+        this.mode = ReservationCreateEditMode.create;
+        this.loadCustomerProfilesAndInit();
+      }
+    } else {
+      this.mode = ReservationCreateEditMode.create;
+      this.loadCustomerProfilesAndInit();
+    }
   }
 
   /**
@@ -81,20 +104,70 @@ export class ReservationCreateComponent implements OnInit {
 
   /**
    * Loads genuine customer profiles from backend for the hardcoded customer ID 1.
-   * TODO: Remove hard-coding this to 1 once proper Accounts with AccoundId exist
+   * Also checks whether we are editing an existing reservation.
+   * TODO: Remove hard-coding accountId to 1 once proper Accounts with AccountId exist
    */
-  private loadCustomerProfiles(): void {
+  private loadCustomerProfilesAndInit(editId?: number): void {
     const hardcodedCustomerId = 1;
     this.customerProfileService.getCustomerProfiles(hardcodedCustomerId).subscribe({
       next: (profiles) => {
         this.customerProfiles = profiles;
-        if (this.customerProfiles.length > 0) {
-          this.reservationForm.patchValue({ customerProfileId: this.customerProfiles[0].id });
+
+        if (this.mode === ReservationCreateEditMode.edit && editId) {
+          this.loadExistingReservation(editId);
+        } else {
+          if (this.customerProfiles.length > 0) {
+            this.reservationForm.patchValue({customerProfileId: this.customerProfiles[0].id});
+          }
         }
       },
       error: (err) => {
         console.error('Failed to load customer profiles from backend', err);
         this.submitError = "RESERVATION.CUSTOMER_PROFILES_LOADING_FAILED";
+      }
+    });
+  }
+
+  /**
+   * Loads the existing reservation information and patches the form & equipment list.
+   */
+  private loadExistingReservation(id: number): void {
+    this.loading = true;
+
+    this.reservationService.getById(id).subscribe({
+      next: (data: any) => {
+        if (!data) {
+          this.submitError = 'RESERVATION.NOT_FOUND';
+          this.loading = false;
+          return;
+        }
+
+        let returnDateString = data.pickUpDate;
+        if (data.pickUpDate && data.rentDurationDays > 0) {
+          const d = new Date(data.pickUpDate);
+          d.setDate(d.getDate() + (data.rentDurationDays - 1));
+          returnDateString = d.toISOString().split('T')[0];
+        }
+
+        let formattedTime = data.pickUpTime || '09:00';
+        if (formattedTime.length > 5) {
+          formattedTime = formattedTime.substring(0, 5);
+        }
+
+        this.reservationForm.patchValue({
+          customerProfileId: data.customerProfileId,
+          pickUpDate: data.pickUpDate,
+          pickUpTime: formattedTime,
+          returnDate: returnDateString
+        });
+
+        this.selectedEquipment = data.equipment || data.equipments || data.equipmentList || [];
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Failed to load reservation details via getById', err);
+        this.submitError = 'RESERVATION.LOADING_FAILED';
+        this.loading = false;
       }
     });
   }
@@ -129,7 +202,10 @@ export class ReservationCreateComponent implements OnInit {
       next: (availableEquipment) => {
         const availableIds = availableEquipment.map(e => e.id);
 
-        const filteredList = this.selectedEquipment.filter(item => availableIds.includes(item.id));
+        const filteredList = this.selectedEquipment.filter(item => {
+          return availableIds.includes(item.id) || this.mode === ReservationCreateEditMode.edit; //Reservations in EditMode should not filter out themselves
+        });
+
 
         if (filteredList.length !== this.selectedEquipment.length) {
           this.selectedEquipment = filteredList;
@@ -283,6 +359,13 @@ export class ReservationCreateComponent implements OnInit {
   }
 
   /**
+   * Cancels the reservation.
+   */
+  cancel(): void {
+    this.router.navigate(['/customer/reservation']);
+  }
+
+  /**
    * Submits finished reservation to backend.
    */
   submitReservation(): void {
@@ -322,17 +405,34 @@ export class ReservationCreateComponent implements OnInit {
     //Service-Call
     this.submitLoading = true;
     this.submitError = undefined;
-    this.reservationService.create(reservationPayload).subscribe({
-      next: (response) => {
-        console.log('Reservation submitted successfully', response);
-        this.submitLoading = false;
-        this.router.navigate(['/customer/reservation']);
-      },
-      error: (err) => {
-        console.error('Error during submission of reservation', err);
-        this.submitLoading = false;
-        this.submitError = err.error?.message || 'An error occurred while creating the reservation.';
-      }
-    });
+
+    if(this.mode === ReservationCreateEditMode.create) {
+      this.reservationService.create(reservationPayload).subscribe({
+        next: (response) => {
+          console.log('Reservation submitted successfully', response);
+          this.submitLoading = false;
+          this.router.navigate(['/customer/reservation']);
+        },
+        error: (err) => {
+          console.error('Error during submission of reservation', err);
+          this.submitLoading = false;
+          this.submitError = err.error?.message || 'An error occurred while creating the reservation.';
+        }
+      });
+    }
+    else {
+      this.reservationService.update(this.reservationId!, reservationPayload).subscribe({
+        next: (response) => {
+          console.log('Reservation updated successfully', response);
+          this.submitLoading = false;
+          this.router.navigate(['/customer/reservation']);
+        },
+        error: (err) => {
+          console.error('Error during update of reservation', err);
+          this.submitLoading = false;
+          this.submitError = err.error?.message || 'An error occurred while updating the reservation.';
+        }
+      });
+    }
   }
 }

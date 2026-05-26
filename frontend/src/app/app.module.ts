@@ -26,7 +26,7 @@ import {
 } from "./components/customer/customer-profile/customer-profile-details/customer-profile-details.component";
 import {EquipmentViewComponent} from "./components/staff/inventory/equipment-view/equipment-view.component";
 
-import {ReservationCreateComponent} from "./components/customer/reservation/reservation-create/reservation-create.component";
+import {ReservationCreateEditComponent} from "./components/customer/reservation/reservation-create-edit/reservation-create-edit.component";
 
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 
@@ -62,7 +62,7 @@ export function HttpLoaderFactory(http: HttpClient): TranslateLoader {
     EquipmentCreateEditComponent,
     EquipmentViewComponent,
     ReservationComponent,
-    ReservationCreateComponent,
+    ReservationCreateEditComponent,
     BarcodeScannerComponent,
     CustomerComponent,
     CustomerInventoryComponent,

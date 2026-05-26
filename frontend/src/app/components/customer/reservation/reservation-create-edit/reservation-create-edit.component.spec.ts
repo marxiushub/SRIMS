@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import {ReactiveFormsModule, FormBuilder, FormsModule} from '@angular/forms';
 import { Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
-import { ReservationCreateComponent } from './reservation-create.component';
+import { ReservationCreateEditComponent } from './reservation-create-edit.component';
 import { ReservationService } from '../../../../services/reservation.service';
 import { EquipmentService } from '../../../../services/equipment.service';
 import { CustomerProfileService } from '../../../../services/customer-profile.service';
@@ -14,10 +14,11 @@ import { TranslateModule } from '@ngx-translate/core';
 
 //TODO: Add tests for triggering equipment validation after date change and for removing unavailable equipment
 // during background date validation
+//TODO: Also add tests for Edit-Mode
 
 describe('ReservationCreateComponent', () => {
-  let component: ReservationCreateComponent;
-  let fixture: ComponentFixture<ReservationCreateComponent>;
+  let component: ReservationCreateEditComponent;
+  let fixture: ComponentFixture<ReservationCreateEditComponent>;
 
   let reservationServiceMock: any;
   let equipmentServiceMock: any;
@@ -51,7 +52,7 @@ describe('ReservationCreateComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [
-        ReservationCreateComponent,
+        ReservationCreateEditComponent,
       ],
       imports: [
         ReactiveFormsModule,
@@ -67,7 +68,7 @@ describe('ReservationCreateComponent', () => {
       ]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ReservationCreateComponent);
+    fixture = TestBed.createComponent(ReservationCreateEditComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
