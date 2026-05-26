@@ -174,7 +174,7 @@ public class ReservationValidator {
     }
 
 
-    private void isEquipmentAvailable(Equipment equipment, LocalDate start, LocalDate end, List<String> validationErrors) {
+    public void isEquipmentAvailable(Equipment equipment, LocalDate start, LocalDate end, List<String> validationErrors) {
         List<TimePeriods> timePeriodsList = timeRepo.findByEquipment(equipment);
 
         for (TimePeriods time : timePeriodsList) {
