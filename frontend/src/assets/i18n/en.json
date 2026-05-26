@@ -190,9 +190,16 @@
     "CANCEL": "Cancel",
     "ERROR": "Profile could not be created.",
     "NAME_REQUIRED": "Profile name is required.",
+    "NAME_NOT_BLANK": "Profile name must not only contain spaces.",
     "HEIGHT_REQUIRED": "Height is required.",
+    "HEIGHT_MIN": "Height is too small.",
+    "HEIGHT_MAX": "Height is too large.",
     "SHOE_SIZE_REQUIRED": "Shoe size is required.",
-    "WEIGHT_REQUIRED": "Weight is required."
+    "SHOE_SIZE_MIN": "Shoe size is too small.",
+    "SHOE_SIZE_MAX": "Shoe size is too large.",
+    "WEIGHT_REQUIRED": "Weight is required.",
+    "WEIGHT_MIN": "Weight is too low.",
+    "WEIGHT_MAX": "Weight is too high."
   },
   "CUSTOMER_PROFILE_EDIT": {
     "TITLE": "Edit Profile",

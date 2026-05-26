@@ -3,6 +3,7 @@ import {CustomerProfileService} from "../../../../services/customer-profile.serv
 import {CustomerProfileCreationUpdate} from "../../../../dtos/customer-profile-creation-update";
 import {SkillLevel} from "../../../../dtos/skilllevel";
 import {ActivatedRoute, Router} from "@angular/router";
+import {NgForm, NgModel} from "@angular/forms";
 
 export enum ProfileCreateEditMode {
   create,
@@ -23,13 +24,14 @@ export class CustomerProfileCreateEditComponent {
   loading = false;
   loadError = false;
   error = false;
+  submitted = false;
 
   profile: CustomerProfileCreationUpdate = {
-    height: 0,
+    height: 50,
     profileName: '',
-    shoeSize: 0,
+    shoeSize: 25,
     skillLevel: SkillLevel.BEGINNER,
-    weight: 0,
+    weight: 20,
     customerId: 1, //Customer ID hardcoded to 1 until accounts are implemented
   };
 
@@ -76,10 +78,18 @@ export class CustomerProfileCreateEditComponent {
     });
   }
 
-  onSubmit(): void {
+  onSubmit(form?: NgForm): void {
+    this.submitted = true;
     this.loading = true;
     this.loadError = false;
     this.error = false;
+
+    if (form) {
+      form.control.markAllAsTouched();
+      if (form.invalid) {
+        return;
+      }
+    }
 
     const request: CustomerProfileCreationUpdate = {
       height: this.profile.height,
@@ -119,5 +129,13 @@ export class CustomerProfileCreateEditComponent {
 
   cancel(): void {
     this.router.navigate(['/customer/profiles']);
+  }
+
+  isInvalid(control: NgModel | null | undefined): boolean {
+    return !!control && control.invalid === true && (control.touched || this.submitted);
+  }
+
+  hasError(control: NgModel | null | undefined, errorName: string): boolean {
+    return !!control && control.hasError(errorName) && (control.touched || this.submitted);
   }
 }
