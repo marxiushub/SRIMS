@@ -236,11 +236,12 @@ public class EquipmentServiceImpl implements EquipmentService {
         }
 
 
-        LocalDate start = searchDto.getStart();
-        LocalDate end = searchDto.getEnd();
         List<Equipment> found = equipmentRepository.findAll(spec);
 
-        if (start != null && end != null) {
+        if (searchDto.getStart() != null && searchDto.getEnd() != null) {
+
+            LocalDate start = searchDto.getStart();
+            LocalDate end = searchDto.getEnd();
             found = found.stream()
                 .filter(equipment ->
                     equipment.getTimePeriodsList().stream()
