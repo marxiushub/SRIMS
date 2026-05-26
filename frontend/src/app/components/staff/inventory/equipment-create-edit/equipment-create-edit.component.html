@@ -21,7 +21,7 @@
         </div>
       }
 
-      <form #form="ngForm" (ngSubmit)="onSubmit()">
+      <form #form="ngForm" (ngSubmit)="onSubmit(form)">
 
         <div class="row">
           <div class="mb-2 col-lg-6">
@@ -60,12 +60,21 @@
                   name="equipmentModel"
                   type="text"
                   class="form-control"
+                  [class.is-invalid]="isInvalid(equipmentModel)"
                   [(ngModel)]="equipment.model"
                   #equipmentModel="ngModel"
-                  required>
-                <div class="invalid-feedback">
-                  {{ 'EQUIPMENT_CREATE.MODEL_REQUIRED' | translate }}
-                </div>
+                  required
+                  pattern=".*\S.*">
+                @if (hasError(equipmentModel, 'required')) {
+                  <div class="invalid-feedback">
+                    {{ 'EQUIPMENT_CREATE.MODEL_REQUIRED' | translate }}
+                  </div>
+                }
+                @if (hasError(equipmentModel, 'pattern')) {
+                  <div class="invalid-feedback d-block">
+                    {{ 'EQUIPMENT_CREATE.MODEL_NOT_BLANK' | translate }}
+                  </div>
+                }
               </div>
             </div>
           </div>
@@ -130,6 +139,7 @@
                     name="equipmentPrice"
                     type="number"
                     class="form-control"
+                    [class.is-invalid]="isInvalid(equipmentPrice)"
                     min="0.01"
                     step="0.01"
                     [(ngModel)]="equipment.price"
@@ -137,9 +147,18 @@
                     required>
                   <span class="input-group-text">€</span>
                 </div>
-                <div class="invalid-feedback">
-                  {{ 'EQUIPMENT_CREATE.PRICE_REQUIRED' | translate }}
-                </div>
+
+                @if (hasError(equipmentPrice, 'required')) {
+                  <div class="invalid-feedback d-block">
+                    {{ 'EQUIPMENT_CREATE.PRICE_REQUIRED' | translate }}
+                  </div>
+                }
+
+                @if (hasError(equipmentPrice, 'min')) {
+                  <div class="invalid-feedback d-block">
+                    {{ 'EQUIPMENT_CREATE.PRICE_MIN' | translate }}
+                  </div>
+                }
               </div>
             </div>
           </div>
@@ -156,15 +175,31 @@
                     name="equipmentLength"
                     type="number"
                     class="form-control"
+                    [class.is-invalid]="isInvalid(equipmentLength)"
                     [min]="getMinLength()"
                     [max]="getMaxLength()"
                     step="1"
                     [(ngModel)]="equipment.length"
                     #equipmentLength="ngModel"
                     required>
-                  <div class="invalid-feedback">
-                    {{ 'EQUIPMENT_CREATE.LENGTH_REQUIRED' | translate }}
-                  </div>
+
+                  @if (hasError(equipmentLength, 'required')) {
+                    <div class="invalid-feedback">
+                      {{ 'EQUIPMENT_CREATE.LENGTH_REQUIRED' | translate }}
+                    </div>
+                  }
+
+                  @if (hasError(equipmentLength, 'min')) {
+                    <div class="invalid-feedback d-block">
+                      {{ 'EQUIPMENT_CREATE.LENGTH_MIN' | translate }}
+                    </div>
+                  }
+
+                  @if (hasError(equipmentLength, 'max')) {
+                    <div class="invalid-feedback d-block">
+                      {{ 'EQUIPMENT_CREATE.LENGTH_MAX' | translate }}
+                    </div>
+                  }
                 </div>
               </div>
             </div>
@@ -182,15 +217,31 @@
                     name="equipmentSize"
                     type="number"
                     class="form-control"
+                    [class.is-invalid]="isInvalid(equipmentSize)"
                     min="48"
                     max="66"
                     step="1"
                     [(ngModel)]="equipment.size"
                     #equipmentSize="ngModel"
                     required>
-                  <div class="invalid-feedback">
-                    {{ 'EQUIPMENT_CREATE.SIZE_REQUIRED' | translate }}
-                  </div>
+
+                  @if (hasError(equipmentSize, 'required')) {
+                    <div class="invalid-feedback">
+                      {{ 'EQUIPMENT_CREATE.SIZE_REQUIRED' | translate }}
+                    </div>
+                  }
+
+                  @if (hasError(equipmentSize, 'min')) {
+                    <div class="invalid-feedback d-block">
+                      {{ 'EQUIPMENT_CREATE.SIZE_MIN' | translate }}
+                    </div>
+                  }
+
+                  @if (hasError(equipmentSize, 'max')) {
+                    <div class="invalid-feedback d-block">
+                      {{ 'EQUIPMENT_CREATE.SIZE_MAX' | translate }}
+                    </div>
+                  }
                 </div>
               </div>
             </div>
@@ -208,14 +259,30 @@
                     name="equipmentSoleLength"
                     type="number"
                     class="form-control"
+                    [class.is-invalid]="isInvalid(equipmentSoleLength)"
                     min="140"
                     max="350"
                     [(ngModel)]="equipment.soleLengthMm"
                     #equipmentSoleLength="ngModel"
                     required>
-                  <div class="invalid-feedback">
-                    {{ 'EQUIPMENT_CREATE.SOLE_LENGTH_REQUIRED' | translate }}
-                  </div>
+
+                  @if (hasError(equipmentSoleLength, 'required')) {
+                    <div class="invalid-feedback">
+                      {{ 'EQUIPMENT_CREATE.SOLE_LENGTH_REQUIRED' | translate }}
+                    </div>
+                  }
+
+                  @if (hasError(equipmentSoleLength, 'min')) {
+                    <div class="invalid-feedback d-block">
+                      {{ 'EQUIPMENT_CREATE.SOLE_LENGTH_MIN' | translate }}
+                    </div>
+                  }
+
+                  @if (hasError(equipmentSoleLength, 'max')) {
+                    <div class="invalid-feedback d-block">
+                      {{ 'EQUIPMENT_CREATE.SOLE_LENGTH_MAX' | translate }}
+                    </div>
+                  }
                 </div>
               </div>
             </div>
@@ -254,13 +321,24 @@
                       name="equipmentCreationNumber"
                       type="number"
                       class="form-control"
+                      [class.is-invalid]="isInvalid(equipmentCreationNumber)"
                       min="1"
                       [(ngModel)]="equipment.creationNumber"
+                      #equipmentCreationNumber="ngModel"
                       required>
                   </div>
-                  <div class="invalid-feedback">
-                    {{ 'EQUIPMENT_CREATE.QUANTITY_REQUIRED' | translate }}
-                  </div>
+
+                  @if (hasError(equipmentCreationNumber, 'required')) {
+                    <div class="invalid-feedback d-block">
+                      {{ 'EQUIPMENT_CREATE.QUANTITY_REQUIRED' | translate }}
+                    </div>
+                  }
+
+                  @if (hasError(equipmentCreationNumber, 'min')) {
+                    <div class="invalid-feedback d-block">
+                      {{ 'EQUIPMENT_CREATE.QUANTITY_MIN' | translate }}
+                    </div>
+                  }
                 </div>
               </div>
             </div>
@@ -270,7 +348,7 @@
         <div class="mt-4 d-flex flex-row gap-2">
           <button
             class="btn btn-primary"
-            [disabled]="!form.valid || loading"
+            [disabled]="loading"
             type="submit">
             @if (loading) {
               @if (mode === EquipmentCreateEditMode.create) {
