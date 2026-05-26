@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.detail.EquipmentDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationAddDeleteEquipmentDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationDetailDto;
@@ -15,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -124,6 +126,19 @@ public class ReservationEndpoint {
     public List<ReservationDetailDto> searchReservations(ReservationSearchDto searchDto) {
         LOGGER.info("GET /api/v1/reservation - Search parameters: {}", searchDto);
         return service.searchReservations(searchDto);
+    }
+
+    /**
+     * Endpoint to retrieve a specific reservation by its unique id.
+     *
+     * @param id the unique id of the reservation to be retrieved
+     * @return an {@link ReservationDetailDto} representing the reservation information for the specified id
+     */
+    @PermitAll
+    @GetMapping("/{id}")
+    public ReservationDetailDto getReservationById(@PathVariable("id") Long id) {
+        LOGGER.info("GET /api/v1/reservation/{}", id);
+        return service.reservationById(id);
     }
 
 }
