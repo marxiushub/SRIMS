@@ -6,6 +6,7 @@ import {RentalStatus} from "../../../../dtos/rentalstatus";
 import {SkillLevel} from "../../../../dtos/skilllevel";
 import {EquipmentService} from "../../../../services/equipment.service";
 import {ActivatedRoute, Router} from "@angular/router";
+import {NgForm, NgModel} from "@angular/forms";
 
 export enum EquipmentCreateEditMode {
   create,
@@ -62,6 +63,7 @@ export class EquipmentCreateEditComponent implements OnInit {
 
   loading = false;
   error = false;
+  submitted = false;
 
   constructor(private equipmentService: EquipmentService, private router: Router, private route: ActivatedRoute) {
   }
@@ -104,9 +106,18 @@ export class EquipmentCreateEditComponent implements OnInit {
     });
   }
 
-  onSubmit(): void {
-    this.loading = true;
+  onSubmit(form?: NgForm): void {
+    this.submitted = true;
     this.error = false;
+
+    if (form) {
+      form.control.markAllAsTouched();
+      if (form.invalid) {
+        return;
+      }
+    }
+
+    this.loading = true;
 
     if (this.mode === EquipmentCreateEditMode.create) {
       const request: EquipmentCreation = this.buildCreateRequest();
@@ -154,7 +165,7 @@ export class EquipmentCreateEditComponent implements OnInit {
   private buildCreateRequest(): EquipmentCreation {
     const request: EquipmentCreation = {
       type: this.equipment.type,
-      model: this.equipment.model,
+      model: this.equipment.model?.trim(),
       status: this.equipment.status,
       targetSkillLevel: this.equipment.targetSkillLevel,
       price: this.equipment.price,
@@ -183,7 +194,7 @@ export class EquipmentCreateEditComponent implements OnInit {
   private buildUpdateRequest(): EquipmentUpdate {
     return {
       type: this.equipment.type,
-      model: this.equipment.model,
+      model: this.equipment.model?.trim(),
       status: this.equipment.status,
       targetSkillLevel: this.equipment.targetSkillLevel,
       price: this.equipment.price,
@@ -236,4 +247,16 @@ export class EquipmentCreateEditComponent implements OnInit {
         return 999;
     }
   }
+
+  //Mark field as invalid
+  isInvalid(control: NgModel | null | undefined): boolean {
+    return !!control && control.invalid === true && (control.touched || this.submitted);
+  }
+
+  //Show correct error
+  hasError(control: NgModel | null | undefined, errorName: string): boolean {
+    return !!control && control.hasError(errorName) && (control.touched || this.submitted);
+  }
+
+
 }
