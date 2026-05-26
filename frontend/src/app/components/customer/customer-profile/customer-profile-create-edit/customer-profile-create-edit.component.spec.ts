@@ -1,5 +1,5 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
-import {FormsModule} from "@angular/forms";
+import {FormsModule, NgForm} from "@angular/forms";
 import {TranslateModule} from "@ngx-translate/core";
 import {of, throwError} from "rxjs";
 import {ActivatedRoute, convertToParamMap, Router} from "@angular/router";
@@ -141,5 +141,23 @@ describe('CustomerProfileCreateEditComponent', () => {
     expect(component.error).toBeTrue();
     expect(component.loading).toBeFalse();
     expect(routerMock.navigate).not.toHaveBeenCalled();
+  });
+
+  it('should not call service if form is invalid', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const mockForm = {
+      invalid: true,
+      control: {
+        markAllAsTouched: jasmine.createSpy('markAllAsTouched')
+      }
+    } as unknown as NgForm;
+
+    component.onSubmit(mockForm);
+
+    expect(customerProfileServiceMock.create).not.toHaveBeenCalled();
+    expect(customerProfileServiceMock.update).not.toHaveBeenCalled();
+    expect(component.submitted).toBeTrue();
   });
 });

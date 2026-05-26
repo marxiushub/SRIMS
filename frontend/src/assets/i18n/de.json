@@ -190,9 +190,16 @@
     "CANCEL": "Abbrechen",
     "ERROR": "Profil konnte nicht erstellt werden.",
     "NAME_REQUIRED": "Profilname ist erforderlich.",
+    "NAME_NOT_BLANK": "Der Profilname darf nicht nur aus Leerzeichen bestehen.",
     "HEIGHT_REQUIRED": "Körpergröße ist erforderlich.",
+    "HEIGHT_MIN": "Die Körpergröße ist zu klein.",
+    "HEIGHT_MAX": "Die Körpergröße ist zu groß.",
     "SHOE_SIZE_REQUIRED": "Schuhgröße ist erforderlich.",
-    "WEIGHT_REQUIRED": "Gewicht ist erforderlich."
+    "SHOE_SIZE_MIN": "Die Schuhgröße ist zu klein.",
+    "SHOE_SIZE_MAX": "Die Schuhgröße ist zu groß.",
+    "WEIGHT_REQUIRED": "Gewicht ist erforderlich.",
+    "WEIGHT_MIN": "Das Gewicht ist zu gering.",
+    "WEIGHT_MAX": "Das Gewicht ist zu hoch."
   },
   "CUSTOMER_PROFILE_EDIT": {
     "TITLE": "Profil bearbeiten",
