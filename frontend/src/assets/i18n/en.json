@@ -9,6 +9,8 @@
     "RELOAD": "Reload",
     "ADD_EQUIPMENT": "Add Equipment",
     "LOADING": "Loading equipment...",
+    "LOADING_ERROR": "Equipment details could not be loaded",
+    "DETAILS": "Detail View",
     "NO_EQUIPMENT": "No equipment found.",
     "EQUIPMENT_MODEL": "Model",
     "EQUIPMENT_PRICE": "Price/Day",
@@ -16,6 +18,7 @@
     "EQUIPMENT_SKILL": "Skill Level",
     "EQUIPMENT_TYP": "Type",
     "EQUIPMENT_ACTIONS": "Actions",
+    "EQUIPMENT_BARCODE_ID": "Barcode ID",
     "DELETE": "Delete",
     "DELETE_TITLE": "Delete Equipment",
     "DELETE_CONFIRMATION": "Are you sure you want to delete this equipment?",
@@ -27,7 +30,13 @@
     "EQUIPMENT_ALL": "All",
     "CLEAR": "Clear",
     "LOWEST_FIRST": "Lowest first",
-    "HIGHEST_FIRST": "Highest first"
+    "HIGHEST_FIRST": "Highest first",
+    "ROWS_PER_PAGE": "Rows per page",
+    "OF": "of",
+    "RESERVATIONS_TITLE": "Upcoming Reservations",
+    "RESERVATIONS_LOADING": "Loading reservations...",
+    "RESERVATIONS_ERROR": "Error loading reservations for this equipment.",
+    "NO_RESERVATIONS": "There are currently no reservations for this equipment."
   },
   "RENTAL_STATUS": {
     "FREE": "Available",
@@ -58,7 +67,7 @@
     "LENGTH": "Length (cm)",
     "SIZE": "Size (cm)",
     "SOLE_LENGTH_MM": "Sole length (mm)",
-    "LANCING_SYSTEM": "Lacing system",
+    "LACING_SYSTEM": "Lacing system",
     "SAVE": "Save",
     "CANCEL": "Cancel",
     "ERROR": "Equipment could not be created.",
@@ -66,11 +75,137 @@
     "PRICE_REQUIRED": "Price is required.",
     "LENGTH_REQUIRED": "Length is required.",
     "SIZE_REQUIRED": "Size is required.",
-    "SOLE_LENGTH_REQUIRED": "Sole length is required."
+    "SOLE_LENGTH_REQUIRED": "Sole length is required.",
+    "QUANTITY": "Quantity",
+    "QUANTITY_REQUIRED": "Quantity is required."
   },
   "EQUIPMENT_EDIT": {
     "TITLE": "Edit",
     "SAVE": "Update",
     "ERROR": "Equipment could not be updated."
+  },
+  "STAFF": {
+    "DASHBOARD_TITLE": "Staff Dashboard",
+    "DASHBOARD_SUBTITLE": "Management & Rental Infrastructure",
+    "COMING_SOON": "Coming soon",
+    "INVENTORY": {
+      "TITLE": "Inventory & Equipment",
+      "DESC": "Create, edit or view skis, snowboards, etc."
+    },
+    "RESERVATIONS": {
+      "TITLE": "Reservations",
+      "DESC": "View and manage current and upcoming bookings."
+    },
+    "BARCODE": {
+      "TITLE": "Barcode Scanner",
+      "DESC": "Check-out or check-in equipment contactlessly."
+    },
+    "STATISTICS": {
+      "TITLE": "Statistics & Analytics",
+      "DESC": "Analyze utilization and popular rental items."
+    },
+    "OVERVIEW": {
+      "TITLE": "Graphical Overview",
+      "DESC": "Visual representation of the entire inventory status."
+    }
+  },
+  "BARCODE_SCANNER": {
+    "TITLE": "Prototype Barcode Scanner",
+    "MODE_LABEL": "Select Scanner Mode:",
+    "MODE_RENTAL": "Mode 1: Rental / Return (FREE ↔ RENTED)",
+    "MODE_MAINTENANCE": "Mode 2: Send to Repair (FREE ↔ MAINTENANCE)",
+    "INPUT_PLACEHOLDER": "Scan or enter barcode...",
+    "BTN_CHECK": "Check Barcode",
+    "ERROR_EMPTY": "Please enter a barcode ID.",
+    "ERROR_NOT_FOUND": "Equipment with barcode ID \"{{value}}\" was not found.",
+    "ERROR_UNEXPECTED": "An unexpected error occurred.",
+    "ERROR_ACTION_NOT_ALLOWED": "Action not allowed in this mode. Item is currently in status {{status}}.",
+    "FOUND_TITLE": "Equipment Found!",
+    "MODEL": "Model",
+    "TYPE": "Type",
+    "STATUS": "Current Status",
+    "ACTION_PREVIEW": "Action: Status will change to",
+    "BTN_CONFIRM": "Confirm Scan & Change Status",
+    "SUCCESS_CHANGE": "Status successfully changed to {{status}}!",
+    "DEMO_TITLE": "⚠️ Temporary for Demonstration Purposes",
+    "DEMO_CLICK_HINT": "Click on an item to load its barcode directly into the scanner:"
+  },
+  "RESERVATION": {
+    "CUSTOMER": "Customer (Account)",
+    "PICKUP_DATE": "Pickup Date",
+    "PICKUP_TIME": "Pickup Time",
+    "RETURN_DATE": "Return Date",
+    "DURATION": "Duration",
+    "DAYS": "Day(s)"
+  },
+  "CUSTOMER": {
+    "DASHBOARD_TITLE": "Customer Portal",
+    "DASHBOARD_SUBTITLE": "Welcome to the SRIMS rental system. Please select an option:",
+    "RESERVATIONS": {
+      "TITLE": "My Reservations",
+      "DESC": "View your current bookings or reserve new equipment"
+    },
+    "PROFILES": {
+      "TITLE": "Manage Profiles",
+      "DESC": "Create and edit profiles for yourself and family members"
+    },
+    "INVENTORY": {
+      "TITLE": "Browse Equipment",
+      "DESC": "Check out available skis, snowboards, helmets, and boots in our catalog"
+    }
+  },
+  "CUSTOMER_PROFILE": {
+    "TITLE": "Profiles",
+    "HEIGHT": "Height",
+    "NAME": "Profile Name",
+    "SHOE_SIZE": "Shoe size",
+    "SKILL_LEVEL": "Skill level",
+    "WEIGHT": "Weight",
+    "ADD_PROFILE": "Add Profile",
+    "LOADING": "Loading profiles...",
+    "LOADING_ERROR": "Profile details could not be loaded.",
+    "RELOAD": "Reload",
+    "NO_PROFILES": "No profiles found.",
+    "PROFILE_ACTIONS": "Actions",
+    "DELETE": "Delete",
+    "DETAILS": "Details"
+  },
+  "CUSTOMER_PROFILE_CREATE": {
+    "TITLE": "Add Profile",
+    "HEIGHT": "Body Height (cm)",
+    "NAME": "Profile Name",
+    "SHOE_SIZE": "Shoe size",
+    "SKILL_LEVEL": "Skill level",
+    "WEIGHT": "Weight (kg)",
+    "SAVE": "Save",
+    "CANCEL": "Cancel",
+    "ERROR": "Profile could not be created.",
+    "NAME_REQUIRED": "Profile name is required.",
+    "HEIGHT_REQUIRED": "Height is required.",
+    "SHOE_SIZE_REQUIRED": "Shoe size is required.",
+    "WEIGHT_REQUIRED": "Weight is required."
+  },
+  "CUSTOMER_PROFILE_EDIT": {
+    "TITLE": "Edit Profile",
+    "SAVE": "Update",
+    "ERROR": "Profile could not be updated."
+  },
+  "CUSTOMER_PROFILE_DELETE": {
+    "TITLE": "Delete Profile",
+    "CONFIRMATION": "Are you sure you want to delete this profile?",
+    "CANCEL": "Cancel",
+    "CONFIRM": "Delete",
+    "ERROR": "Profile could not be deleted."
+  },
+  "CUSTOMER_PROFILE_DETAILS": {
+    "TITLE": "Profile Details",
+    "NAME": "Profile Name",
+    "HEIGHT": "Height (cm)",
+    "WEIGHT": "Weight (kg)",
+    "SHOE_SIZE": "Shoe size",
+    "SKILL_LEVEL": "Skill level",
+    "BACK": "Back to Profiles",
+    "EDIT": "Edit",
+    "DELETE": "Delete"
   }
 }

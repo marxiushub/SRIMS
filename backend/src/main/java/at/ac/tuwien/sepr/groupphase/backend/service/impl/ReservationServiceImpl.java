@@ -23,6 +23,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerProfileRepos
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -205,9 +206,61 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
         return reservationMapper.entityToDetailDto(saved);
     }
 
+    @Transactional
     @Override
     public List<ReservationDetailDto> searchReservations(ReservationSearchDto searchDto) {
-        return List.of();
+        if (searchDto == null) {
+            searchDto = new ReservationSearchDto();
+        }
+
+        final ReservationSearchDto finalSearchDto = searchDto;
+
+        Specification<Reservation> spec = (root, query, cb) -> cb.conjunction();
+
+        if (finalSearchDto.getCustomerProfileId() != null) {
+            spec = spec.and((root, query, cb) ->
+                cb.equal(root.get("customerProfile").get("id"), finalSearchDto.getCustomerProfileId())
+            );
+        }
+
+        if (finalSearchDto.getAccountId() != null) {
+            spec = spec.and((root, query, cb) ->
+                cb.equal(root.get("customerProfile").get("customer").get("id"), finalSearchDto.getAccountId())
+            );
+        }
+
+        if (finalSearchDto.getPickUpDate() != null) {
+            spec = spec.and((root, query, cb) ->
+                cb.equal(root.get("pickUpDate"), finalSearchDto.getPickUpDate())
+            );
+        }
+
+        if (finalSearchDto.getPickUpTime() != null) {
+            spec = spec.and((root, query, cb) ->
+                cb.equal(root.get("pickUpTime"), finalSearchDto.getPickUpTime())
+            );
+        }
+
+        if (finalSearchDto.getTimePeriod() != null) {
+            spec = spec.and((root, query, cb) ->
+                cb.equal(root.get("timePeriod"), finalSearchDto.getTimePeriod())
+            );
+        }
+
+        if (finalSearchDto.getEquipmentIds() != null && !finalSearchDto.getEquipmentIds().isEmpty()) {
+            spec = spec.and((root, query, cb) -> {
+                query.distinct(true);
+
+                return root.join("items").join("equipment").get("id")
+                    .in(finalSearchDto.getEquipmentIds());
+            });
+        }
+
+        List<Reservation> foundReservations = reservationRepository.findAll(spec);
+
+        return foundReservations.stream()
+            .map(reservationMapper::entityToDetailDto)
+            .toList();
     }
 
     @Override

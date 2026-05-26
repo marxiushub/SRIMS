@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.detail.Equ
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationAddDeleteEquipmentDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.PeriodType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
@@ -375,6 +376,64 @@ public class ReservationServiceTest {
 
         NotFoundException exception = assertThrows(NotFoundException.class, () ->
             reservationService.removeEquipmentFromReservation(removeDto)
+        );
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void searchReservations_withMatchingCriteria_returnsFilteredList() {
+        ReservationCreationDto createDto = new ReservationCreationDto();
+        createDto.setCustomerProfileId(testCustomerProfile.getId());
+        createDto.setEquipmentIds(List.of(testEquipment.getId()));
+        LocalDate searchDate = LocalDate.now().plusDays(15);
+        createDto.setPickUpDate(searchDate);
+        createDto.setPickUpTime(LocalTime.of(10, 0));
+        createDto.setRentDurationDays(3);
+
+        ReservationDetailDto created = reservationService.createReservation(createDto);
+
+        ReservationSearchDto searchDto = new ReservationSearchDto();
+        searchDto.setCustomerProfileId(testCustomerProfile.getId());
+        searchDto.setPickUpDate(searchDate);
+        searchDto.setEquipmentIds(List.of(testEquipment.getId()));
+
+        List<ReservationDetailDto> result = reservationService.searchReservations(searchDto);
+
+        assertAll(
+            "Verify that the search returns the correct reservation",
+            () -> assertThat(result).isNotNull(),
+            () -> assertThat(result).isNotEmpty(),
+            () -> assertThat(result.stream().anyMatch(res -> res.getId().equals(created.getId()))).isTrue(),
+            () -> assertThat(result.get(0).getCustomerName()).isEqualTo("Max Mustermann"),
+            () -> assertThat(result.get(0).getItems().stream()
+                .anyMatch(item -> item.getId().equals(testEquipment.getId()))).isTrue()
+        );
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void searchReservations_withNoMatchingCriteria_returnsEmptyList() {
+        ReservationCreationDto createDto = new ReservationCreationDto();
+        createDto.setCustomerProfileId(testCustomerProfile.getId());
+        createDto.setEquipmentIds(List.of(testEquipment.getId()));
+        createDto.setPickUpDate(LocalDate.now().plusDays(5));
+        createDto.setPickUpTime(LocalTime.of(10, 0));
+        createDto.setRentDurationDays(3);
+
+        reservationService.createReservation(createDto);
+
+        ReservationSearchDto searchDto = new ReservationSearchDto();
+        searchDto.setCustomerProfileId(99999L);
+        searchDto.setPickUpDate(LocalDate.of(2099, 1, 1));
+
+        List<ReservationDetailDto> result = reservationService.searchReservations(searchDto);
+
+        assertAll(
+            "Verify that searching with wrong criteria returns an empty list",
+            () -> assertThat(result).isNotNull(),
+            () -> assertThat(result).isEmpty()
         );
     }
 

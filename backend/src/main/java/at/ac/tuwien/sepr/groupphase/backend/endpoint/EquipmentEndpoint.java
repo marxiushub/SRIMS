@@ -81,6 +81,19 @@ public class EquipmentEndpoint {
     }
 
     /**
+     * Endpoint to retrieve a specific piece of equipment by its unique barcodeId. This endpoint is accessible to all users without authentication.
+     *
+     * @param barcodeId the unique barcodeId of the equipment to be retrieved
+     * @return an {@link EquipmentDetailDto} representing the equipment information for the specified barcodeId
+     */
+    @PermitAll
+    @GetMapping("/barcode/{barcodeId}")
+    public EquipmentDetailDto getEquipmentById(@PathVariable("barcodeId") String barcodeId) {
+        LOGGER.info("GET /api/v1/equipment/barcode/{}", barcodeId);
+        return equipmentService.equipmentByBarcodeId(barcodeId);
+    }
+
+    /**
      * Deletes a specific piece of equipment by its unique ID.
      *
      * @param id the unique ID of the equipment to be deleted

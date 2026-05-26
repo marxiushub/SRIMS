@@ -30,10 +30,11 @@ export class EquipmentCreateEditComponent implements OnInit {
     status: RentalStatus.FREE,
     targetSkillLevel: SkillLevel.BEGINNER,
     price: 0,
+    creationNumber: 1,
     length: undefined,
     size: undefined,
     soleLengthMm: undefined,
-    lancingSystem: ''
+    lacingSystem: ''
   };
 
   equipmentTypes = [
@@ -85,11 +86,12 @@ export class EquipmentCreateEditComponent implements OnInit {
           status: data.status,
           targetSkillLevel: data.targetSkillLevel,
           price: data.price,
+          creationNumber: 1,
 
           length: data.length,
           size: data.size,
           soleLengthMm: data.soleLengthMm,
-          lancingSystem: data.lancingSystem
+          lacingSystem: data.lacingSystem
         };
 
         this.loading = false;
@@ -142,7 +144,7 @@ export class EquipmentCreateEditComponent implements OnInit {
     this.equipment.length = undefined;
     this.equipment.size = undefined;
     this.equipment.soleLengthMm = undefined;
-    this.equipment.lancingSystem = '';
+    this.equipment.lacingSystem = '';
   }
 
   cancel(): void {
@@ -156,10 +158,11 @@ export class EquipmentCreateEditComponent implements OnInit {
       status: this.equipment.status,
       targetSkillLevel: this.equipment.targetSkillLevel,
       price: this.equipment.price,
+      creationNumber: this.equipment.creationNumber,
     };
 
-    if (this.equipment.type === EquipmentType.SKI || this.equipment.type === EquipmentType.POLE || this.equipment.type === EquipmentType.SNOWBOARD){
-      request.length =  this.equipment.length;
+    if (this.equipment.type === EquipmentType.SKI || this.equipment.type === EquipmentType.POLE || this.equipment.type === EquipmentType.SNOWBOARD) {
+      request.length = this.equipment.length;
     }
 
     if (this.equipment.type === EquipmentType.HELMET) {
@@ -171,7 +174,7 @@ export class EquipmentCreateEditComponent implements OnInit {
     }
 
     if (this.equipment.type === EquipmentType.SNOWBOARDBOOT) {
-      request.lancingSystem = this.equipment.lancingSystem;
+      request.lacingSystem = this.equipment.lacingSystem;
     }
 
     return request;
@@ -202,9 +205,9 @@ export class EquipmentCreateEditComponent implements OnInit {
           ? (this.equipment.soleLengthMm ?? null)
           : null,
 
-      lancingSystem:
+      lacingSystem:
         this.equipment.type === EquipmentType.SNOWBOARDBOOT
-          ? (this.equipment.lancingSystem?.trim() || null)
+          ? (this.equipment.lacingSystem?.trim() || null)
           : null
     }
   }

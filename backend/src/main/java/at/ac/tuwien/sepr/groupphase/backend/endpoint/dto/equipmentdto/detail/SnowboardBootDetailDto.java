@@ -5,13 +5,13 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.detail;
  * Extends the base {@link EquipmentDetailDto} to include specific attributes related to snowboard boots.
  */
 public class SnowboardBootDetailDto extends EquipmentDetailDto {
-    private String lancingSystem;
+    private String lacingSystem;
 
-    public String getLancingSystem() {
-        return lancingSystem;
+    public String getLacingSystem() {
+        return lacingSystem;
     }
 
-    public void setLancingSystem(String lancingSystem) {
-        this.lancingSystem = lancingSystem;
+    public void setLacingSystem(String lacingSystem) {
+        this.lacingSystem = lacingSystem;
     }
 }

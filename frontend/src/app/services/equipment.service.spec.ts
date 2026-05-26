@@ -7,6 +7,7 @@ import { RentalStatus } from '../dtos/rentalstatus';
 import { SkillLevel } from '../dtos/skilllevel';
 import {EquipmentType} from "../dtos/equipmenttype";
 
+//TODO: Update these tests to also test new functionalities of equipment.service.ts
 describe('EquipmentService', () => {
   let service: EquipmentService;
   let httpMock: HttpTestingController;

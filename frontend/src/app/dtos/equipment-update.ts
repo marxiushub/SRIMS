@@ -12,5 +12,5 @@ export interface EquipmentUpdate {
   length: number | null;
   size: number | null;
   soleLengthMm: number | null;
-  lancingSystem: string | null;
+  lacingSystem: string | null;
 }
