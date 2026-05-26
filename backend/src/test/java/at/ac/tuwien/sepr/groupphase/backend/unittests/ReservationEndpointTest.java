@@ -144,7 +144,7 @@ public class ReservationEndpointTest {
         );
 
         try {
-            MvcResult result = mockMvc.perform(patch("/api/v1/reservation")
+            MvcResult result = mockMvc.perform(patch("/api/v1/reservation/{id}", created.getId())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(patchJson))
                 .andReturn();
@@ -275,6 +275,8 @@ public class ReservationEndpointTest {
     @Transactional
     @Rollback
     public void updateReservation_withUnknownReservationId_returns400() {
+        long unknownId = 99999L;
+
         String patchJson = """
             {
               "id": 99999,
@@ -285,13 +287,14 @@ public class ReservationEndpointTest {
               "rentDurationDays": 5
             }
             """.formatted(
+            unknownId,
             testProfile.getId(),
             testEquipment1.getId(),
             LocalDate.now().plusDays(2).toString()
         );
 
         try {
-            MvcResult result = mockMvc.perform(patch("/api/v1/reservation")
+            MvcResult result = mockMvc.perform(patch("/api/v1/reservation/{id}", unknownId)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(patchJson))
                 .andReturn();
