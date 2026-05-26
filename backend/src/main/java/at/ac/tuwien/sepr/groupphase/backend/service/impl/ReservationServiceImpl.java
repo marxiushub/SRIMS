@@ -97,7 +97,11 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
             LocalDate pickUpDate = dto.getPickUpDate();
             LocalDate dropOffDate = pickUpDate.plusDays(dto.getRentDurationDays() - 1);
 
-            //muss noch validiert werden
+            List<String> validationErrors = new ArrayList<>();
+            validator.isEquipmentAvailable(equipment, pickUpDate, dropOffDate, validationErrors);
+            if (!validationErrors.isEmpty()) {
+                throw new ValidationException("Validation failed for reservation creation", validationErrors);
+            }
             reservation.addItem(equipment);
 
             equipment.addTimePeriod(pickUpDate, dropOffDate, PeriodType.RENTED);
