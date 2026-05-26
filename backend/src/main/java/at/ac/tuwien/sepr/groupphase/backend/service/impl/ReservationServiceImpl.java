@@ -94,7 +94,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
                 .orElseThrow(() -> new NotFoundException("Equipment with ID " + equipmentId + " not found."));
 
             LocalDate pickUpDate = dto.getPickUpDate();
-            LocalDate dropOffDate = pickUpDate.plusDays(dto.getRentDurationDays());
+            LocalDate dropOffDate = pickUpDate.plusDays(dto.getRentDurationDays() - 1);
 
             //muss noch validiert werden
             reservation.addItem(equipment);
@@ -166,7 +166,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
         }
 
         LocalDate newStart = reservation.getPickUpDate();
-        LocalDate newEnd = newStart.plusDays(reservation.getRentDurationDays());
+        LocalDate newEnd = newStart.plusDays(reservation.getRentDurationDays() - 1);
 
         //update Customer
 

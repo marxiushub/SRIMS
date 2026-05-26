@@ -131,14 +131,12 @@
     "DEMO_CLICK_HINT": "Klicke auf ein Gerät, um dessen Barcode direkt in den Scanner zu laden:"
   },
   "RESERVATION": {
-    "CUSTOMER": "Kunde (Account)",
+    "CUSTOMER_NAME": "Kunde (Account)",
     "PICKUP_DATE": "Abholdatum",
     "PICKUP_TIME": "Abholzeit",
     "RETURN_DATE": "Rückgabedatum",
     "DURATION": "Dauer",
-    "DAYS": "Tag(e)"
-  },
-  "RESERVATION": {
+    "DAYS": "Tag(e)",
     "TITLE_CREATE": "Neue Reservierung erstellen",
     "SELECT_PROFILE": "Kundenprofil auswählen",
     "CHOOSE_PROFILE_PLACEHOLDER": "-- Bitte wählen Sie ein Profil --",

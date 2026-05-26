@@ -131,14 +131,12 @@
     "DEMO_CLICK_HINT": "Click on an item to load its barcode directly into the scanner:"
   },
   "RESERVATION": {
-    "CUSTOMER": "Customer (Account)",
+    "CUSTOMER_NAME": "Customer (Account)",
     "PICKUP_DATE": "Pickup Date",
     "PICKUP_TIME": "Pickup Time",
     "RETURN_DATE": "Return Date",
     "DURATION": "Duration",
-    "DAYS": "Day(s)"
-  },
-  "RESERVATION": {
+    "DAYS": "Day(s)",
     "TITLE_CREATE": "Create New Reservation",
     "SELECT_PROFILE": "Select Customer Profile",
     "CHOOSE_PROFILE_PLACEHOLDER": "-- Please choose a profile --",

@@ -95,6 +95,12 @@ export class EquipmentService {
     if (search.targetSkillLevel) {
       params = params.set('targetSkillLevel', search.targetSkillLevel);
     }
+    if (search.start) {
+      params = params.set('start', search.start);
+    }
+    if(search.end) {
+      params = params.set('end', search.end);
+    }
 
     return this.httpClient.get<Equipment[]>(this.equipmentBaseUri, {params});
   }

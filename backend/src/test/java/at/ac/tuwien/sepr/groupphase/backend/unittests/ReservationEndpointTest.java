@@ -140,7 +140,7 @@ public class ReservationEndpointTest {
             created.getId(),
             testProfile.getId(),
             testEquipment1.getId(),
-            LocalDate.now().plusDays(2).toString()
+            LocalDate.now().plusDays(10).toString()
         );
 
         try {

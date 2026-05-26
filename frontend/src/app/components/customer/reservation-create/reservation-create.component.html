@@ -87,22 +87,40 @@
     <div class="mb-4">
       <h5 class="mb-2 text-secondary">{{ 'RESERVATION.ADD_EQUIPMENT_PROMPT' | translate }}</h5>
       <div class="d-flex flex-wrap gap-2">
-        <button type="button" class="btn" [ngClass]="currentActiveType === EquipmentTypeEnum.HELMET ? 'btn-primary' : 'btn-outline-primary'" (click)="openEquipmentSelection('HELMET')">
+        <button type="button" class="btn"
+                [ngClass]="currentActiveType === EquipmentTypeEnum.HELMET ? 'btn-primary' : 'btn-outline-primary'"
+                [disabled]="!reservationForm.get('pickUpDate')?.value || !reservationForm.get('returnDate')?.value || isDateRangeInvalid"
+                (click)="openEquipmentSelection('HELMET')">
           + {{ 'RESERVATION.ADD_HELMET' | translate }}
         </button>
-        <button type="button" class="btn" [ngClass]="currentActiveType === EquipmentTypeEnum.POLE ? 'btn-primary' : 'btn-outline-primary'" (click)="openEquipmentSelection('POLE')">
+        <button type="button" class="btn"
+                [ngClass]="currentActiveType === EquipmentTypeEnum.POLE ? 'btn-primary' : 'btn-outline-primary'"
+                [disabled]="!reservationForm.get('pickUpDate')?.value || !reservationForm.get('returnDate')?.value || isDateRangeInvalid"
+                (click)="openEquipmentSelection('POLE')">
           + {{ 'RESERVATION.ADD_POLE' | translate }}
         </button>
-        <button type="button" class="btn" [ngClass]="currentActiveType === EquipmentTypeEnum.SKI ? 'btn-primary' : 'btn-outline-primary'" (click)="openEquipmentSelection('SKI')">
+        <button type="button" class="btn"
+                [ngClass]="currentActiveType === EquipmentTypeEnum.SKI ? 'btn-primary' : 'btn-outline-primary'"
+                [disabled]="!reservationForm.get('pickUpDate')?.value || !reservationForm.get('returnDate')?.value || isDateRangeInvalid"
+                (click)="openEquipmentSelection('SKI')">
           + {{ 'RESERVATION.ADD_SKI' | translate }}
         </button>
-        <button type="button" class="btn" [ngClass]="currentActiveType === EquipmentTypeEnum.SKIBOOT ? 'btn-primary' : 'btn-outline-primary'" (click)="openEquipmentSelection('SKIBOOT')">
+        <button type="button" class="btn"
+                [ngClass]="currentActiveType === EquipmentTypeEnum.SKIBOOT ? 'btn-primary' : 'btn-outline-primary'"
+                [disabled]="!reservationForm.get('pickUpDate')?.value || !reservationForm.get('returnDate')?.value || isDateRangeInvalid"
+                (click)="openEquipmentSelection('SKIBOOT')">
           + {{ 'RESERVATION.ADD_SKI_BOOT' | translate }}
         </button>
-        <button type="button" class="btn" [ngClass]="currentActiveType === EquipmentTypeEnum.SNOWBOARD ? 'btn-primary' : 'btn-outline-primary'" (click)="openEquipmentSelection('SNOWBOARD')">
+        <button type="button" class="btn"
+                [ngClass]="currentActiveType === EquipmentTypeEnum.SNOWBOARD ? 'btn-primary' : 'btn-outline-primary'"
+                [disabled]="!reservationForm.get('pickUpDate')?.value || !reservationForm.get('returnDate')?.value || isDateRangeInvalid"
+                (click)="openEquipmentSelection('SNOWBOARD')">
           + {{ 'RESERVATION.ADD_SNOWBOARD' | translate }}
         </button>
-        <button type="button" class="btn" [ngClass]="currentActiveType === EquipmentTypeEnum.SNOWBOARDBOOT ? 'btn-primary' : 'btn-outline-primary'" (click)="openEquipmentSelection('SNOWBOARDBOOT')">
+        <button type="button" class="btn"
+                [ngClass]="currentActiveType === EquipmentTypeEnum.SNOWBOARDBOOT ? 'btn-primary' : 'btn-outline-primary'"
+                [disabled]="!reservationForm.get('pickUpDate')?.value || !reservationForm.get('returnDate')?.value || isDateRangeInvalid"
+                (click)="openEquipmentSelection('SNOWBOARDBOOT')">
           + {{ 'RESERVATION.ADD_SNOWBOARD_BOOT' | translate }}
         </button>
       </div>

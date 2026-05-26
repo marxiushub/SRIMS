@@ -71,6 +71,12 @@ export class ReservationCreateComponent implements OnInit {
         this.applyProfileFilters(profileId);
       }
     });
+
+    this.reservationForm.valueChanges.subscribe(values => {
+      if(this.currentActiveType && values.pickUpDate && values.returnDate && !this.isDateRangeInvalid){
+        this.searchEquipment();
+      }
+    })
   }
 
   /**
@@ -122,11 +128,16 @@ export class ReservationCreateComponent implements OnInit {
   searchEquipment(): void {
     this.loading = true;
 
+    const startDateString = this.reservationForm.get('pickUpDate')?.value;
+    const endDateString = this.reservationForm.get('returnDate')?.value;
+
     const searchRequest: EquipmentSearch = {
       model: this.modelFilter.trim() || undefined,
       type: this.currentActiveType ?? undefined,
       status: this.statusFilter ?? undefined,
       targetSkillLevel: this.skillFilter ?? undefined,
+      start: startDateString || undefined,
+      end: endDateString || undefined
     };
 
     this.equipmentService.search(searchRequest).subscribe({
