@@ -16,163 +16,220 @@
         </div>
       }
 
-      @if (error) {
-        <div class="alert alert-danger">
-          @if (mode === ProfileCreateEditMode.create) {
-            {{ 'CUSTOMER_PROFILE_CREATE.ERROR' | translate }}
-          } @else {
-            {{ 'CUSTOMER_PROFILE_EDIT.ERROR' | translate }}
-          }
-        </div>
-      }
+      <form #form="ngForm" (ngSubmit)="onSubmit(form)">
 
-      @if (!loading && !loadError) {
-        <form #form="ngForm" (ngSubmit)="onSubmit()">
+        <div class="row">
+          <div class="mb-2 col-lg-6">
+            <div class="row">
+              <label for="profileName" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+                {{ 'CUSTOMER_PROFILE_CREATE.NAME' | translate }}
+              </label>
+              <div class="col-md-10 col-lg-8">
+                <input
+                  id="profileName"
+                  name="profileName"
+                  type="text"
+                  class="form-control"
+                  [class.is-invalid]="isInvalid(profileName)"
+                  [(ngModel)]="profile.profileName"
+                  #profileName="ngModel"
+                  required
+                  pattern=".*\S.*">
 
-          <div class="row">
-            <div class="mb-2 col-lg-6">
-              <div class="row">
-                <label for="profileName" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
-                  {{ 'CUSTOMER_PROFILE_CREATE.NAME' | translate }}
-                </label>
-                <div class="col-md-10 col-lg-8">
-                  <input
-                    id="profileName"
-                    name="profileName"
-                    type="text"
-                    class="form-control"
-                    [(ngModel)]="profile.profileName"
-                    #profileName="ngModel"
-                    required>
+                @if (hasError(profileName, 'required')) {
                   <div class="invalid-feedback">
                     {{ 'CUSTOMER_PROFILE_CREATE.NAME_REQUIRED' | translate }}
                   </div>
-                </div>
+                }
+                @if (hasError(profileName, 'pattern')) {
+                  <div class="invalid-feedback d-block">
+                    {{ 'CUSTOMER_PROFILE_CREATE.NAME_NOT_BLANK' | translate }}
+                  </div>
+                }
               </div>
             </div>
+          </div>
 
-            <div class="mb-2 col-lg-6">
-              <div class="row">
-                <label for="profileHeight" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
-                  {{ 'CUSTOMER_PROFILE_CREATE.HEIGHT' | translate }}
-                </label>
-                <div class="col-md-10 col-lg-8">
-                  <input
-                    id="profileHeight"
-                    name="profileHeight"
-                    type="number"
-                    class="form-control"
-                    step="1"
-                    [(ngModel)]="profile.height"
-                    required>
+          <div class="mb-2 col-lg-6">
+            <div class="row">
+              <label for="profileHeight" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+                {{ 'CUSTOMER_PROFILE_CREATE.HEIGHT' | translate }}
+              </label>
+              <div class="col-md-10 col-lg-8">
+                <input
+                  id="profileHeight"
+                  name="profileHeight"
+                  type="number"
+                  class="form-control"
+                  step="1"
+                  [class.is-invalid]="isInvalid(profileHeight)"
+                  [min]="50"
+                  [max]="250"
+                  [(ngModel)]="profile.height"
+                  #profileHeight="ngModel"
+                  required>
+
+                @if (hasError(profileHeight, 'required')) {
                   <div class="invalid-feedback">
                     {{ 'CUSTOMER_PROFILE_CREATE.HEIGHT_REQUIRED' | translate }}
                   </div>
-                </div>
+                }
+
+                @if (hasError(profileHeight, 'min')) {
+                  <div class="invalid-feedback d-block">
+                    {{ 'CUSTOMER_PROFILE_CREATE.HEIGHT_MIN' | translate }}
+                  </div>
+                }
+
+                @if (hasError(profileHeight, 'max')) {
+                  <div class="invalid-feedback d-block">
+                    {{ 'CUSTOMER_PROFILE_CREATE.HEIGHT_MAX' | translate }}
+                  </div>
+                }
               </div>
             </div>
           </div>
+        </div>
 
-          <div class="row">
-            <div class="mb-2 col-lg-6">
-              <div class="row">
-                <label for="profileShoeSize" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
-                  {{ 'CUSTOMER_PROFILE_CREATE.SHOE_SIZE' | translate }}
-                </label>
-                <div class="col-md-10 col-lg-8">
-                  <input
-                    id="profileShoeSize"
-                    name="profileShoeSize"
-                    type="number"
-                    class="form-control"
-                    step="1"
-                    [(ngModel)]="profile.shoeSize"
-                    required>
+        <div class="row">
+          <div class="mb-2 col-lg-6">
+            <div class="row">
+              <label for="profileShoeSize" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+                {{ 'CUSTOMER_PROFILE_CREATE.SHOE_SIZE' | translate }}
+              </label>
+              <div class="col-md-10 col-lg-8">
+                <input
+                  id="profileShoeSize"
+                  name="profileShoeSize"
+                  type="number"
+                  class="form-control"
+                  step="1"
+                  [class.is-invalid]="isInvalid(profileShoeSize)"
+                  [min]="25"
+                  [max]="50"
+                  [(ngModel)]="profile.shoeSize"
+                  #profileShoeSize="ngModel"
+                  required>
+
+                @if (hasError(profileShoeSize, 'required')) {
                   <div class="invalid-feedback">
                     {{ 'CUSTOMER_PROFILE_CREATE.SHOE_SIZE_REQUIRED' | translate }}
                   </div>
-                </div>
-              </div>
-            </div>
+                }
 
-            <div class="mb-2 col-lg-6">
-              <div class="row">
-                <label for="profileSkillLevel" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
-                  {{ 'CUSTOMER_PROFILE_CREATE.SKILL_LEVEL' | translate }}
-                </label>
-                <div class="col-md-10 col-lg-8">
-                  <select
-                    id="profileSkillLevel"
-                    name="profileSkillLevel"
-                    class="form-select"
-                    required
-                    [(ngModel)]="profile.skillLevel">
-                    @for (skillLevel of skillLevels; track skillLevel) {
-                      <option [value]="skillLevel">
-                        {{ 'SKILL_LEVEL.' + skillLevel | translate }}
-                      </option>
-                    }
-                  </select>
-                </div>
+                @if (hasError(profileShoeSize, 'min')) {
+                  <div class="invalid-feedback d-block">
+                    {{ 'CUSTOMER_PROFILE_CREATE.SHOE_SIZE_MIN' | translate }}
+                  </div>
+                }
+
+                @if (hasError(profileShoeSize, 'max')) {
+                  <div class="invalid-feedback d-block">
+                    {{ 'CUSTOMER_PROFILE_CREATE.SHOE_SIZE_MAX' | translate }}
+                  </div>
+                }
+
               </div>
             </div>
           </div>
 
-          <div class="row">
-            <div class="mb-2 col-lg-6">
-              <div class="row">
-                <label for="profileWeight" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
-                  {{ 'CUSTOMER_PROFILE_CREATE.WEIGHT' | translate }}
-                </label>
-                <div class="col-md-10 col-lg-8">
-                  <input
-                    id="profileWeight"
-                    name="profileWeight"
-                    type="number"
-                    class="form-control"
-                    step="1"
-                    [(ngModel)]="profile.weight"
-                    required>
+          <div class="mb-2 col-lg-6">
+            <div class="row">
+              <label for="profileSkillLevel" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+                {{ 'CUSTOMER_PROFILE_CREATE.SKILL_LEVEL' | translate }}
+              </label>
+              <div class="col-md-10 col-lg-8">
+                <select
+                  id="profileSkillLevel"
+                  name="profileSkillLevel"
+                  class="form-select"
+                  required
+                  [(ngModel)]="profile.skillLevel">
+                  @for (skillLevel of skillLevels; track skillLevel) {
+                    <option [value]="skillLevel">
+                      {{ 'SKILL_LEVEL.' + skillLevel | translate }}
+                    </option>
+                  }
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="mb-2 col-lg-6">
+            <div class="row">
+              <label for="profileWeight" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+                {{ 'CUSTOMER_PROFILE_CREATE.WEIGHT' | translate }}
+              </label>
+              <div class="col-md-10 col-lg-8">
+                <input
+                  id="profileWeight"
+                  name="profileWeight"
+                  type="number"
+                  class="form-control"
+                  step="1"
+                  [class.is-invalid]="isInvalid(profileWeight)"
+                  [min]="20"
+                  [max]="150"
+                  [(ngModel)]="profile.weight"
+                  #profileWeight="ngModel"
+                  required>
+
+                @if (hasError(profileWeight, 'required')) {
                   <div class="invalid-feedback">
                     {{ 'CUSTOMER_PROFILE_CREATE.WEIGHT_REQUIRED' | translate }}
                   </div>
-                </div>
+                }
+
+                @if (hasError(profileWeight, 'min')) {
+                  <div class="invalid-feedback d-block">
+                    {{ 'CUSTOMER_PROFILE_CREATE.WEIGHT_MIN' | translate }}
+                  </div>
+                }
+
+                @if (hasError(profileWeight, 'max')) {
+                  <div class="invalid-feedback d-block">
+                    {{ 'CUSTOMER_PROFILE_CREATE.WEIGHT_MAX' | translate }}
+                  </div>
+                }
+
               </div>
             </div>
-
           </div>
 
-          <div class="mt-4 d-flex flex-row gap-2">
-            <button
-              class="btn btn-primary"
-              [disabled]="!form.valid || loading"
-              type="submit">
-              @if (loading) {
-                @if (mode === ProfileCreateEditMode.create) {
-                  {{ 'CUSTOMER_PROFILE_CREATE.SAVE' | translate }}...
-                } @else {
-                  {{ 'CUSTOMER_PROFILE_CREATE.SAVE' | translate }}...
-                }
+        </div>
+
+        <div class="mt-4 d-flex flex-row gap-2">
+          <button
+            class="btn btn-primary"
+            type="submit">
+            @if (loading) {
+              @if (mode === ProfileCreateEditMode.create) {
+                {{ 'CUSTOMER_PROFILE_CREATE.SAVE' | translate }}...
               } @else {
-                @if (mode === ProfileCreateEditMode.create) {
-                  {{ 'CUSTOMER_PROFILE_CREATE.SAVE' | translate }}
-                } @else {
-                  {{ 'CUSTOMER_PROFILE_EDIT.SAVE' | translate }}
-                }
+                {{ 'CUSTOMER_PROFILE_CREATE.SAVE' | translate }}...
               }
-            </button>
+            } @else {
+              @if (mode === ProfileCreateEditMode.create) {
+                {{ 'CUSTOMER_PROFILE_CREATE.SAVE' | translate }}
+              } @else {
+                {{ 'CUSTOMER_PROFILE_EDIT.SAVE' | translate }}
+              }
+            }
+          </button>
 
-            <button
-              type="button"
-              class="btn btn-secondary"
-              [disabled]="loading"
-              (click)="cancel()">
-              {{ 'CUSTOMER_PROFILE_CREATE.CANCEL' | translate }}
-            </button>
-          </div>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            [disabled]="loading"
+            (click)="cancel()">
+            {{ 'CUSTOMER_PROFILE_CREATE.CANCEL' | translate }}
+          </button>
+        </div>
 
-        </form>
-      }
+      </form>
+
     </div>
   </div>
 </div>

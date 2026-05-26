@@ -164,4 +164,29 @@ describe('EquipmentCreateEditComponent', () => {
     expect(component.mode).toBe(EquipmentCreateEditMode.create);
     expect(component.equipment.creationNumber).toBe(1);
   });
+
+  it('should not call create service when form is invalid', async () => {
+    component.mode = EquipmentCreateEditMode.create;
+    component.equipment = {
+      type: EquipmentType.SKI,
+      model: '',
+      status: RentalStatus.FREE,
+      targetSkillLevel: SkillLevel.BEGINNER,
+      price: 0,
+      creationNumber: 1,
+      length: 999
+    };
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const form = fixture.nativeElement.querySelector('form');
+    form.dispatchEvent(new Event('submit'));
+
+    fixture.detectChanges();
+
+    expect(component.submitted).toBeTrue();
+    expect(equipmentServiceMock.create).not.toHaveBeenCalled();
+    expect(routerMock.navigate).not.toHaveBeenCalled();
+  });
 });
