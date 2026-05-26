@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.detail.EquipmentDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationAddDeleteEquipmentDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationDetailDto;
@@ -61,11 +62,11 @@ public class ReservationServiceTest {
 
     @BeforeEach
     public void setup() {
-        testCustomer = new Customer("Adrian","asd","Adrian","67","69",LocalDate.of(1990,1,1));
+        testCustomer = new Customer("Adrian", "asd", "Adrian", "67", "69", LocalDate.of(1990, 1, 1));
         testCustomer = customerRepository.save(testCustomer);
-        testCustomerProfile = new CustomerProfile("Max Mustermann",180,67,33, SkillLevel.BEGINNER,testCustomer);
+        testCustomerProfile = new CustomerProfile("Max Mustermann", 180, 67, 33, SkillLevel.BEGINNER, testCustomer);
         testCustomerProfile = customerProfileRepository.save(testCustomerProfile);
-        testCustomerProfile2 = new CustomerProfile("Hans hansi",130,80,33, SkillLevel.BEGINNER,testCustomer);
+        testCustomerProfile2 = new CustomerProfile("Hans hansi", 130, 80, 33, SkillLevel.BEGINNER, testCustomer);
         testCustomerProfile2 = customerProfileRepository.save(testCustomerProfile2);
         testEquipment = new Helmet("Test Helmet Model", 10.0, 55.0, RentalStatus.FREE, SkillLevel.BEGINNER);
         testEquipment = equipmentRepository.save(testEquipment);
@@ -271,7 +272,6 @@ public class ReservationServiceTest {
 
         assertThat(reservationId).isNotNull();
 
-
         LocalDate expectedStart = createDto.getPickUpDate();
         LocalDate expectedEnd = expectedStart.plusDays(createDto.getRentDurationDays());
 
@@ -286,9 +286,7 @@ public class ReservationServiceTest {
 
         reservationService.deleteReservation(reservationId);
 
-
         assertThat(reservationRepository.existsById(reservationId)).isFalse();
-
 
         Equipment equipmentAfterDelete =
             equipmentRepository.findById(testEquipment.getId()).orElseThrow();
@@ -300,6 +298,7 @@ public class ReservationServiceTest {
                     tp.getPeriodType() == PeriodType.RENTED
             );
     }
+
     @Test
     @Transactional
     @Rollback

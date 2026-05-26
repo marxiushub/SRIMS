@@ -1,11 +1,13 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.detail.EquipmentDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationAddDeleteEquipmentDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EquipmentMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ReservationMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Reservation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ReservationRelation;
@@ -14,6 +16,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.enums.PeriodType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.EquipmentRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ReservationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerProfileRepository;
@@ -32,23 +35,25 @@ import java.util.List;
 @Service
 public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.backend.service.ReservationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    private final ReservationMapper mapper;
+    private final ReservationMapper reservationMapper;
     private final ReservationValidator validator;
     private final ReservationRepository reservationRepository;
     private final EquipmentRepository equipmentRepository;
     private final CustomerProfileRepository customerProfileRepository;
+    private final EquipmentMapper equipmentMapper;
 
     @Autowired
     public ReservationServiceImpl(ReservationMapper reservationMapper,
                                   ReservationRepository reservationRepository,
                                   EquipmentRepository equipmentRepository,
                                   CustomerProfileRepository customerProfileRepository,
-                                  ReservationValidator validator) {
-        this.mapper = reservationMapper;
+                                  ReservationValidator validator, EquipmentMapper equipmentMapper) {
+        this.reservationMapper = reservationMapper;
         this.reservationRepository = reservationRepository;
         this.equipmentRepository = equipmentRepository;
         this.customerProfileRepository = customerProfileRepository;
         this.validator = validator;
+        this.equipmentMapper = equipmentMapper;
     }
 
 
@@ -67,7 +72,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
         Reservation reservation = reservationRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Reservation with ID " + id + " was not found."));
 
-        return mapper.entityToDetailDto(reservation);
+        return reservationMapper.entityToDetailDto(reservation);
     }
 
     @Override
@@ -99,7 +104,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
 
         Reservation savedReservation = reservationRepository.save(reservation);
         //bestätigungs-email senden
-        return mapper.entityToDetailDto(savedReservation);
+        return reservationMapper.entityToDetailDto(savedReservation);
     }
 
     @Override
@@ -198,7 +203,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
         }
 
         Reservation saved = reservationRepository.save(reservation);
-        return mapper.entityToDetailDto(saved);
+        return reservationMapper.entityToDetailDto(saved);
     }
 
     @Transactional
@@ -254,7 +259,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
         List<Reservation> foundReservations = reservationRepository.findAll(spec);
 
         return foundReservations.stream()
-            .map(mapper::entityToDetailDto)
+            .map(reservationMapper::entityToDetailDto)
             .toList();
     }
 
@@ -279,7 +284,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
             equipment.addTimePeriod(start, end, PeriodType.RENTED);
         }
 
-        return mapper.entityToDetailDto(reservation);
+        return reservationMapper.entityToDetailDto(reservation);
     }
 
     @Override
@@ -301,7 +306,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
         reservation.getItems().removeIf(relation -> dto.getEquipmentIds().contains(relation.getEquipment().getId()));
 
         Reservation savedReservation = reservationRepository.save(reservation);
-        return mapper.entityToDetailDto(savedReservation);
+        return reservationMapper.entityToDetailDto(savedReservation);
     }
 
     private void deleteTimePeriodsForEquipment(List<Equipment> equipmentList, LocalDate start, LocalDate end) {
@@ -319,4 +324,6 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
             }
         }
     }
+
+
 }

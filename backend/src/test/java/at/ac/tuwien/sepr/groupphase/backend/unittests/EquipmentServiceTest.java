@@ -304,4 +304,43 @@ public class EquipmentServiceTest {
 
         assertThat(result).isEmpty();
     }
+
+    @Test
+    @Transactional
+    @Rollback
+    void searchEquipment_withAvailabilityFilter_returnsOnlyFreeEquipment() {
+
+        Helmet freeHelmet = helmetRepository.save(
+            new Helmet("Free Helmet", 100.0, 55.0, RentalStatus.FREE, SkillLevel.BEGINNER)
+        );
+
+        Helmet blockedHelmet = new Helmet(
+            "Blocked Helmet", 120.0, 56.0, RentalStatus.FREE, SkillLevel.BEGINNER
+        );
+
+        blockedHelmet.addTimePeriod(
+            LocalDate.now().plusDays(1),
+            LocalDate.now().plusDays(5),
+            PeriodType.RENTED
+        );
+
+        helmetRepository.save(blockedHelmet);
+
+        // Search Zeitraum überschneidet blockedHelmet
+        EquipmentSearchDto searchDto = new EquipmentSearchDto();
+        searchDto.setStart(LocalDate.now());
+        searchDto.setEnd(LocalDate.now().plusDays(3));
+
+        List<EquipmentDetailDto> result = equipmentService.searchEquipment(searchDto);
+
+
+        assertAll(
+            () -> assertThat(result).isNotNull(),
+            () -> assertThat(result).extracting(EquipmentDetailDto::getModel)
+                .contains("Free Helmet"),
+            () -> assertThat(result).extracting(EquipmentDetailDto::getModel)
+                .doesNotContain("Blocked Helmet")
+        );
+    }
+
 }
