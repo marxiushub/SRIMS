@@ -1,4 +1,4 @@
-package at.ac.tuwien.sepr.groupphase.backend.unittests;
+package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;

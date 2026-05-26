@@ -1,4 +1,4 @@
-package at.ac.tuwien.sepr.groupphase.backend.unittests;
+package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.detail.EquipmentDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.creation.SkiCreationDto;
@@ -36,7 +36,7 @@ import java.util.List;
 @ActiveProfiles({"test", "datagenerator"})
 @AutoConfigureMockMvc
 @SpringBootTest
-public class EquipmentEndpointTest {
+public class EquipmentEndpointTestV2 {
 
     @Autowired
     private MockMvc mockMvc;
