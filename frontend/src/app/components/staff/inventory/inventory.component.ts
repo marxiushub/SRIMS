@@ -158,8 +158,8 @@ export class InventoryComponent implements OnInit {
       type: this.typeFilter ?? undefined,
       status: this.statusFilter ?? undefined,
       targetSkillLevel: this.skillFilter ?? undefined,
-      start: this.startFilter ?? undefined,
-      end: this.endFilter ?? undefined,
+      start: this.startFilter || this.endFilter || undefined,
+      end: this.endFilter || this.startFilter || undefined,
     };
 
     this.equipmentService.search(searchRequest).subscribe({
