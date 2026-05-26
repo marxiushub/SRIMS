@@ -161,6 +161,22 @@
     "ADDED": "Hinzugefügt",
     "SUBMIT": "Reservierung verbindlich abschicken"
   },
+  "CUSTOMER": {
+    "DASHBOARD_TITLE": "Kundenportal",
+    "DASHBOARD_SUBTITLE": "Willkommen im SRIMS Verleih-System. Wählen Sie eine Option:",
+    "RESERVATIONS": {
+      "TITLE": "Meine Reservierungen",
+      "DESC": "Bestehende Buchungen einsehen oder neue Ausrüstung reservieren"
+    },
+    "PROFILES": {
+      "TITLE": "Profile verwalten",
+      "DESC": "Erstellen und bearbeiten Sie Profile für sich und Ihre Familienmitglieder"
+    },
+    "INVENTORY": {
+      "TITLE": "Ausrüstung stöbern",
+      "DESC": "Verfügbare Ski, Snowboards, Helme und Schuhe in unserem Katalog ansehen"
+    }
+  },
   "CUSTOMER_PROFILE": {
     "TITLE": "Profile",
     "HEIGHT": "Höhe",

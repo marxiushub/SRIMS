@@ -33,6 +33,10 @@ import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import {registerLocaleData} from '@angular/common';
 import localeDe from '@angular/common/locales/de';
 import {BarcodeScannerComponent} from "./components/staff/barcodescanner/barcode-scanner.component";
+import {CustomerInventoryComponent} from "./components/customer/customer-inventory/customer-inventory.component";
+import {
+  CustomerEquipmentViewComponent
+} from "./components/customer/customer-inventory/equipment-view/equipment-view.component";
 
 registerLocaleData(localeDe, 'de');
 
@@ -59,6 +63,8 @@ export function HttpLoaderFactory(http: HttpClient): TranslateLoader {
     ReservationCreateComponent,
     BarcodeScannerComponent,
     CustomerComponent,
+    CustomerInventoryComponent,
+    CustomerEquipmentViewComponent,
     CustomerProfileComponent,
     CustomerProfileCreateEditComponent,
     CustomerProfileDetailsComponent,

@@ -161,6 +161,22 @@
     "ADDED": "Added",
     "SUBMIT": "Submit Binding Reservation"
   },
+  "CUSTOMER": {
+    "DASHBOARD_TITLE": "Customer Portal",
+    "DASHBOARD_SUBTITLE": "Welcome to the SRIMS rental system. Please select an option:",
+    "RESERVATIONS": {
+      "TITLE": "My Reservations",
+      "DESC": "View your current bookings or reserve new equipment"
+    },
+    "PROFILES": {
+      "TITLE": "Manage Profiles",
+      "DESC": "Create and edit profiles for yourself and family members"
+    },
+    "INVENTORY": {
+      "TITLE": "Browse Equipment",
+      "DESC": "Check out available skis, snowboards, helmets, and boots in our catalog"
+    }
+  },
   "CUSTOMER_PROFILE": {
     "TITLE": "Profiles",
     "HEIGHT": "Height",

@@ -19,6 +19,10 @@ import {
 import {
   CustomerProfileDetailsComponent
 } from './components/customer/customer-profile/customer-profile-details/customer-profile-details.component';
+import {CustomerInventoryComponent} from "./components/customer/customer-inventory/customer-inventory.component";
+import {
+  CustomerEquipmentViewComponent
+} from "./components/customer/customer-inventory/equipment-view/equipment-view.component";
 
 const routes: Routes = [
   {path: '', component: HomeComponent},
@@ -33,7 +37,8 @@ const routes: Routes = [
       {path: 'barcode-scanner', component: BarcodeScannerComponent},
   ]},
   {path: 'customer', component: CustomerComponent, children: [
-      {path: 'reservation/create', component: ReservationCreateComponent}
+    {path: 'reservation/create', component: ReservationCreateComponent}, {path: 'inventory', component: CustomerInventoryComponent},
+    {path: 'inventory/view/:id', component: CustomerEquipmentViewComponent}
     ]},
   {path: 'customer/profiles', component: CustomerProfileComponent},
   {path: 'customer/profiles/create', component: CustomerProfileCreateEditComponent, data: {mode: ProfileCreateEditMode.create}},
