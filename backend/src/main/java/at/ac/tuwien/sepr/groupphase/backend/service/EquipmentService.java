@@ -5,7 +5,9 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.detail.Equ
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.search.EquipmentSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.update.EquipmentUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
+import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -74,4 +76,5 @@ public interface EquipmentService {
      * @return a list of {@link EquipmentDetailDto} matching the given criteria; an empty list if no matches are found
      */
     List<EquipmentDetailDto> searchEquipment(EquipmentSearchDto searchDto);
+
 }
