@@ -1,6 +1,5 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.detail.EquipmentDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationAddDeleteEquipmentDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationDetailDto;
@@ -273,7 +272,7 @@ public class ReservationServiceTest {
         assertThat(reservationId).isNotNull();
 
         LocalDate expectedStart = createDto.getPickUpDate();
-        LocalDate expectedEnd = expectedStart.plusDays(createDto.getRentDurationDays());
+        LocalDate expectedEnd = expectedStart.plusDays(createDto.getRentDurationDays() -1);
 
         Equipment equipmentBeforeDelete =
             equipmentRepository.findById(testEquipment.getId()).orElseThrow();
@@ -326,7 +325,7 @@ public class ReservationServiceTest {
         assertThat(created.getItems()).hasSize(2);
 
         LocalDate expectedStart = createDto.getPickUpDate();
-        LocalDate expectedEnd = expectedStart.plusDays(createDto.getRentDurationDays());
+        LocalDate expectedEnd = expectedStart.plusDays(createDto.getRentDurationDays() -1);
 
         Equipment equipmentBeforeDelete = equipmentRepository.findById(testEquipment2.getId()).orElseThrow();
         assertThat(equipmentBeforeDelete.getTimePeriodsList())

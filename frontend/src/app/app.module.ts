@@ -26,7 +26,9 @@ import {
 } from "./components/customer/customer-profile/customer-profile-details/customer-profile-details.component";
 import {EquipmentViewComponent} from "./components/staff/inventory/equipment-view/equipment-view.component";
 
-import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
+import {ReservationCreateEditComponent} from "./components/customer/reservation/reservation-create-edit/reservation-create-edit.component";
+
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 
 import {registerLocaleData} from '@angular/common';
 import localeDe from '@angular/common/locales/de';
@@ -35,6 +37,7 @@ import {CustomerInventoryComponent} from "./components/customer/customer-invento
 import {
   CustomerEquipmentViewComponent
 } from "./components/customer/customer-inventory/equipment-view/equipment-view.component";
+import {ReservationComponent} from "./components/customer/reservation/reservation.component";
 
 registerLocaleData(localeDe, 'de');
 
@@ -58,6 +61,9 @@ export function HttpLoaderFactory(http: HttpClient): TranslateLoader {
     InventoryComponent,
     EquipmentCreateEditComponent,
     EquipmentViewComponent,
+    ReservationComponent,
+    ReservationCreateEditComponent,
+    BarcodeScannerComponent,
     CustomerComponent,
     CustomerInventoryComponent,
     CustomerEquipmentViewComponent,

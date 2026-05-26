@@ -77,7 +77,7 @@ public class ReservationEndpoint {
      */
     @PermitAll
     @ResponseStatus(HttpStatus.OK)
-    @PatchMapping()
+    @PatchMapping("/{id}")
     public ReservationDetailDto updateReservation(
         @Valid @RequestBody ReservationUpdateDto updateDto
     ) {

@@ -1,0 +1,449 @@
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {ActivatedRoute, Router } from '@angular/router';
+import { ReservationService } from '../../../../services/reservation.service';
+import { EquipmentService } from '../../../../services/equipment.service';
+import { ReservationCreation } from '../../../../dtos/reservation-creation';
+import { Equipment } from '../../../../dtos/equipment';
+import { EquipmentSearch } from '../../../../dtos/equipment-search';
+import { CustomerProfile } from '../../../../dtos/customer-profile';
+import {EquipmentType} from "../../../../dtos/equipmenttype";
+import {RentalStatus} from "../../../../dtos/rentalstatus";
+import {SkillLevel} from "../../../../dtos/skilllevel";
+import {debounceTime, distinctUntilChanged} from "rxjs";
+import {CustomerProfileService} from "../../../../services/customer-profile.service";
+import {ReservationUpdate} from "../../../../dtos/reservation-update";
+
+export enum ReservationCreateEditMode {
+  create,
+  edit
+}
+
+@Component({
+  selector: 'app-reservation-create',
+  templateUrl: './reservation-create-edit.component.html',
+  styleUrls: ['./reservation-create-edit.component.scss'],
+  standalone: false
+})
+export class ReservationCreateEditComponent implements OnInit {
+
+  readonly ReservationCreateEditMode = ReservationCreateEditMode;
+  //To give HTML access to Equipment-Type-Enum
+  readonly EquipmentTypeEnum = EquipmentType;
+
+  mode: ReservationCreateEditMode = ReservationCreateEditMode.create;
+  reservationId?: number;
+  reservationForm!: FormGroup;
+
+  selectedEquipment: Equipment[] = [];
+  availableEquipmentList: Equipment[] = [];
+  customerProfiles: CustomerProfile[] = [];
+
+  currentActiveType: EquipmentType | null = null;
+  modelFilter: string ='';
+  statusFilter: RentalStatus | null = null;
+  skillFilter: SkillLevel | null = null;
+  priceSortDirection: 'asc' | 'desc' | '' = 'asc';
+
+  loading: boolean = false;
+  submitLoading: boolean = false;
+  submitError: string | undefined = undefined;
+  validationWarning: string | undefined = undefined;
+
+  constructor(
+    private fb: FormBuilder,
+    private reservationService: ReservationService,
+    private equipmentService: EquipmentService,
+    private customerProfileService: CustomerProfileService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
+
+  ngOnInit(): void {
+    this.initForm();
+    this.initDateChangeWatcher();
+
+    if (this.route.snapshot.data['mode'] === ReservationCreateEditMode.edit) {
+      this.mode = ReservationCreateEditMode.edit;
+      const id = this.route.snapshot.paramMap.get('id');
+      if (id) {
+        this.reservationId = Number(id);
+        this.loadCustomerProfilesAndInit(this.reservationId);
+      } else {
+        this.mode = ReservationCreateEditMode.create;
+        this.loadCustomerProfilesAndInit();
+      }
+    } else {
+      this.mode = ReservationCreateEditMode.create;
+      this.loadCustomerProfilesAndInit();
+    }
+  }
+
+  /**
+   * Initializes the form with validators confirming to the ones used in the backend.
+   */
+  private initForm(): void {
+    this.reservationForm = this.fb.group({
+      customerProfileId: [null, Validators.required],
+      pickUpDate: [null, Validators.required],
+      pickUpTime: ['09:00', Validators.required],
+      returnDate: [null, Validators.required]
+    });
+
+    this.reservationForm.get('customerProfileId')?.valueChanges.subscribe(profileId => {
+      if (profileId) {
+        this.applyProfileFilters(profileId);
+      }
+    });
+
+    this.reservationForm.valueChanges.subscribe(values => {
+      if(this.currentActiveType && values.pickUpDate && values.returnDate && !this.isDateRangeInvalid){
+        this.searchEquipment();
+      }
+    })
+  }
+
+  /**
+   * Loads genuine customer profiles from backend for the hardcoded customer ID 1.
+   * Also checks whether we are editing an existing reservation.
+   * TODO: Remove hard-coding accountId to 1 once proper Accounts with AccountId exist
+   */
+  private loadCustomerProfilesAndInit(editId?: number): void {
+    const hardcodedCustomerId = 1;
+    this.customerProfileService.getCustomerProfiles(hardcodedCustomerId).subscribe({
+      next: (profiles) => {
+        this.customerProfiles = profiles;
+
+        if (this.mode === ReservationCreateEditMode.edit && editId) {
+          this.loadExistingReservation(editId);
+        } else {
+          if (this.customerProfiles.length > 0) {
+            this.reservationForm.patchValue({customerProfileId: this.customerProfiles[0].id});
+          }
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load customer profiles from backend', err);
+        this.submitError = "RESERVATION.CUSTOMER_PROFILES_LOADING_FAILED";
+      }
+    });
+  }
+
+  /**
+   * Loads the existing reservation information and patches the form & equipment list.
+   */
+  private loadExistingReservation(id: number): void {
+    this.loading = true;
+
+    this.reservationService.getById(id).subscribe({
+      next: (data: any) => {
+        if (!data) {
+          this.submitError = 'RESERVATION.NOT_FOUND';
+          this.loading = false;
+          return;
+        }
+
+        let returnDateString = data.pickUpDate;
+        if (data.pickUpDate && data.rentDurationDays > 0) {
+          const d = new Date(data.pickUpDate);
+          d.setDate(d.getDate() + (data.rentDurationDays - 1));
+          returnDateString = d.toISOString().split('T')[0];
+        }
+
+        let formattedTime = data.pickUpTime || '09:00';
+        if (formattedTime.length > 5) {
+          formattedTime = formattedTime.substring(0, 5);
+        }
+
+        this.reservationForm.patchValue({
+          customerProfileId: data.customerProfileId,
+          pickUpDate: data.pickUpDate,
+          pickUpTime: formattedTime,
+          returnDate: returnDateString
+        });
+
+        this.selectedEquipment = data.items || data.equipment || data.equipments || data.equipmentList || [];
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Failed to load reservation details via getById', err);
+        this.submitError = 'RESERVATION.LOADING_FAILED';
+        this.loading = false;
+      }
+    });
+  }
+
+  /**
+   * Watches for changes in pickUpDate or returnDate to re-validate already selected equipment.
+   */
+  private initDateChangeWatcher(): void {
+    this.reservationForm.valueChanges.pipe(
+        debounceTime(300),
+        distinctUntilChanged((prev, curr) =>
+            prev.pickUpDate === curr.pickUpDate && prev.returnDate === curr.returnDate
+        )
+    ).subscribe(values => {
+      if (this.selectedEquipment.length > 0 && values.pickUpDate && values.returnDate && !this.isDateRangeInvalid) {
+        this.validateSelectedEquipmentForNewDates(values.pickUpDate, values.returnDate);
+      }
+    });
+  }
+
+  /**
+   * Validates already selected equipment against a newly chosen date range.
+   * Removes equipment that is no longer available.
+   */
+  private validateSelectedEquipmentForNewDates(startDate: string, endDate: string): void {
+    const searchRequest: EquipmentSearch = {
+      start: startDate,
+      end: endDate
+    };
+
+    this.equipmentService.search(searchRequest).subscribe({
+      next: (availableEquipment) => {
+        const availableIds = availableEquipment.map(e => e.id);
+
+        const filteredList = this.selectedEquipment.filter(item => {
+          return availableIds.includes(item.id) || this.mode === ReservationCreateEditMode.edit; //Reservations in EditMode should not filter out themselves
+        });
+
+
+        if (filteredList.length !== this.selectedEquipment.length) {
+          this.selectedEquipment = filteredList;
+          this.validationWarning = 'RESERVATION.VALIDATION_WARNING';
+
+          setTimeout(() => this.validationWarning = undefined, 8000);
+        } else {
+          this.validationWarning = undefined;
+        }
+      },
+      error: (err) => {
+        console.error('Failed to validate selected equipment on date change', err);
+      }
+    });
+  }
+
+  /**
+   * Checks if the date configuration is invalid.
+   */
+  get isDateRangeInvalid(): boolean {
+    const start = this.reservationForm.get('pickUpDate')?.value;
+    const end = this.reservationForm.get('returnDate')?.value;
+    if(!start || !end){
+      return false;
+    }
+    return new Date(end) < new Date(start);
+  }
+
+  /**
+   * Calculates the rentageDurationDays.
+   * Pick-Up and Return on same day counts as 1 day.
+   */
+  calculateRentDuration(): number {
+    const start = this.reservationForm.get('pickUpDate')?.value;
+    const end = this.reservationForm.get('returnDate')?.value;
+
+    if (!start || !end) {
+      return 0;
+    }
+
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+
+    const diffTime = endDate.getTime() - startDate.getTime();
+    if (diffTime < 0) {
+      return 0;
+    }
+
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+  }
+
+  /**
+   * Starts the search within a specific equipment-type, using the search.function of equipment.service.ts.
+   */
+  openEquipmentSelection(type: EquipmentType | string): void {
+    this.currentActiveType = type as EquipmentType;
+    this.searchEquipment();
+  }
+
+  /**
+   * Searches for a piece of equipment.
+   */
+  searchEquipment(): void {
+    this.loading = true;
+
+    const startDateString = this.reservationForm.get('pickUpDate')?.value;
+    const endDateString = this.reservationForm.get('returnDate')?.value;
+
+    const searchRequest: EquipmentSearch = {
+      model: this.modelFilter.trim() || undefined,
+      type: this.currentActiveType ?? undefined,
+      status: this.statusFilter ?? undefined,
+      targetSkillLevel: this.skillFilter ?? undefined,
+      start: startDateString || undefined,
+      end: endDateString || undefined
+    };
+
+    this.equipmentService.search(searchRequest).subscribe({
+      next: (data) => {
+        this.availableEquipmentList = this.sortByPrice(data);
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Failed to search equipment', err);
+        this.loading = false;
+      }
+    });
+  }
+
+  /**
+   * Sorting-function for searchEquipment.
+   */
+  private sortByPrice(items: Equipment[]): Equipment[] {
+    if (!this.priceSortDirection) {
+      return items;
+    }
+
+    return [...items].sort((a, b) =>
+      this.priceSortDirection === 'asc' ? a.price - b.price : b.price - a.price
+    );
+  }
+
+  /**
+   * Event-Handler for manual sorting in the UI.
+   */
+  onPriceSortChange(): void {
+    this.availableEquipmentList = this.sortByPrice(this.availableEquipmentList);
+  }
+
+  /**
+   * Reset of Filters.
+   */
+  clearFilters(): void {
+    this.modelFilter = '';
+    this.currentActiveType = null;
+    this.statusFilter = RentalStatus.FREE;
+    this.skillFilter = null;
+    this.priceSortDirection = 'asc';
+    this.availableEquipmentList = [];
+  }
+
+  /**
+   * Adds chosen piece of equipment to reservation.
+   */
+  addEquipment(item: Equipment): void {
+    if (!this.selectedEquipment.some(e => e.id === item.id)) {
+      this.selectedEquipment.push(item);
+    }
+  }
+
+  /**
+   * Removes chosen piece of equipment from reservation.
+   */
+  removeEquipment(itemId: number): void {
+    this.selectedEquipment = this.selectedEquipment.filter(item => item.id !== itemId);
+  }
+
+  /**
+   * Implements profile-dependent filters.
+   */
+  private applyProfileFilters(profileId: number): void {
+    const selectedProfile = this.customerProfiles.find(p => p.id === profileId);
+
+    if (selectedProfile) {
+      this.skillFilter = selectedProfile.skillLevel;
+
+      if (this.currentActiveType) {
+        this.searchEquipment();
+      }
+    }
+  }
+
+  /**
+   * Cancels the reservation.
+   */
+  cancel(): void {
+    this.router.navigate(['/customer/reservation']);
+  }
+
+  /**
+   * Submits finished reservation to backend.
+   */
+  submitReservation(): void {
+    if (this.reservationForm.invalid) {
+      return;
+    }
+
+    if (this.selectedEquipment.length === 0) {
+      //Also caught in HTML, but here again just to be sure.
+      alert('Please choose at least 1 piece of equipment');
+      return;
+    }
+
+    const duration = this.calculateRentDuration();
+    if (duration <= 0) {
+      alert('The return date cannot be before the pick-up date');
+      return;
+    }
+
+    // Confirmation Pop-Up before submission
+    const hasConfirmed = window.confirm('Are you sure you want to submit this reservation?');
+    if (!hasConfirmed) {
+      return;
+    }
+
+    const formValue = this.reservationForm.value;
+
+    //Service-Call
+    this.submitLoading = true;
+    this.submitError = undefined;
+
+    if(this.mode === ReservationCreateEditMode.create) {
+      //Creation of Create-DTO
+      const reservationPayload: ReservationCreation = {
+        customerProfileId: formValue.customerProfileId,
+        equipmentIds: this.selectedEquipment.map(e => e.id),
+        pickUpTime: formValue.pickUpTime + ':00',
+        pickUpDate: formValue.pickUpDate,
+        rentDurationDays: duration
+      };
+
+      this.reservationService.create(reservationPayload).subscribe({
+        next: (response) => {
+          console.log('Reservation submitted successfully', response);
+          this.submitLoading = false;
+          this.router.navigate(['/customer/reservation']);
+        },
+        error: (err) => {
+          console.error('Error during submission of reservation', err);
+          this.submitLoading = false;
+          this.submitError = err.error?.message || 'An error occurred while creating the reservation.';
+        }
+      });
+    }
+    else {
+      //Creation of Update-DTO
+      const reservationPayload: ReservationUpdate = {
+        id: this.reservationId!,
+        customerProfileId: formValue.customerProfileId,
+        equipmentIds: this.selectedEquipment.map(e => e.id),
+        pickUpTime: formValue.pickUpTime.length === 5 ? formValue.pickUpTime + ':00' : formValue.pickUpTime,
+        pickUpDate: formValue.pickUpDate,
+        rentDurationDays: duration
+      };
+
+      this.reservationService.update(this.reservationId!, reservationPayload).subscribe({
+        next: (response) => {
+          console.log('Reservation updated successfully', response);
+          this.submitLoading = false;
+          this.router.navigate(['/customer/reservation']);
+        },
+        error: (err) => {
+          console.error('Error during update of reservation', err);
+          this.submitLoading = false;
+          this.submitError = err.error?.message || 'An error occurred while updating the reservation.';
+        }
+      });
+    }
+  }
+}
