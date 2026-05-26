@@ -12,8 +12,8 @@ import {EquipmentType} from '../../../dtos/equipmenttype';
 import {RentalStatus} from '../../../dtos/rentalstatus';
 import {SkillLevel} from '../../../dtos/skilllevel';
 
-import { FormsModule } from '@angular/forms';
-import { NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
+import {FormsModule} from '@angular/forms';
+import {NgbTypeaheadModule} from '@ng-bootstrap/ng-bootstrap';
 
 describe('InventoryComponent', () => {
   let component: InventoryComponent;
@@ -117,7 +117,9 @@ describe('InventoryComponent', () => {
       model: 'Test Ski',
       type: EquipmentType.SKI,
       status: RentalStatus.FREE,
-      targetSkillLevel: SkillLevel.BEGINNER
+      targetSkillLevel: SkillLevel.BEGINNER,
+      start: undefined,
+      end: undefined
     });
     expect(component.loading).toBeFalse();
   });
@@ -136,7 +138,9 @@ describe('InventoryComponent', () => {
       model: undefined,
       type: undefined,
       status: undefined,
-      targetSkillLevel: undefined
+      targetSkillLevel: undefined,
+      start: undefined,
+      end: undefined
     });
   });
 
@@ -271,5 +275,47 @@ describe('InventoryComponent', () => {
 
       expect(component.currentPage).toBe(2);
     });
+  });
+
+  describe('InventoryComponent - Date Validation Logic', () => {
+
+    it('should clear endFilter if startFilter is updated to be after endFilter', () => {
+      component.startFilter = '2026-05-20';
+      component.endFilter = '2026-05-25';
+
+      spyOn(component, 'searchEquipment');
+
+      component.startFilter = '2026-05-28';
+      component.onStartDateChange();
+
+      expect(component.endFilter).toBeNull();
+      expect(component.searchEquipment).toHaveBeenCalled();
+    });
+
+    it('should clear endFilter if endFilter is updated to be before startFilter', () => {
+      component.startFilter = '2026-05-20';
+      component.endFilter = '2026-05-15';
+
+      spyOn(component, 'searchEquipment');
+
+      component.onEndDateChange();
+
+      expect(component.endFilter).toBeNull();
+      expect(component.searchEquipment).toHaveBeenCalled();
+    });
+
+    it('should not clear endFilter if startFilter and endFilter are valid', () => {
+      component.startFilter = '2026-05-20';
+      component.endFilter = '2026-05-25';
+
+      spyOn(component, 'searchEquipment');
+
+      component.onStartDateChange();
+      component.onEndDateChange();
+
+      expect(component.endFilter).toBe('2026-05-25');
+      expect(component.searchEquipment).toHaveBeenCalledTimes(2);
+    });
+
   });
 });

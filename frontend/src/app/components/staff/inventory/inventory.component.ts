@@ -29,6 +29,8 @@ export class InventoryComponent implements OnInit {
   typeFilter = null;
   statusFilter = null;
   skillFilter = null;
+  startFilter: string | null = null;
+  endFilter: string | null = null;
   priceSortDirection: 'asc' | 'desc' = 'asc';
 
   itemLimit: number = 10;
@@ -156,6 +158,8 @@ export class InventoryComponent implements OnInit {
       type: this.typeFilter ?? undefined,
       status: this.statusFilter ?? undefined,
       targetSkillLevel: this.skillFilter ?? undefined,
+      start: this.startFilter ?? undefined,
+      end: this.endFilter ?? undefined,
     };
 
     this.equipmentService.search(searchRequest).subscribe({
@@ -210,6 +214,8 @@ export class InventoryComponent implements OnInit {
     this.typeFilter = null;
     this.statusFilter = null;
     this.skillFilter = null;
+    this.startFilter = null;
+    this.endFilter = null;
     this.priceSortDirection = 'asc';
     this.loadEquipment();
   }
@@ -245,5 +251,19 @@ export class InventoryComponent implements OnInit {
 
   onItemLimitChange(): void {
     this.currentPage = 1;
+  }
+
+  onStartDateChange(): void {
+    if (this.startFilter && this.endFilter && this.startFilter > this.endFilter) {
+      this.endFilter = null;
+    }
+    this.searchEquipment();
+  }
+
+  onEndDateChange(): void {
+    if (this.startFilter && this.endFilter && this.startFilter > this.endFilter) {
+      this.endFilter = null;
+    }
+    this.searchEquipment();
   }
 }
