@@ -94,7 +94,7 @@ export class ReservationCreateComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load customer profiles from backend', err);
-        this.submitError = 'Kundenprofile konnten nicht geladen werden.';
+        this.submitError = "RESERVATION.CUSTOMER_PROFILES_LOADING_FAILED";
       }
     });
   }

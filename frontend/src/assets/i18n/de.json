@@ -158,7 +158,8 @@
     "ADD": "Hinzufügen",
     "ADDED": "Hinzugefügt",
     "SUBMIT": "Reservierung verbindlich abschicken",
-    "VALIDATION_WARNING": "Einige bereits ausgewählte Gegenstände wurden entfernt, da sie im neu gewählten Zeitraum nicht verfügbar sind."
+    "VALIDATION_WARNING": "Einige bereits ausgewählte Gegenstände wurden entfernt, da sie im neu gewählten Zeitraum nicht verfügbar sind.",
+    "CUSTOMER_PROFILES_LOADING_FAILED": "Kunden-Profile konnten nicht geladen werden"
   },
   "CUSTOMER": {
     "DASHBOARD_TITLE": "Kundenportal",

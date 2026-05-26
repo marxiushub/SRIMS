@@ -158,7 +158,8 @@
     "ADD": "Add",
     "ADDED": "Added",
     "SUBMIT": "Submit Binding Reservation",
-    "VALIDATION_WARNING": "Some previously selected items have been removed because they are not available in the newly selected period."
+    "VALIDATION_WARNING": "Some previously selected items have been removed because they are not available in the newly selected period.",
+    "CUSTOMER_PROFILES_LOADING_FAILED": "Loading of customer profiles failed"
   },
   "CUSTOMER": {
     "DASHBOARD_TITLE": "Customer Portal",
