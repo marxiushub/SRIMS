@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@ActiveProfiles({"test", "generateData"})
+@ActiveProfiles({"test"})
 @SpringBootTest
 public class CustomerProfileServiceTest extends IntegrationTestBase {
 
