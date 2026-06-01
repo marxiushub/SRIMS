@@ -1,22 +1,18 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests;
 
+import at.ac.tuwien.sepr.groupphase.backend.basetest.IntegrationTestBase;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.customerprofile.CustomerProfileCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.customerprofile.CustomerProfileDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.customerprofile.CustomerProfileUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
-import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.Customer;
-
+import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
-import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerProfileRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
-import at.ac.tuwien.sepr.groupphase.backend.service.CustomerProfileService;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
-import jakarta.transaction.Transactional;
+import at.ac.tuwien.sepr.groupphase.backend.service.CustomerProfileService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
@@ -26,34 +22,44 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-//AI-assisted
-
-@ActiveProfiles({"test", "generateData"})
+@ActiveProfiles({"test"})
 @SpringBootTest
-public class CustomerProfileServiceTest {
+public class CustomerProfileServiceTest extends IntegrationTestBase {
 
     @Autowired
     private CustomerProfileService customerProfileService;
 
-    @Autowired
-    private CustomerProfileRepository customerProfileRepository;
-
-    @Autowired
-    private CustomerRepository customerRepository;
-
-    @Test
-    @Transactional
-    @Rollback
-    public void createCustomerProfile_withValidDto_returnSavedProfileWithId() {
+    //Creates Test Customer
+    private Customer createTestCustomer(String suffix) {
         Customer customer = new Customer(
-            "profile_test_user",
+            "profile_user_" + suffix,
             "hashedPassword",
-            "profile.test@example.com",
+            "profile.user." + suffix + "@example.com",
             "Profile",
             "Tester",
-            LocalDate.of(1999,1,1)
+            LocalDate.of(1999, 1, 1)
         );
-        Customer savedCustomer = customerRepository.save(customer);
+
+        return customerRepository.save(customer);
+    }
+
+    //Creates Test Customer Profile
+    private CustomerProfile createTestProfile(Customer customer, String profileName, SkillLevel skillLevel) {
+        CustomerProfile profile = new CustomerProfile(
+            profileName,
+            175,
+            70,
+            42,
+            skillLevel,
+            customer
+        );
+
+        return customerProfileRepository.save(profile);
+    }
+
+    @Test
+    public void createCustomerProfile_withValidDto_returnSavedProfileWithId() {
+        Customer savedCustomer = createTestCustomer("create_valid");
 
         CustomerProfileCreationDto dto = new CustomerProfileCreationDto();
         dto.setCustomerId(savedCustomer.getId());
@@ -84,8 +90,6 @@ public class CustomerProfileServiceTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void createCustomerProfile_withUnknownCustomerId_throwsNotFoundException() {
         CustomerProfileCreationDto dto = new CustomerProfileCreationDto();
         dto.setCustomerId(99999L);
@@ -107,42 +111,13 @@ public class CustomerProfileServiceTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void getCustomerProfiles_withExistingCustomer_returnsProfiles() {
-        Customer customer = new Customer(
-            "list_profile_user",
-            "hashedPassword",
-            "list.profile@example.com",
-            "List",
-            "Tester",
-            LocalDate.of(1999, 1, 1)
-        );
+        Customer customer = createTestCustomer("list_profiles");
 
-        Customer savedCustomer = customerRepository.save(customer);
+        createTestProfile(customer, "First Test Profile", SkillLevel.BEGINNER);
+        createTestProfile(customer, "Second Test Profile", SkillLevel.ADVANCED);
 
-        CustomerProfile firstProfile = new CustomerProfile(
-            "First Test Profile",
-            175,
-            70,
-            42,
-            SkillLevel.BEGINNER,
-            savedCustomer
-        );
-
-        CustomerProfile secondProfile = new CustomerProfile(
-            "Second Test Profile",
-            180,
-            80,
-            44,
-            SkillLevel.ADVANCED,
-            savedCustomer
-        );
-
-        customerProfileRepository.save(firstProfile);
-        customerProfileRepository.save(secondProfile);
-
-        List<CustomerProfileDetailDto> result = customerProfileService.getCustomerProfiles(savedCustomer.getId());
+        List<CustomerProfileDetailDto> result = customerProfileService.getCustomerProfiles(customer.getId());
 
         assertAll(
             "Verify that all profiles for the customer are returned",
@@ -152,18 +127,14 @@ public class CustomerProfileServiceTest {
                 .extracting(CustomerProfileDetailDto::getProfileName)
                 .containsExactlyInAnyOrder("First Test Profile", "Second Test Profile"),
             () -> assertThat(result)
-                .allMatch(profile -> profile.getCustomerId().equals(savedCustomer.getId()))
+                .allMatch(profile -> profile.getCustomerId().equals(customer.getId()))
         );
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void getCustomerProfiles_withUnknownCustomer_throwsNotFoundException() {
-        Long unknownCustomerId = 99999L;
-
         NotFoundException exception = assertThrows(NotFoundException.class, () ->
-            customerProfileService.getCustomerProfiles(unknownCustomerId)
+            customerProfileService.getCustomerProfiles(99999L)
         );
 
         assertAll(
@@ -174,44 +145,19 @@ public class CustomerProfileServiceTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void deleteCustomerProfile_withExistingProfile_deletesProfile() {
-        Customer customer = new Customer(
-            "delete_profile_user",
-            "hashedPassword",
-            "delete.profile@example.com",
-            "Delete",
-            "Tester",
-            LocalDate.of(1989, 2, 2)
-        );
+        Customer customer = createTestCustomer("delete_profile");
+        CustomerProfile profile = createTestProfile(customer, "Profile To Delete", SkillLevel.BEGINNER);
 
-        Customer savedCustomer = customerRepository.save(customer);
+        customerProfileService.deleteCustomerProfile(profile.getId());
 
-        CustomerProfile profile = new CustomerProfile(
-            "Profile To Delete",
-            175,
-            70,
-            42,
-            SkillLevel.BEGINNER,
-            savedCustomer
-        );
-
-        CustomerProfile savedProfile = customerProfileRepository.save(profile);
-
-        customerProfileService.deleteCustomerProfile(savedProfile.getId());
-
-        assertThat(customerProfileRepository.existsById(savedProfile.getId())).isFalse();
+        assertThat(customerProfileRepository.existsById(profile.getId())).isFalse();
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void deleteCustomerProfile_withUnknownProfile_throwsNotFoundException() {
-        Long unknownProfileId = 99999L;
-
         NotFoundException exception = assertThrows(NotFoundException.class, () ->
-            customerProfileService.deleteCustomerProfile(unknownProfileId)
+            customerProfileService.deleteCustomerProfile(99999L)
         );
 
         assertAll(
@@ -222,50 +168,28 @@ public class CustomerProfileServiceTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void updateCustomerProfile_withValidDto_updatesOnlyProvidedFields() {
-        Customer customer = new Customer(
-            "update_profile_user",
-            "hashedPassword",
-            "update.profile@example.com",
-            "Update",
-            "Tester",
-            LocalDate.of(1999, 1, 1)
-        );
-
-        Customer savedCustomer = customerRepository.save(customer);
-
-        CustomerProfile profile = new CustomerProfile(
-            "Old Profile Name",
-            175,
-            70,
-            42,
-            SkillLevel.BEGINNER,
-            savedCustomer
-        );
-
-        CustomerProfile savedProfile = customerProfileRepository.save(profile);
+        Customer customer = createTestCustomer("update_profile");
+        CustomerProfile profile = createTestProfile(customer, "Old Profile Name", SkillLevel.BEGINNER);
 
         CustomerProfileUpdateDto dto = new CustomerProfileUpdateDto();
         dto.setProfileName("Updated Profile Name");
         dto.setHeight(180.0);
         dto.setSkillLevel(SkillLevel.ADVANCED);
 
-        CustomerProfileDetailDto result = customerProfileService.updateCustomerProfile(savedProfile.getId(), dto);
+        CustomerProfileDetailDto result = customerProfileService.updateCustomerProfile(profile.getId(), dto);
 
-        CustomerProfile updatedProfile = customerProfileRepository.findById(savedProfile.getId()).orElseThrow();
+        CustomerProfile updatedProfile = customerProfileRepository.findById(profile.getId()).orElseThrow();
 
         assertAll(
             "Verify that only provided fields are updated",
             () -> assertThat(result).isNotNull(),
-            () -> assertThat(result.getId()).isEqualTo(savedProfile.getId()),
+            () -> assertThat(result.getId()).isEqualTo(profile.getId()),
             () -> assertThat(result.getProfileName()).isEqualTo("Updated Profile Name"),
             () -> assertThat(result.getHeight()).isEqualTo(180.0),
             () -> assertThat(result.getWeight()).isEqualTo(70),
             () -> assertThat(result.getShoeSize()).isEqualTo(42),
             () -> assertThat(result.getSkillLevel()).isEqualTo(SkillLevel.ADVANCED),
-
             () -> assertThat(updatedProfile.getProfileName()).isEqualTo("Updated Profile Name"),
             () -> assertThat(updatedProfile.getHeight()).isEqualTo(180.0),
             () -> assertThat(updatedProfile.getWeight()).isEqualTo(70),
@@ -275,8 +199,6 @@ public class CustomerProfileServiceTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void updateCustomerProfile_withUnknownProfile_throwsNotFoundException() {
         CustomerProfileUpdateDto dto = new CustomerProfileUpdateDto();
         dto.setProfileName("Updated Profile Name");
@@ -293,13 +215,14 @@ public class CustomerProfileServiceTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void updateCustomerProfile_withEmptyDto_throwsValidationException() {
+        Customer customer = createTestCustomer("empty_update");
+        CustomerProfile profile = createTestProfile(customer, "Empty Update Profile", SkillLevel.BEGINNER);
+
         CustomerProfileUpdateDto dto = new CustomerProfileUpdateDto();
 
         ValidationException exception = assertThrows(ValidationException.class, () ->
-            customerProfileService.updateCustomerProfile(1L, dto)
+            customerProfileService.updateCustomerProfile(profile.getId(), dto)
         );
 
         assertAll(
@@ -310,14 +233,15 @@ public class CustomerProfileServiceTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void updateCustomerProfile_withBlankProfileName_throwsValidationException() {
+        Customer customer = createTestCustomer("blank_profile_name");
+        CustomerProfile profile = createTestProfile(customer, "Blank Profile Name Test", SkillLevel.BEGINNER);
+
         CustomerProfileUpdateDto dto = new CustomerProfileUpdateDto();
         dto.setProfileName("");
 
         ValidationException exception = assertThrows(ValidationException.class, () ->
-            customerProfileService.updateCustomerProfile(1L, dto)
+            customerProfileService.updateCustomerProfile(profile.getId(), dto)
         );
 
         assertAll(
@@ -328,38 +252,17 @@ public class CustomerProfileServiceTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void getCustomerProfileById_withExistingProfile_returnsProfile() {
-        Customer customer = new Customer(
-            "get_by_id_profile_user",
-            "hashedPassword",
-            "get.by.id.profile@example.com",
-            "GetById",
-            "Tester",
-            LocalDate.of(1999, 1, 1)
-        );
+        Customer customer = createTestCustomer("get_by_id");
+        CustomerProfile profile = createTestProfile(customer, "Profile By Id", SkillLevel.BEGINNER);
 
-        Customer savedCustomer = customerRepository.save(customer);
-
-        CustomerProfile profile = new CustomerProfile(
-            "Profile By Id",
-            175,
-            70,
-            42,
-            SkillLevel.BEGINNER,
-            savedCustomer
-        );
-
-        CustomerProfile savedProfile = customerProfileRepository.save(profile);
-
-        CustomerProfileDetailDto result = customerProfileService.getCustomerProfileById(savedProfile.getId());
+        CustomerProfileDetailDto result = customerProfileService.getCustomerProfileById(profile.getId());
 
         assertAll(
             "Verify that a customer profile can be retrieved by ID",
             () -> assertThat(result).isNotNull(),
-            () -> assertThat(result.getId()).isEqualTo(savedProfile.getId()),
-            () -> assertThat(result.getCustomerId()).isEqualTo(savedCustomer.getId()),
+            () -> assertThat(result.getId()).isEqualTo(profile.getId()),
+            () -> assertThat(result.getCustomerId()).isEqualTo(customer.getId()),
             () -> assertThat(result.getProfileName()).isEqualTo("Profile By Id"),
             () -> assertThat(result.getHeight()).isEqualTo(175),
             () -> assertThat(result.getWeight()).isEqualTo(70),
@@ -369,8 +272,6 @@ public class CustomerProfileServiceTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void getCustomerProfileById_withUnknownProfile_throwsNotFoundException() {
         NotFoundException exception = assertThrows(NotFoundException.class, () ->
             customerProfileService.getCustomerProfileById(99999L)
