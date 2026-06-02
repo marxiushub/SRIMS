@@ -1,6 +1,5 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity.user;
 
-import at.ac.tuwien.sepr.groupphase.backend.entity.enums.UserType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
