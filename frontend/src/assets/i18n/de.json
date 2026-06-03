@@ -24,6 +24,7 @@
     "DELETE_CANCEL": "Abbrechen",
     "DELETE_CONFIRM": "Löschen",
     "DELETE_ERROR": "Ausrüstung konnte nicht gelöscht werden.",
+    "DELETE_SUCCESS": "Ausrüstung '{{model}}' erfolgreich gelöscht.",
     "EQUIPMENT_TYP": "Typ",
     "AVAILABLE": "Verfügbar",
     "RENTED": "Verliehen",
@@ -73,6 +74,7 @@
     "SAVE": "Speichern",
     "CANCEL": "Abbrechen",
     "ERROR": "Equipment konnte nicht erstellt werden.",
+    "SUCCESS": "Ausrüstung '{{model}}' erfolgreich erstellt.",
     "MODEL_REQUIRED": "Modell ist erforderlich.",
     "PRICE_REQUIRED": "Preis ist erforderlich.",
     "LENGTH_REQUIRED": "Länge ist erforderlich.",
@@ -93,7 +95,8 @@
   "EQUIPMENT_EDIT": {
     "TITLE": "Bearbeiten",
     "SAVE": "Änderungen speichern",
-    "ERROR": "Equipment konnte nicht aktualisiert werden."
+    "ERROR": "Equipment konnte nicht aktualisiert werden.",
+    "SUCCESS": "Ausrüstung '{{model}}' erfolgreich aktualisiert."
   },
   "STAFF": {
     "DASHBOARD_TITLE": "Mitarbeiter Dashboard",

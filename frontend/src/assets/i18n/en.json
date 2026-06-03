@@ -25,6 +25,7 @@
     "DELETE_CANCEL": "Cancel",
     "DELETE_CONFIRM": "Delete",
     "DELETE_ERROR": "Equipment could not be deleted.",
+    "DELETE_SUCCESS": "Equipment '{{model}}' successfully deleted.",
     "AVAILABLE": "Available",
     "RENTED": "Rented",
     "EQUIPMENT_ALL": "All",
@@ -73,6 +74,7 @@
     "SAVE": "Save",
     "CANCEL": "Cancel",
     "ERROR": "Equipment could not be created.",
+    "SUCCESS": "Equipment '{{model}}' successfully created.",
     "MODEL_REQUIRED": "Model is required.",
     "PRICE_REQUIRED": "Price is required.",
     "LENGTH_REQUIRED": "Length is required.",
@@ -93,7 +95,8 @@
   "EQUIPMENT_EDIT": {
     "TITLE": "Edit",
     "SAVE": "Update",
-    "ERROR": "Equipment could not be updated."
+    "ERROR": "Equipment could not be updated.",
+    "SUCCESS": "Equipment '{{model}}' successfully updated."
   },
   "STAFF": {
     "DASHBOARD_TITLE": "Staff Dashboard",

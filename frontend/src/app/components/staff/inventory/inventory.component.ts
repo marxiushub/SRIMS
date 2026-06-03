@@ -8,6 +8,7 @@ import {EquipmentType} from "../../../dtos/equipmenttype";
 import {RentalStatus} from "../../../dtos/rentalstatus";
 import {SkillLevel} from "../../../dtos/skilllevel";
 import {EquipmentSearch} from '../../../dtos/equipment-search';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-inventory',
@@ -58,7 +59,7 @@ export class InventoryComponent implements OnInit {
     SkillLevel.ADVANCED
   ];
 
-  constructor(private equipmentService: EquipmentService, public translateService: TranslateService, private router: Router) {
+  constructor(private equipmentService: EquipmentService, public translateService: TranslateService, private router: Router, private notification: ToastrService) {
   }
 
   ngOnInit(): void {
@@ -112,6 +113,7 @@ export class InventoryComponent implements OnInit {
 
     this.deleteLoading = true;
     this.deleteError = undefined;
+    const deletedModelName = this.equipmentToDelete.model;
 
     this.equipmentService.delete(this.equipmentToDelete.id).subscribe({
       next: () => {
@@ -124,6 +126,10 @@ export class InventoryComponent implements OnInit {
 
         this.equipmentToDelete = undefined;
         this.deleteLoading = false;
+        const translatedMessage = this.translateService.instant('INVENTORY.DELETE_SUCCESS', {
+          model: deletedModelName
+        });
+        this.notification.success(translatedMessage);
       },
 
       error: (err) => {
