@@ -71,7 +71,7 @@ export class CustomerProfileComponent {
 
     this.deleteLoading = true;
     this.deleteError = undefined;
-    const deletedModelName = this.profileToDelete.profileName;
+    const deletedProfileName = this.profileToDelete.profileName;
 
     this.customerProfileService.delete(this.profileToDelete.id).subscribe({
       next: () => {
@@ -82,7 +82,7 @@ export class CustomerProfileComponent {
         this.profileToDelete = undefined;
         this.deleteLoading = false;
         const translatedMessage = this.translateService.instant('CUSTOMER_PROFILE.DELETE_SUCCESS', {
-          name: deletedModelName
+          name: deletedProfileName
         });
         this.notification.success(translatedMessage);
       },

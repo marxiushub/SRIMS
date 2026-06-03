@@ -177,12 +177,17 @@
     "CUSTOMER_PROFILES_LOADING_FAILED": "Loading of customer profiles failed",
     "TITLE_OVERVIEW": "My Reservations",
     "ADD_RESERVATION": "Create New Reservation",
+    "CREATE_SUCCESS": "Reservation successfully created.",
     "NO_RESERVATIONS_FOUND": "No reservations found for this account.",
     "ID": "Reservation ID",
     "EQUIPMENT_COUNT": "Equipment",
     "ITEMS": "item(s)",
     "DELETE_TITLE": "Cancel Reservation",
-    "DELETE_CONFIRMATION": "Are you sure you want to cancel this reservation?"
+    "DELETE_CONFIRMATION": "Are you sure you want to cancel this reservation?",
+    "DELETE_SUCCESS": "Reservation #{{id}} successfully canceled.",
+    "TITLE_EDIT": "Update Reservation",
+    "UPDATE": "Update",
+    "EDIT_SUCCESS": "Reservation #{{id}} successfully updated."
   },
   "CUSTOMER": {
     "DASHBOARD_TITLE": "Customer Portal",
