@@ -214,6 +214,7 @@
     "NO_PROFILES": "No profiles found.",
     "PROFILE_ACTIONS": "Actions",
     "DELETE": "Delete",
+    "DELETE_SUCCESS": "Profile '{{name}}' successfully deleted.",
     "DETAILS": "Details"
   },
   "CUSTOMER_PROFILE_CREATE": {
@@ -226,6 +227,7 @@
     "SAVE": "Save",
     "CANCEL": "Cancel",
     "ERROR": "Profile could not be created.",
+    "SUCCESS": "Profile '{{name}}' successfully created.",
     "NAME_REQUIRED": "Profile name is required.",
     "NAME_NOT_BLANK": "Profile name must not only contain spaces.",
     "HEIGHT_REQUIRED": "Height is required.",
@@ -241,7 +243,8 @@
   "CUSTOMER_PROFILE_EDIT": {
     "TITLE": "Edit Profile",
     "SAVE": "Update",
-    "ERROR": "Profile could not be updated."
+    "ERROR": "Profile could not be updated.",
+    "SUCCESS": "Profile '{{name}}' successfully updated."
   },
   "CUSTOMER_PROFILE_DELETE": {
     "TITLE": "Delete Profile",

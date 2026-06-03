@@ -1,9 +1,11 @@
 import {Component} from '@angular/core';
 import {CustomerProfileService} from "../../../../services/customer-profile.service";
+import {TranslateService} from '@ngx-translate/core';
 import {CustomerProfileCreationUpdate} from "../../../../dtos/customer-profile-creation-update";
 import {SkillLevel} from "../../../../dtos/skilllevel";
 import {ActivatedRoute, Router} from "@angular/router";
 import {NgForm, NgModel} from "@angular/forms";
+import {ToastrService} from 'ngx-toastr';
 
 export enum ProfileCreateEditMode {
   create,
@@ -41,7 +43,7 @@ export class CustomerProfileCreateEditComponent {
     SkillLevel.ADVANCED
   ]
 
-  constructor(private customerProfileService: CustomerProfileService, private router: Router, private route: ActivatedRoute) {
+  constructor(private customerProfileService: CustomerProfileService, public translateService: TranslateService, private router: Router, private route: ActivatedRoute, private notification: ToastrService) {
   }
 
   ngOnInit(): void {
@@ -105,6 +107,10 @@ export class CustomerProfileCreateEditComponent {
         next: () => {
           this.loading = false;
           this.router.navigate(['/customer/profiles']);
+          const translatedMessage = this.translateService.instant('CUSTOMER_PROFILE_CREATE.SUCCESS', {
+            name: this.profile.profileName
+          });
+          this.notification.success(translatedMessage);
         },
         error: err => {
           console.error('Failed to create profile', err);
@@ -117,6 +123,10 @@ export class CustomerProfileCreateEditComponent {
         next: () => {
           this.loading = false;
           this.router.navigate(['/customer/profiles']);
+          const translatedMessage = this.translateService.instant('CUSTOMER_PROFILE_EDIT.SUCCESS', {
+            name: this.profile.profileName
+          });
+          this.notification.success(translatedMessage);
         },
         error: err => {
           console.error('Failed to update profile', err);
