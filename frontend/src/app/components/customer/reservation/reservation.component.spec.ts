@@ -1,5 +1,5 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslateModule, TranslateService} from "@ngx-translate/core";
 import {of, throwError} from "rxjs";
 import {provideHttpClient} from "@angular/common/http";
 import {provideHttpClientTesting} from "@angular/common/http/testing";
@@ -12,6 +12,7 @@ import {CustomerProfileService} from "../../../services/customer-profile.service
 import {ReservationDetail} from '../../../dtos/reservation-detail';
 import {CustomerProfile} from '../../../dtos/customer-profile';
 import {SkillLevel} from "../../../dtos/skilllevel";
+import {ToastrModule, ToastrService} from 'ngx-toastr';
 
 // AI-assisted: Code generated with Google Gemini and adapted
 describe('ReservationComponent', () => {
@@ -19,10 +20,27 @@ describe('ReservationComponent', () => {
   let fixture: ComponentFixture<ReservationComponent>;
   let reservationServiceMock: jasmine.SpyObj<ReservationService>;
   let customerProfileServiceMock: jasmine.SpyObj<CustomerProfileService>;
+  let toastrServiceMock: jasmine.SpyObj<ToastrService>;
 
   const testProfiles: CustomerProfile[] = [
-    { id: 1, customerId: 1, profileName: 'Max Mustermann', height: 180, weight: 75, shoeSize: 42, skillLevel: SkillLevel.INTERMEDIATE },
-    { id: 2, customerId: 2, profileName: 'Erika Musterfrau', height: 165, weight: 55, shoeSize: 38, skillLevel: SkillLevel.ADVANCED }
+    {
+      id: 1,
+      customerId: 1,
+      profileName: 'Max Mustermann',
+      height: 180,
+      weight: 75,
+      shoeSize: 42,
+      skillLevel: SkillLevel.INTERMEDIATE
+    },
+    {
+      id: 2,
+      customerId: 2,
+      profileName: 'Erika Musterfrau',
+      height: 165,
+      weight: 55,
+      shoeSize: 38,
+      skillLevel: SkillLevel.ADVANCED
+    }
   ];
 
   const testReservations: ReservationDetail[] = [
@@ -36,7 +54,7 @@ describe('ReservationComponent', () => {
       returnDate: '2026-12-31',
       rentDurationDays: 7,
       confirmationEmailSent: true,
-      items: [{ id: 1, model: 'Ski Alpha', price: 25 } as any]
+      items: [{id: 1, model: 'Ski Alpha', price: 25} as any]
     },
     {
       id: 200,
@@ -59,19 +77,22 @@ describe('ReservationComponent', () => {
     reservationServiceMock.search.and.returnValue(of([]));
     customerProfileServiceMock.getCustomerProfiles.and.returnValue(of(testProfiles));
     reservationServiceMock.delete.and.returnValue(of(void 0));
+    toastrServiceMock = jasmine.createSpyObj('ToastrService', ['success', 'error', 'warning', 'info']);
 
     await TestBed.configureTestingModule({
       declarations: [ReservationComponent],
       imports: [
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
+        ToastrModule.forRoot(),
         FormsModule
       ],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: ReservationService, useValue: reservationServiceMock },
-        { provide: CustomerProfileService, useValue: customerProfileServiceMock }
+        {provide: ReservationService, useValue: reservationServiceMock},
+        {provide: CustomerProfileService, useValue: customerProfileServiceMock},
+        {provide: ToastrService, useValue: toastrServiceMock}
       ]
     }).compileComponents();
 
@@ -109,9 +130,12 @@ describe('ReservationComponent', () => {
     expect(component.deleteLoading).toBeFalse();
   });
 
-  it('should call delete service and remove reservation from list', () => {
+  it('should call delete service and remove reservation from list, and show success notification', () => {
     component.reservations = [...testReservations];
     component.reservationToDelete = testReservations[0];
+
+    const translateService = TestBed.inject(TranslateService);
+    spyOn(translateService, 'instant').and.returnValue('Reservation deleted');
 
     component.confirmDelete();
 
@@ -120,6 +144,7 @@ describe('ReservationComponent', () => {
     expect(component.reservations[0].id).toBe(200);
     expect(component.reservationToDelete).toBeUndefined();
     expect(component.deleteLoading).toBeFalse();
+    expect(toastrServiceMock.success).toHaveBeenCalledWith('Reservation deleted');
   });
 
   it('should call search with accountId, mapped filters and correct time format', () => {
@@ -169,7 +194,7 @@ describe('ReservationComponent', () => {
     expect(component.profileFilter).toBeNull();
     expect(component.dateFilter).toBe('');
     expect(component.timeFilter).toBe('');
-    expect(reservationServiceMock.search).toHaveBeenCalledWith({ accountId: 1 });
+    expect(reservationServiceMock.search).toHaveBeenCalledWith({accountId: 1});
   });
 
   it('should set loading false when search fails', () => {
@@ -187,7 +212,7 @@ describe('ReservationComponent', () => {
 
   describe('Pagination', () => {
     beforeEach(() => {
-      const manyReservations = Array.from({ length: 12 }).map((_, i) => ({
+      const manyReservations = Array.from({length: 12}).map((_, i) => ({
         id: i + 1,
         customerProfileId: 1,
         accountId: 1,
