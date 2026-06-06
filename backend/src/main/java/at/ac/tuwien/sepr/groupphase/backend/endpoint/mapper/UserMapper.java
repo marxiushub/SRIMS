@@ -22,6 +22,7 @@ import org.mapstruct.SubclassMapping;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.Mapping;
+import org.mapstruct.AfterMapping;
 
 import java.util.List;
 import java.util.Set;
@@ -35,13 +36,22 @@ public interface UserMapper {
 
 
     //Entity => DetailDto (create)
+    //Entity => DetailDto (create)
     @SubclassMapping(source = Customer.class, target = CustomerDetailDto.class)
     @SubclassMapping(source = Staff.class, target = StaffDetailDto.class)
     @Mapping(target = "roles", source = "roles")
     @Mapping(target = "directPermissions", source = "directPermissions")
-    @Mapping(target = "userType", expression = "java(determineUserType(applicationUser))")
-    UserDetailDto entityToDetailDto(ApplicationUser applicationUser);
+    @Mapping(target = "userType", ignore = true)
+    UserDetailDto entityToDetailDto(ApplicationUser user);
 
+    @AfterMapping
+    default void setUserTypeDetail(ApplicationUser user, @MappingTarget UserDetailDto dto) {
+        if (user instanceof Customer) {
+            dto.setUserType(UserType.CUSTOMER);
+        } else if (user instanceof Staff) {
+            dto.setUserType(UserType.STAFF);
+        }
+    }
 
     //Update
     //UserType specific
@@ -77,7 +87,18 @@ public interface UserMapper {
     //Entity => SearchResponseDto
     @SubclassMapping(source = Customer.class, target = CustomerSearchResponseDto.class)
     @SubclassMapping(source = Staff.class, target = StaffSearchResponseDto.class)
+    @Mapping(target = "userType", ignore = true)
     UserSearchResponseDto entityToSearchResponseDto(ApplicationUser user);
+
+    @AfterMapping
+    default void setUserTypeSearch(ApplicationUser user, @MappingTarget UserSearchResponseDto dto) {
+        if (user instanceof Customer) {
+            dto.setUserType(UserType.CUSTOMER);
+        } else if (user instanceof Staff) {
+            dto.setUserType(UserType.STAFF);
+        }
+    }
+
 
     // Helper methods for mapping roles & permissions -> List<String>
     default List<String> mapRolesToNames(Set<Role> roles) {

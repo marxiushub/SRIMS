@@ -8,6 +8,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.FetchType;
 
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -21,7 +22,7 @@ public class Role {
     private String name;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    private Set<Permission> permissions;
+    private Set<Permission> permissions = new HashSet<>();
 
     /**
      * empty constructor,for jpa.

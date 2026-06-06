@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Past;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 
 /**
  * Dto for creating Customers.
@@ -61,6 +62,6 @@ public class CustomerCreationDto extends UserCreationDto {
 
     @Override
     public Customer toEntity() {
-        return new Customer(getUserName(), getPassword(), getEmail(), getFirstName(), getLastName(), getDateOfBirth());
+        return new Customer(getUserName(), getPassword(), getEmail(), new HashSet<>(), new HashSet<>(), getFirstName(), getLastName(), getDateOfBirth());
     }
 }
