@@ -157,13 +157,8 @@ public class CustomUserDetailService implements UserService {
 
         LOGGER.info("Updating user with id {}", id);
 
-        if (id == null) {
-            throw new IllegalArgumentException("id is null");
-        }
-
-        if (id < 0) {
-            throw new IllegalArgumentException("id is negative");
-        }
+        validator.userUpdateDtoValidator(updateDto);
+        validator.idTester(id);
 
         ApplicationUser existingUser = userRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("User with ID " + id + " was not found."));
@@ -184,9 +179,7 @@ public class CustomUserDetailService implements UserService {
     public void deleteUserById(Long userId) {
         LOGGER.trace("Deleting user with id {}", userId);
 
-        if (userId == null) {
-            throw new IllegalArgumentException("userId is null");
-        }
+       validator.idTester(userId);
 
         ApplicationUser user = userRepository.findById(userId)
             .orElseThrow(() -> new NotFoundException(String.format("Could not find user with id %d", userId)));
@@ -202,13 +195,7 @@ public class CustomUserDetailService implements UserService {
 
         LOGGER.debug("Get user by id {}", id);
 
-        if (id == null) {
-            throw new IllegalArgumentException("id is null");
-        }
-
-        if (id < 0) {
-            throw new IllegalArgumentException("id is negative");
-        }
+        validator.idTester(id);
 
         ApplicationUser user = userRepository.findById(id)
             .orElseThrow(() ->
