@@ -41,7 +41,6 @@ public class UserServiceValidator {
         if (userUpdateDto == null) {
             validationErrors.add("userCreationDto is null");
         }
-
         if (!validationErrors.isEmpty()) {
             throw new ValidationException("Validation of the dto for updating users failed", validationErrors);
         }

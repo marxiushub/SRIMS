@@ -66,6 +66,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 
+    @ExceptionHandler(value = {IllegalStateException.class})
+    protected ResponseEntity<Object> handleIllegalArgument(IllegalStateException ex, WebRequest request) {
+        LOGGER.warn(ex.getMessage());
+        return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
     @ExceptionHandler(value = {ValidationException.class})
     protected ResponseEntity<Object> handleValidationException(
         ValidationException ex,
