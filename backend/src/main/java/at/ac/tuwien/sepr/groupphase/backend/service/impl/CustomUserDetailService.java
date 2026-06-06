@@ -43,7 +43,7 @@ public class CustomUserDetailService implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenizer jwtTokenizer;
-
+    private final UserServiceValidator validator;
     private final CustomerRepository customerRepository;
     private final StaffRepository staffRepository;
     private final Map<UserType, JpaRepository<? extends ApplicationUser, Long>> repositoryMap;
@@ -62,13 +62,14 @@ public class CustomUserDetailService implements UserService {
      */
     @Autowired
     public CustomUserDetailService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtTokenizer jwtTokenizer,  CustomerRepository customerRepository, StaffRepository staffRepository,
-                                   UserMapper mapper, RoleRepository roleRepository) {
+                                   UserMapper mapper, RoleRepository roleRepository, UserServiceValidator validator) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenizer = jwtTokenizer;
         this.roleRepository = roleRepository;
         this.customerRepository = customerRepository;
         this.staffRepository = staffRepository;
+        this.validator = validator;
         this.repositoryMap = Map.of(
             UserType.CUSTOMER, customerRepository,
             UserType.STAFF, staffRepository
@@ -81,7 +82,6 @@ public class CustomUserDetailService implements UserService {
         LOGGER.debug("Load all user by email");
         try {
             ApplicationUser applicationUser = findApplicationUserByEmail(email);
-
 
             List<String> authorityStrings = Stream.concat(
                 applicationUser.getRoles().stream().map(Role::getName),
@@ -129,19 +129,9 @@ public class CustomUserDetailService implements UserService {
     public UserDetailDto createUser(UserCreationDto userCreationDto) {
         LOGGER.trace("Creating user with email {}", userCreationDto.getEmail());
 
+        validator.userCreationDtoValidator(userCreationDto);
+
         JpaRepository<ApplicationUser, Long> repo = (JpaRepository<ApplicationUser, Long>) repositoryMap.get(userCreationDto.getType());
-
-        if (userCreationDto == null) {
-            throw new IllegalArgumentException("userCreationDto is null");
-        }
-
-        if (userCreationDto.getEmail() == null || userCreationDto.getEmail().isBlank()) {
-            throw new IllegalArgumentException("email is blank");
-        }
-
-        if (repo == null) {
-            throw new IllegalArgumentException("Unknown equipment type: " + userCreationDto.getType());
-        }
 
         ApplicationUser user = userCreationDto.toEntity();
 
