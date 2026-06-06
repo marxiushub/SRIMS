@@ -4,6 +4,8 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.enums.UserType;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import java.util.List;
+
 /**
  * Represents a Data Transfer Object (DTO) for user information. This class
  * is used to transfer user data between different layers of the application.
@@ -26,9 +28,28 @@ public class UserDetailDto {
     private String email;
     private UserType userType;
 
+    private List<String> roles;
+    private List<String> directPermissions;
+
     /**
      * Getter and setter.
      */
+    public List<String> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<String> roles) {
+        this.roles = roles;
+    }
+
+    public List<String> getDirectPermissions() {
+        return directPermissions;
+    }
+
+    public void setDirectPermissions(List<String> directPermissions) {
+        this.directPermissions = directPermissions;
+    }
+
     public Long getId() {
         return id;
     }

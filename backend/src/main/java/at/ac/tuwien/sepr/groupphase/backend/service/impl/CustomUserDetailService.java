@@ -6,12 +6,15 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.detail.UserDeta
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.UserSearchResponseDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.UserUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.UserMapper;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Permission;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Role;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.UserType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.StaffRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.UserRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.RoleRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import org.slf4j.Logger;
@@ -30,6 +33,8 @@ import org.springframework.stereotype.Service;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class CustomUserDetailService implements UserService {
@@ -43,6 +48,7 @@ public class CustomUserDetailService implements UserService {
     private final StaffRepository staffRepository;
     private final Map<UserType, JpaRepository<? extends ApplicationUser, Long>> repositoryMap;
     private final UserMapper mapper;
+    private final  RoleRepository roleRepository;
 
     /**
      * Constructor for EquipmentService. Initializes the service with the necessary repositories and mapper.
@@ -55,11 +61,12 @@ public class CustomUserDetailService implements UserService {
      * @param mapper                the mapper for converting between entities and DTOs
      */
     @Autowired
-    public CustomUserDetailService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtTokenizer jwtTokenizer,  CustomerRepository customerRepository, StaffRepository staffRepository, UserMapper mapper) {
+    public CustomUserDetailService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtTokenizer jwtTokenizer,  CustomerRepository customerRepository, StaffRepository staffRepository,
+                                   UserMapper mapper, RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenizer = jwtTokenizer;
-
+        this.roleRepository = roleRepository;
         this.customerRepository = customerRepository;
         this.staffRepository = staffRepository;
         this.repositoryMap = Map.of(
@@ -75,13 +82,14 @@ public class CustomUserDetailService implements UserService {
         try {
             ApplicationUser applicationUser = findApplicationUserByEmail(email);
 
-            List<GrantedAuthority> grantedAuthorities;
-            //Rework for new User Model
-            if (applicationUser.getAdmin()) {
-                grantedAuthorities = AuthorityUtils.createAuthorityList("ROLE_ADMIN", "ROLE_USER");
-            } else {
-                grantedAuthorities = AuthorityUtils.createAuthorityList("ROLE_USER");
-            }
+
+            List<String> authorityStrings = Stream.concat(
+                applicationUser.getRoles().stream().map(Role::getName),
+                applicationUser.getDirectPermissions().stream().map(Permission::getName)
+            ).collect(Collectors.toList());
+
+            String[] authoritiesArray = authorityStrings.toArray(new String[0]);
+            List<GrantedAuthority> grantedAuthorities = AuthorityUtils.createAuthorityList(authoritiesArray);
 
             return new User(applicationUser.getEmail(), applicationUser.getPassword(), grantedAuthorities);
         } catch (NotFoundException e) {
@@ -139,6 +147,15 @@ public class CustomUserDetailService implements UserService {
 
         user.setPassword(passwordEncoder.encode(userCreationDto.getPassword()));
 
+        // Set default role based on type
+        //String roleName = userCreationDto.getType() == UserType.CUSTOMER ? "ROLE_CUSTOMER" : "ROLE_STAFF";
+        String roleName = " ROLE_" + userCreationDto.getType().toString();
+        Role role = roleRepository.findByName(roleName)
+            .orElseThrow(() -> new IllegalStateException(roleName + " not found"));
+        user.getRoles().clear();
+        user.getRoles().add(role);
+
+        ApplicationUser saved = repo.save(user);
         UserDetailDto created = mapper.entityToDetailDto(repo.save(user));
 
         return created;

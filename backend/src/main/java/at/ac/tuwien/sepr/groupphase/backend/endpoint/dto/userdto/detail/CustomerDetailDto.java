@@ -12,7 +12,7 @@ public class CustomerDetailDto extends UserDetailDto {
     private String firstName;
     private String lastName;
     private LocalDate dateOfBirth;
-    private UserType userType;
+
 
     /**
      * Getter and setter.
@@ -41,7 +41,5 @@ public class CustomerDetailDto extends UserDetailDto {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public UserType getUserType() {
-        return userType;
-    }
+
 }
