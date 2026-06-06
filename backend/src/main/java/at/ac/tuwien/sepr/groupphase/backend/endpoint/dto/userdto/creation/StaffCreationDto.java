@@ -1,7 +1,11 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation;
 
+import at.ac.tuwien.sepr.groupphase.backend.entity.Role;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.UserType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.Staff;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * DTO for creating Staff users.
@@ -18,6 +22,6 @@ public class StaffCreationDto extends UserCreationDto {
 
     @Override
     public Staff toEntity() {
-        return new Staff(getUserName(), getPassword(), getEmail());
+        return new Staff(getUserName(), getPassword(), getEmail(), new HashSet<>(), new HashSet<>());
     }
 }
