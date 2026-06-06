@@ -1,5 +1,5 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslateModule, TranslateService} from "@ngx-translate/core";
 import {of, throwError} from "rxjs";
 import {Router} from "@angular/router";
 
@@ -7,11 +7,13 @@ import {CustomerProfileComponent} from './customer-profile.component';
 import {CustomerProfileService} from '../../../services/customer-profile.service';
 import {SkillLevel} from '../../../dtos/skilllevel';
 import {CustomerProfile} from '../../../dtos/customer-profile';
+import {ToastrModule, ToastrService} from 'ngx-toastr';
 
 describe('CustomerProfileComponent', () => {
   let component: CustomerProfileComponent;
   let fixture: ComponentFixture<CustomerProfileComponent>;
   let customerProfileServiceMock: jasmine.SpyObj<CustomerProfileService>;
+  let toastrServiceMock: jasmine.SpyObj<ToastrService>;
 
   const routerMock = {
     navigate: jasmine.createSpy("navigate"),
@@ -42,15 +44,17 @@ describe('CustomerProfileComponent', () => {
     customerProfileServiceMock = jasmine.createSpyObj('CustomerProfileService', ['getCustomerProfiles', 'delete']);
     customerProfileServiceMock.getCustomerProfiles.and.returnValue(of(testProfiles));
     customerProfileServiceMock.delete.and.returnValue(of(void 0));
+    toastrServiceMock = jasmine.createSpyObj('ToastrService', ['success', 'error', 'warning', 'info']);
 
     routerMock.navigate.calls.reset();
 
     await TestBed.configureTestingModule({
       declarations: [CustomerProfileComponent],
-      imports: [TranslateModule.forRoot()],
+      imports: [TranslateModule.forRoot(), ToastrModule.forRoot()],
       providers: [
         {provide: CustomerProfileService, useValue: customerProfileServiceMock},
-        {provide: Router, useValue: routerMock}
+        {provide: Router, useValue: routerMock},
+        {provide: ToastrService, useValue: toastrServiceMock}
       ]
     })
       .compileComponents();
@@ -99,19 +103,6 @@ describe('CustomerProfileComponent', () => {
     expect(component.deleteLoading).toBeFalse();
   });
 
-  it('should confirm delete and remove profile', () => {
-    component.profiles = [...testProfiles];
-    component.profileToDelete = testProfiles[0];
-
-    component.confirmDelete();
-
-    expect(customerProfileServiceMock.delete).toHaveBeenCalledWith(1);
-    expect(component.profiles.length).toBe(1);
-    expect(component.profiles[0].id).toBe(2);
-    expect(component.profileToDelete).toBeUndefined();
-    expect(component.deleteLoading).toBeFalse();
-  });
-
   it('should set an error when delete fails', () => {
     customerProfileServiceMock.delete.and.returnValue(throwError(() => new Error('Delete failed')));
     component.profileToDelete = testProfiles[0];
@@ -121,5 +112,22 @@ describe('CustomerProfileComponent', () => {
     expect(component.deleteError).toBe('Profile could not be deleted.');
     expect(component.deleteLoading).toBeFalse();
     expect(component.profileToDelete).toEqual(testProfiles[0]);
+  });
+
+  it('should confirm delete, remove profile, and show success notification', () => {
+    component.profiles = [...testProfiles];
+    component.profileToDelete = testProfiles[0];
+
+    const translateService = TestBed.inject(TranslateService);
+    spyOn(translateService, 'instant').and.returnValue('Profile deleted');
+
+    component.confirmDelete();
+
+    expect(customerProfileServiceMock.delete).toHaveBeenCalledWith(1);
+    expect(component.profiles.length).toBe(1);
+    expect(component.profiles[0].id).toBe(2);
+    expect(component.profileToDelete).toBeUndefined();
+    expect(component.deleteLoading).toBeFalse();
+    expect(toastrServiceMock.success).toHaveBeenCalledWith('Profile deleted');
   });
 });

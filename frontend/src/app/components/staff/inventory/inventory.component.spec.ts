@@ -1,5 +1,5 @@
 import {ComponentFixture, fakeAsync, TestBed, tick} from '@angular/core/testing';
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslateModule, TranslateService} from "@ngx-translate/core"; // Don't forget to import this at the top if it isn't there!
 import {of, Subject, throwError} from "rxjs";
 import {provideHttpClient} from "@angular/common/http";
 import {provideHttpClientTesting} from "@angular/common/http/testing";
@@ -14,11 +14,15 @@ import {SkillLevel} from '../../../dtos/skilllevel';
 
 import {FormsModule} from '@angular/forms';
 import {NgbTypeaheadModule} from '@ng-bootstrap/ng-bootstrap';
+import {ToastrModule, ToastrService} from 'ngx-toastr';
+
 
 describe('InventoryComponent', () => {
   let component: InventoryComponent;
   let fixture: ComponentFixture<InventoryComponent>;
   let equipmentServiceMock: jasmine.SpyObj<EquipmentService>;
+  let toastrServiceMock: jasmine.SpyObj<ToastrService>;
+  let translateServiceMock: jasmine.SpyObj<TranslateService>
 
   const testEquipment: any[] = [
     {
@@ -44,20 +48,23 @@ describe('InventoryComponent', () => {
     equipmentServiceMock.getAll.and.returnValue(of([]));
     equipmentServiceMock.delete.and.returnValue(of(void 0));
     equipmentServiceMock.search.and.returnValue(of([]));
-
+    toastrServiceMock = jasmine.createSpyObj('ToastrService', ['success', 'error', 'warning', 'info']);
+    translateServiceMock = jasmine.createSpyObj('TranslateService', ['instant']);
 
     await TestBed.configureTestingModule({
       declarations: [InventoryComponent],
       imports: [
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
+        ToastrModule.forRoot(),
         FormsModule,
         NgbTypeaheadModule
       ],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        {provide: EquipmentService, useValue: equipmentServiceMock},]
+        {provide: EquipmentService, useValue: equipmentServiceMock},
+        {provide: ToastrService, useValue: toastrServiceMock}]
     })
       .compileComponents();
 
@@ -90,9 +97,12 @@ describe('InventoryComponent', () => {
     expect(component.deleteLoading).toBeFalse();
   });
 
-  it('should call delete service and remove equipment from list', () => {
+  it('should call delete service and remove equipment from list, and show success notification', () => {
     component.equipment = [...testEquipment];
     component.equipmentToDelete = testEquipment[0];
+
+    const translateService = TestBed.inject(TranslateService);
+    spyOn(translateService, 'instant').and.returnValue('Item deleted');
 
     component.confirmDelete();
 
@@ -101,6 +111,7 @@ describe('InventoryComponent', () => {
     expect(component.equipment[0].id).toBe(2);
     expect(component.equipmentToDelete).toBeUndefined();
     expect(component.deleteLoading).toBeFalse();
+    expect(toastrServiceMock.success).toHaveBeenCalledWith('Item deleted');
   });
 
   it('should call search with trimmed model and selected filters', () => {
@@ -316,6 +327,5 @@ describe('InventoryComponent', () => {
       expect(component.endFilter).toBe('2026-05-25');
       expect(component.searchEquipment).toHaveBeenCalledTimes(2);
     });
-
   });
 });

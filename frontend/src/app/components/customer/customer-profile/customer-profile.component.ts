@@ -3,6 +3,7 @@ import {Router} from '@angular/router';
 import {CustomerProfileService} from '../../../services/customer-profile.service';
 import {CustomerProfile} from '../../../dtos/customer-profile';
 import {TranslateService} from '@ngx-translate/core';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-customer-profile',
@@ -18,7 +19,7 @@ export class CustomerProfileComponent {
   deleteLoading = false;
   deleteError?: string;
 
-  constructor(private customerProfileService: CustomerProfileService, public translateService: TranslateService, private router: Router) {
+  constructor(private customerProfileService: CustomerProfileService, public translateService: TranslateService, private router: Router, private notification: ToastrService) {
   }
 
   ngOnInit(): void {
@@ -70,6 +71,7 @@ export class CustomerProfileComponent {
 
     this.deleteLoading = true;
     this.deleteError = undefined;
+    const deletedProfileName = this.profileToDelete.profileName;
 
     this.customerProfileService.delete(this.profileToDelete.id).subscribe({
       next: () => {
@@ -79,6 +81,10 @@ export class CustomerProfileComponent {
 
         this.profileToDelete = undefined;
         this.deleteLoading = false;
+        const translatedMessage = this.translateService.instant('CUSTOMER_PROFILE.DELETE_SUCCESS', {
+          name: deletedProfileName
+        });
+        this.notification.success(translatedMessage);
       },
 
       error: (err) => {

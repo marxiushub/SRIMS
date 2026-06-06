@@ -1,18 +1,20 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import {ActivatedRoute, Router } from '@angular/router';
-import { ReservationService } from '../../../../services/reservation.service';
-import { EquipmentService } from '../../../../services/equipment.service';
-import { ReservationCreation } from '../../../../dtos/reservation-creation';
-import { Equipment } from '../../../../dtos/equipment';
-import { EquipmentSearch } from '../../../../dtos/equipment-search';
-import { CustomerProfile } from '../../../../dtos/customer-profile';
+import {Component, OnInit} from '@angular/core';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {ActivatedRoute, Router} from '@angular/router';
+import {ReservationService} from '../../../../services/reservation.service';
+import {EquipmentService} from '../../../../services/equipment.service';
+import {TranslateService} from '@ngx-translate/core';
+import {ReservationCreation} from '../../../../dtos/reservation-creation';
+import {Equipment} from '../../../../dtos/equipment';
+import {EquipmentSearch} from '../../../../dtos/equipment-search';
+import {CustomerProfile} from '../../../../dtos/customer-profile';
 import {EquipmentType} from "../../../../dtos/equipmenttype";
 import {RentalStatus} from "../../../../dtos/rentalstatus";
 import {SkillLevel} from "../../../../dtos/skilllevel";
 import {debounceTime, distinctUntilChanged} from "rxjs";
 import {CustomerProfileService} from "../../../../services/customer-profile.service";
 import {ReservationUpdate} from "../../../../dtos/reservation-update";
+import {ToastrService} from 'ngx-toastr';
 
 export enum ReservationCreateEditMode {
   create,
@@ -40,7 +42,7 @@ export class ReservationCreateEditComponent implements OnInit {
   customerProfiles: CustomerProfile[] = [];
 
   currentActiveType: EquipmentType | null = null;
-  modelFilter: string ='';
+  modelFilter: string = '';
   statusFilter: RentalStatus | null = null;
   skillFilter: SkillLevel | null = null;
   priceSortDirection: 'asc' | 'desc' | '' = 'asc';
@@ -55,9 +57,12 @@ export class ReservationCreateEditComponent implements OnInit {
     private reservationService: ReservationService,
     private equipmentService: EquipmentService,
     private customerProfileService: CustomerProfileService,
+    public translateService: TranslateService,
     private router: Router,
-    private route: ActivatedRoute
-  ) {}
+    private route: ActivatedRoute,
+    private notification: ToastrService
+  ) {
+  }
 
   ngOnInit(): void {
     this.initForm();
@@ -97,7 +102,7 @@ export class ReservationCreateEditComponent implements OnInit {
     });
 
     this.reservationForm.valueChanges.subscribe(values => {
-      if(this.currentActiveType && values.pickUpDate && values.returnDate && !this.isDateRangeInvalid){
+      if (this.currentActiveType && values.pickUpDate && values.returnDate && !this.isDateRangeInvalid) {
         this.searchEquipment();
       }
     })
@@ -178,10 +183,10 @@ export class ReservationCreateEditComponent implements OnInit {
    */
   private initDateChangeWatcher(): void {
     this.reservationForm.valueChanges.pipe(
-        debounceTime(300),
-        distinctUntilChanged((prev, curr) =>
-            prev.pickUpDate === curr.pickUpDate && prev.returnDate === curr.returnDate
-        )
+      debounceTime(300),
+      distinctUntilChanged((prev, curr) =>
+        prev.pickUpDate === curr.pickUpDate && prev.returnDate === curr.returnDate
+      )
     ).subscribe(values => {
       if (this.selectedEquipment.length > 0 && values.pickUpDate && values.returnDate && !this.isDateRangeInvalid) {
         this.validateSelectedEquipmentForNewDates(values.pickUpDate, values.returnDate);
@@ -229,7 +234,7 @@ export class ReservationCreateEditComponent implements OnInit {
   get isDateRangeInvalid(): boolean {
     const start = this.reservationForm.get('pickUpDate')?.value;
     const end = this.reservationForm.get('returnDate')?.value;
-    if(!start || !end){
+    if (!start || !end) {
       return false;
     }
     return new Date(end) < new Date(start);
@@ -398,7 +403,7 @@ export class ReservationCreateEditComponent implements OnInit {
     this.submitLoading = true;
     this.submitError = undefined;
 
-    if(this.mode === ReservationCreateEditMode.create) {
+    if (this.mode === ReservationCreateEditMode.create) {
       //Creation of Create-DTO
       const reservationPayload: ReservationCreation = {
         customerProfileId: formValue.customerProfileId,
@@ -413,6 +418,8 @@ export class ReservationCreateEditComponent implements OnInit {
           console.log('Reservation submitted successfully', response);
           this.submitLoading = false;
           this.router.navigate(['/customer/reservation']);
+          const translatedMessage = this.translateService.instant('RESERVATION.CREATE_SUCCESS');
+          this.notification.success(translatedMessage);
         },
         error: (err) => {
           console.error('Error during submission of reservation', err);
@@ -420,8 +427,7 @@ export class ReservationCreateEditComponent implements OnInit {
           this.submitError = err.error?.message || 'An error occurred while creating the reservation.';
         }
       });
-    }
-    else {
+    } else {
       //Creation of Update-DTO
       const reservationPayload: ReservationUpdate = {
         id: this.reservationId!,
@@ -437,6 +443,10 @@ export class ReservationCreateEditComponent implements OnInit {
           console.log('Reservation updated successfully', response);
           this.submitLoading = false;
           this.router.navigate(['/customer/reservation']);
+          const translatedMessage = this.translateService.instant('RESERVATION.EDIT_SUCCESS', {
+            id: this.reservationId
+          });
+          this.notification.success(translatedMessage);
         },
         error: (err) => {
           console.error('Error during update of reservation', err);

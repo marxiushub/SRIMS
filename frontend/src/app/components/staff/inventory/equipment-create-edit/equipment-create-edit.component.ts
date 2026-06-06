@@ -5,8 +5,10 @@ import {EquipmentType} from "../../../../dtos/equipmenttype";
 import {RentalStatus} from "../../../../dtos/rentalstatus";
 import {SkillLevel} from "../../../../dtos/skilllevel";
 import {EquipmentService} from "../../../../services/equipment.service";
+import {TranslateService} from '@ngx-translate/core';
 import {ActivatedRoute, Router} from "@angular/router";
 import {NgForm, NgModel} from "@angular/forms";
+import {ToastrService} from 'ngx-toastr';
 
 export enum EquipmentCreateEditMode {
   create,
@@ -65,7 +67,7 @@ export class EquipmentCreateEditComponent implements OnInit {
   error = false;
   submitted = false;
 
-  constructor(private equipmentService: EquipmentService, private router: Router, private route: ActivatedRoute) {
+  constructor(private equipmentService: EquipmentService, public translateService: TranslateService, private router: Router, private route: ActivatedRoute, private notification: ToastrService) {
   }
 
   ngOnInit(): void {
@@ -126,6 +128,10 @@ export class EquipmentCreateEditComponent implements OnInit {
         next: () => {
           this.loading = false;
           this.router.navigate(['/staff/inventory']);
+          const translatedMessage = this.translateService.instant('EQUIPMENT_CREATE.SUCCESS', {
+            model: this.equipment.model
+          });
+          this.notification.success(translatedMessage);
         },
         error: err => {
           console.error('Failed to create equipment', err);
@@ -140,6 +146,10 @@ export class EquipmentCreateEditComponent implements OnInit {
         next: () => {
           this.loading = false;
           this.router.navigate(['/staff/inventory']);
+          const translatedMessage = this.translateService.instant('EQUIPMENT_EDIT.SUCCESS', {
+            model: this.equipment.model
+          });
+          this.notification.success(translatedMessage);
         },
         error: err => {
           console.error('Failed to update equipment', err);
