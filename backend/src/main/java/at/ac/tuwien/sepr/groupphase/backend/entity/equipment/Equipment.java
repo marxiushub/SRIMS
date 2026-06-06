@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity.equipment;
 
+
 import at.ac.tuwien.sepr.groupphase.backend.entity.TimePeriods;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.EquipmentType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.PeriodType;
@@ -17,12 +18,10 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
 import java.util.ArrayList;
 
 /**
@@ -33,6 +32,7 @@ import java.util.ArrayList;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Equipment {
+    private static final char[] ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -49,11 +49,10 @@ public abstract class Equipment {
     @Column(nullable = true, unique = true)
     private String barcodeId;
 
-    //Mocked generating of barcodeIds
     @PrePersist
     public void generateBarcode() {
         if (barcodeId == null) {
-            barcodeId = UUID.randomUUID().toString();
+            barcodeId = NanoIdUtils.randomNanoId(NanoIdUtils.DEFAULT_NUMBER_GENERATOR, ALPHABET, 10);
         }
     }
 
