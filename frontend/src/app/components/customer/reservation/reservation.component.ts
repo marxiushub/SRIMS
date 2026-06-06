@@ -1,11 +1,12 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { ReservationDetail } from '../../../dtos/reservation-detail';
-import { CustomerProfile } from '../../../dtos/customer-profile';
-import { ReservationSearch } from '../../../dtos/reservation-search';
-import { ReservationService } from '../../../services/reservation.service';
-import { CustomerProfileService } from '../../../services/customer-profile.service';
-import { TranslateService } from '@ngx-translate/core';
+import {Component, OnInit} from '@angular/core';
+import {Router} from '@angular/router';
+import {ReservationDetail} from '../../../dtos/reservation-detail';
+import {CustomerProfile} from '../../../dtos/customer-profile';
+import {ReservationSearch} from '../../../dtos/reservation-search';
+import {ReservationService} from '../../../services/reservation.service';
+import {CustomerProfileService} from '../../../services/customer-profile.service';
+import {TranslateService} from '@ngx-translate/core';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-reservation',
@@ -37,8 +38,10 @@ export class ReservationComponent implements OnInit {
     private reservationService: ReservationService,
     private customerProfileService: CustomerProfileService,
     public translateService: TranslateService,
-    private router: Router
-  ) {}
+    private router: Router,
+    private notification: ToastrService
+  ) {
+  }
 
   ngOnInit(): void {
     this.loadCustomerProfiles();
@@ -145,6 +148,7 @@ export class ReservationComponent implements OnInit {
 
     this.deleteLoading = true;
     this.deleteError = undefined;
+    const deletedReservationId = this.reservationToDelete.id;
 
     this.reservationService.delete(this.reservationToDelete.id).subscribe({
       next: () => {
@@ -158,6 +162,10 @@ export class ReservationComponent implements OnInit {
 
         this.reservationToDelete = undefined;
         this.deleteLoading = false;
+        const translatedMessage = this.translateService.instant('RESERVATION.DELETE_SUCCESS', {
+          id: deletedReservationId
+        });
+        this.notification.success(translatedMessage);
       },
       error: (err) => {
         console.error('Failed to delete reservation', err);

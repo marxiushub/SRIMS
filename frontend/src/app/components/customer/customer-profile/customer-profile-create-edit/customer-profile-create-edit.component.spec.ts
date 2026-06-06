@@ -1,6 +1,6 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {FormsModule, NgForm} from "@angular/forms";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslateModule, TranslateService} from "@ngx-translate/core";
 import {of, throwError} from "rxjs";
 import {ActivatedRoute, convertToParamMap, Router} from "@angular/router";
 
@@ -8,11 +8,13 @@ import {CustomerProfileCreateEditComponent, ProfileCreateEditMode} from './custo
 import {CustomerProfile} from "../../../../dtos/customer-profile";
 import {CustomerProfileService} from "../../../../services/customer-profile.service";
 import {SkillLevel} from "../../../../dtos/skilllevel";
+import {ToastrModule, ToastrService} from 'ngx-toastr';
 
 describe('CustomerProfileCreateEditComponent', () => {
   let component: CustomerProfileCreateEditComponent;
   let fixture: ComponentFixture<CustomerProfileCreateEditComponent>;
   let customerProfileServiceMock: jasmine.SpyObj<CustomerProfileService>;
+  let toastrServiceMock: jasmine.SpyObj<ToastrService>;
 
   const routerMock = {
     navigate: jasmine.createSpy("navigate"),
@@ -39,17 +41,19 @@ describe('CustomerProfileCreateEditComponent', () => {
     customerProfileServiceMock.create.and.returnValue(of({} as any));
     customerProfileServiceMock.update.and.returnValue(of({} as any));
     customerProfileServiceMock.getById.and.returnValue(of(mockProfile));
+    toastrServiceMock = jasmine.createSpyObj('ToastrService', ['success', 'error', 'warning', 'info']);
 
     activatedRouteMock.snapshot.paramMap = convertToParamMap({});
     routerMock.navigate.calls.reset();
 
     await TestBed.configureTestingModule({
       declarations: [CustomerProfileCreateEditComponent],
-      imports: [FormsModule, TranslateModule.forRoot()],
+      imports: [FormsModule, TranslateModule.forRoot(), ToastrModule.forRoot()],
       providers: [
         {provide: CustomerProfileService, useValue: customerProfileServiceMock},
         {provide: Router, useValue: routerMock},
-        {provide: ActivatedRoute, useValue: activatedRouteMock}
+        {provide: ActivatedRoute, useValue: activatedRouteMock},
+        {provide: ToastrService, useValue: toastrServiceMock}
       ]
     })
       .compileComponents();
@@ -159,5 +163,49 @@ describe('CustomerProfileCreateEditComponent', () => {
     expect(customerProfileServiceMock.create).not.toHaveBeenCalled();
     expect(customerProfileServiceMock.update).not.toHaveBeenCalled();
     expect(component.submitted).toBeTrue();
+  });
+
+  it('should call create service, navigate on submit in create mode, and show success notification', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    component.profile = {
+      profileName: 'New Profile',
+      height: 180,
+      weight: 80,
+      shoeSize: 44,
+      skillLevel: SkillLevel.BEGINNER,
+      customerId: 1
+    };
+
+    const translateService = TestBed.inject(TranslateService);
+    spyOn(translateService, 'instant').and.returnValue('Profile successfully created');
+
+    component.onSubmit();
+
+    expect(customerProfileServiceMock.create).toHaveBeenCalledWith(component.profile);
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/customer/profiles']);
+    expect(component.loading).toBeFalse();
+    expect(component.error).toBeFalse();
+
+    expect(toastrServiceMock.success).toHaveBeenCalledWith('Profile successfully created');
+  });
+
+  it('should call update service, navigate on submit in edit mode, and show success notification', async () => {
+    activatedRouteMock.snapshot.paramMap = convertToParamMap({id: '1'});
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    component.profile.profileName = 'Updated Profile';
+
+    const translateService = TestBed.inject(TranslateService);
+    spyOn(translateService, 'instant').and.returnValue('Profile successfully updated');
+
+    component.onSubmit();
+
+    expect(customerProfileServiceMock.update).toHaveBeenCalledWith(1, component.profile);
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/customer/profiles']);
+
+    expect(toastrServiceMock.success).toHaveBeenCalledWith('Profile successfully updated');
   });
 });

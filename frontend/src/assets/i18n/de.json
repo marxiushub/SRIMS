@@ -24,6 +24,7 @@
     "DELETE_CANCEL": "Abbrechen",
     "DELETE_CONFIRM": "Löschen",
     "DELETE_ERROR": "Ausrüstung konnte nicht gelöscht werden.",
+    "DELETE_SUCCESS": "Ausrüstung '{{model}}' erfolgreich gelöscht.",
     "EQUIPMENT_TYP": "Typ",
     "AVAILABLE": "Verfügbar",
     "RENTED": "Verliehen",
@@ -73,6 +74,7 @@
     "SAVE": "Speichern",
     "CANCEL": "Abbrechen",
     "ERROR": "Equipment konnte nicht erstellt werden.",
+    "SUCCESS": "Ausrüstung '{{model}}' erfolgreich erstellt.",
     "MODEL_REQUIRED": "Modell ist erforderlich.",
     "PRICE_REQUIRED": "Preis ist erforderlich.",
     "LENGTH_REQUIRED": "Länge ist erforderlich.",
@@ -93,7 +95,8 @@
   "EQUIPMENT_EDIT": {
     "TITLE": "Bearbeiten",
     "SAVE": "Änderungen speichern",
-    "ERROR": "Equipment konnte nicht aktualisiert werden."
+    "ERROR": "Equipment konnte nicht aktualisiert werden.",
+    "SUCCESS": "Ausrüstung '{{model}}' erfolgreich aktualisiert."
   },
   "STAFF": {
     "DASHBOARD_TITLE": "Mitarbeiter Dashboard",
@@ -174,14 +177,17 @@
     "CUSTOMER_PROFILES_LOADING_FAILED": "Kunden-Profile konnten nicht geladen werden",
     "TITLE_OVERVIEW": "Meine Reservierungen",
     "ADD_RESERVATION": "Neue Reservierung erstellen",
+    "CREATE_SUCCESS": "Reservierung erfolgreich erstellt.",
     "NO_RESERVATIONS_FOUND": "Keine Reservierungen für dieses Konto gefunden.",
     "ID": "Reservierungs-ID",
     "EQUIPMENT_COUNT": "Ausrüstung",
     "ITEMS": "Teil(e)",
     "DELETE_TITLE": "Reservierung stornieren",
     "DELETE_CONFIRMATION": "Sind Sie sicher, dass Sie diese Reservierung stornieren möchten?",
+    "DELETE_SUCCESS": "Reservierung #{{id}} erfolgreich storniert.",
     "TITLE_EDIT": "Reservierung bearbeiten",
     "UPDATE": "Änderungen speichern",
+    "EDIT_SUCCESS": "Reservierung #{{id}} erfolgreich aktualisiert.",
     "LOADING_FAILED": "Die Reservierungsdetails konnten nicht geladen werden.",
     "NOT_FOUND": "Die angeforderte Reservierung wurde nicht gefunden."
   },
@@ -215,6 +221,7 @@
     "NO_PROFILES": "Keine Profile gefunden.",
     "PROFILE_ACTIONS": "Aktionen",
     "DELETE": "Löschen",
+    "DELETE_SUCCESS": "Profil '{{name}}' erfolgreich gelöscht.",
     "DETAILS": "Details"
   },
   "CUSTOMER_PROFILE_CREATE": {
@@ -227,6 +234,7 @@
     "SAVE": "Speichern",
     "CANCEL": "Abbrechen",
     "ERROR": "Profil konnte nicht erstellt werden.",
+    "SUCCESS": "Profil '{{name}}' erfolgreich erstellt.",
     "NAME_REQUIRED": "Profilname ist erforderlich.",
     "NAME_NOT_BLANK": "Der Profilname darf nicht nur aus Leerzeichen bestehen.",
     "HEIGHT_REQUIRED": "Körpergröße ist erforderlich.",
@@ -242,7 +250,8 @@
   "CUSTOMER_PROFILE_EDIT": {
     "TITLE": "Profil bearbeiten",
     "SAVE": "Änderungen speichern",
-    "ERROR": "Profil konnte nicht aktualisiert werden."
+    "ERROR": "Profil konnte nicht aktualisiert werden.",
+    "SUCCESS": "Profil '{{name}}' erfolgreich aktualisiert."
   },
   "CUSTOMER_PROFILE_DELETE": {
     "TITLE": "Profil löschen",

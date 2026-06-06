@@ -11,11 +11,15 @@ import {HomeComponent} from './components/home/home.component';
 import {LoginComponent} from './components/login/login.component';
 import {MessageComponent} from './components/message/message.component';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {ToastrModule} from 'ngx-toastr';
 import {httpInterceptorProviders} from './interceptors';
 import {RouterModule} from "@angular/router";
 import {InventoryComponent} from "./components/staff/inventory/inventory.component";
 import {StaffComponent} from "./components/staff/staff.component";
-import {EquipmentCreateEditComponent} from "./components/staff/inventory/equipment-create-edit/equipment-create-edit.component";
+import {
+  EquipmentCreateEditComponent
+} from "./components/staff/inventory/equipment-create-edit/equipment-create-edit.component";
 import {CustomerComponent} from "./components/customer/customer.component";
 import {CustomerProfileComponent} from "./components/customer/customer-profile/customer-profile.component";
 import {
@@ -26,9 +30,11 @@ import {
 } from "./components/customer/customer-profile/customer-profile-details/customer-profile-details.component";
 import {EquipmentViewComponent} from "./components/staff/inventory/equipment-view/equipment-view.component";
 
-import {ReservationCreateEditComponent} from "./components/customer/reservation/reservation-create-edit/reservation-create-edit.component";
+import {
+  ReservationCreateEditComponent
+} from "./components/customer/reservation/reservation-create-edit/reservation-create-edit.component";
 
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 
 import {registerLocaleData} from '@angular/common';
 import localeDe from '@angular/common/locales/de';
@@ -79,6 +85,9 @@ export function HttpLoaderFactory(http: HttpClient): TranslateLoader {
     ReactiveFormsModule,
     NgbModule,
     FormsModule,
+    BrowserModule,
+    BrowserAnimationsModule,
+    ToastrModule.forRoot(),
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,

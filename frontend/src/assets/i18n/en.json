@@ -25,6 +25,7 @@
     "DELETE_CANCEL": "Cancel",
     "DELETE_CONFIRM": "Delete",
     "DELETE_ERROR": "Equipment could not be deleted.",
+    "DELETE_SUCCESS": "Equipment '{{model}}' successfully deleted.",
     "AVAILABLE": "Available",
     "RENTED": "Rented",
     "EQUIPMENT_ALL": "All",
@@ -73,6 +74,7 @@
     "SAVE": "Save",
     "CANCEL": "Cancel",
     "ERROR": "Equipment could not be created.",
+    "SUCCESS": "Equipment '{{model}}' successfully created.",
     "MODEL_REQUIRED": "Model is required.",
     "PRICE_REQUIRED": "Price is required.",
     "LENGTH_REQUIRED": "Length is required.",
@@ -93,7 +95,8 @@
   "EQUIPMENT_EDIT": {
     "TITLE": "Edit",
     "SAVE": "Update",
-    "ERROR": "Equipment could not be updated."
+    "ERROR": "Equipment could not be updated.",
+    "SUCCESS": "Equipment '{{model}}' successfully updated."
   },
   "STAFF": {
     "DASHBOARD_TITLE": "Staff Dashboard",
@@ -174,12 +177,17 @@
     "CUSTOMER_PROFILES_LOADING_FAILED": "Loading of customer profiles failed",
     "TITLE_OVERVIEW": "My Reservations",
     "ADD_RESERVATION": "Create New Reservation",
+    "CREATE_SUCCESS": "Reservation successfully created.",
     "NO_RESERVATIONS_FOUND": "No reservations found for this account.",
     "ID": "Reservation ID",
     "EQUIPMENT_COUNT": "Equipment",
     "ITEMS": "item(s)",
     "DELETE_TITLE": "Cancel Reservation",
-    "DELETE_CONFIRMATION": "Are you sure you want to cancel this reservation?"
+    "DELETE_CONFIRMATION": "Are you sure you want to cancel this reservation?",
+    "DELETE_SUCCESS": "Reservation #{{id}} successfully canceled.",
+    "TITLE_EDIT": "Update Reservation",
+    "UPDATE": "Update",
+    "EDIT_SUCCESS": "Reservation #{{id}} successfully updated."
   },
   "CUSTOMER": {
     "DASHBOARD_TITLE": "Customer Portal",
@@ -211,6 +219,7 @@
     "NO_PROFILES": "No profiles found.",
     "PROFILE_ACTIONS": "Actions",
     "DELETE": "Delete",
+    "DELETE_SUCCESS": "Profile '{{name}}' successfully deleted.",
     "DETAILS": "Details"
   },
   "CUSTOMER_PROFILE_CREATE": {
@@ -223,6 +232,7 @@
     "SAVE": "Save",
     "CANCEL": "Cancel",
     "ERROR": "Profile could not be created.",
+    "SUCCESS": "Profile '{{name}}' successfully created.",
     "NAME_REQUIRED": "Profile name is required.",
     "NAME_NOT_BLANK": "Profile name must not only contain spaces.",
     "HEIGHT_REQUIRED": "Height is required.",
@@ -238,7 +248,8 @@
   "CUSTOMER_PROFILE_EDIT": {
     "TITLE": "Edit Profile",
     "SAVE": "Update",
-    "ERROR": "Profile could not be updated."
+    "ERROR": "Profile could not be updated.",
+    "SUCCESS": "Profile '{{name}}' successfully updated."
   },
   "CUSTOMER_PROFILE_DELETE": {
     "TITLE": "Delete Profile",
