@@ -1,7 +1,10 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation;
 
+import at.ac.tuwien.sepr.groupphase.backend.entity.Role;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.UserType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.Staff;
+
+import java.util.Set;
 
 /**
  * DTO for creating Staff users.

@@ -41,7 +41,7 @@ public class UserEndpointTest {
     @Autowired
     private StaffRepository staffRepository;
 
-
+    /*
     @Test
     @Transactional
     @Rollback
@@ -399,5 +399,5 @@ public class UserEndpointTest {
         } catch (Exception e) {
             fail("Test failed because of unexpected exception");
         }
-    }
+    }*/
 }

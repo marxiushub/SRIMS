@@ -12,4 +12,6 @@ public interface CustomerProfileRepository extends JpaRepository<CustomerProfile
     Optional<CustomerProfile> findByCustomerAndProfileName(Customer customer, String profileName);
 
     List<CustomerProfile> findByCustomerId(Long customerId);
+
+    Optional<CustomerProfile> findByProfileNameAndCustomerEmail(String userName, String profileName);
 }

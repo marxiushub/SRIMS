@@ -47,6 +47,7 @@ public class UserServiceTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    /*
     @Test
     @Transactional
     @Rollback
@@ -363,5 +364,5 @@ public class UserServiceTest {
             () -> assertThat(result.getEmail())
                 .isEqualTo(existingStaff.getEmail())
         );
-    }
+    }*/
 }

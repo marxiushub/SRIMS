@@ -76,6 +76,7 @@ public class CustomUserDetailService implements UserService {
             ApplicationUser applicationUser = findApplicationUserByEmail(email);
 
             List<GrantedAuthority> grantedAuthorities;
+            //Rework for new User Model
             if (applicationUser.getAdmin()) {
                 grantedAuthorities = AuthorityUtils.createAuthorityList("ROLE_ADMIN", "ROLE_USER");
             } else {
