@@ -130,24 +130,19 @@ public class CustomUserDetailService implements UserService {
         LOGGER.trace("Creating user with email {}", userCreationDto.getEmail());
 
         validator.userCreationDtoValidator(userCreationDto);
-
+        ApplicationUser user = userCreationDto.toEntity();
+        user.setPassword(passwordEncoder.encode(userCreationDto.getPassword()));
         JpaRepository<ApplicationUser, Long> repo = (JpaRepository<ApplicationUser, Long>) repositoryMap.get(userCreationDto.getType());
 
-        ApplicationUser user = userCreationDto.toEntity();
 
-        user.setPassword(passwordEncoder.encode(userCreationDto.getPassword()));
-
-        // Set default role based on type
         //String roleName = userCreationDto.getType() == UserType.CUSTOMER ? "ROLE_CUSTOMER" : "ROLE_STAFF";
-        String roleName = " ROLE_" + userCreationDto.getType().toString();
+        String roleName = "ROLE_" + userCreationDto.getType().toString();
         Role role = roleRepository.findByName(roleName)
             .orElseThrow(() -> new IllegalStateException(roleName + " not found"));
         user.getRoles().clear();
         user.getRoles().add(role);
-
         ApplicationUser saved = repo.save(user);
-        UserDetailDto created = mapper.entityToDetailDto(repo.save(user));
-
+        UserDetailDto created = mapper.entityToDetailDto(saved);
         return created;
     }
 
@@ -179,7 +174,7 @@ public class CustomUserDetailService implements UserService {
     public void deleteUserById(Long userId) {
         LOGGER.trace("Deleting user with id {}", userId);
 
-       validator.idTester(userId);
+        validator.idTester(userId);
 
         ApplicationUser user = userRepository.findById(userId)
             .orElseThrow(() -> new NotFoundException(String.format("Could not find user with id %d", userId)));
