@@ -27,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -38,20 +37,18 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
     private final ReservationRepository reservationRepository;
     private final EquipmentRepository equipmentRepository;
     private final CustomerProfileRepository customerProfileRepository;
-    private final EquipmentMapper equipmentMapper;
 
     @Autowired
     public ReservationServiceImpl(ReservationMapper reservationMapper,
                                   ReservationRepository reservationRepository,
                                   EquipmentRepository equipmentRepository,
                                   CustomerProfileRepository customerProfileRepository,
-                                  ReservationValidator validator, EquipmentMapper equipmentMapper) {
+                                  ReservationValidator validator) {
         this.reservationMapper = reservationMapper;
         this.reservationRepository = reservationRepository;
         this.equipmentRepository = equipmentRepository;
         this.customerProfileRepository = customerProfileRepository;
         this.validator = validator;
-        this.equipmentMapper = equipmentMapper;
     }
 
 
@@ -59,18 +56,8 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
     @Transactional
     public ReservationDetailDto reservationById(Long id) {
         LOGGER.trace("Get reservation by id: {}", id);
-
-        if (id == null) {
-            throw new IllegalArgumentException("id is null");
-        }
-
-        if (id < 0) {
-            throw new IllegalArgumentException("id is negative");
-        }
-
         Reservation reservation = reservationRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Reservation with ID " + id + " was not found."));
-
         return reservationMapper.entityToDetailDto(reservation);
     }
 
@@ -78,8 +65,10 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
     @Transactional
     public ReservationDetailDto createReservation(ReservationCreationDto dto) {
         LOGGER.trace("create reservation");
-        CustomerProfile profile = customerProfileRepository.findById(dto.getCustomerProfileId())
-            .orElseThrow(() -> new NotFoundException("Customer profile with ID " + dto.getCustomerProfileId() + " not found."));
+
+        validator.validateCreateDto(dto);
+
+        CustomerProfile profile = customerProfileRepository.getReferenceById(dto.getCustomerProfileId());
 
         Reservation reservation = new Reservation(
             profile,
@@ -87,23 +76,11 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
             dto.getStartDate(),
             dto.getEndDate()
         );
-
-        for (Long equipmentId : dto.getEquipmentIds()) {
-            Equipment equipment = equipmentRepository.findById(equipmentId)
-                .orElseThrow(() -> new NotFoundException("Equipment with ID " + equipmentId + " not found."));
-
-            LocalDate pickUpDate = dto.getStartDate();
-            LocalDate dropOffDate = dto.getEndDate();
-
-            List<String> validationErrors = new ArrayList<>();
-            validator.isEquipmentAvailable(equipment, pickUpDate, dropOffDate, validationErrors);
-            if (!validationErrors.isEmpty()) {
-                throw new ValidationException("Validation failed for reservation creation", validationErrors);
-            }
+        List<Equipment> equipmentList = equipmentRepository.findAllById(dto.getEquipmentIds());
+        for (Equipment equipment : equipmentList) {
             reservation.addItem(equipment);
 
-            equipment.addTimePeriod(pickUpDate, dropOffDate, PeriodType.RENTED, reservation);
-        }
+            equipment.addTimePeriod(dto.getStartDate(), dto.getEndDate(), PeriodType.RENTED, reservation);        }
 
         Reservation savedReservation = reservationRepository.save(reservation);
         //bestätigungs-email senden
@@ -115,24 +92,10 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
     public void deleteReservation(Long id) {
         LOGGER.trace("Deleting reservation with id {}", id);
 
-        if (id == null) {
-            throw new IllegalArgumentException("id is null");
-        }
-
-        if (id < 0) {
-            throw new IllegalArgumentException("id is negative");
-        }
-
         Reservation reservation = reservationRepository.findById(id)
-            .orElseThrow(() ->
-                new NotFoundException("Reservation with ID " + id + " was not found.")
-            );
-
-        LocalDate start = reservation.getStartDate();
-        LocalDate end = reservation.getEndDate();
+            .orElseThrow(() -> new NotFoundException("Reservation with ID " + id + " was not found."));
 
         deleteTimePeriodsForEquipment(reservation.getItems().stream().map(ReservationRelation::getEquipment).toList(), reservation);
-
         //bestätigungs-mail senden
 
         reservationRepository.delete(reservation);
@@ -142,13 +105,11 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
     @Override
     @Transactional
     public ReservationDetailDto updateReservation(ReservationUpdateDto dto) {
-        Long id = dto.getId();
-        LOGGER.trace("update reservation {}", id);
-
-        Reservation reservation = reservationRepository.findById(id)
-            .orElseThrow(() -> new NotFoundException("Reservation not found"));
+        LOGGER.trace("update reservation {}", dto.getId());
 
         validator.validateUpdateDto(dto);
+
+        Reservation reservation = reservationRepository.getReferenceById(dto.getId());
 
         boolean datesChanged = (dto.getStartDate() != null && !dto.getStartDate().equals(reservation.getStartDate()))
             || (dto.getEndDate() != null && !dto.getEndDate().equals(reservation.getEndDate()));
@@ -171,9 +132,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
         }
 
         if (dto.getCustomerProfileId() != null) {
-            CustomerProfile profile = customerProfileRepository.findById(dto.getCustomerProfileId())
-                .orElseThrow(() -> new NotFoundException("Customer profile with ID " + dto.getCustomerProfileId() + " not found."));
-            reservation.setCustomerProfile(profile);
+            reservation.setCustomerProfile(customerProfileRepository.getReferenceById(dto.getCustomerProfileId()));
         }
 
         List<Equipment> finalEquipmentsToReserve;
@@ -192,14 +151,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
             LocalDate newStart = reservation.getStartDate();
             LocalDate newEnd = reservation.getEndDate();
 
-            equipmentRepository.flush();
-
             for (Equipment equipment : finalEquipmentsToReserve) {
-                List<String> validationErrors = new ArrayList<>();
-                validator.isEquipmentAvailable(equipment, newStart, newEnd, validationErrors);
-                if (!validationErrors.isEmpty()) {
-                    throw new ValidationException("Validation failed for reservation creation", validationErrors);
-                }
                 equipment.addTimePeriod(newStart, newEnd, PeriodType.RENTED, reservation);
             }
         }
@@ -283,19 +235,12 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
 
         validator.validateReservationAddEquip(dto);
 
-        Reservation reservation = reservationRepository.findById(dto.getId()).orElseThrow(() ->
-            new NotFoundException("Reservation with ID " + dto.getId() + " not found.")
-        );
-
-        List<Equipment> equipmentList =
-            equipmentRepository.findAllById(dto.getEquipmentIds());
-
-        LocalDate start = reservation.getStartDate();
-        LocalDate end = reservation.getEndDate();
+        Reservation reservation = reservationRepository.getReferenceById(dto.getId());
+        List<Equipment> equipmentList = equipmentRepository.findAllById(dto.getEquipmentIds());
 
         for (Equipment equipment : equipmentList) {
             reservation.addItem(equipment);
-            equipment.addTimePeriod(start, end, PeriodType.RENTED, reservation);
+            equipment.addTimePeriod(reservation.getStartDate(), reservation.getEndDate(), PeriodType.RENTED, reservation);
         }
 
         return reservationMapper.entityToDetailDto(reservation);
@@ -306,14 +251,8 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
     public ReservationDetailDto removeEquipmentFromReservation(ReservationAddDeleteEquipmentDto dto) {
         validator.validateReservationRemoveEquipment(dto);
 
-        Reservation reservation = reservationRepository.findById(dto.getId()).orElseThrow(() ->
-            new NotFoundException("Reservation with ID " + dto.getId() + " not found.")
-        );
-
+        Reservation reservation = reservationRepository.getReferenceById(dto.getId());
         List<Equipment> equipmentList = equipmentRepository.findAllById(dto.getEquipmentIds());
-
-        LocalDate start = reservation.getStartDate();
-        LocalDate end = reservation.getEndDate();
 
         deleteTimePeriodsForEquipment(equipmentList, reservation);
 
