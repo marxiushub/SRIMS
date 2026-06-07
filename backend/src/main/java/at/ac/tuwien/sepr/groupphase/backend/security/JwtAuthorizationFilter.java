@@ -7,6 +7,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
 import java.util.List;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -54,8 +55,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private UsernamePasswordAuthenticationToken getAuthToken(HttpServletRequest request)
         throws JwtException, IllegalArgumentException {
         String token = request.getHeader(securityProperties.getAuthHeader());
-        //TODO: Remove "token.equals("Bearer null") as soon as login/authentification works properly
-        if (token == null || token.isEmpty() || token.equals("Bearer null")) {
+        if (token == null || token.isEmpty() || token.equals(securityProperties.getAuthTokenPrefix() + "null")) {
             return null;
         }
 
@@ -64,20 +64,29 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         }
 
         byte[] signingKey = securityProperties.getJwtSecret().getBytes();
-
-        if (!token.startsWith("Bearer ")) {
-            throw new IllegalArgumentException("Token must start with 'Bearer'");
-        }
         Claims claims = Jwts.parser().verifyWith(Keys.hmacShaKeyFor(signingKey)).build()
             .parseSignedClaims(token.replace(securityProperties.getAuthTokenPrefix(), ""))
             .getPayload();
 
         String username = claims.getSubject();
 
-        List<SimpleGrantedAuthority> authorities = ((List<?>) claims
-            .get("perms")).stream()
-            .map(authority -> new SimpleGrantedAuthority((String) authority))
-            .toList();
+        // extract permissions claim ("perms")
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        Object perms = claims.get("perms");
+        if (perms instanceof List<?>) {
+            ((List<?>) perms).stream()
+                .map(Object::toString)
+                .map(SimpleGrantedAuthority::new)
+                .forEach(authorities::add);
+        }
+
+        Long uid = null;
+        Object uidObj = claims.get("uid");
+        if (uidObj instanceof Number) {
+            uid = ((Number) uidObj).longValue();
+        } else if (uidObj instanceof String) {
+            try { uid = Long.valueOf((String) uidObj); } catch (NumberFormatException ignored) {}
+        }
 
         if (username == null || username.isEmpty()) {
             throw new IllegalArgumentException("Token contains no user");
@@ -85,6 +94,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         MDC.put("u", username);
 
-        return new UsernamePasswordAuthenticationToken(username, null, authorities);
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(username, null, authorities);
+        auth.setDetails(uid);
+        return auth;
     }
 }

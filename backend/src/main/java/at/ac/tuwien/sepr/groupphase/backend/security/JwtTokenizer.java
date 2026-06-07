@@ -18,7 +18,7 @@ public class JwtTokenizer {
         this.securityProperties = securityProperties;
     }
 
-    public String getAuthToken(String user, List<String> permissions) {
+    public String getAuthToken(String userEmail, Long userId, List<String> permissions) {
         byte[] signingKey = securityProperties.getJwtSecret().getBytes();
         SecretKey key = Keys.hmacShaKeyFor(signingKey);
 
@@ -26,11 +26,11 @@ public class JwtTokenizer {
             .header().add("typ", securityProperties.getJwtType()).and()
             .issuer(securityProperties.getJwtIssuer())
             .audience().add(securityProperties.getJwtAudience()).and()
-            .subject(user)
+            .subject(userEmail)                      // email as subject
+            .claim("uid", userId)                    // user id claim
+            .claim("perms", permissions)             // permission strings
             .expiration(new Date(System.currentTimeMillis() + securityProperties.getJwtExpirationTime()))
-            .claim("perms", permissions)
             .signWith(key, Jwts.SIG.HS512)
             .compact();
         return securityProperties.getAuthTokenPrefix() + token;
     }
-}

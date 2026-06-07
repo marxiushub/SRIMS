@@ -1,5 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
+import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.AuthTokenDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import jakarta.annotation.security.PermitAll;
@@ -13,14 +15,20 @@ import org.springframework.web.bind.annotation.RestController;
 public class LoginEndpoint {
 
     private final UserService userService;
+    private final SecurityProperties securityProperties;
 
-    public LoginEndpoint(UserService userService) {
+    public LoginEndpoint(UserService userService, SecurityProperties securityProperties) {
         this.userService = userService;
+        this.securityProperties = securityProperties;
     }
 
-    @PermitAll
     @PostMapping
-    public String login(@RequestBody UserLoginDto userLoginDto) {
-        return userService.login(userLoginDto);
+    @PermitAll
+    public AuthTokenDto login(@RequestBody UserLoginDto userLoginDto) {
+        String token = userService.login(userLoginDto);
+        AuthTokenDto out = new AuthTokenDto();
+        out.setToken(token);
+        out.setExpiresAt(System.currentTimeMillis() + securityProperties.getJwtExpirationTime());
+        return out;
     }
 }

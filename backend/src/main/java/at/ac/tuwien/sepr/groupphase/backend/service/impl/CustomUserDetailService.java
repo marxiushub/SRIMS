@@ -15,15 +15,18 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.StaffRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RoleRepository;
+import at.ac.tuwien.sepr.groupphase.backend.security.AppUserDetails;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -33,6 +36,7 @@ import org.springframework.stereotype.Service;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -115,7 +119,7 @@ public class CustomUserDetailService implements UserService {
             ApplicationUser user = userRepository.findUserByEmail(userLoginDto.getEmail()).orElseThrow();
             List<String> permissions = permissionService.getEffectivePermissions(user).stream().toList();
 
-            return jwtTokenizer.getAuthToken(userDetails.getUsername(), permissions);
+            return jwtTokenizer.getAuthToken(userDetails.getUsername(), user.getId(), permissions);
         }
         throw new BadCredentialsException("Username or password is incorrect or account is locked");
     }
@@ -151,6 +155,8 @@ public class CustomUserDetailService implements UserService {
         validator.userUpdateDtoValidator(updateDto);
         validator.idTester(id);
 
+        checkUserAccessPermission(id);
+
         ApplicationUser existingUser = userRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("User with ID " + id + " was not found."));
 
@@ -172,6 +178,8 @@ public class CustomUserDetailService implements UserService {
 
         validator.idTester(userId);
 
+        checkUserAccessPermission(userId);
+
         ApplicationUser user = userRepository.findById(userId)
             .orElseThrow(() -> new NotFoundException(String.format("Could not find user with id %d", userId)));
 
@@ -188,11 +196,48 @@ public class CustomUserDetailService implements UserService {
 
         validator.idTester(id);
 
+        checkUserAccessPermission(id);
+
         ApplicationUser user = userRepository.findById(id)
             .orElseThrow(() ->
                 new NotFoundException("User with ID " + id + " was not found.")
             );
 
         return mapper.entityToSearchResponseDto(user);
+    }
+
+
+
+    //Helper Methods:
+    //Gets the current user's ID from the security context.
+    private Long getCurrentUserId() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getPrincipal() == null) {
+            return -1L;
+        }
+
+        Object principal = auth.getPrincipal();
+        if (principal instanceof AppUserDetails) {
+            return ((AppUserDetails) principal).getUserId();
+        }
+        return -1L;
+    }
+
+    //Checks if the given id in a DTO is the same ID as the ID of the user who wants to perform a CRUD action
+    private void checkUserAccessPermission(Long requestedUserId) {
+        Long currentUserId = getCurrentUserId();
+
+        // Erlaubt: eigene ID ODER User hat "USER_ADMIN" Permission
+        boolean isOwnUser = Objects.equals(currentUserId, requestedUserId);
+        boolean hasAdminPermission = SecurityContextHolder.getContext().getAuthentication()
+            .getAuthorities()
+            .stream()
+            .anyMatch(a -> a.getAuthority().equals("USER_ADMIN"));
+
+        if (!isOwnUser && !hasAdminPermission) {
+            throw new AccessDeniedException(
+                String.format("User %d is not authorized to access user %d", currentUserId, requestedUserId)
+            );
+        }
     }
 }

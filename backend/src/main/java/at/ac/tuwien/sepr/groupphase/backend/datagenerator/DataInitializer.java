@@ -85,7 +85,6 @@ public class DataInitializer {
             //___________________________________________________________________________________________
 
             //Customer
-
             Permission readCustomer = permissionRepository.findByName("CUSTOMER_READ")
                 .orElseGet(() -> permissionRepository.save(new Permission("CUSTOMER_READ")));
 
@@ -97,7 +96,7 @@ public class DataInitializer {
 
             //___________________________________________________________________________________________
 
-            //CustomerProfile
+            //Staff
             Permission createStaff = permissionRepository.findByName("STAFF_CREATE")
                 .orElseGet(() -> permissionRepository.save(new Permission("STAFF_CREATE")));
 
