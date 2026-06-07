@@ -104,8 +104,6 @@ public class CustomUserDetailService implements UserService {
         return applicationUser;
     }
 
-
-
     @Override
     public String login(UserLoginDto userLoginDto) {
         UserDetails userDetails = loadUserByUsername(userLoginDto.getEmail());
