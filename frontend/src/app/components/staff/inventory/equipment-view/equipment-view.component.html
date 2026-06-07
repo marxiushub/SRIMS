@@ -46,38 +46,50 @@
             </span>
           </div>
 
-          <div class="col-12"><hr class="my-2"></div>
+          <div class="col-12">
+            <hr class="my-2">
+          </div>
 
-          @if (equipment.equipmentType === EquipmentType.SKI || equipment.equipmentType === EquipmentType.POLE || equipment.equipmentType === EquipmentType.SNOWBOARD) {
-            <div class="col-md-6">
-              <span class="text-muted d-block">{{ 'EQUIPMENT_CREATE.LENGTH' | translate }}</span>
-              <span class="fs-5 fw-semibold">{{ equipment.length }} cm</span>
+          <div class="col-12">
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                @if (equipment.equipmentType === EquipmentType.SKI || equipment.equipmentType === EquipmentType.POLE || equipment.equipmentType === EquipmentType.SNOWBOARD) {
+                  <span class="text-muted d-block">{{ 'EQUIPMENT_CREATE.LENGTH' | translate }}</span>
+                  <span class="fs-5 fw-semibold">{{ equipment.length }} cm</span>
+                }
+
+                @if (equipment.equipmentType === EquipmentType.HELMET) {
+                  <span class="text-muted d-block">{{ 'EQUIPMENT_CREATE.SIZE' | translate }}</span>
+                  <span class="fs-5 fw-semibold">{{ equipment.size }} (cm)</span>
+                }
+
+                @if (equipment.equipmentType === EquipmentType.SKIBOOT) {
+                  <span class="text-muted d-block">{{ 'EQUIPMENT_CREATE.SOLE_LENGTH_MM' | translate }}</span>
+                  <span class="fs-5 fw-semibold">{{ equipment.soleLengthMm }} mm</span>
+                }
+
+                @if (equipment.equipmentType === EquipmentType.SNOWBOARD) {
+                }
+
+                @if (equipment.equipmentType === EquipmentType.SNOWBOARDBOOT) {
+                  <span class="text-muted d-block">{{ 'EQUIPMENT_CREATE.LACING_SYSTEM' | translate }}</span>
+                  <span class="fs-5 fw-semibold">{{ equipment.lacingSystem || '-' }}</span>
+                }
+              </div>
+
+              <div class="col-md-6 text-md-end text-center mt-3 mt-md-0">
+                <svg id="barcode"></svg>
+                <div class="mt-2 text-center text-md-end">
+                  <button class="btn btn-sm btn-outline-primary me-2"
+                          (click)="printBarcode()"> {{ 'INVENTORY.PRINT' | translate }}
+                  </button>
+                  <button class="btn btn-sm btn-outline-secondary"
+                          (click)="downloadBarcode()"> {{ 'INVENTORY.DOWNLOAD' | translate }}
+                  </button>
+                </div>
+              </div>
             </div>
-          }
-
-          @if (equipment.equipmentType === EquipmentType.HELMET) {
-            <div class="col-md-6">
-              <span class="text-muted d-block">{{ 'EQUIPMENT_CREATE.SIZE' | translate }}</span>
-              <span class="fs-5 fw-semibold">{{ equipment.size }} (cm)</span>
-            </div>
-          }
-
-          @if (equipment.equipmentType === EquipmentType.SKIBOOT) {
-            <div class="col-md-6">
-              <span class="text-muted d-block">{{ 'EQUIPMENT_CREATE.SOLE_LENGTH_MM' | translate }}</span>
-              <span class="fs-5 fw-semibold">{{ equipment.soleLengthMm }} mm</span>
-            </div>
-          }
-
-          @if (equipment.equipmentType === EquipmentType.SNOWBOARD) {
-          }
-
-          @if (equipment.equipmentType === EquipmentType.SNOWBOARDBOOT) {
-            <div class="col-md-6">
-              <span class="text-muted d-block">{{ 'EQUIPMENT_CREATE.LACING_SYSTEM' | translate }}</span>
-              <span class="fs-5 fw-semibold">{{ equipment.lacingSystem || '-' }}</span>
-            </div>
-          }
+          </div>
         </div>
       </div>
 

@@ -76,7 +76,6 @@ export function HttpLoaderFactory(http: HttpClient): TranslateLoader {
     CustomerProfileComponent,
     CustomerProfileCreateEditComponent,
     CustomerProfileDetailsComponent,
-    BarcodeScannerComponent,
   ],
   bootstrap: [AppComponent],
   imports: [BrowserModule,

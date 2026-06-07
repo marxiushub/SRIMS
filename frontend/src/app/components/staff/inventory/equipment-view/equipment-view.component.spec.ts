@@ -1,15 +1,15 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
-import { EquipmentViewComponent } from './equipment-view.component';
-import { EquipmentService } from '../../../../services/equipment.service';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { TranslateModule } from '@ngx-translate/core';
-import { ActivatedRoute } from '@angular/router';
-import { of, throwError } from 'rxjs';
-import { registerLocaleData } from '@angular/common';
+import {ComponentFixture, TestBed, waitForAsync} from '@angular/core/testing';
+import {RouterTestingModule} from '@angular/router/testing';
+import {EquipmentViewComponent} from './equipment-view.component';
+import {EquipmentService} from '../../../../services/equipment.service';
+import {provideHttpClientTesting} from '@angular/common/http/testing';
+import {provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
+import {TranslateModule} from '@ngx-translate/core';
+import {ActivatedRoute} from '@angular/router';
+import {of, throwError} from 'rxjs';
+import {registerLocaleData} from '@angular/common';
 import localeDe from '@angular/common/locales/de';
-import { ReservationService } from '../../../../services/reservation.service';
+import {ReservationService} from '../../../../services/reservation.service';
 
 registerLocaleData(localeDe, 'de');
 
@@ -33,8 +33,8 @@ describe('EquipmentViewComponent', () => {
       providers: [
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
-        { provide: EquipmentService, useValue: eqSpy },
-        { provide: ReservationService, useValue: resSpy },
+        {provide: EquipmentService, useValue: eqSpy},
+        {provide: ReservationService, useValue: resSpy},
         {
           provide: ActivatedRoute,
           useValue: {
@@ -81,7 +81,7 @@ describe('EquipmentViewComponent', () => {
     expect(component.equipment).toBeTruthy();
     expect(component.equipment?.id).toBe(1);
 
-    expect(reservationServiceSpy.search).toHaveBeenCalledWith({ equipmentIds: [1] });
+    expect(reservationServiceSpy.search).toHaveBeenCalledWith({equipmentIds: [1]});
     expect(component.reservations.length).toBe(0);
     expect(component.reservationsError).toBeFalse();
   });
@@ -119,5 +119,40 @@ describe('EquipmentViewComponent', () => {
     expect(component.reservationsLoading).toBeFalse();
     expect(component.reservationsError).toBeTrue();
     expect(component.reservations.length).toBe(0);
+  });
+
+  it('should call window.print when printBarcode is called', () => {
+    spyOn(window, 'print');
+
+    component.printBarcode();
+
+    expect(window.print).toHaveBeenCalled();
+  });
+
+  it('should trigger an SVG download when downloadBarcode is called', () => {
+    const dummySvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    spyOn(document, 'getElementById').and.returnValue(dummySvg as any);
+
+    const dummyAnchor = document.createElement('a');
+    spyOn(document, 'createElement').and.returnValue(dummyAnchor);
+    spyOn(dummyAnchor, 'click');
+
+    spyOn(window.URL, 'createObjectURL').and.returnValue('blob:test-url');
+    component.equipment = {barcodeId: 'EQUIP-123'} as any;
+
+    component.downloadBarcode();
+
+    expect(dummyAnchor.download).toBe('barcode_EQUIP-123.svg');
+    expect(dummyAnchor.href).toBe('blob:test-url');
+    expect(dummyAnchor.click).toHaveBeenCalled();
+  });
+
+  it('should abort download if barcode svg node is not found', () => {
+    spyOn(document, 'getElementById').and.returnValue(null);
+    const createObjectURLSpy = spyOn(window.URL, 'createObjectURL');
+
+    component.downloadBarcode();
+
+    expect(createObjectURLSpy).not.toHaveBeenCalled();
   });
 });

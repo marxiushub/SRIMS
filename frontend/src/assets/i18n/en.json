@@ -39,7 +39,9 @@
     "RESERVATIONS_TITLE": "Upcoming Reservations",
     "RESERVATIONS_LOADING": "Loading reservations...",
     "RESERVATIONS_ERROR": "Error loading reservations for this equipment.",
-    "NO_RESERVATIONS": "There are currently no reservations for this equipment."
+    "NO_RESERVATIONS": "There are currently no reservations for this equipment.",
+    "PRINT": "Print",
+    "DOWNLOAD": "Download"
   },
   "RENTAL_STATUS": {
     "FREE": "Available",
