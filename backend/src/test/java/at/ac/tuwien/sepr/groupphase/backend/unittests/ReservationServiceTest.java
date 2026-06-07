@@ -87,6 +87,7 @@ public class ReservationServiceTest {
         dto.setStartDate(LocalDate.now().plusDays(2));
         dto.setEndDate(LocalDate.now().plusDays(5));
         dto.setPickUpTime(LocalTime.of(10, 0));
+        double expectedTotalPrice = testEquipment.getPrice() * 3;
 
 
         ReservationDetailDto result = reservationService.createReservation(dto);
@@ -97,7 +98,8 @@ public class ReservationServiceTest {
             () -> assertThat(result.getId()).isNotNull(),
             () -> assertThat(result.getCustomerName()).isEqualTo("Hans"),
             () -> assertThat(result.getStartDate()).isEqualTo(LocalDate.now().plusDays(2)),
-            () -> assertThat(result.getEndDate()).isEqualTo(LocalDate.now().plusDays(5))
+            () -> assertThat(result.getEndDate()).isEqualTo(LocalDate.now().plusDays(5)),
+            () -> assertThat(result.getTotalPrice()).isEqualTo(expectedTotalPrice)
         );
     }
 
@@ -148,6 +150,7 @@ public class ReservationServiceTest {
         updateDto.setPickUpTime(LocalTime.of(14, 30));
         updateDto.setEquipmentIds(List.of(testEquipment2.getId()));
         updateDto.setCustomerProfileId(testCustomerProfile2.getId());
+        double expectedTotalPrice = testEquipment2.getPrice() * 7;
 
         ReservationDetailDto updatedReservation = reservationService.updateReservation(updateDto);
 
@@ -158,7 +161,8 @@ public class ReservationServiceTest {
             () -> assertThat(updatedReservation.getCustomerName()).isEqualTo("Hansine"),
             () -> assertThat(updatedReservation.getStartDate()).isEqualTo(LocalDate.now().plusDays(5)),
             () -> assertThat(updatedReservation.getPickUpTime()).isEqualTo(LocalTime.of(14, 30)),
-            () -> assertThat(updatedReservation.getEndDate()).isEqualTo(LocalDate.now().plusDays(12))
+            () -> assertThat(updatedReservation.getEndDate()).isEqualTo(LocalDate.now().plusDays(12)),
+            () -> assertThat(updatedReservation.getTotalPrice()).isEqualTo(expectedTotalPrice)
         );
     }
 
@@ -177,6 +181,7 @@ public class ReservationServiceTest {
 
         assertThat(created.getId()).isNotNull();
         assertThat(created.getItems()).hasSize(1);
+        double expectedPriceAfterAdd = (testEquipment.getPrice() + testEquipment2.getPrice()) * 5;
 
         ReservationAddDeleteEquipmentDto addDto = new ReservationAddDeleteEquipmentDto();
         addDto.setId(created.getId());
@@ -201,6 +206,7 @@ public class ReservationServiceTest {
             () -> assertThat(result).isNotNull(),
             () -> assertThat(result.getId()).isEqualTo(created.getId()),
             () -> assertThat(result.getItems()).hasSize(2),
+            () -> assertThat(result.getTotalPrice()).isEqualTo(expectedPriceAfterAdd),
             () -> assertThat(result.getItems().stream().anyMatch(e -> e.getId().equals(testEquipment2.getId()))).isTrue()
         );
     }
@@ -220,6 +226,7 @@ public class ReservationServiceTest {
         Long reservationId = created.getId();
 
         assertThat(reservationId).isNotNull();
+        double expectedTotalPrice = testEquipment.getPrice() * 5;
 
         LocalDate expectedStart = createDto.getStartDate();
         LocalDate expectedEnd = createDto.getEndDate();
@@ -228,6 +235,7 @@ public class ReservationServiceTest {
 
         assertThat(equipmentBeforeDelete.getTimePeriodsList())
             .anyMatch(tp -> tp.getStartDate().equals(expectedStart) && tp.getEndDate().equals(expectedEnd));
+        assertThat(created.getTotalPrice()).isEqualTo(expectedTotalPrice);
 
         reservationService.deleteReservation(reservationId);
 
@@ -267,6 +275,7 @@ public class ReservationServiceTest {
 
         assertThat(created.getId()).isNotNull();
         assertThat(created.getItems()).hasSize(2);
+        assertThat(created.getTotalPrice()).isEqualTo((testEquipment.getPrice() + testEquipment2.getPrice()) * 3);
 
         LocalDate expectedStart = createDto.getStartDate();
         LocalDate expectedEnd = createDto.getEndDate();
@@ -344,6 +353,7 @@ public class ReservationServiceTest {
             () -> assertThat(result.stream().anyMatch(res -> res.getId().equals(created.getId()))).isTrue(),
             () -> assertThat(result.get(0).getCustomerName()).isEqualTo("Hans"),
             () -> assertThat(result.get(0).getStartDate()).isEqualTo(searchDate),
+            () -> assertThat(result.get(0).getTotalPrice()).isEqualTo(testEquipment.getPrice() * 3),
             () -> assertThat(result.get(0).getItems().stream().anyMatch(item -> item.getId().equals(testEquipment.getId()))).isTrue()
         );
     }

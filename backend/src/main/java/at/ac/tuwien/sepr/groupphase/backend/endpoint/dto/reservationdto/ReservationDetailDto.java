@@ -16,6 +16,7 @@ public class ReservationDetailDto {
     private LocalDate startDate;
     private LocalDate endDate;
     private Boolean confirmationEmailSent;
+    private double totalPrice;
 
     private List<EquipmentDetailDto> items;
 
@@ -70,9 +71,18 @@ public class ReservationDetailDto {
         this.endDate = endDate;
     }
 
+    public Double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(Double totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
     public Boolean getConfirmationEmailSent() {
         return confirmationEmailSent;
     }
+
 
     public void setConfirmationEmailSent(Boolean confirmationEmailSent) {
         this.confirmationEmailSent = confirmationEmailSent;
