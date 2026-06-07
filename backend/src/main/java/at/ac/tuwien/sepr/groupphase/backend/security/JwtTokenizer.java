@@ -34,4 +34,6 @@ public class JwtTokenizer {
             .compact();
         return securityProperties.getAuthTokenPrefix() + token;
     }
+
 }
+

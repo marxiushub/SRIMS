@@ -116,7 +116,7 @@ public class CustomUserDetailService implements UserService {
             && userDetails.isCredentialsNonExpired()
             && passwordEncoder.matches(userLoginDto.getPassword(), userDetails.getPassword())
         ) {
-            ApplicationUser user = userRepository.findUserByEmail(userLoginDto.getEmail()).orElseThrow();
+            ApplicationUser user = userRepository.findUserByEmail(userLoginDto.getEmail()).orElseThrow(() -> new NotFoundException("user for login not found"));
             List<String> permissions = permissionService.getEffectivePermissions(user).stream().toList();
 
             return jwtTokenizer.getAuthToken(userDetails.getUsername(), user.getId(), permissions);
