@@ -61,15 +61,15 @@ public class ReservationValidator {
             validationErrors.add("No such reservation");
         } else {
             Reservation reservation = reservationRepository.getReferenceById(dto.getId());
-            pickUpDate = reservation.getPickUpDate();
-            returnDate = reservation.getReturnDate();
+            pickUpDate = reservation.getStartDate();
+            returnDate = reservation.getEndDate();
 
 
-            if (dto.getPickUpDate() != null) {
-                pickUpDate = dto.getPickUpDate();
+            if (dto.getStartDate() != null) {
+                pickUpDate = dto.getStartDate();
             }
-            if (dto.getRentDurationDays() != null) {
-                returnDate = pickUpDate.plusDays(dto.getRentDurationDays());
+            if (dto.getEndDate() != null) {
+                returnDate = dto.getEndDate();
             }
 
             if (dto.getCustomerProfileId() == null) {
@@ -116,8 +116,8 @@ public class ReservationValidator {
         Reservation reservation = reservationRepository.findById(dto.getId()).orElseThrow(() ->
             new NotFoundException("Reservation with ID " + dto.getId() + " not found.")
         );
-        LocalDate start = reservation.getPickUpDate();
-        LocalDate end = reservation.getReturnDate();
+        LocalDate start = reservation.getStartDate();
+        LocalDate end = reservation.getEndDate();
 
 
         if (dto.getEquipmentIds() != null) {

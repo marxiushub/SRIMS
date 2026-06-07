@@ -52,7 +52,8 @@ public class EquipmentServiceTest {
         testEquipment.addTimePeriod(
             LocalDate.now(),
             LocalDate.now().plusDays(5),
-            PeriodType.RENTED
+            PeriodType.RENTED,
+            null
         );
     }
 
@@ -321,7 +322,8 @@ public class EquipmentServiceTest {
         blockedHelmet.addTimePeriod(
             LocalDate.now().plusDays(1),
             LocalDate.now().plusDays(5),
-            PeriodType.RENTED
+            PeriodType.RENTED,
+            null
         );
 
         helmetRepository.save(blockedHelmet);

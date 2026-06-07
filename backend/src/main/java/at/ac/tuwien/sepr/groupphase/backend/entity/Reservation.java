@@ -11,7 +11,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Transient;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -37,28 +36,20 @@ public class Reservation {
 
     private LocalTime pickUpTime;
 
-    private LocalDate pickUpDate;
+    private LocalDate startDate;
 
-    private int rentDurationDays;
+    private LocalDate endDate;
 
     private Boolean confirmationEmailSent;
 
     protected Reservation() {
     }
 
-    public Reservation(CustomerProfile customerProfile, LocalTime pickUpTime, LocalDate pickUpDate, int rentDurationDays) {
+    public Reservation(CustomerProfile customerProfile, LocalTime pickUpTime, LocalDate startDate, LocalDate endDate) {
         this.customerProfile = customerProfile;
         this.pickUpTime = pickUpTime;
-        this.pickUpDate = pickUpDate;
-        this.rentDurationDays = rentDurationDays;
-    }
-
-    @Transient
-    public LocalDate getReturnDate() {
-        if (this.pickUpDate == null) {
-            return null;
-        }
-        return this.pickUpDate.plusDays(this.rentDurationDays);
+        this.startDate = startDate;
+        this.endDate = endDate;
     }
 
     /**
@@ -70,16 +61,9 @@ public class Reservation {
         items.add(item);
     }
 
-    public void setRentDurationDays(int days) {
-        this.rentDurationDays = days;
-    }
 
     public void setConfirmationEmailSent() {
         this.confirmationEmailSent = true;
-    }
-
-    public void setPickUpDate(LocalDate pickUpDate) {
-        this.pickUpDate = pickUpDate;
     }
 
     public void setPickUpTime(LocalTime pickUpTime) {
@@ -90,6 +74,14 @@ public class Reservation {
         this.customerProfile = customerProfile;
     }
 
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
+
     /**
      * Getter.
      *
@@ -98,9 +90,6 @@ public class Reservation {
         return items;
     }
 
-    public int getRentDurationDays() {
-        return rentDurationDays;
-    }
 
     public Boolean getConfirmationEmailSent() {
         return confirmationEmailSent;
@@ -118,8 +107,12 @@ public class Reservation {
         return id;
     }
 
-    public LocalDate getPickUpDate() {
-        return pickUpDate;
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
     }
 
 }
