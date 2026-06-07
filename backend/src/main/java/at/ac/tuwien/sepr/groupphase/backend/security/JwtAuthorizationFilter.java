@@ -85,7 +85,11 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         if (uidObj instanceof Number) {
             uid = ((Number) uidObj).longValue();
         } else if (uidObj instanceof String) {
-            try { uid = Long.valueOf((String) uidObj); } catch (NumberFormatException ignored) {}
+            try {
+                uid = Long.valueOf((String) uidObj);
+            } catch (NumberFormatException ignored) {
+                throw new NumberFormatException();
+            }
         }
 
         if (username == null || username.isEmpty()) {

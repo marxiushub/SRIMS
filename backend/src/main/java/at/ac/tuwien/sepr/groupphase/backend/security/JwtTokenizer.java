@@ -26,11 +26,12 @@ public class JwtTokenizer {
             .header().add("typ", securityProperties.getJwtType()).and()
             .issuer(securityProperties.getJwtIssuer())
             .audience().add(securityProperties.getJwtAudience()).and()
-            .subject(userEmail)                      // email as subject
-            .claim("uid", userId)                    // user id claim
-            .claim("perms", permissions)             // permission strings
+            .subject(userEmail)
+            .claim("uid", userId)
+            .claim("perms", permissions)
             .expiration(new Date(System.currentTimeMillis() + securityProperties.getJwtExpirationTime()))
             .signWith(key, Jwts.SIG.HS512)
             .compact();
         return securityProperties.getAuthTokenPrefix() + token;
     }
+}
