@@ -6,7 +6,6 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.Reservat
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationAddDeleteEquipmentDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EquipmentMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ReservationMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Reservation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ReservationRelation;
@@ -26,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -81,7 +81,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
 
             equipment.addTimePeriod(dto.getStartDate(), dto.getEndDate(), PeriodType.RENTED, reservation);
         }
-
+        calculateAndSetTotalPrice(reservation);
         Reservation savedReservation = reservationRepository.save(reservation);
         //bestätigungs-email senden
         return reservationMapper.entityToDetailDto(savedReservation);
@@ -156,6 +156,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
             }
         }
 
+        calculateAndSetTotalPrice(reservation);
         Reservation saved = reservationRepository.save(reservation);
         return reservationMapper.entityToDetailDto(saved);
     }
@@ -243,6 +244,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
             equipment.addTimePeriod(reservation.getStartDate(), reservation.getEndDate(), PeriodType.RENTED, reservation);
         }
 
+        calculateAndSetTotalPrice(reservation);
         return reservationMapper.entityToDetailDto(reservation);
     }
 
@@ -258,6 +260,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
 
         reservation.getItems().removeIf(relation -> dto.getEquipmentIds().contains(relation.getEquipment().getId()));
 
+        calculateAndSetTotalPrice(reservation);
         Reservation savedReservation = reservationRepository.save(reservation);
         return reservationMapper.entityToDetailDto(savedReservation);
     }
@@ -270,6 +273,25 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
                     && tp.getReservation().getId().equals(reservation.getId())
             );
         }
+    }
+
+    private void calculateAndSetTotalPrice(Reservation reservation) {
+        if (reservation.getStartDate() == null || reservation.getEndDate() == null || reservation.getItems().isEmpty()) {
+            reservation.setTotalPrice(0.0);
+            return;
+        }
+
+        long days = ChronoUnit.DAYS.between(reservation.getStartDate(), reservation.getEndDate());
+        if (days == 0) {
+            days = 1;
+        }
+
+        double equipmentSum = reservation.getItems().stream()
+            .filter(item -> item.getEquipment() != null)
+            .mapToDouble(item -> item.getEquipment().getPrice())
+            .sum();
+
+        reservation.setTotalPrice(equipmentSum * days);
     }
 
 
