@@ -1,8 +1,8 @@
 export interface ReservationUpdate {
   id: number;
+  customerProfileId?: number;
   pickUpTime?: string;
-  pickUpDate?: string;
-  rentDurationDays?: number;
+  startDate?: string;
+  endDate?: string;
   equipmentIds?: number[];
-  customerProfileId?: number; 
 }

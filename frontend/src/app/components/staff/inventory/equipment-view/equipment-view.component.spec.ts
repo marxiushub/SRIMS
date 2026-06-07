@@ -94,9 +94,8 @@ describe('EquipmentViewComponent', () => {
         accountId: 2,
         customerName: 'Max Mustermann',
         pickUpTime: '09:00',
-        pickUpDate: '2026-12-24',
-        returnDate: '2026-12-26',
-        rentDurationDays: 2,
+        startDate: '2026-12-24',
+        endDate: '2026-12-26',
         confirmationEmailSent: true,
         items: []
       }

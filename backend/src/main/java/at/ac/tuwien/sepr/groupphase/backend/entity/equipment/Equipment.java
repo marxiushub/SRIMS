@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity.equipment;
 
 
+import at.ac.tuwien.sepr.groupphase.backend.entity.Reservation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.TimePeriods;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.EquipmentType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.PeriodType;
@@ -46,7 +47,7 @@ public abstract class Equipment {
     @Enumerated(EnumType.STRING)
     private RentalStatus status;
 
-    @Column(nullable = true, unique = true)
+    @Column(unique = true)
     private String barcodeId;
 
     @PrePersist
@@ -126,8 +127,8 @@ public abstract class Equipment {
         this.usageDurationDays = 0;
     }
 
-    public void addTimePeriod(LocalDate start, LocalDate end, PeriodType periodType) {
-        TimePeriods period = new TimePeriods(this, start, end, periodType);
+    public void addTimePeriod(LocalDate start, LocalDate end, PeriodType periodType, Reservation reservation) {
+        TimePeriods period = new TimePeriods(this, start, end, periodType, reservation);
         timePeriodsList.add(period);
     }
 

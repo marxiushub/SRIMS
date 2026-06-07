@@ -1,8 +1,10 @@
 export interface ReservationSearch {
   customerProfileId?: number;
   accountId?: number;
-  pickUpDate?: string;
   pickUpTime?: string;
-  timePeriod?: string;
+  startDate?: string;
+  endDate?: string;
+  searchRangeStart?: string,
+  searchRangeEnd?: string,
   equipmentIds?: number[];
 }

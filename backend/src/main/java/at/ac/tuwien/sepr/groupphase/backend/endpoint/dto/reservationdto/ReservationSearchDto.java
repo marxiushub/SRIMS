@@ -1,7 +1,5 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto;
 
-import at.ac.tuwien.sepr.groupphase.backend.entity.TimePeriods;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -9,9 +7,11 @@ import java.util.List;
 public class ReservationSearchDto {
     private Long customerProfileId;
     private Long accountId;
-    private LocalDate pickUpDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private LocalTime pickUpTime;
-    private TimePeriods timePeriod;
+    private LocalDate searchRangeStart;
+    private LocalDate searchRangeEnd;
     private List<Long> equipmentIds;
 
     public Long getCustomerProfileId() {
@@ -30,12 +30,20 @@ public class ReservationSearchDto {
         this.accountId = accountId;
     }
 
-    public LocalDate getPickUpDate() {
-        return pickUpDate;
+    public LocalDate getStartDate() {
+        return startDate;
     }
 
-    public void setPickUpDate(LocalDate pickUpDate) {
-        this.pickUpDate = pickUpDate;
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
     }
 
     public LocalTime getPickUpTime() {
@@ -46,12 +54,20 @@ public class ReservationSearchDto {
         this.pickUpTime = pickUpTime;
     }
 
-    public TimePeriods getTimePeriod() {
-        return timePeriod;
+    public LocalDate getSearchRangeStart() {
+        return searchRangeStart;
     }
 
-    public void setTimePeriod(TimePeriods timePeriod) {
-        this.timePeriod = timePeriod;
+    public void setSearchRangeStart(LocalDate searchRangeStart) {
+        this.searchRangeStart = searchRangeStart;
+    }
+
+    public LocalDate getSearchRangeEnd() {
+        return searchRangeEnd;
+    }
+
+    public void setSearchRangeEnd(LocalDate searchRangeEnd) {
+        this.searchRangeEnd = searchRangeEnd;
     }
 
     public List<Long> getEquipmentIds() {

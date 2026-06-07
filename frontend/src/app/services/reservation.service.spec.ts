@@ -45,10 +45,10 @@ describe('ReservationService', () => {
     it('should make a POST request with the correct body to the base URI', () => {
       const mockCreation: ReservationCreation = {
         customerProfileId: 1,
-        pickUpDate: '2026-03-01',
+        equipmentIds: [101, 102],
         pickUpTime: '09:00',
-        rentDurationDays: 4,
-        equipmentIds: [101, 102]
+        startDate: '2026-03-01',
+        endDate: '2026-03-02'
       };
 
       const mockResponse: ReservationDetail = {
@@ -56,10 +56,9 @@ describe('ReservationService', () => {
         customerProfileId: 1,
         accountId: 2,
         customerName: 'Max Mustermann',
-        pickUpDate: '2026-03-01',
         pickUpTime: '09:00',
-        returnDate: '2026-03-05',
-        rentDurationDays: 4,
+        startDate: '2026-03-01',
+        endDate: '2026-03-02',
         confirmationEmailSent: false,
         items: []
       };
@@ -79,11 +78,11 @@ describe('ReservationService', () => {
 
     it('should forward errors when creation fails', () => {
       const mockCreation: ReservationCreation = {
+        equipmentIds: [],
         customerProfileId: 99,
-        pickUpDate: '2026-03-01',
         pickUpTime: '09:00',
-        rentDurationDays: 1,
-        equipmentIds: []
+        startDate: '2026-03-01',
+        endDate: '2026-03-02'
       };
 
       service.create(mockCreation).subscribe({
@@ -106,10 +105,9 @@ describe('ReservationService', () => {
         customerProfileId: 3,
         accountId: 1,
         customerName: 'Anna Smith',
-        pickUpDate: '2026-04-10',
         pickUpTime: '14:00',
-        returnDate: '2026-04-15',
-        rentDurationDays: 5,
+        startDate: '2026-03-01',
+        endDate: '2026-03-02',
         confirmationEmailSent: true,
         items: []
       };
@@ -146,8 +144,8 @@ describe('ReservationService', () => {
       const reservationId = 55;
       const mockUpdate: ReservationUpdate = {
         id: 55,
-        pickUpDate: '2026-05-01',
-        pickUpTime: '11:00'
+        pickUpTime: '11:00',
+        startDate: '2026-05-01'
       };
 
       const mockResponse: ReservationDetail = {
@@ -155,17 +153,16 @@ describe('ReservationService', () => {
         customerProfileId: 4,
         accountId: 1,
         customerName: 'John Doe',
-        pickUpDate: '2026-05-01',
         pickUpTime: '11:00',
-        returnDate: '2026-05-05',
-        rentDurationDays: 4,
+        startDate: '2026-05-01',
+        endDate: '2026-05-02',
         confirmationEmailSent: false,
         items: []
       };
 
       service.update(reservationId, mockUpdate).subscribe((data) => {
         expect(data).toBeTruthy();
-        expect(data.pickUpDate).toBe('2026-05-01');
+        expect(data.startDate).toBe('2026-05-01');
         expect(data.pickUpTime).toBe('11:00');
       });
 
@@ -180,7 +177,7 @@ describe('ReservationService', () => {
       const reservationId = 55;
       const mockUpdate: ReservationUpdate = {
         id: 55,
-        pickUpDate: 'invalid-date'
+        startDate: 'invalid-date'
       };
 
       service.update(reservationId, mockUpdate).subscribe({
@@ -214,9 +211,11 @@ describe('ReservationService', () => {
       const mockSearch: ReservationSearch = {
         customerProfileId: 123,
         accountId: 456,
-        pickUpDate: '2026-12-24',
         pickUpTime: '10:00',
-        timePeriod: 'MORNING'
+        startDate: '2026-12-24',
+        endDate: '2026-12-25',
+        searchRangeStart: '2026-12-20',
+        searchRangeEnd: '2026-12-30',
       };
 
       service.search(mockSearch).subscribe();
@@ -226,9 +225,11 @@ describe('ReservationService', () => {
 
       expect(req.request.params.get('customerProfileId')).toBe('123');
       expect(req.request.params.get('accountId')).toBe('456');
-      expect(req.request.params.get('pickUpDate')).toBe('2026-12-24');
       expect(req.request.params.get('pickUpTime')).toBe('10:00');
-      expect(req.request.params.get('timePeriod')).toBe('MORNING');
+      expect(req.request.params.get('startDate')).toBe('2026-12-24');
+      expect(req.request.params.get('endDate')).toBe('2026-12-25');
+      expect(req.request.params.get('searchRangeStart')).toBe('2026-12-20');
+      expect(req.request.params.get('searchRangeEnd')).toBe('2026-12-30');
 
       req.flush([]);
     });
@@ -260,9 +261,8 @@ describe('ReservationService', () => {
           accountId: 1,
           customerName: 'John Doe',
           pickUpTime: '08:30',
-          pickUpDate: '2026-02-15',
-          returnDate: '2026-02-20',
-          rentDurationDays: 5,
+          startDate: '2026-02-15',
+          endDate: '2026-02-20',
           confirmationEmailSent: true,
           items: []
         }

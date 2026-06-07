@@ -1,7 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto;
 
 import jakarta.validation.constraints.FutureOrPresent;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.NotEmpty;
 import java.time.LocalDate;
@@ -21,10 +20,11 @@ public class ReservationCreationDto {
 
     @NotNull(message = "Pickup date must not be empty")
     @FutureOrPresent(message = "Pickup date must not be in the past")
-    private LocalDate pickUpDate;
+    private LocalDate startDate;
 
-    @Min(value = 1, message = "Rental must last at least 1 day")
-    private int rentDurationDays;
+    @NotNull(message = "Return date must not be empty")
+    @FutureOrPresent(message = "Return date must not be in the past")
+    private LocalDate endDate;
 
     public ReservationCreationDto() {}
 
@@ -52,19 +52,20 @@ public class ReservationCreationDto {
         this.pickUpTime = pickUpTime;
     }
 
-    public LocalDate getPickUpDate() {
-        return pickUpDate;
+    public LocalDate getStartDate() {
+        return startDate;
     }
 
-    public void setPickUpDate(LocalDate pickUpDate) {
-        this.pickUpDate = pickUpDate;
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
     }
 
-    public int getRentDurationDays() {
-        return rentDurationDays;
+    public LocalDate getEndDate() {
+        return endDate;
     }
 
-    public void setRentDurationDays(int rentDurationDays) {
-        this.rentDurationDays = rentDurationDays;
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
     }
+
 }

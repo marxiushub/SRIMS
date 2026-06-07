@@ -1,6 +1,5 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.detail.EquipmentDetailDto;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
@@ -14,9 +13,9 @@ public class ReservationUpdateDto {
 
     private LocalTime pickUpTime;
 
-    private LocalDate pickUpDate;
+    private LocalDate startDate;
 
-    private int rentDurationDays;
+    private LocalDate endDate;
 
     private List<Long> equipmentIds;
 
@@ -38,20 +37,20 @@ public class ReservationUpdateDto {
         this.pickUpTime = pickUpTime;
     }
 
-    public LocalDate getPickUpDate() {
-        return pickUpDate;
+    public LocalDate getStartDate() {
+        return startDate;
     }
 
-    public void setPickUpDate(LocalDate pickUpDate) {
-        this.pickUpDate = pickUpDate;
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
     }
 
-    public Integer getRentDurationDays() {
-        return rentDurationDays;
+    public LocalDate getEndDate() {
+        return endDate;
     }
 
-    public void setRentDurationDays(Integer rentDurationDays) {
-        this.rentDurationDays = rentDurationDays;
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
     }
 
     public List<Long> getEquipmentIds() {

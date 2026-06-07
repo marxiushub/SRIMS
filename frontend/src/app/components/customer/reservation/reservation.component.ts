@@ -94,7 +94,7 @@ export class ReservationComponent implements OnInit {
     const searchRequest: ReservationSearch = {
       accountId: this.hardcodedAccountId,
       customerProfileId: this.profileFilter ?? undefined,
-      pickUpDate: this.dateFilter || undefined,
+      startDate: this.dateFilter || undefined,
       pickUpTime: this.timeFilter ? this.timeFilter + ':00' : undefined
     };
 
