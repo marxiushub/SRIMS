@@ -29,8 +29,8 @@
         </div>
 
         <div class="col-md-3">
-          <label for="pickUpDate" class="form-label fw-bold">{{ 'RESERVATION.PICKUP_DATE' | translate }} *</label>
-          <input type="date" id="pickUpDate" formControlName="pickUpDate" class="form-control">
+          <label for="startDate" class="form-label fw-bold">{{ 'RESERVATION.PICKUP_DATE' | translate }} *</label>
+          <input type="date" id="startDate" formControlName="startDate" class="form-control">
         </div>
 
         <div class="col-md-2">
@@ -39,17 +39,10 @@
         </div>
 
         <div class="col-md-3">
-          <label for="returnDate" class="form-label fw-bold">{{ 'RESERVATION.RETURN_DATE' | translate }} *</label>
-          <input type="date" id="returnDate" formControlName="returnDate" class="form-control">
+          <label for="endDate" class="form-label fw-bold">{{ 'RESERVATION.RETURN_DATE' | translate }} *</label>
+          <input type="date" id="endDate" formControlName="endDate" class="form-control">
         </div>
 
-        <div class="col-md-1 text-end" style="min-width: 110px;">
-          @if (calculateRentDuration() > 0) {
-            <div class="p-2 bg-primary text-white rounded text-center small fw-bold">
-              {{ calculateRentDuration() }} {{ 'RESERVATION.DAYS' | translate }}
-            </div>
-          }
-        </div>
       </div>
     </div>
 
@@ -102,7 +95,7 @@
         @for (type of [EquipmentTypeEnum.HELMET, EquipmentTypeEnum.POLE, EquipmentTypeEnum.SKI, EquipmentTypeEnum.SKIBOOT, EquipmentTypeEnum.SNOWBOARD, EquipmentTypeEnum.SNOWBOARDBOOT]; track type) {
           <button type="button" class="btn"
                   [ngClass]="currentActiveType === type ? 'btn-primary' : 'btn-outline-primary'"
-                  [disabled]="!reservationForm.get('pickUpDate')?.value || !reservationForm.get('returnDate')?.value || isDateRangeInvalid"
+                  [disabled]="!reservationForm.get('startDate')?.value || !reservationForm.get('endDate')?.value || isDateRangeInvalid"
                   (click)="openEquipmentSelection(type)">
             + {{ 'RESERVATION.ADD_' + type | translate }}
           </button>

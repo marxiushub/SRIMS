@@ -51,14 +51,20 @@ export class ReservationService {
       if (search.accountId) {
           params = params.set('accountId', search.accountId);
       }
-      if (search.pickUpDate) {
-          params = params.set('pickUpDate', search.pickUpDate);
-      }
       if (search.pickUpTime) {
           params = params.set('pickUpTime', search.pickUpTime);
       }
-      if (search.timePeriod) {
-          params = params.set('timePeriod', search.timePeriod);
+      if (search.startDate) {
+        params = params.set('startDate', search.startDate);
+      }
+      if (search.endDate) {
+        params = params.set('endDate', search.endDate);
+      }
+      if (search.searchRangeStart) {
+        params = params.set('searchRangeStart', search.searchRangeStart);
+      }
+      if (search.searchRangeEnd) {
+        params = params.set('searchRangeEnd', search.searchRangeEnd);
       }
       if (search.equipmentIds && search.equipmentIds.length > 0) {
           search.equipmentIds.forEach(equipmentId => {

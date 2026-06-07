@@ -13,9 +13,8 @@ public class ReservationDetailDto {
     private Long accountId;
     private String customerName;
     private LocalTime pickUpTime;
-    private LocalDate pickUpDate;
-    private LocalDate returnDate;
-    private int rentDurationDays;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private Boolean confirmationEmailSent;
 
     private List<EquipmentDetailDto> items;
@@ -55,28 +54,20 @@ public class ReservationDetailDto {
         this.pickUpTime = pickUpTime;
     }
 
-    public LocalDate getPickUpDate() {
-        return pickUpDate;
+    public LocalDate getStartDate() {
+        return startDate;
     }
 
-    public void setPickUpDate(LocalDate pickUpDate) {
-        this.pickUpDate = pickUpDate;
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
     }
 
-    public LocalDate getReturnDate() {
-        return returnDate;
+    public LocalDate getEndDate() {
+        return endDate;
     }
 
-    public void setReturnDate(LocalDate returnDate) {
-        this.returnDate = returnDate;
-    }
-
-    public int getRentDurationDays() {
-        return rentDurationDays;
-    }
-
-    public void setRentDurationDays(int rentDurationDays) {
-        this.rentDurationDays = rentDurationDays;
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
     }
 
     public Boolean getConfirmationEmailSent() {

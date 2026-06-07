@@ -6,9 +6,8 @@ export interface ReservationDetail {
   accountId: number;
   customerName: string;
   pickUpTime: string;
-  pickUpDate: string;
-  returnDate: string;
-  rentDurationDays: number;
+  startDate: string,
+  endDate: string;
   confirmationEmailSent: boolean;
   items: Equipment[];
 }

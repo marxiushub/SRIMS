@@ -49,10 +49,9 @@ describe('ReservationComponent', () => {
       customerProfileId: 10,
       accountId: 1,
       customerName: 'Max Mustermann',
-      pickUpDate: '2026-12-24',
       pickUpTime: '10:00:00',
-      returnDate: '2026-12-31',
-      rentDurationDays: 7,
+      startDate: '2026-12-24',
+      endDate: '2026-12-31',
       confirmationEmailSent: true,
       items: [{id: 1, model: 'Ski Alpha', price: 25} as any]
     },
@@ -61,10 +60,9 @@ describe('ReservationComponent', () => {
       customerProfileId: 20,
       accountId: 1,
       customerName: 'Erika Musterfrau',
-      pickUpDate: '2026-02-15',
       pickUpTime: '08:30:00',
-      returnDate: '2026-02-20',
-      rentDurationDays: 5,
+      startDate: '2026-02-15',
+      endDate: '2026-02-20',
       confirmationEmailSent: false,
       items: []
     }
@@ -159,8 +157,8 @@ describe('ReservationComponent', () => {
     expect(reservationServiceMock.search).toHaveBeenCalledWith({
       accountId: 1,
       customerProfileId: 10,
-      pickUpDate: '2026-12-24',
-      pickUpTime: '10:00:00' // Sekundensuffix angehängt
+      pickUpTime: '10:00:00',
+      startDate: '2026-12-24'
     });
     expect(component.loading).toBeFalse();
   });
@@ -177,8 +175,8 @@ describe('ReservationComponent', () => {
     expect(reservationServiceMock.search).toHaveBeenCalledWith({
       accountId: 1,
       customerProfileId: undefined,
-      pickUpDate: undefined,
-      pickUpTime: undefined
+      pickUpTime: undefined,
+      startDate: undefined
     });
   });
 
@@ -218,9 +216,8 @@ describe('ReservationComponent', () => {
         accountId: 1,
         customerName: `Customer ${i}`,
         pickUpTime: '10:00:00',
-        pickUpDate: '2026-12-24',
-        returnDate: '2026-12-27',
-        rentDurationDays: 3,
+        startDate: '2026-12-24',
+        endDate: '2026-12-27',
         confirmationEmailSent: false,
         items: []
       })) as ReservationDetail[];
@@ -239,7 +236,7 @@ describe('ReservationComponent', () => {
       component.goToLastPage();
       expect(component.currentPage).toBe(3);
       expect(component.startIndex).toBe(11);
-      expect(component.endIndex).toBe(12); // Gecappt bei 12 Items
+      expect(component.endIndex).toBe(12);
     });
 
     it('should navigate between pages correctly', () => {

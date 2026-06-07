@@ -90,9 +90,9 @@ export class ReservationCreateEditComponent implements OnInit {
   private initForm(): void {
     this.reservationForm = this.fb.group({
       customerProfileId: [null, Validators.required],
-      pickUpDate: [null, Validators.required],
       pickUpTime: ['09:00', Validators.required],
-      returnDate: [null, Validators.required]
+      startDate: [null, Validators.required],
+      endDate: [null, Validators.required]
     });
 
     this.reservationForm.get('customerProfileId')?.valueChanges.subscribe(profileId => {
@@ -102,7 +102,7 @@ export class ReservationCreateEditComponent implements OnInit {
     });
 
     this.reservationForm.valueChanges.subscribe(values => {
-      if (this.currentActiveType && values.pickUpDate && values.returnDate && !this.isDateRangeInvalid) {
+      if (this.currentActiveType && values.startDate && values.endDate && !this.isDateRangeInvalid) {
         this.searchEquipment();
       }
     })
@@ -148,13 +148,6 @@ export class ReservationCreateEditComponent implements OnInit {
           return;
         }
 
-        let returnDateString = data.pickUpDate;
-        if (data.pickUpDate && data.rentDurationDays > 0) {
-          const d = new Date(data.pickUpDate);
-          d.setDate(d.getDate() + (data.rentDurationDays - 1));
-          returnDateString = d.toISOString().split('T')[0];
-        }
-
         let formattedTime = data.pickUpTime || '09:00';
         if (formattedTime.length > 5) {
           formattedTime = formattedTime.substring(0, 5);
@@ -162,9 +155,9 @@ export class ReservationCreateEditComponent implements OnInit {
 
         this.reservationForm.patchValue({
           customerProfileId: data.customerProfileId,
-          pickUpDate: data.pickUpDate,
+          startDate: data.startDate,
           pickUpTime: formattedTime,
-          returnDate: returnDateString
+          endDate: data.endDate
         });
 
         this.selectedEquipment = data.items || data.equipment || data.equipments || data.equipmentList || [];
@@ -179,17 +172,17 @@ export class ReservationCreateEditComponent implements OnInit {
   }
 
   /**
-   * Watches for changes in pickUpDate or returnDate to re-validate already selected equipment.
+   * Watches for changes in startDate or endDate to re-validate already selected equipment.
    */
   private initDateChangeWatcher(): void {
     this.reservationForm.valueChanges.pipe(
       debounceTime(300),
       distinctUntilChanged((prev, curr) =>
-        prev.pickUpDate === curr.pickUpDate && prev.returnDate === curr.returnDate
+        prev.startDate === curr.startDate && prev.endDate === curr.endDate
       )
     ).subscribe(values => {
-      if (this.selectedEquipment.length > 0 && values.pickUpDate && values.returnDate && !this.isDateRangeInvalid) {
-        this.validateSelectedEquipmentForNewDates(values.pickUpDate, values.returnDate);
+      if (this.selectedEquipment.length > 0 && values.startDate && values.endDate && !this.isDateRangeInvalid) {
+        this.validateSelectedEquipmentForNewDates(values.startDate, values.endDate);
       }
     });
   }
@@ -212,7 +205,6 @@ export class ReservationCreateEditComponent implements OnInit {
           return availableIds.includes(item.id) || this.mode === ReservationCreateEditMode.edit; //Reservations in EditMode should not filter out themselves
         });
 
-
         if (filteredList.length !== this.selectedEquipment.length) {
           this.selectedEquipment = filteredList;
           this.validationWarning = 'RESERVATION.VALIDATION_WARNING';
@@ -232,35 +224,12 @@ export class ReservationCreateEditComponent implements OnInit {
    * Checks if the date configuration is invalid.
    */
   get isDateRangeInvalid(): boolean {
-    const start = this.reservationForm.get('pickUpDate')?.value;
-    const end = this.reservationForm.get('returnDate')?.value;
+    const start = this.reservationForm.get('startDate')?.value;
+    const end = this.reservationForm.get('endDate')?.value;
     if (!start || !end) {
       return false;
     }
     return new Date(end) < new Date(start);
-  }
-
-  /**
-   * Calculates the rentageDurationDays.
-   * Pick-Up and Return on same day counts as 1 day.
-   */
-  calculateRentDuration(): number {
-    const start = this.reservationForm.get('pickUpDate')?.value;
-    const end = this.reservationForm.get('returnDate')?.value;
-
-    if (!start || !end) {
-      return 0;
-    }
-
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-
-    const diffTime = endDate.getTime() - startDate.getTime();
-    if (diffTime < 0) {
-      return 0;
-    }
-
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
   }
 
   /**
@@ -277,8 +246,8 @@ export class ReservationCreateEditComponent implements OnInit {
   searchEquipment(): void {
     this.loading = true;
 
-    const startDateString = this.reservationForm.get('pickUpDate')?.value;
-    const endDateString = this.reservationForm.get('returnDate')?.value;
+    const startDateString = this.reservationForm.get('startDate')?.value;
+    const endDateString = this.reservationForm.get('endDate')?.value;
 
     const searchRequest: EquipmentSearch = {
       model: this.modelFilter.trim() || undefined,
@@ -385,8 +354,7 @@ export class ReservationCreateEditComponent implements OnInit {
       return;
     }
 
-    const duration = this.calculateRentDuration();
-    if (duration <= 0) {
+    if (this.isDateRangeInvalid) {
       alert('The return date cannot be before the pick-up date');
       return;
     }
@@ -409,8 +377,8 @@ export class ReservationCreateEditComponent implements OnInit {
         customerProfileId: formValue.customerProfileId,
         equipmentIds: this.selectedEquipment.map(e => e.id),
         pickUpTime: formValue.pickUpTime + ':00',
-        pickUpDate: formValue.pickUpDate,
-        rentDurationDays: duration
+        startDate: formValue.startDate,
+        endDate: formValue.endDate,
       };
 
       this.reservationService.create(reservationPayload).subscribe({
@@ -434,8 +402,8 @@ export class ReservationCreateEditComponent implements OnInit {
         customerProfileId: formValue.customerProfileId,
         equipmentIds: this.selectedEquipment.map(e => e.id),
         pickUpTime: formValue.pickUpTime.length === 5 ? formValue.pickUpTime + ':00' : formValue.pickUpTime,
-        pickUpDate: formValue.pickUpDate,
-        rentDurationDays: duration
+        startDate: formValue.startDate,
+        endDate: formValue.endDate
       };
 
       this.reservationService.update(this.reservationId!, reservationPayload).subscribe({

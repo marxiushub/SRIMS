@@ -64,9 +64,9 @@ describe('ReservationCreateEditComponent', () => {
       getById: jasmine.createSpy('getById').and.returnValue(of({
         id: 100,
         customerProfileId: 1,
-        pickUpDate: '2026-06-20',
         pickUpTime: '10:00',
-        rentDurationDays: 3,
+        startDate: '2026-06-20',
+        endDate: '2026-06-22',
         items: [mockEquipment[0]]
       }))
     };
@@ -130,26 +130,14 @@ describe('ReservationCreateEditComponent', () => {
     expect(component.reservationForm.get('customerProfileId')?.value).toBe(1);
   });
 
-  it('should invalid date range if returnDate is before pickUpDate', () => {
+  it('should invalid date range if endDate is before startDate', () => {
     fixture.detectChanges();
     component.reservationForm.patchValue({
-      pickUpDate: '2026-06-10',
-      returnDate: '2026-06-05'
+      startDate: '2026-06-10',
+      endDate: '2026-06-05'
     });
 
     expect(component.isDateRangeInvalid).toBeTrue();
-    expect(component.calculateRentDuration()).toBe(0);
-  });
-
-  it('should calculate correct rent duration for valid dates', () => {
-    fixture.detectChanges();
-    component.reservationForm.patchValue({
-      pickUpDate: '2026-06-01',
-      returnDate: '2026-06-05'
-    });
-
-    expect(component.isDateRangeInvalid).toBeFalse();
-    expect(component.calculateRentDuration()).toBe(5);
   });
 
   it('should apply profile filters automatically when profile changes', () => {
@@ -169,9 +157,9 @@ describe('ReservationCreateEditComponent', () => {
 
     component.reservationForm.patchValue({
       customerProfileId: 1,
-      pickUpDate: '2026-06-01',
       pickUpTime: '09:00',
-      returnDate: '2026-06-05'
+      startDate: '2026-06-01',
+      endDate: '2026-06-05'
     });
     component.selectedEquipment = [];
 
@@ -184,9 +172,9 @@ describe('ReservationCreateEditComponent', () => {
     fixture.detectChanges();
     component.reservationForm.patchValue({
       customerProfileId: 1,
-      pickUpDate: '2026-06-01',
       pickUpTime: '09:00',
-      returnDate: '2026-06-05'
+      startDate: '2026-06-01',
+      endDate: '2026-06-05'
     });
     component.selectedEquipment = [...mockEquipment];
 
@@ -210,8 +198,8 @@ describe('ReservationCreateEditComponent', () => {
     equipmentServiceMock.search.and.returnValue(of([mockEquipment[1]]));
 
     component.reservationForm.patchValue({
-      pickUpDate: '2026-07-01',
-      returnDate: '2026-07-05'
+      startDate: '2026-07-01',
+      endDate: '2026-07-05'
     });
 
     tick(300);
@@ -231,7 +219,7 @@ describe('ReservationCreateEditComponent', () => {
     expect(reservationServiceMock.getById).toHaveBeenCalledWith(100);
 
     expect(component.reservationForm.get('customerProfileId')?.value).toBe(1);
-    expect(component.reservationForm.get('pickUpDate')?.value).toBe('2026-06-20');
+    expect(component.reservationForm.get('startDate')?.value).toBe('2026-06-20');
     expect(component.reservationForm.get('pickUpTime')?.value).toBe('10:00');
     expect(component.selectedEquipment).toEqual([mockEquipment[0]]);
   });
@@ -244,9 +232,9 @@ describe('ReservationCreateEditComponent', () => {
 
     component.reservationForm.patchValue({
       customerProfileId: 1,
-      pickUpDate: '2026-06-20',
       pickUpTime: '10:00',
-      returnDate: '2026-06-22'
+      startDate: '2026-06-20',
+      endDate: '2026-06-22'
     });
     component.selectedEquipment = [mockEquipment[0]];
 
@@ -262,8 +250,8 @@ describe('ReservationCreateEditComponent', () => {
       customerProfileId: 1,
       equipmentIds: [10],
       pickUpTime: '10:00:00',
-      pickUpDate: '2026-06-20',
-      rentDurationDays: 3
+      startDate: '2026-06-20',
+      endDate: '2026-06-22'
     });
     expect(routerMock.navigate).toHaveBeenCalledWith(['/customer/reservation']);
     expect(toastrServiceMock.success).toHaveBeenCalledWith('Reservation updated');

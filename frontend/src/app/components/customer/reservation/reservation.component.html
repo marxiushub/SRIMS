@@ -36,11 +36,11 @@
     </div>
 
     <div class="me-2">
-      <label for="searchPickUpDate" class="col-form-label">{{ 'RESERVATION.PICKUP_DATE' | translate }}</label>
+      <label for="searchStartDate" class="col-form-label">{{ 'RESERVATION.PICKUP_DATE' | translate }}</label>
       <input
         type="date"
-        id="searchPickUpDate"
-        name="searchPickUpDate"
+        id="searchStartDate"
+        name="searchStartDate"
         [(ngModel)]="dateFilter"
         [ngModelOptions]="{ standalone: true }"
         (ngModelChange)="searchReservations()"
@@ -86,7 +86,7 @@
         <th>{{ 'RESERVATION.CUSTOMER_PROFILE_NAME' | translate }}</th>
         <th>{{ 'RESERVATION.PICKUP_DATE' | translate }}</th>
         <th>{{ 'RESERVATION.PICKUP_TIME' | translate }}</th>
-        <th>{{ 'RESERVATION.DURATION' | translate }}</th>
+        <th>{{ 'RESERVATION.RETURN_DATE' | translate }}</th>
         <th>{{ 'RESERVATION.EQUIPMENT_COUNT' | translate }}</th>
         <th>{{ 'INVENTORY.EQUIPMENT_ACTIONS' | translate }}</th>
       </tr>
@@ -96,9 +96,9 @@
         @for (item of reservations | slice:startIndex - 1:endIndex; track item.id) {
           <tr (click)="openDetailPage(item)" class="clickable-row">
             <td>{{ item.customerName }}</td>
-            <td>{{ item.pickUpDate | date:'dd.MM.yyyy' }}</td>
+            <td>{{ item.startDate | date:'dd.MM.yyyy' }}</td>
             <td>{{ item.pickUpTime.substring(0, 5) }}</td>
-            <td>{{ item.rentDurationDays }} {{ 'RESERVATION.DAYS' | translate }}</td>
+            <td>{{ item.endDate | date:'dd.MM.yyyy' }}</td>
             <td>
               <span class="badge bg-info text-dark">
                 {{ item.items?.length || 0 }} {{ 'RESERVATION.ITEMS' | translate }}

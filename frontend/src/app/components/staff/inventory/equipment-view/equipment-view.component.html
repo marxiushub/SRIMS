@@ -122,7 +122,6 @@
                 <th>{{ 'RESERVATION.PICKUP_DATE' | translate }}</th>
                 <th>{{ 'RESERVATION.PICKUP_TIME' | translate }}</th>
                 <th>{{ 'RESERVATION.RETURN_DATE' | translate }}</th>
-                <th>{{ 'RESERVATION.DURATION' | translate }}</th>
               </tr>
               </thead>
               <tbody>
@@ -130,10 +129,9 @@
                   <tr>
                     <td class="fw-bold">#{{ res.id }}</td>
                     <td>{{ res.customerName }}</td>
-                    <td>{{ res.pickUpDate | date:'dd.MM.yyyy' }}</td>
+                    <td>{{ res.startDate | date:'dd.MM.yyyy' }}</td>
                     <td>{{ res.pickUpTime }}</td>
-                    <td>{{ res.returnDate | date:'dd.MM.yyyy' }}</td>
-                    <td>{{ res.rentDurationDays }} {{ 'RESERVATION.DAYS' | translate }}</td>
+                    <td>{{ res.endDate | date:'dd.MM.yyyy' }}</td>
                   </tr>
                 }
               </tbody>
