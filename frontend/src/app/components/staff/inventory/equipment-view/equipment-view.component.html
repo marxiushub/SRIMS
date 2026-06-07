@@ -134,6 +134,7 @@
                 <th>{{ 'RESERVATION.PICKUP_DATE' | translate }}</th>
                 <th>{{ 'RESERVATION.PICKUP_TIME' | translate }}</th>
                 <th>{{ 'RESERVATION.RETURN_DATE' | translate }}</th>
+                <th>{{ 'RESERVATION.RESERVATION_STATUS' | translate }}</th>
               </tr>
               </thead>
               <tbody>
@@ -144,6 +145,28 @@
                     <td>{{ res.startDate | date:'dd.MM.yyyy' }}</td>
                     <td>{{ res.pickUpTime }}</td>
                     <td>{{ res.endDate | date:'dd.MM.yyyy' }}</td>
+                    <td>
+                      @if (res.reservationStatus === 'CREATED') {
+                        <span class="badge bg-warning text-dark">
+                          {{ 'RESERVATION_STATUS.CREATED' | translate }}
+                        </span>
+                      }
+                      @if (res.reservationStatus === 'PICKED_UP') {
+                        <span class="badge bg-info text-white">
+                          {{ 'RESERVATION_STATUS.PICKED_UP' | translate }}
+                        </span>
+                      }
+                      @if (res.reservationStatus === 'RETURNED') {
+                        <span class="badge bg-success text-white">
+                          {{ 'RESERVATION_STATUS.RETURNED' | translate }}
+                        </span>
+                      }
+                      @if (res.reservationStatus === 'CANCELLED') {
+                        <span class="badge bg-danger text-white">
+                          {{ 'RESERVATION_STATUS.CANCELLED' | translate }}
+                        </span>
+                      }
+                    </td>
                   </tr>
                 }
               </tbody>

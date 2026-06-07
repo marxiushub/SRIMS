@@ -175,6 +175,8 @@
     "PICKUP_DATE": "Abholdatum",
     "PICKUP_TIME": "Abholzeit",
     "RETURN_DATE": "Rückgabedatum",
+    "RESERVATION_STATUS": "Reservierungs-Status",
+    "ITEMS": "Gegenstände",
     "DURATION": "Dauer",
     "DAYS": "Tag(e)",
     "TITLE_CREATE": "Neue Reservierung erstellen",
@@ -209,8 +211,13 @@
     "NOT_FOUND": "Die angeforderte Reservierung wurde nicht gefunden.",
     "TITLE_OVERVIEW": "Zugehörige Reservierungen",
     "EQUIPMENT_COUNT": "Anzahl Ausrüstung",
-    "ITEMS": "Gegenstände",
     "NO_RESERVATIONS_FOUND": "Keine aktiven Reservierungen für die gescannten Gegenstände am heutigen Tag gefunden."
+  },
+  "RESERVATION_STATUS": {
+    "CREATED": "Erstellt",
+    "PICKED_UP": "Ausgeliehen",
+    "RETURNED": "Zurückgegeben",
+    "CANCELLED": "Storniert"
   },
   "CUSTOMER": {
     "DASHBOARD_TITLE": "Kundenportal",

@@ -58,6 +58,7 @@
             <th>{{ 'RESERVATION.PICKUP_DATE' | translate }}</th>
             <th>{{ 'RESERVATION.PICKUP_TIME' | translate }}</th>
             <th>{{ 'RESERVATION.RETURN_DATE' | translate }}</th>
+            <th>{{ 'RESERVATION.RESERVATION_STATUS' | translate }}</th>
             <th>{{ 'RESERVATION.EQUIPMENT_COUNT' | translate }}</th>
           </tr>
           </thead>
@@ -70,6 +71,18 @@
                 <td>{{ item.startDate | date:'dd.MM.yyyy' }}</td>
                 <td>{{ item.pickUpTime ? item.pickUpTime.substring(0, 5) : '' }}</td>
                 <td>{{ item.endDate | date:'dd.MM.yyyy' }}</td>
+                <td>
+                  @if (item.reservationStatus === ReservationStatus.CREATED) {
+                    <span class="badge bg-warning text-dark">
+                      {{ 'RESERVATION_STATUS.CREATED' | translate }}
+                    </span>
+                  }
+                  @if (item.reservationStatus === ReservationStatus.PICKED_UP) {
+                    <span class="badge bg-info text-white">
+                      {{ 'RESERVATION_STATUS.PICKED_UP' | translate }}
+                    </span>
+                  }
+                </td>
                 <td>
                   <span class="badge bg-primary">
                     {{ item.items?.length || 0 }} {{ 'RESERVATION.ITEMS' | translate }}
