@@ -18,7 +18,7 @@ public class JwtTokenizer {
         this.securityProperties = securityProperties;
     }
 
-    public String getAuthToken(String user, List<String> roles) {
+    public String getAuthToken(String user, List<String> permissions) {
         byte[] signingKey = securityProperties.getJwtSecret().getBytes();
         SecretKey key = Keys.hmacShaKeyFor(signingKey);
 
@@ -28,7 +28,7 @@ public class JwtTokenizer {
             .audience().add(securityProperties.getJwtAudience()).and()
             .subject(user)
             .expiration(new Date(System.currentTimeMillis() + securityProperties.getJwtExpirationTime()))
-            .claim("rol", roles)
+            .claim("perms", permissions)
             .signWith(key, Jwts.SIG.HS512)
             .compact();
         return securityProperties.getAuthTokenPrefix() + token;

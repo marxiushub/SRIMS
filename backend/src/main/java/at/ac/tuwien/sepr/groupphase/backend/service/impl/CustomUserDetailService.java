@@ -49,6 +49,7 @@ public class CustomUserDetailService implements UserService {
     private final Map<UserType, JpaRepository<? extends ApplicationUser, Long>> repositoryMap;
     private final UserMapper mapper;
     private final  RoleRepository roleRepository;
+    private final PermissionService permissionService;
 
     /**
      * Constructor for EquipmentService. Initializes the service with the necessary repositories and mapper.
@@ -62,7 +63,7 @@ public class CustomUserDetailService implements UserService {
      */
     @Autowired
     public CustomUserDetailService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtTokenizer jwtTokenizer,  CustomerRepository customerRepository, StaffRepository staffRepository,
-                                   UserMapper mapper, RoleRepository roleRepository, UserServiceValidator validator) {
+                                   UserMapper mapper, RoleRepository roleRepository, UserServiceValidator validator, PermissionService permissionService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenizer = jwtTokenizer;
@@ -70,6 +71,7 @@ public class CustomUserDetailService implements UserService {
         this.customerRepository = customerRepository;
         this.staffRepository = staffRepository;
         this.validator = validator;
+        this.permissionService = permissionService;
         this.repositoryMap = Map.of(
             UserType.CUSTOMER, customerRepository,
             UserType.STAFF, staffRepository
@@ -83,10 +85,7 @@ public class CustomUserDetailService implements UserService {
         try {
             ApplicationUser applicationUser = findApplicationUserByEmail(email);
 
-            List<String> authorityStrings = Stream.concat(
-                applicationUser.getRoles().stream().map(Role::getName),
-                applicationUser.getDirectPermissions().stream().map(Permission::getName)
-            ).collect(Collectors.toList());
+            List<String> authorityStrings = permissionService.getEffectivePermissions(applicationUser).stream().toList();
 
             String[] authoritiesArray = authorityStrings.toArray(new String[0]);
             List<GrantedAuthority> grantedAuthorities = AuthorityUtils.createAuthorityList(authoritiesArray);
@@ -113,11 +112,10 @@ public class CustomUserDetailService implements UserService {
             && userDetails.isCredentialsNonExpired()
             && passwordEncoder.matches(userLoginDto.getPassword(), userDetails.getPassword())
         ) {
-            List<String> roles = userDetails.getAuthorities()
-                .stream()
-                .map(GrantedAuthority::getAuthority)
-                .toList();
-            return jwtTokenizer.getAuthToken(userDetails.getUsername(), roles);
+            ApplicationUser user = userRepository.findUserByEmail(userLoginDto.getEmail()).orElseThrow();
+            List<String> permissions = permissionService.getEffectivePermissions(user).stream().toList();
+
+            return jwtTokenizer.getAuthToken(userDetails.getUsername(), permissions);
         }
         throw new BadCredentialsException("Username or password is incorrect or account is locked");
     }

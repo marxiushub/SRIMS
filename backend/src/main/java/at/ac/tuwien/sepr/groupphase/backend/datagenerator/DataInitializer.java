@@ -82,6 +82,33 @@ public class DataInitializer {
             Permission deleteCustomerProfile = permissionRepository.findByName("CUSTOMERPROFILE_DELETE")
                 .orElseGet(() -> permissionRepository.save(new Permission("CUSTOMERPROFILE_DELETE")));
 
+            //___________________________________________________________________________________________
+
+            //Customer
+
+            Permission readCustomer = permissionRepository.findByName("CUSTOMER_READ")
+                .orElseGet(() -> permissionRepository.save(new Permission("CUSTOMER_READ")));
+
+            Permission updateCustomer = permissionRepository.findByName("CUSTOMER_UPDATE")
+                .orElseGet(() -> permissionRepository.save(new Permission("CUSTOMER_UPDATE")));
+
+            Permission deleteCustomer = permissionRepository.findByName("CUSTOMER_DELETE")
+                .orElseGet(() -> permissionRepository.save(new Permission("CUSTOMER_DELETE")));
+
+            //___________________________________________________________________________________________
+
+            //CustomerProfile
+            Permission createStaff = permissionRepository.findByName("STAFF_CREATE")
+                .orElseGet(() -> permissionRepository.save(new Permission("STAFF_CREATE")));
+
+            Permission readStaff = permissionRepository.findByName("STAFF_READ")
+                .orElseGet(() -> permissionRepository.save(new Permission("STAFF_READ")));
+
+            Permission updateStaff = permissionRepository.findByName("STAFF_UPDATE")
+                .orElseGet(() -> permissionRepository.save(new Permission("STAFF_UPDATE")));
+
+            Permission deleteStaff = permissionRepository.findByName("STAFF_DELETE")
+                .orElseGet(() -> permissionRepository.save(new Permission("STAFF_DELETE")));
 
 
             //ROLES
@@ -105,6 +132,12 @@ public class DataInitializer {
                     // Equipment -> nur READ
                     r.getPermissions().add(readEquipment);
 
+                    // Customer -> alle Rechte
+                    r.getPermissions().add(readCustomer);
+                    r.getPermissions().add(updateCustomer);
+                    r.getPermissions().add(deleteCustomer);
+
+
                     return roleRepository.save(r);
                 });
 
@@ -121,6 +154,12 @@ public class DataInitializer {
 
                     // Reservation -> nur READ
                     r.getPermissions().add(readReservation);
+
+                    // Staff -> alles
+                    r.getPermissions().add(createStaff);
+                    r.getPermissions().add(readStaff);
+                    r.getPermissions().add(updateStaff);
+                    r.getPermissions().add(deleteStaff);
 
                     return roleRepository.save(r);
                 });
