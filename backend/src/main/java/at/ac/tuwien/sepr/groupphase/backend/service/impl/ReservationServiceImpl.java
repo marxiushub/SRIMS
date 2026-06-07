@@ -14,7 +14,6 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.enums.PeriodType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
-import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.EquipmentRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ReservationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerProfileRepository;
@@ -80,7 +79,8 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
         for (Equipment equipment : equipmentList) {
             reservation.addItem(equipment);
 
-            equipment.addTimePeriod(dto.getStartDate(), dto.getEndDate(), PeriodType.RENTED, reservation);        }
+            equipment.addTimePeriod(dto.getStartDate(), dto.getEndDate(), PeriodType.RENTED, reservation);
+        }
 
         Reservation savedReservation = reservationRepository.save(reservation);
         //bestätigungs-email senden

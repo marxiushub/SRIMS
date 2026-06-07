@@ -34,11 +34,12 @@ public class ReservationValidator {
     private final CustomerProfileRepository customerProfileRepository;
 
     @Autowired
-    public ReservationValidator(  EquipmentRepository equipmentRepository, ReservationRepository reservationRepository, CustomerProfileRepository customerProfileRepository) {
+    public ReservationValidator(EquipmentRepository equipmentRepository, ReservationRepository reservationRepository, CustomerProfileRepository customerProfileRepository) {
         this.equipmentRepository = equipmentRepository;
         this.reservationRepository = reservationRepository;
         this.customerProfileRepository = customerProfileRepository;
     }
+
     public void validateCreateDto(ReservationCreationDto dto) {
         if (dto == null) {
             throw new ValidationException("Reservation creation dto must not be null", List.of("dto is null"));
@@ -71,6 +72,7 @@ public class ReservationValidator {
             throw new ValidationException("Validation failed for reservation creation", validationErrors);
         }
     }
+
     public void validateUpdateDto(ReservationUpdateDto dto) {
         if (dto == null) {
             throw new ValidationException("Reservation update dto must not be null", List.of("dto is null"));
@@ -138,7 +140,8 @@ public class ReservationValidator {
                     .orElseThrow(() ->
                         new NotFoundException("Equipment with ID " + id + " not found.")
                    );
-                isEquipmentAvailable(equipment, reservation.getStartDate(), reservation.getEndDate(), null, validationErrors); }
+                isEquipmentAvailable(equipment, reservation.getStartDate(), reservation.getEndDate(), null, validationErrors);
+            }
         }
         if (!validationErrors.isEmpty()) {
             throw new ValidationException(
