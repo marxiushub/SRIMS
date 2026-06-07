@@ -136,6 +136,8 @@
     "ERROR_NOT_FOUND": "Equipment with barcode ID \"{{value}}\" was not found.",
     "ERROR_UNEXPECTED": "An unexpected error occurred.",
     "ERROR_ACTION_NOT_ALLOWED": "Action not allowed in this mode. Item is currently in status {{status}}.",
+    "ERROR_CAMERA": "An error occurred while checking for a camera.",
+    "NO_CAMERA_FOUND": "No camera found. Please make sure that a camera is connected and functioning properly.",
     "FOUND_TITLE": "Equipment Found!",
     "MODEL": "Model",
     "TYPE": "Type",
@@ -144,7 +146,10 @@
     "BTN_CONFIRM": "Confirm Scan & Change Status",
     "SUCCESS_CHANGE": "Status successfully changed to {{status}}!",
     "DEMO_TITLE": "⚠️ Temporary for Demonstration Purposes",
-    "DEMO_CLICK_HINT": "Click on an item to load its barcode directly into the scanner:"
+    "DEMO_CLICK_HINT": "Click on an item to load its barcode directly into the scanner:",
+    "CAMERA_SCANNER": "Camera Scanner",
+    "CLOSE_CAMERA": "Close Camera",
+    "OPEN_CAMERA": "Open Camera"
   },
   "RESERVATION": {
     "CUSTOMER_NAME": "Customer (Account)",
