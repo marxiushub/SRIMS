@@ -5,6 +5,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.detail.Equ
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.search.EquipmentSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EquipmentMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.EquipmentType;
+import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Helmet;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Pole;
@@ -272,6 +273,42 @@ public class EquipmentServiceImpl implements EquipmentService {
         }
 
         return mapper.entityToDto(found);
+    }
+
+    @Override
+    @Transactional
+    public void updateEquipmentStatuses(List<Long> equipmentIds, RentalStatus newRentalStatus) {
+        LOGGER.info("Updating equipment statuses: {}", newRentalStatus);
+
+        if (equipmentIds == null || equipmentIds.isEmpty()) {
+            throw new IllegalArgumentException("EquipmentIds is null or empty");
+        }
+        if (newRentalStatus == null) {
+            throw new IllegalArgumentException("newRentalStatus is null");
+        }
+
+        for (Long equipmentId : equipmentIds) {
+            Equipment existingEquipment = equipmentRepository.findById(equipmentId)
+                .orElseThrow(() -> new NotFoundException("Equipment with ID " + equipmentId + " was not found."));
+            //Case 1: Updating of RentalStatus to FREE
+            if (newRentalStatus.equals(RentalStatus.FREE)) {
+                if (existingEquipment.getStatus() == RentalStatus.FREE) {
+                    throw new IllegalArgumentException("Equipment with ID " + equipmentId + " has status "
+                        + existingEquipment.getStatus() + " and therefore cannot be updated to status "
+                        + newRentalStatus + ".");
+                }
+            }
+            //Case 2: Updating of RentalStatus to RENTED or MAINTENANCE
+            if (newRentalStatus.equals(RentalStatus.RENTED) || newRentalStatus.equals(RentalStatus.MAINTENANCE)) {
+                if (existingEquipment.getStatus() != RentalStatus.FREE) {
+                    throw new IllegalArgumentException("Equipment with ID " + equipmentId + " has status "
+                        + existingEquipment.getStatus() + " and therefore cannot be updated to status "
+                        + newRentalStatus + ".");
+                }
+            }
+            existingEquipment.setStatus(newRentalStatus);
+            equipmentRepository.save(existingEquipment);
+        }
     }
 
 

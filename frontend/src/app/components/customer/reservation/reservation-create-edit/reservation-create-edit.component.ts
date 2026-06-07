@@ -15,6 +15,7 @@ import {debounceTime, distinctUntilChanged} from "rxjs";
 import {CustomerProfileService} from "../../../../services/customer-profile.service";
 import {ReservationUpdate} from "../../../../dtos/reservation-update";
 import {ToastrService} from 'ngx-toastr';
+import {ReservationStatus} from "../../../../dtos/ReservationStatus";
 
 export enum ReservationCreateEditMode {
   create,
@@ -379,6 +380,7 @@ export class ReservationCreateEditComponent implements OnInit {
         pickUpTime: formValue.pickUpTime + ':00',
         startDate: formValue.startDate,
         endDate: formValue.endDate,
+        reservationStatus: ReservationStatus.CREATED,
       };
 
       this.reservationService.create(reservationPayload).subscribe({

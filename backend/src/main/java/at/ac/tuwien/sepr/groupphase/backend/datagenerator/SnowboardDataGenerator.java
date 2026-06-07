@@ -25,17 +25,17 @@ public class SnowboardDataGenerator {
     private final SnowboardRepository snowboardRepository;
     private final List<Snowboard> snowboardList = new ArrayList<>(Arrays.asList(
         new Snowboard("Burton Ripcord", 20.0, 150.0, RentalStatus.FREE, SkillLevel.BEGINNER),
-        new Snowboard("Nitro Prime Raw", 19.0, 152.0, RentalStatus.RENTED, SkillLevel.BEGINNER),
+        new Snowboard("Nitro Prime Raw", 19.0, 152.0, RentalStatus.FREE, SkillLevel.BEGINNER),
         new Snowboard("Salomon Pulse", 20.0, 155.0, RentalStatus.FREE, SkillLevel.BEGINNER),
-        new Snowboard("Ride Agenda", 23.0, 154.0, RentalStatus.MAINTENANCE, SkillLevel.INTERMEDIATE),
+        new Snowboard("Ride Agenda", 23.0, 154.0, RentalStatus.FREE, SkillLevel.INTERMEDIATE),
         new Snowboard("K2 Raygun Pop", 26.0, 157.0, RentalStatus.FREE, SkillLevel.INTERMEDIATE),
         new Snowboard("Capita Outerspace Living", 28.0, 156.0, RentalStatus.FREE, SkillLevel.INTERMEDIATE),
-        new Snowboard("Jones Mountain Twin", 33.0, 158.0, RentalStatus.RENTED, SkillLevel.ADVANCED),
+        new Snowboard("Jones Mountain Twin", 33.0, 158.0, RentalStatus.FREE, SkillLevel.ADVANCED),
         new Snowboard("Lib Tech Cold Brew", 35.0, 159.0, RentalStatus.FREE, SkillLevel.ADVANCED),
         new Snowboard("Arbor Element Camber", 30.0, 157.0, RentalStatus.FREE, SkillLevel.INTERMEDIATE),
         new Snowboard("Rossignol Templar", 25.0, 155.0, RentalStatus.FREE, SkillLevel.INTERMEDIATE),
         new Snowboard("Burton Custom Flying V", 36.0, 160.0, RentalStatus.FREE, SkillLevel.ADVANCED),
-        new Snowboard("Nitro Team", 31.0, 158.0, RentalStatus.RENTED, SkillLevel.ADVANCED),
+        new Snowboard("Nitro Team", 31.0, 158.0, RentalStatus.FREE, SkillLevel.ADVANCED),
         new Snowboard("Salomon Assassin", 33.0, 159.0, RentalStatus.FREE, SkillLevel.ADVANCED),
         new Snowboard("Ride Warpig", 27.0, 154.0, RentalStatus.FREE, SkillLevel.INTERMEDIATE),
         new Snowboard("Capita DOA", 34.0, 158.0, RentalStatus.FREE, SkillLevel.ADVANCED)

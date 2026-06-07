@@ -1,13 +1,14 @@
 //AI-assisted: Code generated with Google Gemini and adapted to fit project
-import { TestBed } from '@angular/core/testing';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideHttpClient } from '@angular/common/http';
-import { ReservationService } from './reservation.service';
-import { Globals } from '../global/globals';
-import { ReservationSearch } from '../dtos/reservation-search';
-import { ReservationDetail } from '../dtos/reservation-detail';
-import { ReservationCreation } from '../dtos/reservation-creation';
-import { ReservationUpdate } from '../dtos/reservation-update';
+import {TestBed} from '@angular/core/testing';
+import {HttpTestingController, provideHttpClientTesting} from '@angular/common/http/testing';
+import {provideHttpClient} from '@angular/common/http';
+import {ReservationService} from './reservation.service';
+import {Globals} from '../global/globals';
+import {ReservationSearch} from '../dtos/reservation-search';
+import {ReservationDetail} from '../dtos/reservation-detail';
+import {ReservationCreation} from '../dtos/reservation-creation';
+import {ReservationUpdate} from '../dtos/reservation-update';
+import {ReservationStatus} from "../dtos/ReservationStatus";
 
 describe('ReservationService', () => {
   let service: ReservationService;
@@ -48,7 +49,8 @@ describe('ReservationService', () => {
         equipmentIds: [101, 102],
         pickUpTime: '09:00',
         startDate: '2026-03-01',
-        endDate: '2026-03-02'
+        endDate: '2026-03-02',
+        reservationStatus: ReservationStatus.CREATED
       };
 
       const mockResponse: ReservationDetail = {
@@ -60,7 +62,8 @@ describe('ReservationService', () => {
         startDate: '2026-03-01',
         endDate: '2026-03-02',
         confirmationEmailSent: false,
-        items: []
+        items: [],
+        reservationStatus: ReservationStatus.CREATED
       };
 
       service.create(mockCreation).subscribe((data) => {
@@ -82,7 +85,8 @@ describe('ReservationService', () => {
         customerProfileId: 99,
         pickUpTime: '09:00',
         startDate: '2026-03-01',
-        endDate: '2026-03-02'
+        endDate: '2026-03-02',
+        reservationStatus: ReservationStatus.CREATED
       };
 
       service.create(mockCreation).subscribe({
@@ -109,7 +113,8 @@ describe('ReservationService', () => {
         startDate: '2026-03-01',
         endDate: '2026-03-02',
         confirmationEmailSent: true,
-        items: []
+        items: [],
+        reservationStatus: ReservationStatus.CREATED
       };
 
       service.getById(reservationId).subscribe((data) => {
@@ -157,7 +162,8 @@ describe('ReservationService', () => {
         startDate: '2026-05-01',
         endDate: '2026-05-02',
         confirmationEmailSent: false,
-        items: []
+        items: [],
+        reservationStatus: ReservationStatus.CREATED
       };
 
       service.update(reservationId, mockUpdate).subscribe((data) => {
@@ -216,6 +222,7 @@ describe('ReservationService', () => {
         endDate: '2026-12-25',
         searchRangeStart: '2026-12-20',
         searchRangeEnd: '2026-12-30',
+        reservationStatus: ReservationStatus.CREATED
       };
 
       service.search(mockSearch).subscribe();
@@ -230,6 +237,7 @@ describe('ReservationService', () => {
       expect(req.request.params.get('endDate')).toBe('2026-12-25');
       expect(req.request.params.get('searchRangeStart')).toBe('2026-12-20');
       expect(req.request.params.get('searchRangeEnd')).toBe('2026-12-30');
+      expect(req.request.params.get('reservationStatus')).toBe(ReservationStatus.CREATED);
 
       req.flush([]);
     });
@@ -264,7 +272,8 @@ describe('ReservationService', () => {
           startDate: '2026-02-15',
           endDate: '2026-02-20',
           confirmationEmailSent: true,
-          items: []
+          items: [],
+          reservationStatus: ReservationStatus.CREATED
         }
       ];
 

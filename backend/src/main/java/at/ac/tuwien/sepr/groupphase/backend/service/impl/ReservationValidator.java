@@ -68,6 +68,10 @@ public class ReservationValidator {
             validationErrors.add("A reservation must contain at least one equipment.");
         }
 
+        if (dto.getReservationStatus() == null) {
+            validationErrors.add("Reservation status must not be null");
+        }
+
         if (!validationErrors.isEmpty()) {
             throw new ValidationException("Validation failed for reservation creation", validationErrors);
         }

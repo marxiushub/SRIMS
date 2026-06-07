@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.creation.E
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.detail.EquipmentDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.search.EquipmentSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.update.EquipmentUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 
@@ -76,5 +77,17 @@ public interface EquipmentService {
      * @return a list of {@link EquipmentDetailDto} matching the given criteria; an empty list if no matches are found
      */
     List<EquipmentDetailDto> searchEquipment(EquipmentSearchDto searchDto);
+
+    /**
+     * Updates the RentalStatus of all the equipments in the provided list of EquipmentIds. The only allowed
+     * RentalStatus-Changes are as follows:
+     * AVAILABLE -> RENTED || MAINTENANCE
+     * RENTED -> AVAILABLE
+     * MAINTENANCE -> AVAILABLE
+     *
+     * @param equipmentIds a list of EquipmentIds for equipments' whose RentalStatus should be updated.
+     * @param newRentalStatus the new RentalStatus the equipment's should be updated to
+     */
+    public void updateEquipmentStatuses(List<Long> equipmentIds, RentalStatus newRentalStatus);
 
 }

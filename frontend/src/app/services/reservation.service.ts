@@ -71,6 +71,9 @@ export class ReservationService {
               params = params.append('equipmentIds', equipmentId);
           })
       }
+      if (search.reservationStatus) {
+        params = params.set('reservationStatus', search.reservationStatus);
+      }
       return this.httpClient.get<ReservationDetail[]>(this.reservationBaseUri, {params});
   }
 

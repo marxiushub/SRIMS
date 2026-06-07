@@ -1,4 +1,5 @@
 import { Equipment } from './equipment';
+import {ReservationStatus} from "./ReservationStatus";
 
 export interface ReservationDetail {
   id: number;
@@ -10,4 +11,5 @@ export interface ReservationDetail {
   endDate: string;
   confirmationEmailSent: boolean;
   items: Equipment[];
+  reservationStatus: ReservationStatus;
 }

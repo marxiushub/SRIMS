@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
+import at.ac.tuwien.sepr.groupphase.backend.entity.enums.ReservationStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
 import jakarta.persistence.Entity;
@@ -42,14 +43,17 @@ public class Reservation {
 
     private Boolean confirmationEmailSent;
 
+    private ReservationStatus reservationStatus;
+
     protected Reservation() {
     }
 
-    public Reservation(CustomerProfile customerProfile, LocalTime pickUpTime, LocalDate startDate, LocalDate endDate) {
+    public Reservation(CustomerProfile customerProfile, LocalTime pickUpTime, LocalDate startDate, LocalDate endDate, ReservationStatus reservationStatus) {
         this.customerProfile = customerProfile;
         this.pickUpTime = pickUpTime;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.reservationStatus = reservationStatus;
     }
 
     /**
@@ -80,6 +84,10 @@ public class Reservation {
 
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
+    }
+
+    public void setReservationStatus(ReservationStatus reservationStatus) {
+        this.reservationStatus = reservationStatus;
     }
 
     /**
@@ -113,6 +121,10 @@ public class Reservation {
 
     public LocalDate getEndDate() {
         return endDate;
+    }
+
+    public ReservationStatus getReservationStatus() {
+        return reservationStatus;
     }
 
 }
