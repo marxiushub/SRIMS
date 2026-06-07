@@ -17,16 +17,34 @@ public interface TestData {
     String MESSAGE_BASE_URI = BASE_URI + "/messages";
 
     String ADMIN_USER = "admin@email.com";
-    List<String> ADMIN_ROLES = new ArrayList<>() {
+    List<String> ADMIN_PERMISSIONS = new ArrayList<>() {
         {
-            add("ROLE_ADMIN");
-            add("ROLE_USER");
+            add("EQUIPMENT_CREATE");
+            add("EQUIPMENT_READ");
+            add("EQUIPMENT_UPDATE");
+            add("EQUIPMENT_DELETE");
+            add("RESERVATION_READ");
+            add("STAFF_CREATE");
+            add("STAFF_READ");
+            add("STAFF_UPDATE");
+            add("STAFF_DELETE");
         }
     };
     String DEFAULT_USER = "admin@email.com";
-    List<String> USER_ROLES = new ArrayList<>() {
+    List<String> USER_PERMISSIONS = new ArrayList<>() {
         {
-            add("ROLE_USER");
+            add("RESERVATION_CREATE");
+            add("RESERVATION_READ");
+            add("RESERVATION_UPDATE");
+            add("RESERVATION_DELETE");
+            add("CUSTOMERPROFILE_CREATE");
+            add("CUSTOMERPROFILE_READ");
+            add("CUSTOMERPROFILE_UPDATE");
+            add("CUSTOMERPROFILE_DELETE");
+            add("EQUIPMENT_READ");
+            add("CUSTOMER_READ");
+            add("CUSTOMER_UPDATE");
+            add("CUSTOMER_DELETE");
         }
     };
 

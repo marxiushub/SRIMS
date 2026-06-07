@@ -212,14 +212,22 @@ public class CustomUserDetailService implements UserService {
     //Gets the current user's ID from the security context.
     private Long getCurrentUserId() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || auth.getPrincipal() == null) {
+        if (auth == null) {
             return -1L;
         }
 
+        // Try to get from details first (set by JwtAuthorizationFilter)
+        Object details = auth.getDetails();
+        if (details instanceof Long) {
+            return (Long) details;
+        }
+
+        // Fallback to AppUserDetails if available
         Object principal = auth.getPrincipal();
         if (principal instanceof AppUserDetails) {
             return ((AppUserDetails) principal).getUserId();
         }
+
         return -1L;
     }
 
