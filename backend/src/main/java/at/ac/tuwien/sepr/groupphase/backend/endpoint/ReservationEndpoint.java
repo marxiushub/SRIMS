@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -45,7 +46,7 @@ public class ReservationEndpoint {
      * @return an {@link at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationDetailDto}
      *
      */
-    @PermitAll
+    @PreAuthorize("hasAuthority('RESERVATION_CREATE')")
     @PostMapping()
     public ReservationDetailDto createReservation(@Valid @RequestBody ReservationCreationDto dto) {
         LOGGER.info("POST /api/v1/reservation - {}", dto);
@@ -58,7 +59,7 @@ public class ReservationEndpoint {
      *
      * @param deleteDto the DTO containing the fields to update
      */
-    @PermitAll
+    @PreAuthorize("hasAuthority('RESERVATION_DELETE')")
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping
     public void deleteReservation(
@@ -75,7 +76,7 @@ public class ReservationEndpoint {
      * @param updateDto the DTO containing the fields to update
      * @return the updated equipment as a detail DTO
      */
-    @PermitAll
+    @PreAuthorize("hasAuthority('RESERVATION_UPDATE')")
     @ResponseStatus(HttpStatus.OK)
     @PatchMapping("/{id}")
     public ReservationDetailDto updateReservation(
@@ -91,7 +92,7 @@ public class ReservationEndpoint {
      * @param dto the DTO containing the reservation ID and the equipment IDs to remove
      * @return the updated reservation as a detail DTO
      */
-    @PermitAll
+    @PreAuthorize("hasAuthority('RESERVATION_UPDATE')")
     @DeleteMapping("/equipment")
     @ResponseStatus(HttpStatus.OK)
     public ReservationDetailDto removeEquipmentFromReservation(@Valid @RequestBody ReservationAddDeleteEquipmentDto dto) {
@@ -105,7 +106,7 @@ public class ReservationEndpoint {
      * @param dto the DTO containing the reservation ID and the equipment IDs to add
      * @return the updated reservation as a detail DTO
      */
-    @PermitAll
+    @PreAuthorize("hasAuthority('RESERVATION_UPDATE')")
     @PostMapping("/equipment")
     @ResponseStatus(HttpStatus.OK)
     public ReservationDetailDto addEquipmentToReservation(@Valid @RequestBody ReservationAddDeleteEquipmentDto dto) {
@@ -120,7 +121,7 @@ public class ReservationEndpoint {
      * @param searchDto the DTO containing the search parameters (mapped from URL query parameters)
      * @return a list of reservations matching the criteria
      */
-    @PermitAll
+    @PreAuthorize("hasAuthority('RESERVATION_SEARCH')")
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<ReservationDetailDto> searchReservations(ReservationSearchDto searchDto) {
@@ -134,7 +135,7 @@ public class ReservationEndpoint {
      * @param id the unique id of the reservation to be retrieved
      * @return an {@link ReservationDetailDto} representing the reservation information for the specified id
      */
-    @PermitAll
+    @PreAuthorize("hasAuthority('RESERVATION_READ')")
     @GetMapping("/{id}")
     public ReservationDetailDto getReservationById(@PathVariable("id") Long id) {
         LOGGER.info("GET /api/v1/reservation/{}", id);

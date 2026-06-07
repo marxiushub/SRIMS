@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,7 +39,7 @@ public class CustomerProfileEndpoint {
         this.customerProfileService = customerProfileService;
     }
 
-    @PermitAll
+    @PreAuthorize("hasAuthority('CUSTOMERPROFILE_CREATE')")
     @PostMapping("/profiles")
     @ResponseStatus(HttpStatus.CREATED)
     public CustomerProfileDetailDto createCustomerProfile(@Valid @RequestBody CustomerProfileCreationDto dto) {
@@ -46,7 +47,7 @@ public class CustomerProfileEndpoint {
         return customerProfileService.createCustomerProfile(dto);
     }
 
-    @PermitAll
+    @PreAuthorize("hasAuthority('CUSTOMERPROFILE_READ')")
     @GetMapping("/{customerId}/profiles")
     @ResponseStatus(HttpStatus.OK)
     public List<CustomerProfileDetailDto> getCustomerProfiles(@PathVariable("customerId") Long customerId) {
@@ -54,7 +55,7 @@ public class CustomerProfileEndpoint {
         return customerProfileService.getCustomerProfiles(customerId);
     }
 
-    @PermitAll
+    @PreAuthorize("hasAuthority('CUSTOMERPROFILE_DELETE')")
     @DeleteMapping("/profiles/{profileId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCustomerProfile(@PathVariable("profileId") Long profileId) {
@@ -62,7 +63,7 @@ public class CustomerProfileEndpoint {
         customerProfileService.deleteCustomerProfile(profileId);
     }
 
-    @PermitAll
+    @PreAuthorize("hasAuthority('CUSTOMERPROFILE_UPDATE')")
     @PatchMapping("/profiles/{profileId}")
     @ResponseStatus(HttpStatus.OK)
     public CustomerProfileDetailDto updateCustomerProfile(@PathVariable("profileId") Long profileId, @Valid @RequestBody CustomerProfileUpdateDto dto) {
@@ -71,7 +72,7 @@ public class CustomerProfileEndpoint {
         return customerProfileService.updateCustomerProfile(profileId, dto);
     }
 
-    @PermitAll
+    @PreAuthorize("hasAuthority('CUSTOMERPROFILE_READ')")
     @GetMapping("/profiles/{profileId}")
     @ResponseStatus(HttpStatus.OK)
     public CustomerProfileDetailDto getCustomerProfileById(@PathVariable("profileId") Long profileId) {

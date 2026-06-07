@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -47,7 +48,7 @@ public class EquipmentEndpoint {
      * @return an Equipment entity
      *
      */
-    @PermitAll
+    @PreAuthorize("hasAuthority('EQUIPMENT_CREATE')")
     @PostMapping()
     public List<EquipmentDetailDto> createEquipment(@Valid @RequestBody EquipmentCreationDto dto) {
         LOGGER.info("POST /api/v1/equipment - {}", dto);
@@ -60,7 +61,7 @@ public class EquipmentEndpoint {
      * @param type the type of equipment to filter by (e.g., "helmet", "ski", "snowboard")
      * @return a list of {@link EquipmentDetailDto} representing the equipment information for the specified type
      */
-    @PermitAll
+    @PreAuthorize("hasAuthority('EQUIPMENT_READ')")
     @GetMapping("/type/{type}")
     public List<EquipmentDetailDto> getEquipmentByType(@PathVariable("type") String type) {
         LOGGER.info("GET /api/v1/equipment/type/{}", type);
@@ -73,7 +74,7 @@ public class EquipmentEndpoint {
      * @param id the unique ID of the equipment to be retrieved
      * @return an {@link EquipmentDetailDto} representing the equipment information for the specified ID
      */
-    @PermitAll
+    @PreAuthorize("hasAuthority('EQUIPMENT_READ')")
     @GetMapping("/{id}")
     public EquipmentDetailDto getEquipmentById(@PathVariable("id") Long id) {
         LOGGER.info("GET /api/v1/equipment/{}", id);
@@ -86,7 +87,7 @@ public class EquipmentEndpoint {
      * @param barcodeId the unique barcodeId of the equipment to be retrieved
      * @return an {@link EquipmentDetailDto} representing the equipment information for the specified barcodeId
      */
-    @PermitAll
+    @PreAuthorize("hasAuthority('EQUIPMENT_READ')")
     @GetMapping("/barcode/{barcodeId}")
     public EquipmentDetailDto getEquipmentById(@PathVariable("barcodeId") String barcodeId) {
         LOGGER.info("GET /api/v1/equipment/barcode/{}", barcodeId);
@@ -98,7 +99,7 @@ public class EquipmentEndpoint {
      *
      * @param id the unique ID of the equipment to be deleted
      */
-    @PermitAll
+    @PreAuthorize("hasAuthority('EQUIPMENT_DELETE')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteEquipmentById(@PathVariable("id") Long id) {
@@ -113,7 +114,7 @@ public class EquipmentEndpoint {
      * @param updateDto the DTO containing the fields to update
      * @return the updated equipment as a detail DTO
      */
-    @PermitAll
+    @PreAuthorize("hasAuthority('EQUIPMENT_UPDATE')")
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public EquipmentDetailDto updateEquipment(
@@ -131,7 +132,7 @@ public class EquipmentEndpoint {
      * @param searchDto dynamically mapped from URL query parameters
      * @return a list of equipment matching the criteria
      */
-    @PermitAll
+    @PreAuthorize("hasAuthority('EQUIPMENT_READ')")
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<EquipmentDetailDto> searchEquipment(EquipmentSearchDto searchDto) {

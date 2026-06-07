@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -56,7 +57,7 @@ public class CustomerEndpoint {
      * @param dto the DTO containing updated customer data
      * @return the updated customer user
      */
-    @PermitAll
+    @PreAuthorize("hasAnyAuthority('CUSTOMER_UPDATE')")
     @PutMapping("/update/{id}")
     public UserDetailDto updateCustomer(@PathVariable("id") Long id, @Valid @RequestBody CustomerUpdateDto dto) {
         LOGGER.info("PUT /api/v1/customer/update/{} - {}", id, dto);
@@ -68,7 +69,7 @@ public class CustomerEndpoint {
      *
      * @param id the ID of the Costumer user to delete
      */
-    @PermitAll
+    @PreAuthorize("hasAnyAuthority('CUSTOMER_DELETE')")
     @DeleteMapping("/delete/{id}")
     public void deleteUser(@PathVariable("id") Long id) {
         LOGGER.info("DELETE /api/v1/costumer/delete/{}", id);
@@ -81,7 +82,7 @@ public class CustomerEndpoint {
      * @param id the user of the customer that should be retrieved
      * @return the user as UserSearchResponseDto
      */
-    @PermitAll
+    @PreAuthorize("hasAnyAuthority('CUSTOMER_READ')")
     @GetMapping("/{id}")
     public UserSearchResponseDto getUserById(@PathVariable("id") Long id) {
         LOGGER.info("GET /api/v1/customer/{}", id);
