@@ -14,6 +14,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Helmet;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.Customer;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ReservationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.EquipmentRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.HelmetRepository;
@@ -83,9 +84,10 @@ public class ReservationServiceTest {
         ReservationCreationDto dto = new ReservationCreationDto();
         dto.setCustomerProfileId(testCustomerProfile.getId());
         dto.setEquipmentIds(List.of(testEquipment.getId()));
-        dto.setPickUpDate(LocalDate.now().plusDays(2));
+        dto.setStartDate(LocalDate.now().plusDays(2));
+        dto.setEndDate(LocalDate.now().plusDays(5));
         dto.setPickUpTime(LocalTime.of(10, 0));
-        dto.setRentDurationDays(3);
+
 
         ReservationDetailDto result = reservationService.createReservation(dto);
 
@@ -94,8 +96,8 @@ public class ReservationServiceTest {
             () -> assertThat(result).isNotNull(),
             () -> assertThat(result.getId()).isNotNull(),
             () -> assertThat(result.getCustomerName()).isEqualTo("Hans"),
-            () -> assertThat(result.getRentDurationDays()).isEqualTo(3),
-            () -> assertThat(result.getReturnDate()).isEqualTo(LocalDate.now().plusDays(5))
+            () -> assertThat(result.getStartDate()).isEqualTo(LocalDate.now().plusDays(2)),
+            () -> assertThat(result.getEndDate()).isEqualTo(LocalDate.now().plusDays(5))
         );
     }
 
@@ -106,18 +108,18 @@ public class ReservationServiceTest {
         ReservationCreationDto dto = new ReservationCreationDto();
         dto.setCustomerProfileId(99999L);
         dto.setEquipmentIds(List.of(testEquipment.getId()));
-        dto.setPickUpDate(LocalDate.now().plusDays(2));
+        dto.setStartDate(LocalDate.now().plusDays(2));
+        dto.setEndDate(LocalDate.now().plusDays(3));
         dto.setPickUpTime(LocalTime.of(10, 0));
-        dto.setRentDurationDays(3);
 
-        NotFoundException exception = assertThrows(NotFoundException.class, () ->
+        ValidationException exception = assertThrows(ValidationException.class, () ->
             reservationService.createReservation(dto)
         );
 
         assertAll(
             "Verify that the correct exception with the correct message is thrown",
             () -> assertThat(exception).isNotNull(),
-            () -> assertThat(exception.getMessage()).containsIgnoringCase("not found")
+            () -> assertThat(exception.getMessage()).containsIgnoringCase("No such customer")
         );
     }
 
@@ -131,9 +133,9 @@ public class ReservationServiceTest {
         ReservationCreationDto createDto = new ReservationCreationDto();
         createDto.setCustomerProfileId(testCustomerProfile.getId());
         createDto.setEquipmentIds(List.of(testEquipment.getId()));
-        createDto.setPickUpDate(LocalDate.now().plusDays(2));
+        createDto.setStartDate(LocalDate.now().plusDays(2));
+        createDto.setEndDate(LocalDate.now().plusDays(3));
         createDto.setPickUpTime(LocalTime.of(10, 0));
-        createDto.setRentDurationDays(3);
 
         ReservationDetailDto createdReservation = reservationService.createReservation(createDto);
         assertThat(createdReservation.getId()).isNotNull();
@@ -141,9 +143,9 @@ public class ReservationServiceTest {
         // Update DTO vorbereiten
         ReservationUpdateDto updateDto = new ReservationUpdateDto();
         updateDto.setId(createdReservation.getId());
-        updateDto.setPickUpDate(LocalDate.now().plusDays(5));
+        updateDto.setStartDate(LocalDate.now().plusDays(5));
+        updateDto.setEndDate(LocalDate.now().plusDays(12));
         updateDto.setPickUpTime(LocalTime.of(14, 30));
-        updateDto.setRentDurationDays(7);
         updateDto.setEquipmentIds(List.of(testEquipment2.getId()));
         updateDto.setCustomerProfileId(testCustomerProfile2.getId());
 
@@ -153,13 +155,10 @@ public class ReservationServiceTest {
             "Verify that the reservation was updated correctly",
             () -> assertThat(updatedReservation).isNotNull(),
             () -> assertThat(updatedReservation.getId()).isEqualTo(createdReservation.getId()),
-            // Wichtig: Da das Profil zu "Hansine" wechselt, sollte hier auch "Hansine" (oder der entsprechende Name aus dem Profil) erwartet werden.
-            // Falls das DTO den User-Vornamen statt des Profil-Namens zieht, passe das "Hans McHansFace" an.
             () -> assertThat(updatedReservation.getCustomerName()).isEqualTo("Hansine"),
-            () -> assertThat(updatedReservation.getPickUpDate()).isEqualTo(LocalDate.now().plusDays(5)),
+            () -> assertThat(updatedReservation.getStartDate()).isEqualTo(LocalDate.now().plusDays(5)),
             () -> assertThat(updatedReservation.getPickUpTime()).isEqualTo(LocalTime.of(14, 30)),
-            () -> assertThat(updatedReservation.getRentDurationDays()).isEqualTo(7),
-            () -> assertThat(updatedReservation.getReturnDate()).isEqualTo(LocalDate.now().plusDays(12))
+            () -> assertThat(updatedReservation.getEndDate()).isEqualTo(LocalDate.now().plusDays(12))
         );
     }
 
@@ -170,9 +169,9 @@ public class ReservationServiceTest {
         ReservationCreationDto createDto = new ReservationCreationDto();
         createDto.setCustomerProfileId(testCustomerProfile.getId());
         createDto.setEquipmentIds(List.of(testEquipment.getId()));
-        createDto.setPickUpDate(LocalDate.now().plusDays(10));
+        createDto.setStartDate(LocalDate.now().plusDays(10));
+        createDto.setEndDate(LocalDate.now().plusDays(15));
         createDto.setPickUpTime(LocalTime.of(10, 0));
-        createDto.setRentDurationDays(5);
 
         ReservationDetailDto created = reservationService.createReservation(createDto);
 
@@ -185,8 +184,8 @@ public class ReservationServiceTest {
 
         ReservationDetailDto result = reservationService.addEquipmentToReservation(addDto);
 
-        LocalDate expectedStart = createDto.getPickUpDate();
-        LocalDate expectedEnd = expectedStart.plusDays(createDto.getRentDurationDays());
+        LocalDate expectedStart = createDto.getStartDate();
+        LocalDate expectedEnd = createDto.getEndDate();
 
         Equipment updatedEquipment = equipmentRepository.findById(testEquipment2.getId()).orElseThrow();
 
@@ -213,17 +212,17 @@ public class ReservationServiceTest {
         ReservationCreationDto createDto = new ReservationCreationDto();
         createDto.setCustomerProfileId(testCustomerProfile.getId());
         createDto.setEquipmentIds(List.of(testEquipment.getId()));
-        createDto.setPickUpDate(LocalDate.now().plusDays(10));
+        createDto.setStartDate(LocalDate.now().plusDays(10));
+        createDto.setEndDate(LocalDate.now().plusDays(15));
         createDto.setPickUpTime(LocalTime.of(10, 0));
-        createDto.setRentDurationDays(5);
 
         ReservationDetailDto created = reservationService.createReservation(createDto);
         Long reservationId = created.getId();
 
         assertThat(reservationId).isNotNull();
 
-        LocalDate expectedStart = createDto.getPickUpDate();
-        LocalDate expectedEnd = expectedStart.plusDays(createDto.getRentDurationDays() - 1);
+        LocalDate expectedStart = createDto.getStartDate();
+        LocalDate expectedEnd = createDto.getEndDate();
 
         Equipment equipmentBeforeDelete = equipmentRepository.findById(testEquipment.getId()).orElseThrow();
 
@@ -260,17 +259,17 @@ public class ReservationServiceTest {
         ReservationCreationDto createDto = new ReservationCreationDto();
         createDto.setCustomerProfileId(testCustomerProfile.getId());
         createDto.setEquipmentIds(List.of(testEquipment.getId(), testEquipment2.getId()));
-        createDto.setPickUpDate(LocalDate.now().plusDays(5));
+        createDto.setStartDate(LocalDate.now().plusDays(5));
+        createDto.setEndDate(LocalDate.now().plusDays(8));
         createDto.setPickUpTime(LocalTime.of(9, 0));
-        createDto.setRentDurationDays(4);
 
         ReservationDetailDto created = reservationService.createReservation(createDto);
 
         assertThat(created.getId()).isNotNull();
         assertThat(created.getItems()).hasSize(2);
 
-        LocalDate expectedStart = createDto.getPickUpDate();
-        LocalDate expectedEnd = expectedStart.plusDays(createDto.getRentDurationDays() - 1);
+        LocalDate expectedStart = createDto.getStartDate();
+        LocalDate expectedEnd = createDto.getEndDate();
 
         Equipment equipmentBeforeDelete = equipmentRepository.findById(testEquipment2.getId()).orElseThrow();
         assertThat(equipmentBeforeDelete.getTimePeriodsList())
@@ -325,15 +324,15 @@ public class ReservationServiceTest {
         createDto.setCustomerProfileId(testCustomerProfile.getId());
         createDto.setEquipmentIds(List.of(testEquipment.getId()));
         LocalDate searchDate = LocalDate.now().plusDays(15);
-        createDto.setPickUpDate(searchDate);
+        createDto.setStartDate(searchDate);
+        createDto.setEndDate(searchDate.plusDays(3));
         createDto.setPickUpTime(LocalTime.of(10, 0));
-        createDto.setRentDurationDays(3);
 
         ReservationDetailDto created = reservationService.createReservation(createDto);
 
         ReservationSearchDto searchDto = new ReservationSearchDto();
         searchDto.setCustomerProfileId(testCustomerProfile.getId());
-        searchDto.setPickUpDate(searchDate);
+        searchDto.setStartDate(searchDate);
         searchDto.setEquipmentIds(List.of(testEquipment.getId()));
 
         List<ReservationDetailDto> result = reservationService.searchReservations(searchDto);
@@ -344,6 +343,7 @@ public class ReservationServiceTest {
             () -> assertThat(result).isNotEmpty(),
             () -> assertThat(result.stream().anyMatch(res -> res.getId().equals(created.getId()))).isTrue(),
             () -> assertThat(result.get(0).getCustomerName()).isEqualTo("Hans"),
+            () -> assertThat(result.get(0).getStartDate()).isEqualTo(searchDate),
             () -> assertThat(result.get(0).getItems().stream().anyMatch(item -> item.getId().equals(testEquipment.getId()))).isTrue()
         );
     }
@@ -355,15 +355,15 @@ public class ReservationServiceTest {
         ReservationCreationDto createDto = new ReservationCreationDto();
         createDto.setCustomerProfileId(testCustomerProfile.getId());
         createDto.setEquipmentIds(List.of(testEquipment.getId()));
-        createDto.setPickUpDate(LocalDate.now().plusDays(5));
+        createDto.setStartDate(LocalDate.now().plusDays(5));
+        createDto.setEndDate(LocalDate.now().plusDays(8));
         createDto.setPickUpTime(LocalTime.of(10, 0));
-        createDto.setRentDurationDays(3);
 
         reservationService.createReservation(createDto);
 
         ReservationSearchDto searchDto = new ReservationSearchDto();
         searchDto.setCustomerProfileId(99999L);
-        searchDto.setPickUpDate(LocalDate.of(2099, 1, 1));
+        searchDto.setStartDate(LocalDate.of(2099, 1, 1));
 
         List<ReservationDetailDto> result = reservationService.searchReservations(searchDto);
 
