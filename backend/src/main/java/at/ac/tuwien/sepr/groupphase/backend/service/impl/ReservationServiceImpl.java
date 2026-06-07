@@ -249,11 +249,16 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
             );
         }
 
-        if (finalSearchDto.getSearchRangeStart() != null && finalSearchDto.getSearchRangeEnd() != null) {
-            spec = spec.and((root, query, cb) -> cb.and(
-                cb.lessThanOrEqualTo(root.get("startDate"), finalSearchDto.getSearchRangeEnd()),
+        if (finalSearchDto.getSearchRangeStart() != null) {
+            spec = spec.and((root, query, cb) ->
                 cb.greaterThanOrEqualTo(root.get("endDate"), finalSearchDto.getSearchRangeStart())
-            ));
+            );
+        }
+
+        if (finalSearchDto.getSearchRangeEnd() != null) {
+            spec = spec.and((root, query, cb) ->
+                cb.lessThanOrEqualTo(root.get("startDate"), finalSearchDto.getSearchRangeEnd())
+            );
         }
 
         if (finalSearchDto.getEquipmentIds() != null && !finalSearchDto.getEquipmentIds().isEmpty()) {
