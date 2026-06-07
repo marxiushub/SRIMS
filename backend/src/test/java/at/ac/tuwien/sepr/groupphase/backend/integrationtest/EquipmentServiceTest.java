@@ -14,9 +14,11 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Helmet;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.EquipmentRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.HelmetRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.EquipmentServiceImpl;
 import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +46,10 @@ public class EquipmentServiceTest {
     @Autowired
     private EquipmentServiceImpl equipmentService;
 
+    @Autowired
+    private EquipmentRepository equipmentRepository;
+
+
     private Helmet testEquipment;
 
     @BeforeEach
@@ -58,8 +64,6 @@ public class EquipmentServiceTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void createEquipment_withValidDto_returnsSavedEquipmentWithId() {
 
         SkiCreationDto dto = new SkiCreationDto();
@@ -85,8 +89,6 @@ public class EquipmentServiceTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     void getEquipmentByTypeValidTypeReturnsMappedList() {
         helmetRepository.save(testEquipment);
         List<EquipmentDetailDto> result = equipmentService.equipmentByType("helmet");
@@ -99,8 +101,6 @@ public class EquipmentServiceTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     void deleteEquipmentValidIdDeletesSuccessfully() {
         Helmet savedHelmet = helmetRepository.save(testEquipment);
         Long validId = savedHelmet.getId();
@@ -113,8 +113,6 @@ public class EquipmentServiceTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     void deleteEquipmentInvalidIdThrowsIllegalArgumentException() {
         long invalidId = -1L;
         assertThrows(IllegalArgumentException.class, () ->
@@ -125,8 +123,6 @@ public class EquipmentServiceTest {
 
 
     @Test
-    @Transactional
-    @Rollback
     void getEquipmentByTypeUnknownTypeThrowsNotFound() {
         NotFoundException exception = assertThrows(NotFoundException.class, () ->
             equipmentService.equipmentByType("invalid_type"));
@@ -135,8 +131,6 @@ public class EquipmentServiceTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void getEquipmentByIdValidIdReturnsCorrectDto() {
         Helmet savedHelmet = helmetRepository.save(testEquipment);
         Long validId = savedHelmet.getId();
@@ -155,8 +149,6 @@ public class EquipmentServiceTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void getEquipmentByIdUnknownIdThrowsNotFoundException() {
         Long invalidId = 99999L;
 
@@ -164,8 +156,6 @@ public class EquipmentServiceTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void getEquipmentByValidBarcodeIdReturnsCorrectDto() {
         Helmet savedHelmet = helmetRepository.save(testEquipment);
         String validBarcodeId = savedHelmet.getBarcodeId();
@@ -184,8 +174,6 @@ public class EquipmentServiceTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void getEquipmentByNonexistentBarcodeIdThrowsNotFoundException() {
         String invalidBarcodeId = "invalid_barcode_id";
 
@@ -193,8 +181,6 @@ public class EquipmentServiceTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void getEquipmentByNullOrEmptyBarcodeIdThrowsIllegalArgumentException() {
         assertAll(
             "Verify that null or empty barcode strings throw IllegalArgumentException",
@@ -204,8 +190,6 @@ public class EquipmentServiceTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     void updateEquipment_validPartialUpdate_updatesOnlyProvidedFieldsAndReturnsDto() {
         Helmet savedHelmet = helmetRepository.save(
             new Helmet("Poc Skull", 199.99, 58.0, RentalStatus.FREE, SkillLevel.BEGINNER)
@@ -232,8 +216,6 @@ public class EquipmentServiceTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     void updateEquipment_typeMismatch_throwsIllegalArgumentException() {
         Helmet savedHelmet = helmetRepository.save(
             new Helmet("Test Helmet", 99.0, 55.0, RentalStatus.FREE, SkillLevel.BEGINNER)
@@ -256,8 +238,6 @@ public class EquipmentServiceTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     void searchEquipment_withSpecificTypeAndModel_returnsFilteredList() {
         helmetRepository.save(new Helmet("UniqueAtomic Redster Helmet", 120.0, 58.0, RentalStatus.FREE, SkillLevel.ADVANCED));
         helmetRepository.save(new Helmet("Fischer Ranger Helmet", 100.0, 56.0, RentalStatus.FREE, SkillLevel.BEGINNER));
@@ -277,8 +257,6 @@ public class EquipmentServiceTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     void searchEquipment_withNullDto_returnsAllItemsSafely() {
         helmetRepository.save(new Helmet("Universal Helmet", 80.0, 54.0, RentalStatus.FREE, SkillLevel.BEGINNER));
 
@@ -292,8 +270,6 @@ public class EquipmentServiceTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     void searchEquipment_withNoMatchingCriteria_returnsEmptyList() {
         helmetRepository.save(new Helmet("Standard Helmet", 80.0, 54.0, RentalStatus.FREE, SkillLevel.BEGINNER));
 
@@ -307,8 +283,6 @@ public class EquipmentServiceTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     void searchEquipment_withAvailabilityFilter_returnsOnlyFreeEquipment() {
 
         Helmet freeHelmet = helmetRepository.save(
