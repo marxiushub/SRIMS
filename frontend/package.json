@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "test": "ng test",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "postinstall": "mkdir -p src/assets/scanbot-bin && cp -r node_modules/scanbot-web-sdk/bundle/bin/barcode-scanner/* src/assets/scanbot-bin"
   },
   "private": true,
   "dependencies": {
