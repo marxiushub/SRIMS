@@ -15,8 +15,8 @@ import jakarta.persistence.EnumType;
 
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-
 import java.time.LocalDate;
+
 @Entity
 public class TimePeriods {
     @Id
