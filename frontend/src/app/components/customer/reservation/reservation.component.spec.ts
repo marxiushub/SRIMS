@@ -13,6 +13,7 @@ import {ReservationDetail} from '../../../dtos/reservation-detail';
 import {CustomerProfile} from '../../../dtos/customer-profile';
 import {SkillLevel} from "../../../dtos/skilllevel";
 import {ToastrModule, ToastrService} from 'ngx-toastr';
+import {ReservationStatus} from "../../../dtos/ReservationStatus";
 
 // AI-assisted: Code generated with Google Gemini and adapted
 describe('ReservationComponent', () => {
@@ -53,7 +54,8 @@ describe('ReservationComponent', () => {
       startDate: '2026-12-24',
       endDate: '2026-12-31',
       confirmationEmailSent: true,
-      items: [{id: 1, model: 'Ski Alpha', price: 25} as any]
+      items: [{id: 1, model: 'Ski Alpha', price: 25} as any],
+      reservationStatus: ReservationStatus.CREATED
     },
     {
       id: 200,
@@ -64,7 +66,8 @@ describe('ReservationComponent', () => {
       startDate: '2026-02-15',
       endDate: '2026-02-20',
       confirmationEmailSent: false,
-      items: []
+      items: [],
+      reservationStatus: ReservationStatus.CREATED
     }
   ];
 
@@ -219,7 +222,8 @@ describe('ReservationComponent', () => {
         startDate: '2026-12-24',
         endDate: '2026-12-27',
         confirmationEmailSent: false,
-        items: []
+        items: [],
+        reservationStatus: ReservationStatus.CREATED
       })) as ReservationDetail[];
 
       component.reservations = manyReservations;
