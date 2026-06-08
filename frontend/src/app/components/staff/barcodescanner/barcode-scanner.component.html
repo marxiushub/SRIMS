@@ -56,7 +56,7 @@
             </h5>
             <p class="text-muted small mb-4">{{ 'BARCODE_SCANNER.WALK_IN_SUBTITLE' | translate }}</p>
 
-            <form [formGroup]="walkInForm" (ngSubmit)="submitWalkInCheckout()">
+            <form [formGroup]="walkInForm" (ngSubmit)="openConfirmationModal(confirmDialog)">
               <div class="row g-3 mb-3">
                 <div class="col-md-6">
                   <label for="walkInUser" class="form-label small fw-bold">{{ 'BARCODE_SCANNER.WALK_IN_SELECT_USER' | translate }} *</label>
@@ -268,7 +268,7 @@
     @if (scanScenario === 'NO_RESERVATION' && scannedEquipments.length > 0) {
       <button class="btn btn-success btn-lg" type="button"
               [disabled]="walkInForm?.invalid || isWalkInDateRangeInvalid || scannedEquipmentIds.length === 0 || submitLoading"
-              (click)="submitWalkInCheckout()">
+              (click)="openConfirmationModal(confirmDialog)">
         <i class="bi bi-lightning-fill me-2"></i>
         {{ 'BARCODE_SCANNER.BTN_SUBMIT_WALK_IN' | translate }}
       </button>
@@ -320,10 +320,19 @@
         </h5>
       </div>
       <div class="card-body p-4">
-        <p class="fs-5 mb-1" [innerHTML]="'BARCODE_SCANNER.MODAL_QUESTION' | translate:{ name: '<strong>' + pendingCustomerName + '</strong>' }"></p>
-        <small class="text-muted">
-          {{ 'BARCODE_SCANNER.MODAL_SUBTEXT' | translate }}
-        </small>
+        @if (scanScenario === 'NO_RESERVATION') {
+          <p class="fs-5 mb-1">
+            {{ 'BARCODE_SCANNER.WALK_IN_CONFIRM_PROMPT' | translate }}
+          </p>
+          <small class="text-muted">
+            {{ 'BARCODE_SCANNER.WALK_IN_INFO_TEXT' | translate:{ count: scannedEquipments.length } }}
+          </small>
+        } @else {
+          <p class="fs-5 mb-1" [innerHTML]="'BARCODE_SCANNER.MODAL_QUESTION' | translate:{ name: '<strong>' + pendingCustomerName + '</strong>' }"></p>
+          <small class="text-muted">
+            {{ 'BARCODE_SCANNER.MODAL_SUBTEXT' | translate }}
+          </small>
+        }
       </div>
       <div class="card-footer bg-light d-flex justify-content-end gap-2 py-3">
         <button type="button" class="btn btn-outline-secondary px-4" (click)="confirmDialog.close()">

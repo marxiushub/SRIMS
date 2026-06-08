@@ -380,25 +380,12 @@ export class BarcodeScannerComponent implements OnInit {
     return new Date(end) < new Date(today);
   }
 
-  //Adds a single scanned Equipment to the Walk-In-Construct
-  addScannedEquipmentToWalkIn(equipment: Equipment): void {
-    const alreadyLinked = this.scannedEquipmentIds.includes(equipment.id);
-    if (alreadyLinked) {
-      const translatedToast = this.translateService.instant('BARCODE_SCANNER.SUCCESS_ADDED', { model: equipment.model });
-      this.notification.success(translatedToast);
-    }
-  }
-
   //Submits the Reservation and checkout as part of the Walk-In-Construct when there is no Reservation
   submitWalkInCheckout(): void {
     if (this.walkInForm.invalid || !this.scannedEquipmentIds || this.scannedEquipmentIds.length === 0
       || this.scannedEquipments.length === 0 || this.isWalkInDateRangeInvalid) {
       return;
     }
-
-    const confirmMsg = this.translateService.instant('BARCODE_SCANNER.WALK_IN_CONFIRM_PROMPT');
-    const hasConfirmed = window.confirm(confirmMsg);
-    if (!hasConfirmed) return;
 
     this.submitLoading = true;
     this.submitError = null;
@@ -439,6 +426,17 @@ export class BarcodeScannerComponent implements OnInit {
 
   //Helper-Method for pop-up before submission
   openConfirmationModal(dialogElement: HTMLDialogElement): void {
+    //Case 1: Checkout without Reservation
+    if (this.scanScenario === 'NO_RESERVATION') {
+      if (this.walkInForm.invalid || !this.scannedEquipmentIds || this.scannedEquipmentIds.length === 0 || this.isWalkInDateRangeInvalid) {
+        return;
+      }
+      this.pendingCustomerName = '';
+      dialogElement.showModal();
+      return;
+    }
+
+    //Case 2: Checkout with existing Reservation
     if (this.scanScenario !== 'SINGLE_RESERVATION' || this.equipmentScenario !== 'ALL_RESERVED_EQUIPMENT_SCANNED') {
       return;
     }
@@ -449,7 +447,14 @@ export class BarcodeScannerComponent implements OnInit {
   //Helper-method for pop-up before submission
   confirmAndSubmit(dialogElement: HTMLDialogElement): void {
     dialogElement.close();
-    this.submitExistingReservation();
+
+    if (this.scanScenario === 'NO_RESERVATION') {
+      this.submitWalkInCheckout();
+    }
+    else {
+      this.submitExistingReservation();
+
+    }
   }
 
   //Helper-method to give RentalStatus-Enum-Values nice background coloring in HTML
