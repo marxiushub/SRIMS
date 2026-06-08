@@ -36,8 +36,8 @@ public abstract class IntegrationTestBase {
 
     @AfterEach
     public void cleanupDatabase() {
-        reservationRepository.deleteAll();
         timePeriodsRepository.deleteAll();
+        reservationRepository.deleteAll();
 
         customerProfileRepository.deleteAll();
 

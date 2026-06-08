@@ -1,4 +1,4 @@
-package at.ac.tuwien.sepr.groupphase.backend.unittests;
+package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.CustomerCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.StaffCreationDto;
@@ -14,20 +14,29 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.user.Staff;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.StaffRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.UserRepository;
+import at.ac.tuwien.sepr.groupphase.backend.security.AppUserDetails;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
-import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerProfileRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
-
+//TODO: use generated data in tests, need to work on cleanup and setup
+//Umgeschrieben, sodass customer der gelöscht/geupdatet wird vorher noch angelegt wird
 @ActiveProfiles({"test", "datagenerator"})
 @SpringBootTest
 public class UserServiceTest {
@@ -45,24 +54,95 @@ public class UserServiceTest {
     private StaffRepository staffRepository;
 
     @Autowired
+    private CustomerProfileRepository customerProfileRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
-    /*
-    @Test
-    @Transactional
-    @Rollback
-    public void createCustomer_withValidDto_returnsSavedCustomerWithId() {
+    private final List<Long> createdUserIds = new ArrayList<>();
 
+    //workaround für security, richtiger admin wird noch gebraucht
+    @BeforeEach
+    public void setupSecurityContext() {
+        Staff admin = staffRepository.findByEmail("admin@email.com")
+            .orElseThrow();
+
+        List<SimpleGrantedAuthority> authorities = List.of(
+            new SimpleGrantedAuthority("USER_ADMIN"),
+
+            new SimpleGrantedAuthority("STAFF_READ"),
+            new SimpleGrantedAuthority("STAFF_UPDATE"),
+            new SimpleGrantedAuthority("STAFF_DELETE"),
+
+            new SimpleGrantedAuthority("CUSTOMER_READ"),
+            new SimpleGrantedAuthority("CUSTOMER_UPDATE"),
+            new SimpleGrantedAuthority("CUSTOMER_DELETE")
+        );
+
+        AppUserDetails principal = new AppUserDetails(
+            admin.getEmail(),
+            admin.getPassword(),
+            authorities,
+            admin.getId()
+        );
+
+        UsernamePasswordAuthenticationToken authentication =
+            new UsernamePasswordAuthenticationToken(principal, null, authorities);
+
+        authentication.setDetails(admin.getId());
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    @AfterEach
+    public void cleanupCreatedUsers() {
+        for (Long id : createdUserIds) {
+            if (userRepository.existsById(id)) {
+                userRepository.deleteById(id);
+            }
+        }
+
+        createdUserIds.clear();
+        SecurityContextHolder.clearContext();
+    }
+
+    private void rememberCreatedUser(UserDetailDto createdUser) {
+        createdUserIds.add(createdUser.getId());
+    }
+
+    private String uniqueEmail(String prefix) {
+        return prefix + "." + UUID.randomUUID() + "@test.at";
+    }
+
+    private CustomerCreationDto validCustomerDto(String email) {
         CustomerCreationDto dto = new CustomerCreationDto();
 
-        dto.setUserName("max_customer");
+        dto.setUserName("customer_" + UUID.randomUUID());
         dto.setPassword("Password123!");
-        dto.setEmail("max.customer@test.at");
+        dto.setEmail(email);
         dto.setFirstName("Max");
         dto.setLastName("Mustermann");
         dto.setDateOfBirth(LocalDate.of(1998, 5, 10));
 
+        return dto;
+    }
+
+    private StaffCreationDto validStaffDto(String email) {
+        StaffCreationDto dto = new StaffCreationDto();
+
+        dto.setUserName("staff_" + UUID.randomUUID());
+        dto.setPassword("Password123!");
+        dto.setEmail(email);
+
+        return dto;
+    }
+
+    @Test
+    public void createCustomer_withValidDto_returnsSavedCustomerWithId() {
+        CustomerCreationDto dto = validCustomerDto(uniqueEmail("customer.create"));
+
         UserDetailDto created = userService.createUser(dto);
+        rememberCreatedUser(created);
 
         ApplicationUser savedApplicationUser = userRepository.findUserByEmail(dto.getEmail()).orElseThrow();
         Customer savedCustomer = customerRepository.findById(created.getId()).orElseThrow();
@@ -70,13 +150,11 @@ public class UserServiceTest {
         assertAll(
             "Verify that the customer is saved correctly and assigned an ID",
 
-            //Dto check
             () -> assertThat(created).isNotNull(),
             () -> assertThat(created.getId()).isNotNull(),
             () -> assertThat(created.getEmail()).isEqualTo(dto.getEmail()),
             () -> assertThat(created.getUserName()).isEqualTo(dto.getUserName()),
 
-            //UserRepositoy checks
             () -> assertThat(savedApplicationUser).isInstanceOf(Customer.class),
             () -> assertThat(savedApplicationUser.getId()).isNotNull(),
             () -> assertThat(savedApplicationUser.getEmail()).isEqualTo(dto.getEmail()),
@@ -87,28 +165,19 @@ public class UserServiceTest {
                 savedApplicationUser.getPassword()
             )).isTrue(),
 
-            //CustomerRepository checks
             () -> assertThat(savedCustomer.getFirstName()).isEqualTo(dto.getFirstName()),
             () -> assertThat(savedCustomer.getLastName()).isEqualTo(dto.getLastName()),
             () -> assertThat(savedCustomer.getDateOfBirth()).isEqualTo(dto.getDateOfBirth()),
-            () -> assertThat(savedCustomer.getProfiles()).isNotNull(),
-            () -> assertThat(savedCustomer.getProfiles()).isEmpty()
+            () -> assertThat(customerProfileRepository.findByCustomerId(savedCustomer.getId())).isEmpty()
         );
     }
 
-
     @Test
-    @Transactional
-    @Rollback
     public void createStaff_withValidDto_returnsSavedStaffWithId() {
-
-        StaffCreationDto dto = new StaffCreationDto();
-
-        dto.setUserName("staff_user");
-        dto.setPassword("Password123!");
-        dto.setEmail("staff@test.at");
+        StaffCreationDto dto = validStaffDto(uniqueEmail("staff.create"));
 
         UserDetailDto created = userService.createUser(dto);
+        rememberCreatedUser(created);
 
         ApplicationUser saved = userRepository
             .findUserByEmail(dto.getEmail())
@@ -121,66 +190,55 @@ public class UserServiceTest {
         assertAll(
             "Verify that the staff user is saved correctly and assigned an ID",
 
-            //Dto check
             () -> assertThat(created).isNotNull(),
             () -> assertThat(created.getId()).isNotNull(),
             () -> assertThat(created.getEmail()).isEqualTo(dto.getEmail()),
             () -> assertThat(created.getUserName()).isEqualTo(dto.getUserName()),
 
-            //UserRepositoy check
             () -> assertThat(saved).isInstanceOf(Staff.class),
             () -> assertThat(saved.getId()).isNotNull(),
             () -> assertThat(saved.getEmail()).isEqualTo(dto.getEmail()),
             () -> assertThat(saved.getUserName()).isEqualTo(dto.getUserName()),
 
-            //StaffRepository check
             () -> assertThat(savedStaff.getId()).isEqualTo(created.getId()),
             () -> assertThat(savedStaff.getEmail()).isEqualTo(dto.getEmail()),
             () -> assertThat(savedStaff.getUserName()).isEqualTo(dto.getUserName())
         );
     }
 
-
     @Test
-    @Transactional
-    @Rollback
     public void updateCustomer_withValidDto_updatesCustomerCorrectly() {
-
-        Customer existingCustomer = customerRepository
-            .findAll()
-            .stream()
-            .findFirst()
-            .orElseThrow();
+        CustomerCreationDto creationDto = validCustomerDto(uniqueEmail("customer.update"));
+        UserDetailDto created = userService.createUser(creationDto);
+        rememberCreatedUser(created);
 
         CustomerUpdateDto dto = new CustomerUpdateDto();
 
-        dto.setUserName("updated_customer");
+        dto.setUserName("updated_customer_" + UUID.randomUUID());
         dto.setPassword("NewPassword123!");
-        dto.setEmail("updated.customer@test.at");
+        dto.setEmail(uniqueEmail("customer.updated"));
         dto.setFirstName("UpdatedFirst");
         dto.setLastName("UpdatedLast");
         dto.setDateOfBirth(LocalDate.of(2000, 1, 1));
 
-        UserDetailDto updated = userService.updateUser(existingCustomer.getId(), dto);
+        UserDetailDto updated = userService.updateUser(created.getId(), dto);
 
         ApplicationUser savedApplicationUser = userRepository
-            .findById(existingCustomer.getId())
+            .findById(created.getId())
             .orElseThrow();
 
         Customer savedCustomer = customerRepository
-            .findById(existingCustomer.getId())
+            .findById(created.getId())
             .orElseThrow();
 
         assertAll(
             "Verify that the customer was updated correctly",
 
-            //Returned DTO
             () -> assertThat(updated).isNotNull(),
-            () -> assertThat(updated.getId()).isEqualTo(existingCustomer.getId()),
+            () -> assertThat(updated.getId()).isEqualTo(created.getId()),
             () -> assertThat(updated.getUserName()).isEqualTo(dto.getUserName()),
             () -> assertThat(updated.getEmail()).isEqualTo(dto.getEmail()),
 
-            //User repository
             () -> assertThat(savedApplicationUser.getUserName()).isEqualTo(dto.getUserName()),
             () -> assertThat(savedApplicationUser.getEmail()).isEqualTo(dto.getEmail()),
 
@@ -189,55 +247,45 @@ public class UserServiceTest {
                 savedApplicationUser.getPassword()
             )).isTrue(),
 
-            //Customer specific fields
             () -> assertThat(savedCustomer.getFirstName()).isEqualTo(dto.getFirstName()),
             () -> assertThat(savedCustomer.getLastName()).isEqualTo(dto.getLastName()),
             () -> assertThat(savedCustomer.getDateOfBirth()).isEqualTo(dto.getDateOfBirth())
         );
     }
 
-
     @Test
-    @Transactional
-    @Rollback
     public void updateStaff_withValidDto_updatesStaffCorrectly() {
-
-        Staff existingStaff = staffRepository
-            .findAll()
-            .stream()
-            .findFirst()
-            .orElseThrow();
+        StaffCreationDto creationDto = validStaffDto(uniqueEmail("staff.update"));
+        UserDetailDto created = userService.createUser(creationDto);
+        rememberCreatedUser(created);
 
         StaffUpdateDto dto = new StaffUpdateDto();
 
-        dto.setUserName("updated_staff");
+        dto.setUserName("updated_staff_" + UUID.randomUUID());
         dto.setPassword("UpdatedPassword123!");
-        dto.setEmail("updated.staff@test.at");
+        dto.setEmail(uniqueEmail("staff.updated"));
 
-        UserDetailDto updated = userService.updateUser(existingStaff.getId(), dto);
+        UserDetailDto updated = userService.updateUser(created.getId(), dto);
 
         ApplicationUser savedApplicationUser = userRepository
-            .findById(existingStaff.getId())
+            .findById(created.getId())
             .orElseThrow();
 
         Staff savedStaff = staffRepository
-            .findById(existingStaff.getId())
+            .findById(created.getId())
             .orElseThrow();
 
         assertAll(
             "Verify that the staff user was updated correctly",
 
-            //Returned DTO
             () -> assertThat(updated).isNotNull(),
-            () -> assertThat(updated.getId()).isEqualTo(existingStaff.getId()),
+            () -> assertThat(updated.getId()).isEqualTo(created.getId()),
             () -> assertThat(updated.getUserName()).isEqualTo(dto.getUserName()),
             () -> assertThat(updated.getEmail()).isEqualTo(dto.getEmail()),
 
-            //Repository state
             () -> assertThat(savedStaff.getUserName()).isEqualTo(dto.getUserName()),
             () -> assertThat(savedStaff.getEmail()).isEqualTo(dto.getEmail()),
 
-            //Password encoded correctly
             () -> assertThat(passwordEncoder.matches(
                 dto.getPassword(),
                 savedApplicationUser.getPassword()
@@ -245,19 +293,13 @@ public class UserServiceTest {
         );
     }
 
-
     @Test
-    @Transactional
-    @Rollback
     public void deleteCustomer_withValidId_deletesCustomerSuccessfully() {
+        CustomerCreationDto dto = validCustomerDto(uniqueEmail("customer.delete"));
+        UserDetailDto created = userService.createUser(dto);
+        rememberCreatedUser(created);
 
-        Customer existingCustomer = customerRepository
-            .findAll()
-            .stream()
-            .findFirst()
-            .orElseThrow();
-
-        Long idToDelete = existingCustomer.getId();
+        Long idToDelete = created.getId();
 
         userService.deleteUserById(idToDelete);
 
@@ -268,36 +310,25 @@ public class UserServiceTest {
         );
     }
 
-
     @Test
-    @Transactional
-    @Rollback
     public void deleteStaff_withValidId_deletesStaffSuccessfully() {
+        StaffCreationDto dto = validStaffDto(uniqueEmail("staff.delete"));
+        UserDetailDto created = userService.createUser(dto);
+        rememberCreatedUser(created);
 
-        Staff existingStaff = staffRepository
-            .findAll()
-            .stream()
-            .findFirst()
-            .orElseThrow();
-
-        Long idToDelete = existingStaff.getId();
+        Long idToDelete = created.getId();
 
         userService.deleteUserById(idToDelete);
 
         assertAll(
             "Verify that staff is deleted",
-
             () -> assertThat(userRepository.findById(idToDelete)).isEmpty(),
             () -> assertThat(staffRepository.findById(idToDelete)).isEmpty()
         );
     }
 
-
     @Test
-    @Transactional
-    @Rollback
     public void getUserById_withCustomerId_returnsCustomerSearchResponseDto() {
-
         Customer existingCustomer = customerRepository
             .findAll()
             .stream()
@@ -319,8 +350,6 @@ public class UserServiceTest {
             () -> assertThat(result.getEmail())
                 .isEqualTo(existingCustomer.getEmail()),
 
-
-            //Customer specific fields
             () -> {
                 CustomerSearchResponseDto customerDto =
                     (CustomerSearchResponseDto) result;
@@ -337,12 +366,8 @@ public class UserServiceTest {
         );
     }
 
-
     @Test
-    @Transactional
-    @Rollback
     public void getUserById_withStaffId_returnsStaffSearchResponseDto() {
-
         Staff existingStaff = staffRepository
             .findAll()
             .stream()
@@ -364,5 +389,5 @@ public class UserServiceTest {
             () -> assertThat(result.getEmail())
                 .isEqualTo(existingStaff.getEmail())
         );
-    }*/
+    }
 }
