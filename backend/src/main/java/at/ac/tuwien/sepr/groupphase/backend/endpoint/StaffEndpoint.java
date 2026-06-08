@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,7 +44,7 @@ public class StaffEndpoint {
      * @param dto an {@link StaffCreationDto}
      * @return a Staff entity
      */
-    @PermitAll
+    @PreAuthorize("hasAuthority('STAFF_CREATE')")
     @PostMapping("/create")
     public UserDetailDto createStaff(@Valid @RequestBody StaffCreationDto dto) {
         LOGGER.info("POST /api/v1/staff/create - {}", dto);
@@ -57,7 +58,7 @@ public class StaffEndpoint {
      * @param dto the DTO containing updated staff data
      * @return the updated staff user
      */
-    @PermitAll
+    @PreAuthorize("hasAuthority('STAFF_UPDATE')")
     @PutMapping("/update/{id}")
     public UserDetailDto updateStaff(@PathVariable("id") Long id, @Valid @RequestBody StaffUpdateDto dto) {
         LOGGER.info("PUT /api/v1/staff/update/{} - {}", id, dto);
@@ -69,7 +70,7 @@ public class StaffEndpoint {
      *
      * @param id the ID of the staff user to delete
      */
-    @PermitAll
+    @PreAuthorize("hasAuthority('STAFF_DELETE')")
     @DeleteMapping("/delete/{id}")
     public void deleteUser(@PathVariable("id") Long id) {
         LOGGER.info("DELETE /api/v1/staff/delete/{}", id);
@@ -82,7 +83,7 @@ public class StaffEndpoint {
      * @param id the user of the staff member that should be retrieved
      * @return the user as UserSearchResponseDto
      */
-    @PermitAll
+    @PreAuthorize("hasAuthority('STAFF_READ')")
     @GetMapping("/{id}")
     public UserSearchResponseDto getUserById(@PathVariable("id") Long id) {
         LOGGER.info("GET /api/v1/staff/{}", id);

@@ -1,12 +1,14 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { BarcodeScannerComponent } from './barcode-scanner.component';
-import { FormsModule } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { of, throwError } from 'rxjs';
-import { EquipmentService } from '../../../services/equipment.service';
+import {ComponentFixture, fakeAsync, TestBed, tick} from '@angular/core/testing';
+import {BarcodeScannerComponent} from './barcode-scanner.component';
+import {FormsModule} from '@angular/forms';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {of, throwError} from 'rxjs';
+import {EquipmentService} from '../../../services/equipment.service';
 
 import {RentalStatus} from '../../../dtos/rentalstatus';
-import { Equipment } from '../../../dtos/equipment';
+import {Equipment} from '../../../dtos/equipment';
+import {ToastrService} from 'ngx-toastr';
+import ScanbotSDK from 'scanbot-web-sdk/ui';
 
 //TODO: Needs a complete rework for the no-longer-prototype-version of this
 
@@ -30,7 +32,11 @@ describe('BarcodeScannerComponent', () => {
   beforeEach(async () => {
     equipmentServiceMock = {
       getByBarcodeId: jasmine.createSpy('getByBarcodeId').and.returnValue(of(mockEquipment)),
-      update: jasmine.createSpy('update').and.returnValue(of({ ...mockEquipment, status: RentalStatus.RENTED }))
+      update: jasmine.createSpy('update').and.returnValue(of({...mockEquipment, status: RentalStatus.RENTED}))
+    };
+    const toastrMock = {
+      success: jasmine.createSpy('success'),
+      error: jasmine.createSpy('error')
     };
 
     await TestBed.configureTestingModule({
@@ -40,9 +46,18 @@ describe('BarcodeScannerComponent', () => {
         TranslateModule.forRoot()
       ],
       providers: [
-        { provide: EquipmentService, useValue: equipmentServiceMock }
+        {provide: EquipmentService, useValue: equipmentServiceMock},
+        {provide: ToastrService, useValue: toastrMock}
       ]
     }).compileComponents();
+
+    spyOn(ScanbotSDK, 'initialize').and.returnValue(Promise.resolve({
+      getLicenseInfo: () => Promise.resolve({status: 'OK', isValid: true}),
+      createBarcodeScanner: () => Promise.resolve({
+        dispose: () => {
+        }
+      })
+    } as any));
 
     fixture = TestBed.createComponent(BarcodeScannerComponent);
     component = fixture.componentInstance;
@@ -79,7 +94,7 @@ describe('BarcodeScannerComponent', () => {
   });
 
   it('should handle 404 error when equipment is not found', () => {
-    equipmentServiceMock.getByBarcodeId.and.returnValue(throwError(() => ({ status: 404 })));
+    equipmentServiceMock.getByBarcodeId.and.returnValue(throwError(() => ({status: 404})));
     component.inputBarcodeId = 'unknown-id';
     component.searchEquipment();
 
@@ -88,7 +103,7 @@ describe('BarcodeScannerComponent', () => {
   });
 
   it('should calculate correct next status based on active mode', () => {
-    component.scannedEquipment = { ...mockEquipment, status: RentalStatus.FREE };
+    component.scannedEquipment = {...mockEquipment, status: RentalStatus.FREE};
 
     component.activeMode = 'RENTAL';
     expect(component.getNextStatus()).toBe(RentalStatus.RENTED);
@@ -102,7 +117,7 @@ describe('BarcodeScannerComponent', () => {
   });
 
   it('should successfully update status and close the preview window', fakeAsync(() => {
-    component.scannedEquipment = { ...mockEquipment, status: RentalStatus.FREE };
+    component.scannedEquipment = {...mockEquipment, status: RentalStatus.FREE};
     component.activeMode = 'RENTAL';
 
     component.confirmScan();

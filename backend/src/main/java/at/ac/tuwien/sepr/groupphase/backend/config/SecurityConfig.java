@@ -35,10 +35,13 @@ public class SecurityConfig {
           .csrf(AbstractHttpConfigurer::disable)
           .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
           .headers(httpSecurityHeadersConfigurer -> httpSecurityHeadersConfigurer.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
-            //TODO: Remove these additional unlimited access rights for unauthorized users later, when it is no longer necessary; for now this is required to access the backend from the frontend
+
             //Start
             .authorizeHttpRequests(auth -> auth
-                    .anyRequest().permitAll()
+                .requestMatchers("/health", "/health/**").permitAll()
+                .requestMatchers("/api/v1/authentication/**").permitAll()
+                .requestMatchers("/actuator/**").permitAll()
+                .anyRequest().authenticated()
             )
             //End
             .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)

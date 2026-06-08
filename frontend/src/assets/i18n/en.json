@@ -136,6 +136,8 @@
     "ERROR_NOT_FOUND": "Equipment with barcode ID \"{{value}}\" was not found.",
     "ERROR_UNEXPECTED": "An unexpected error occurred.",
     "ERROR_ACTION_NOT_ALLOWED": "Action not allowed in this mode. Item is currently in status {{status}}.",
+    "ERROR_CAMERA": "An error occurred while checking for a camera.",
+    "NO_CAMERA_FOUND": "No camera found. Please make sure that a camera is connected and functioning properly.",
     "FOUND_TITLE": "Equipment Found!",
     "MODEL": "Model",
     "TYPE": "Type",
@@ -178,6 +180,9 @@
     "WALK_IN_CONFIRM_PROMPT": "Are you sure you want to create this direct walk-in rental?",
     "WALK_IN_SUCCESS_TOAST": "Walk-In rental successfully processed!",
     "WALK_IN_INFO_TEXT": "Note: A new Reservation with the items chosen below will be created during this check-out."
+    "CAMERA_SCANNER": "Camera Scanner",
+    "CLOSE_CAMERA": "Close Camera",
+    "OPEN_CAMERA": "Open Camera"
   },
   "RESERVATION": {
     "CUSTOMER_NAME": "Customer (Account)",

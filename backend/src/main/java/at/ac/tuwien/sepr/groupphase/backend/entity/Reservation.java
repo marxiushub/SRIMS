@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.entity;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.ReservationStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -34,6 +35,9 @@ public class Reservation {
     @ManyToOne
     @JoinColumn(name = "customer_profile_id", nullable = false)
     private CustomerProfile customerProfile;
+
+    @Column(nullable = false)
+    private double totalPrice;
 
     private LocalTime pickUpTime;
 
@@ -90,6 +94,10 @@ public class Reservation {
         this.reservationStatus = reservationStatus;
     }
 
+    public void setTotalPrice(double totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
     /**
      * Getter.
      *
@@ -125,6 +133,10 @@ public class Reservation {
 
     public ReservationStatus getReservationStatus() {
         return reservationStatus;
+    }
+
+    public double getTotalPrice() {
+        return totalPrice;
     }
 
 }

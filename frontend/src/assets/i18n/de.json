@@ -136,6 +136,8 @@
     "ERROR_NOT_FOUND": "Equipment mit der Barcode-ID \"{{value}}\" wurde nicht gefunden.",
     "ERROR_UNEXPECTED": "Ein unerwarteter Fehler ist aufgetreten.",
     "ERROR_ACTION_NOT_ALLOWED": "Aktion im gewählten Modus nicht möglich. Der Gegenstand befindet sich im Status {{status}}.",
+    "ERROR_CAMERA": "Beim Überprüfen der Kamera ist ein Fehler aufgetreten.",
+    "NO_CAMERA_FOUND": "Keine Kamera gefunden. Bitte stelle sicher, dass eine Kamera angeschlossen und funktionsfähig ist.",
     "FOUND_TITLE": "Equipment gefunden!",
     "MODEL": "Modell",
     "TYPE": "Typ",
@@ -178,6 +180,9 @@
     "WALK_IN_CONFIRM_PROMPT": "Möchtest du diese Direkt-Ausleihe jetzt verbindlich erstellen?",
     "WALK_IN_SUCCESS_TOAST": "Spontan-Ausleihe erfolgreich verbucht!",
     "WALK_IN_INFO_TEXT": "Hinweis: Bei dieser Ausleihe wird eine neue Reservierung mit dem Equipment aus deiner gescannten Liste unten erstellt."
+    "CAMERA_SCANNER": "Kamera Scanner",
+    "CLOSE_CAMERA": "Kamera schließen",
+    "OPEN_CAMERA": "Kamera öffnen"
   },
   "RESERVATION": {
     "CUSTOMER_NAME": "Kunde (Account)",

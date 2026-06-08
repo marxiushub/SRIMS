@@ -14,6 +14,13 @@ import {CustomerProfile} from "../../../dtos/customer-profile";
 import {EquipmentType} from "../../../dtos/equipmenttype";
 import {ToastrService} from "ngx-toastr";
 import {ReservationCreation} from "../../../dtos/reservation-creation";
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {EquipmentService} from '../../../services/equipment.service';
+import {TranslateService} from '@ngx-translate/core';
+import {Equipment} from '../../../dtos/equipment';
+import {RentalStatus} from '../../../dtos/rentalstatus';
+import {ToastrService} from 'ngx-toastr';
+import ScanbotSDK from 'scanbot-web-sdk/ui';
 //TODO: Import Service for Accounts/Users
 
 @Component({
