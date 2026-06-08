@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { Globals } from '../global/globals';
 import { ReservationDetail } from '../dtos/reservation-detail';
 import {ReservationUpdate} from "../dtos/reservation-update";
+import {ReservationCreation} from "../dtos/reservation-creation";
 
 @Injectable({
   providedIn: 'root'
@@ -24,5 +25,16 @@ export class BarcodeScannerService {
    */
   checkOutOrInScanWithExistingReservation(reservation: ReservationUpdate): Observable<ReservationDetail> {
     return this.httpClient.patch<ReservationDetail>(this.reservationBaseUri + `/${reservation.id}`, reservation);
+  }
+
+  /**
+   * Checks out Equipment that didn't belong to a Reservation for the day as part of a newly created Reservation.
+   * This method is used by staff-members when doing checkout for customers who haven't made a reservation in
+   * advance, to create one during the checkout-process.
+   * This method is never used to check in Equipment, as in that case, a Reservation must've either already
+   * existed before the checkout or otherwise must've been created during the checkout.
+   */
+  checkOutScanWithoutExistingReservation(reservation: ReservationCreation): Observable<ReservationDetail> {
+    return this.httpClient.post<ReservationDetail>(this.reservationBaseUri, reservation);
   }
 }

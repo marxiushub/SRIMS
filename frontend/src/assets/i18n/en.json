@@ -166,7 +166,18 @@
     "MODAL_QUESTION": "Do you want to complete the scan process for {{name}} now?",
     "MODAL_SUBTEXT": "The status changes of the equipment will be recorded directly in the system.",
     "MODAL_BTN_CANCEL": "Cancel",
-    "MODAL_BTN_CONFIRM": "Yes, complete"
+    "MODAL_BTN_CONFIRM": "Yes, complete",
+    "WALK_IN_TITLE": "Create Direct Rental (Walk-In)",
+    "WALK_IN_SUBTITLE": "No existing reservation was found for this equipment today. You can assign the gear directly to a customer profile here.",
+    "WALK_IN_SELECT_USER": "1. Select Employee / Customer Account",
+    "CHOOSE_USER_PLACEHOLDER": "Please select a user",
+    "CHOOSE_PROFILE_PLACEHOLDER": "Select a user first",
+    "FIXED": "fixed",
+    "ERROR_INVALID_RETURN_DATE": "The return date cannot be before today's pickup date!",
+    "BTN_SUBMIT_WALK_IN": "Complete Direct Rental & Issue Gear",
+    "WALK_IN_CONFIRM_PROMPT": "Are you sure you want to create this direct walk-in rental?",
+    "WALK_IN_SUCCESS_TOAST": "Walk-In rental successfully processed!",
+    "WALK_IN_INFO_TEXT": "Note: A new Reservation with the items chosen below will be created during this check-out."
   },
   "RESERVATION": {
     "CUSTOMER_NAME": "Customer (Account)",

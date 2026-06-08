@@ -9,6 +9,7 @@ import java.util.List;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.*;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.PeriodType;
+import at.ac.tuwien.sepr.groupphase.backend.entity.enums.ReservationStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Helmet;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.Customer;
@@ -87,6 +88,7 @@ public class ReservationServiceTest {
         dto.setStartDate(LocalDate.now().plusDays(2));
         dto.setEndDate(LocalDate.now().plusDays(5));
         dto.setPickUpTime(LocalTime.of(10, 0));
+        dto.setReservationStatus(ReservationStatus.CREATED);
 
 
         ReservationDetailDto result = reservationService.createReservation(dto);
@@ -136,6 +138,7 @@ public class ReservationServiceTest {
         createDto.setStartDate(LocalDate.now().plusDays(2));
         createDto.setEndDate(LocalDate.now().plusDays(3));
         createDto.setPickUpTime(LocalTime.of(10, 0));
+        createDto.setReservationStatus(ReservationStatus.CREATED);
 
         ReservationDetailDto createdReservation = reservationService.createReservation(createDto);
         assertThat(createdReservation.getId()).isNotNull();
@@ -172,6 +175,7 @@ public class ReservationServiceTest {
         createDto.setStartDate(LocalDate.now().plusDays(10));
         createDto.setEndDate(LocalDate.now().plusDays(15));
         createDto.setPickUpTime(LocalTime.of(10, 0));
+        createDto.setReservationStatus(ReservationStatus.CREATED);
 
         ReservationDetailDto created = reservationService.createReservation(createDto);
 
@@ -215,6 +219,7 @@ public class ReservationServiceTest {
         createDto.setStartDate(LocalDate.now().plusDays(10));
         createDto.setEndDate(LocalDate.now().plusDays(15));
         createDto.setPickUpTime(LocalTime.of(10, 0));
+        createDto.setReservationStatus(ReservationStatus.CREATED);
 
         ReservationDetailDto created = reservationService.createReservation(createDto);
         Long reservationId = created.getId();
@@ -262,6 +267,7 @@ public class ReservationServiceTest {
         createDto.setStartDate(LocalDate.now().plusDays(5));
         createDto.setEndDate(LocalDate.now().plusDays(8));
         createDto.setPickUpTime(LocalTime.of(9, 0));
+        createDto.setReservationStatus(ReservationStatus.CREATED);
 
         ReservationDetailDto created = reservationService.createReservation(createDto);
 
@@ -327,6 +333,7 @@ public class ReservationServiceTest {
         createDto.setStartDate(searchDate);
         createDto.setEndDate(searchDate.plusDays(3));
         createDto.setPickUpTime(LocalTime.of(10, 0));
+        createDto.setReservationStatus(ReservationStatus.CREATED);
 
         ReservationDetailDto created = reservationService.createReservation(createDto);
 
@@ -358,6 +365,7 @@ public class ReservationServiceTest {
         createDto.setStartDate(LocalDate.now().plusDays(5));
         createDto.setEndDate(LocalDate.now().plusDays(8));
         createDto.setPickUpTime(LocalTime.of(10, 0));
+        createDto.setReservationStatus(ReservationStatus.CREATED);
 
         reservationService.createReservation(createDto);
 

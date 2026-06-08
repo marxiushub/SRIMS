@@ -46,10 +46,76 @@
       {{ 'RESERVATION.TITLE_OVERVIEW' | translate }} ({{ matchedReservations.length }})
     </div>
     <div class="card-body p-0">
+
       @if (matchedReservations.length === 0) {
-        <div class="p-4 text-center text-muted">
-          {{ 'RESERVATION.NO_RESERVATIONS_FOUND' | translate }}
-        </div>
+        @if (scanScenario === 'NO_RESERVATION' && scannedEquipments.length > 0) {
+          <div class="p-4 bg-light border-bottom animate-fade-in">
+            <h5 class="text-secondary mb-3 fw-bold">
+              <i class="bi bi-lightning-charge-fill me-2 text-warning"></i>
+              {{ 'BARCODE_SCANNER.WALK_IN_TITLE' | translate }}
+            </h5>
+            <p class="text-muted small mb-4">{{ 'BARCODE_SCANNER.WALK_IN_SUBTITLE' | translate }}</p>
+
+            <form [formGroup]="walkInForm" (ngSubmit)="submitWalkInCheckout()">
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label for="walkInUser" class="form-label small fw-bold">{{ 'BARCODE_SCANNER.WALK_IN_SELECT_USER' | translate }} *</label>
+                  <select id="walkInUser" formControlName="userId" class="form-select">
+                    <option [ngValue]="null" disabled>-- {{ 'BARCODE_SCANNER.CHOOSE_USER_PLACEHOLDER' | translate }} --</option>
+                    @for (user of allUsers; track user.id) {
+                      <option [ngValue]="user.id">{{ user.username }}</option>
+                    }
+                  </select>
+                </div>
+
+                <div class="col-md-6">
+                  <label for="walkInProfile" class="form-label small fw-bold">{{ 'RESERVATION.SELECT_PROFILE' | translate }} *</label>
+                  <select id="walkInProfile" formControlName="customerProfileId" class="form-select">
+                    <option [ngValue]="null" disabled>-- {{ 'BARCODE_SCANNER.CHOOSE_PROFILE_PLACEHOLDER' | translate }} --</option>
+                    @for (profile of filteredProfiles; track profile.id) {
+                      <option [ngValue]="profile.id">
+                        {{ profile.profileName }} ({{ 'SKILL_LEVEL.' + profile.skillLevel | translate }})
+                      </option>
+                    }
+                  </select>
+                </div>
+              </div>
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-4">
+                  <label class="form-label small text-muted">{{ 'RESERVATION.PICKUP_DATE' | translate }} ({{ 'BARCODE_SCANNER.FIXED' | translate }})</label>
+                  <input type="date" formControlName="startDate" class="form-control text-muted bg-white">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small text-muted">{{ 'RESERVATION.PICKUP_TIME' | translate }} ({{ 'BARCODE_SCANNER.FIXED' | translate }})</label>
+                  <input type="time" formControlName="pickUpTime" class="form-control text-muted bg-white">
+                </div>
+                <div class="col-md-4">
+                  <label for="walkInEndDate" class="form-label small fw-bold text-primary">{{ 'RESERVATION.RETURN_DATE' | translate }} *</label>
+                  <input type="date" id="walkInEndDate" formControlName="endDate" class="form-control border-primary">
+                </div>
+              </div>
+
+              <div class="alert alert-info py-2 px-3 small d-flex align-items-center gap-2 mb-3 shadow-sm border-0 bg-opacity-10 text-primary" style="background-color: rgba(13, 202, 240, 0.08);">
+                <i class="bi bi-info-circle-fill"></i>
+                <span [innerHTML]="'BARCODE_SCANNER.WALK_IN_INFO_TEXT' | translate:{ count: scannedEquipments.length }"></span>
+              </div>
+
+              @if (isWalkInDateRangeInvalid) {
+                <div class="alert alert-danger py-1 small mb-3">
+                  {{ 'BARCODE_SCANNER.ERROR_INVALID_RETURN_DATE' | translate }}
+                </div>
+              }
+              @if (submitError) {
+                <div class="alert alert-danger py-1 small mb-3">{{ submitError }}</div>
+              }
+            </form>
+          </div>
+        } @else {
+          <div class="p-4 text-center text-muted">
+            {{ 'RESERVATION.NO_RESERVATIONS_FOUND' | translate }}
+          </div>
+        }
       } @else {
         <table class="table align-middle mb-0" style="table-layout: fixed;">
           <thead>
@@ -200,21 +266,21 @@
   <div class="d-flex justify-content-end gap-3 mt-4 p-3 bg-light border rounded shadow-sm">
 
     @if (scanScenario === 'NO_RESERVATION' && scannedEquipments.length > 0) {
-      <button class="btn btn-outline-primary btn-lg" type="button">
+      <button class="btn btn-success btn-lg" type="button"
+              [disabled]="walkInForm?.invalid || isWalkInDateRangeInvalid || scannedEquipmentIds.length === 0 || submitLoading"
+              (click)="submitWalkInCheckout()">
         <i class="bi bi-lightning-fill me-2"></i>
-        {{ 'BARCODE_SCANNER.BTN_DIRECT_RENTAL' | translate }}
+        {{ 'BARCODE_SCANNER.BTN_SUBMIT_WALK_IN' | translate }}
       </button>
     }
 
     @if (scanScenario === 'SINGLE_RESERVATION' && equipmentScenario === 'ALL_RESERVED_EQUIPMENT_SCANNED') {
-
       @if (matchedReservations[0].reservationStatus === ReservationStatus.CREATED) {
         <button class="btn btn-success btn-lg" type="button" [disabled]="loading" (click)="openConfirmationModal(confirmDialog)">
           <i class="bi bi-box-arrow-up me-2"></i>
           {{ 'BARCODE_SCANNER.BTN_CHECKOUT_FOR' | translate:{ name: matchedReservations[0].customerName } }}
         </button>
       }
-
       @if (matchedReservations[0].reservationStatus === ReservationStatus.PICKED_UP) {
         <button class="btn btn-info text-white btn-lg" type="button" [disabled]="loading" (click)="openConfirmationModal(confirmDialog)">
           <i class="bi bi-box-arrow-in-down me-2"></i>

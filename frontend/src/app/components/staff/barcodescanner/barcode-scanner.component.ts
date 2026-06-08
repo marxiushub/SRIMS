@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {EquipmentService} from '../../../services/equipment.service';
 import {ReservationService} from '../../../services/reservation.service';
 import {BarcodeScannerService} from '../../../services/barcode-scanner.service';
@@ -8,6 +8,13 @@ import {ReservationSearch} from '../../../dtos/reservation-search';
 import {ReservationDetail} from "../../../dtos/reservation-detail";
 import {ReservationUpdate} from "../../../dtos/reservation-update";
 import {ReservationStatus} from "../../../dtos/ReservationStatus";
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {CustomerProfileService} from '../../../services/customer-profile.service';
+import {CustomerProfile} from "../../../dtos/customer-profile";
+import {EquipmentType} from "../../../dtos/equipmenttype";
+import {ToastrService} from "ngx-toastr";
+import {ReservationCreation} from "../../../dtos/reservation-creation";
+//TODO: Import Service for Accounts/Users
 
 @Component({
   selector: 'app-barcode-scanner',
@@ -15,7 +22,7 @@ import {ReservationStatus} from "../../../dtos/ReservationStatus";
   styleUrl: './barcode-scanner.component.scss',
   standalone: false
 })
-export class BarcodeScannerComponent {
+export class BarcodeScannerComponent implements OnInit {
   inputBarcodeId = '';
 
   scannedEquipments: Equipment[] = [];
@@ -33,12 +40,28 @@ export class BarcodeScannerComponent {
   errorMessage = '';
   successMessage = '';
 
+  walkInForm!: FormGroup;
+  allUsers: any[] = [];
+  filteredProfiles: CustomerProfile[] = [];
+  submitLoading = false;
+  submitError: string | null = null;
+
+  readonly EquipmentTypeEnum = EquipmentType;
+
   constructor(
     private equipmentService: EquipmentService,
     private reservationService: ReservationService,
     private barcodeScannerService: BarcodeScannerService,
-    public translateService: TranslateService
+    public translateService: TranslateService,
+    private customerProfileService: CustomerProfileService,
+    private fb: FormBuilder,
+    private notification: ToastrService
   ) {}
+
+  ngOnInit(): void {
+    this.initWalkInForm();
+    this.loadAllSystemUsers();
+  }
 
   //Searches for equipment corresponding to the input barcodeId (using the getEquipmentByBarcodeId-method,
   //not the search-method of equipmentservice)
@@ -96,6 +119,16 @@ export class BarcodeScannerComponent {
 
                 if (reservations && reservations.length > 0) {
                   console.log('Found fitting Reservations', reservations);
+
+                  let hasValidActiveReservation = reservations.some(reservation =>
+                    reservation.reservationStatus === ReservationStatus.CREATED ||
+                    reservation.reservationStatus === ReservationStatus.PICKED_UP
+                  );
+
+                  if (this.walkInForm && hasValidActiveReservation) {
+                    this.walkInForm.reset();
+                    this.initWalkInForm();
+                  }
 
                   reservations.forEach(reservation => {
                     const isValidStatus = reservation.reservationStatus === ReservationStatus.CREATED ||
@@ -155,11 +188,12 @@ export class BarcodeScannerComponent {
   }
 
   //Helper-Method for searchEquipment that handles the case that there were no active Reservations found for the
-  // scanned pieves of Equipment
+  // scanned pieces of Equipment
   private handleNoActiveReservationFound(): void {
     console.log('No active reservations (CREATED/PICKED_UP) found for this equipment today.');
-    //TODO: Add alternative when no reservations are found here
-    this.errorMessage = this.translateService.instant('TODO: Add what would be done if no reservations are found here');
+    if (!this.walkInForm) {
+      this.initWalkInForm();
+    }
   }
 
   //Removes the equipment, but only from the temporary scan-list - not from the database itself!
@@ -241,6 +275,7 @@ export class BarcodeScannerComponent {
     }
   }
 
+  //Submits the updated Reservation and does the checkout when there is already a Reservation
   submitExistingReservation(): void {
     if (this.scanScenario !== 'SINGLE_RESERVATION' || this.equipmentScenario !== 'ALL_RESERVED_EQUIPMENT_SCANNED') {
       return;
@@ -287,6 +322,121 @@ export class BarcodeScannerComponent {
     });
   }
 
+  //Initializes the WalkInForm with current date and time as startDate and pickUpTime
+  private initWalkInForm(): void {
+    const today = new Date().toLocaleDateString('sv-SE');
+    const nowTime = new Date().toTimeString().substring(0, 5);
+
+    this.walkInForm = this.fb.group({
+      userId: [null, Validators.required],
+      customerProfileId: [{ value: null, disabled: true }, Validators.required],
+      startDate: [{ value: today, disabled: true }, Validators.required],
+      pickUpTime: [{ value: nowTime, disabled: true }, Validators.required],
+      endDate: [null, Validators.required]
+    });
+
+    //Checks whether a CustomerAccount is selected, to load the corresponding profiles
+    this.walkInForm.get('userId')?.valueChanges.subscribe(userId => {
+      if (userId) {
+        this.loadProfilesForUser(userId);
+      } else {
+        this.walkInForm.get('customerProfileId')?.disable();
+        this.filteredProfiles = [];
+      }
+    });
+  }
+
+  //Loads all customerAccounts for the dropdown
+  private loadAllSystemUsers(): void {
+    // TODO: Replace with real API-call from UserService when ready
+    this.allUsers = [
+      { id: 1, username: 'hans.huber' },
+      { id: 2, username: 'susi.sonnenschein' }
+    ];
+  }
+
+  //Loads the customerProfiles for the selected customerAccount
+  private loadProfilesForUser(userId: number): void {
+    this.customerProfileService.getCustomerProfiles(userId).subscribe({
+      next: (profiles) => {
+        this.filteredProfiles = profiles;
+        this.walkInForm.get('customerProfileId')?.enable();
+        if (profiles.length > 0) {
+          this.walkInForm.patchValue({ customerProfileId: profiles[0].id });
+        }
+      },
+      error: (err) => {
+        console.error('Error during loading of customer profiles', err);
+        this.errorMessage = this.translateService.instant('BARCODE_SCANNER.ERROR_UNEXPECTED');
+      }
+    });
+  }
+
+  //Checks that the returnDate is correct
+  get isWalkInDateRangeInvalid(): boolean {
+    const end = this.walkInForm.get('endDate')?.value;
+    if (!end) return false;
+    const today = new Date().toLocaleDateString('sv-SE');
+    return new Date(end) < new Date(today);
+  }
+
+  //Adds a single scanned Equipment to the Walk-In-Construct
+  addScannedEquipmentToWalkIn(equipment: Equipment): void {
+    const alreadyLinked = this.scannedEquipmentIds.includes(equipment.id);
+    if (alreadyLinked) {
+      const translatedToast = this.translateService.instant('BARCODE_SCANNER.SUCCESS_ADDED', { model: equipment.model });
+      this.notification.success(translatedToast);
+    }
+  }
+
+  //Submits the Reservation and checkout as part of the Walk-In-Construct when there is no Reservation
+  submitWalkInCheckout(): void {
+    if (this.walkInForm.invalid || !this.scannedEquipmentIds || this.scannedEquipmentIds.length === 0
+      || this.scannedEquipments.length === 0 || this.isWalkInDateRangeInvalid) {
+      return;
+    }
+
+    const confirmMsg = this.translateService.instant('BARCODE_SCANNER.WALK_IN_CONFIRM_PROMPT');
+    const hasConfirmed = window.confirm(confirmMsg);
+    if (!hasConfirmed) return;
+
+    this.submitLoading = true;
+    this.submitError = null;
+
+    const formValue = this.walkInForm.getRawValue();
+
+    const payload: ReservationCreation = {
+      customerProfileId: formValue.customerProfileId,
+      equipmentIds: this.scannedEquipmentIds,
+      pickUpTime: formValue.pickUpTime + ':00',
+      startDate: formValue.startDate,
+      endDate: formValue.endDate,
+      reservationStatus: ReservationStatus.PICKED_UP
+    };
+
+    this.barcodeScannerService.checkOutScanWithoutExistingReservation(payload).subscribe({
+      next: (response) => {
+        this.submitLoading = false;
+        const successMsg = this.translateService.instant('BARCODE_SCANNER.WALK_IN_SUCCESS_TOAST');
+        this.notification.success(successMsg);
+
+        //UI-State-Reset
+        this.scannedEquipments = [];
+        this.scannedEquipmentIds = [];
+        this.matchedReservations = [];
+        this.inputBarcodeId = '';
+        this.walkInForm.reset();
+        this.initWalkInForm();
+        this.updateScanScenario();
+      },
+      error: (err) => {
+        console.error('Error during walk-in checkout submission', err);
+        this.submitLoading = false;
+        this.submitError = err.error?.message || 'An error occurred while creating the walk-in reservation.';
+      }
+    });
+  }
+
   //Helper-Method for pop-up before submission
   openConfirmationModal(dialogElement: HTMLDialogElement): void {
     if (this.scanScenario !== 'SINGLE_RESERVATION' || this.equipmentScenario !== 'ALL_RESERVED_EQUIPMENT_SCANNED') {
@@ -301,8 +451,6 @@ export class BarcodeScannerComponent {
     dialogElement.close();
     this.submitExistingReservation();
   }
-
-
 
   //Helper-method to give RentalStatus-Enum-Values nice background coloring in HTML
   getStatusClass(status: string): string {

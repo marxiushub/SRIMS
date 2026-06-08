@@ -166,8 +166,18 @@
     "MODAL_QUESTION": "Möchtest du den Scan-Vorgang für {{name}} jetzt abschließen?",
     "MODAL_SUBTEXT": "Die Statusänderungen der Ausrüstung werden direkt im System verbucht.",
     "MODAL_BTN_CANCEL": "Abbrechen",
-    "MODAL_BTN_CONFIRM": "Ja, abschließen"
-
+    "MODAL_BTN_CONFIRM": "Ja, abschließen",
+    "WALK_IN_TITLE": "Direkt-Ausleihe anlegen (Walk-In)",
+    "WALK_IN_SUBTITLE": "Für dieses eingescannte Equipment liegt heute keine Reservierung vor. Du kannst die Ausrüstung hier direkt einem Kunden zuweisen.",
+    "WALK_IN_SELECT_USER": "1. Mitarbeiter / Kunden-Account wählen",
+    "CHOOSE_USER_PLACEHOLDER": "Bitte Benutzer auswählen",
+    "CHOOSE_PROFILE_PLACEHOLDER": "Zuerst Benutzer auswählen",
+    "FIXED": "fixiert",
+    "ERROR_INVALID_RETURN_DATE": "Das Rückgabedatum darf nicht vor dem Ausleihtag liegen!",
+    "BTN_SUBMIT_WALK_IN": "Sofort-Ausleihe abschließen & ausgeben",
+    "WALK_IN_CONFIRM_PROMPT": "Möchtest du diese Direkt-Ausleihe jetzt verbindlich erstellen?",
+    "WALK_IN_SUCCESS_TOAST": "Spontan-Ausleihe erfolgreich verbucht!",
+    "WALK_IN_INFO_TEXT": "Hinweis: Bei dieser Ausleihe wird eine neue Reservierung mit dem Equipment aus deiner gescannten Liste unten erstellt."
   },
   "RESERVATION": {
     "CUSTOMER_NAME": "Kunde (Account)",

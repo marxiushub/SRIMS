@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.service.BarcodeScannerService;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,5 +49,21 @@ public class BarcodeScannerEndpoint {
     ) {
         LOGGER.info("PATCH /api/v1/scanner/{} - Body: {}", reservationUpdateDto.getId(), reservationUpdateDto);
         return barcodeScannerService.checkOutOrInWithExistingReservation(reservationUpdateDto);
+    }
+
+    /**
+     * Endpoint to check out equipment that's not already part of a Reservation by creating a new Reservation for it.
+     *
+     * @param reservationCreationDto A DTO of the reservation that should be created for the check-out.
+     * @return The details of the created Reservation we checked out with.
+     */
+    @PermitAll
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping
+    public ReservationDetailDto checkOutScanWithoutExistingReservation(
+        @Valid @RequestBody ReservationCreationDto reservationCreationDto
+    ) {
+        LOGGER.info("POST /api/v1/scanner - Body: {}", reservationCreationDto);
+        return barcodeScannerService.checkOutWithoutExistingReservation(reservationCreationDto);
     }
 }
