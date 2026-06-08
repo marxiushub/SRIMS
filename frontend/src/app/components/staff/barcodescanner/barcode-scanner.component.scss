@@ -1,1 +1,9 @@
+.scanner-container {
+  width: 500px;
+  max-width: 90vw;
+  margin: 0 auto;
+}
 
+.scanner-container zxing-scanner {
+  width: 100%;
+}

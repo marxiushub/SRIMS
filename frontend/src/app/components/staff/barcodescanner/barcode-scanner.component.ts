@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {EquipmentService} from '../../../services/equipment.service';
 import {ReservationService} from '../../../services/reservation.service';
 import {BarcodeScannerService} from '../../../services/barcode-scanner.service';
@@ -14,7 +14,8 @@ import {CustomerProfile} from "../../../dtos/customer-profile";
 import {EquipmentType} from "../../../dtos/equipmenttype";
 import {ToastrService} from "ngx-toastr";
 import {ReservationCreation} from "../../../dtos/reservation-creation";
-import ScanbotSDK from 'scanbot-web-sdk/ui';
+import {BarcodeFormat} from '@zxing/library';
+
 //TODO: Import Service for Accounts/Users
 
 @Component({
@@ -47,9 +48,9 @@ export class BarcodeScannerComponent implements OnInit {
   submitLoading = false;
   submitError: string | null = null;
 
-  isCameraOpen = false;
-  private SDK: any = null;
-  private scanbotScanner: any = null;
+  isCameraOpen = true;
+  isScanningPaused = false;
+  allowedFormats = [BarcodeFormat.CODE_128];
 
   readonly EquipmentTypeEnum = EquipmentType;
 
@@ -61,94 +62,74 @@ export class BarcodeScannerComponent implements OnInit {
     private customerProfileService: CustomerProfileService,
     private fb: FormBuilder,
     private notification: ToastrService
-  ) {}
+  ) {
+  }
 
   async ngOnInit() {
     this.initWalkInForm();
     this.loadAllSystemUsers();
-
-    try {
-      this.SDK = await ScanbotSDK.initialize({
-        licenseKey: '',
-        enginePath: 'assets/scanbot-bin/'
-      })
-    } catch(error) {
-      console.error('Scanbot SDK initialization failed', error);
-    }
+    navigator.mediaDevices?.addEventListener(
+      'devicechange',
+      this.handleDeviceChange
+    );
   }
 
   //----------------------------------------------------------------------------------------------------------
   //Scanner-Code
 
-  ngOnDestroy(): void {
-    this.closeCamera();
-  }
-
-  async openCamera(): Promise<void> {
-    if (!this.SDK) {
-      this.notification.error('Scanner engine is not ready yet.');
-      return;
-    }
-
-    const info = await this.SDK.getLicenseInfo();
-    console.log('License status:', info.status, 'isValid:', info.isValid);
-    if (!info.isValid) {
-      this.notification.error('License invalid/expired — restart for a new trial minute.');
-      this.isCameraOpen = false;
-      return;
-    }
-
+  openCamera() {
     this.isCameraOpen = true;
-
-    setTimeout(async () => {
-      const configuration = {
-        containerId: 'reader',
-        onBarcodesDetected: (result: any) => {
-          if (result && result.barcodes && result.barcodes.length > 0) {
-            const scannedText = result.barcodes[0].text;
-            this.onCodeResult(scannedText);
-            this.closeCamera();
-          }
-        },
-        onError: (err: any) => {
-          console.error('Scanbot encountered an error', err);
-          this.onScanError(err);
-          this.closeCamera();
-        },
-        style: {
-          window: {
-            aspectRatio: 2.5
-          }
-        },
-        barcodeFormats: ['CODE_128', 'QR_CODE']
-      };
-
-      try {
-        this.scanbotScanner = await this.SDK.createBarcodeScanner(configuration);
-      } catch (err) {
-        console.error('Error starting Scanbot camera', err);
-        this.isCameraOpen = false;
-      }
-    }, 100);
   }
 
   closeCamera(): void {
     this.isCameraOpen = false;
-    if (this.scanbotScanner) {
-      this.scanbotScanner.dispose();
-      this.scanbotScanner = null;
+  }
+
+  onCodeResult(result: string): void {
+    if (this.isScanningPaused) {
+      return;
     }
-  }
-
-  private onCodeResult(resultString: string): void {
-    this.notification.success(this.translateService.instant('BARCODE_SCANNER.SUCCESS_ADDED', { model: resultString }) || "Scanned successfully.");
-    this.inputBarcodeId = resultString;
+    this.isScanningPaused = true;
+    this.inputBarcodeId = result;
+    this.notification.success(this.translateService.instant('BARCODE_SCANNER.SUCCESS_ADDED', {model: result}) || "Scanned successfully.");
+    console.log('Successfully scanned code:', result);
     this.searchEquipment();
+
+    //Disable scanning for 2 seconds to avoid multiple scanning of the same code
+    setTimeout(() => {
+      this.isScanningPaused = false;
+    }, 1000);
   }
 
-  private onScanError(err: any): void {
-    console.error('Scan error', err);
-    this.notification.error("Scanner Error occurred.");
+  onCameraError(err: any): void {
+    console.error("Camera error:", err)
+    this.notification.error(this.translateService.instant('BARCODE_SCANNER.CAMERA_ERROR'));
+  }
+
+  onNoCameraFound(): void {
+    console.warn('No camera hardware detected.');
+    this.notification.error(this.translateService.instant('BARCODE_SCANNER.NO_CAMERA_FOUND'));
+    this.closeCamera();
+  }
+
+  private handleDeviceChange = async () => {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+
+    const videoInputs = devices.filter(
+      d => d.kind === 'videoinput'
+    );
+
+    if (videoInputs.length === 0) {
+      console.warn('Camera disconnected');
+      this.closeCamera();
+    }
+  };
+
+  ngOnDestroy() {
+    navigator.mediaDevices?.removeEventListener(
+      'devicechange',
+      this.handleDeviceChange
+    );
   }
 
   //----------------------------------------------------------------------------------------------------------
@@ -179,89 +160,87 @@ export class BarcodeScannerComponent implements OnInit {
           const alreadyExists = this.scannedEquipmentIds.includes(equipmentData.id);
 
           if (alreadyExists) {
-            this.errorMessage = this.translateService.instant('BARCODE_SCANNER.ERROR_ALREADY_SCANNED', { model: equipmentData.model });
+            this.errorMessage = this.translateService.instant('BARCODE_SCANNER.ERROR_ALREADY_SCANNED', {model: equipmentData.model});
             this.loading = false;
             this.updateScanScenario();
             return;
           }
-            this.scannedEquipments.push(equipmentData);
-            this.scannedEquipmentIds.push(equipmentData.id);
+          this.scannedEquipments.push(equipmentData);
+          this.scannedEquipmentIds.push(equipmentData.id);
 
-            this.successMessage = this.translateService.instant('BARCODE_SCANNER.SUCCESS_ADDED', { model: equipmentData.model });
-            this.inputBarcodeId = '';
+          this.successMessage = this.translateService.instant('BARCODE_SCANNER.SUCCESS_ADDED', {model: equipmentData.model});
+          this.inputBarcodeId = '';
 
-            setTimeout(() => {
-              this.successMessage = '';
-            }, 3000);
+          setTimeout(() => {
+            this.successMessage = '';
+          }, 3000);
 
-            //Date-Format YYYY-MM-DD; Swedish timezone because they are in the same one as Austria (and have same
+          //Date-Format YYYY-MM-DD; Swedish timezone because they are in the same one as Austria (and have same
           // summertime-rulings due to EU-rulings), but also have the Date-Format we use in the rest of the application
-            const todayIsoDate = new Date().toLocaleDateString('sv-SE');
+          const todayIsoDate = new Date().toLocaleDateString('sv-SE');
 
-            const searchParams: ReservationSearch = {
-              equipmentIds: [equipmentData.id],
-              startDate: todayIsoDate
-            };
+          const searchParams: ReservationSearch = {
+            equipmentIds: [equipmentData.id],
+            startDate: todayIsoDate
+          };
 
-            //Search for Reservations that are today and correspond to equipment that was scanned
-            this.reservationService.search(searchParams).subscribe({
-              next: (reservations) => {
-                this.loading = false;
+          //Search for Reservations that are today and correspond to equipment that was scanned
+          this.reservationService.search(searchParams).subscribe({
+            next: (reservations) => {
+              this.loading = false;
 
-                if (reservations && reservations.length > 0) {
-                  console.log('Found fitting Reservations', reservations);
+              if (reservations && reservations.length > 0) {
+                console.log('Found fitting Reservations', reservations);
 
-                  let hasValidActiveReservation = reservations.some(reservation =>
-                    reservation.reservationStatus === ReservationStatus.CREATED ||
-                    reservation.reservationStatus === ReservationStatus.PICKED_UP
-                  );
+                let hasValidActiveReservation = reservations.some(reservation =>
+                  reservation.reservationStatus === ReservationStatus.CREATED ||
+                  reservation.reservationStatus === ReservationStatus.PICKED_UP
+                );
 
-                  if (this.walkInForm && hasValidActiveReservation) {
-                    this.walkInForm.reset();
-                    this.initWalkInForm();
-                  }
-
-                  reservations.forEach(reservation => {
-                    const isValidStatus = reservation.reservationStatus === ReservationStatus.CREATED ||
-                      reservation.reservationStatus === ReservationStatus.PICKED_UP;
-
-                    if (isValidStatus) {
-                      const exists = this.matchedReservations.some(r => r.id === reservation.id);
-                      if (!exists) {
-                        this.matchedReservations.push(reservation);
-                      }
-                    }
-                  });
-
-                  if (this.matchedReservations.length > 0) {
-                    this.successMessage = this.translateService.instant(
-                      'BARCODE_SCANNER.SUCCESS_RESERVATION_FOUND', {model: equipmentData.model}
-                    );
-                    setTimeout(() => this.successMessage = '', 3000);
-
-                    this.updateScanScenario();
-                  }
-                  else {
-                    this.handleNoActiveReservationFound();
-                  }
+                if (this.walkInForm && hasValidActiveReservation) {
+                  this.walkInForm.reset();
+                  this.initWalkInForm();
                 }
-                //Only offer creation of new Reservation if no Reservation is found and no Reservation has been found
-                // for other equipment
-                else if (this.matchedReservations.length == 0 ) {
+
+                reservations.forEach(reservation => {
+                  const isValidStatus = reservation.reservationStatus === ReservationStatus.CREATED ||
+                    reservation.reservationStatus === ReservationStatus.PICKED_UP;
+
+                  if (isValidStatus) {
+                    const exists = this.matchedReservations.some(r => r.id === reservation.id);
+                    if (!exists) {
+                      this.matchedReservations.push(reservation);
+                    }
+                  }
+                });
+
+                if (this.matchedReservations.length > 0) {
+                  this.successMessage = this.translateService.instant(
+                    'BARCODE_SCANNER.SUCCESS_RESERVATION_FOUND', {model: equipmentData.model}
+                  );
+                  setTimeout(() => this.successMessage = '', 3000);
+
+                  this.updateScanScenario();
+                } else {
                   this.handleNoActiveReservationFound();
                 }
-
-                this.updateScanScenario();
-              },
-              error: (err) => {
-                console.error('Error during the Reservation Search', err);
-                this.errorMessage = this.translateService.instant('BARCODE_SCANNER.ERROR_UNEXPECTED');
-                this.loading = false;
-                this.updateScanScenario();
               }
-            });
-        }
-        else {
+                //Only offer creation of new Reservation if no Reservation is found and no Reservation has been found
+              // for other equipment
+              else if (this.matchedReservations.length == 0) {
+                this.handleNoActiveReservationFound();
+              }
+
+              this.updateScanScenario();
+            },
+            error: (err) => {
+              console.error('Error during the Reservation Search', err);
+              this.errorMessage = this.translateService.instant('BARCODE_SCANNER.ERROR_UNEXPECTED');
+              this.loading = false;
+              this.updateScanScenario();
+            }
+          });
+        } else {
           this.loading = false;
         }
       },
@@ -269,7 +248,7 @@ export class BarcodeScannerComponent implements OnInit {
         console.error('Failed to search equipment by barcode', err);
         this.loading = false;
         if (err.status === 404) {
-          this.errorMessage = this.translateService.instant('BARCODE_SCANNER.ERROR_NOT_FOUND', { value: barcode });
+          this.errorMessage = this.translateService.instant('BARCODE_SCANNER.ERROR_NOT_FOUND', {value: barcode});
         } else {
           this.errorMessage = this.translateService.instant('BARCODE_SCANNER.ERROR_UNEXPECTED');
         }
@@ -293,7 +272,7 @@ export class BarcodeScannerComponent implements OnInit {
     this.scannedEquipments = this.scannedEquipments.filter(e => e.id !== item.id);
     this.scannedEquipmentIds = this.scannedEquipmentIds.filter(id => id !== item.id);
 
-    this.successMessage = this.translateService.instant('BARCODE_SCANNER.SUCCESS_REMOVED', { model: item.model });
+    this.successMessage = this.translateService.instant('BARCODE_SCANNER.SUCCESS_REMOVED', {model: item.model});
     setTimeout(() => {
       this.successMessage = '';
     }, 3000);
@@ -313,7 +292,7 @@ export class BarcodeScannerComponent implements OnInit {
   updateScanScenario(): void {
     this.activeErrors = [];
     //Save existing errorMessages in activeErrors
-    if (this.errorMessage){
+    if (this.errorMessage) {
       this.activeErrors.push(this.errorMessage);
     }
     const count = this.matchedReservations.length;
@@ -346,8 +325,7 @@ export class BarcodeScannerComponent implements OnInit {
     if (count > 0 && hasUnreserved) {
       this.equipmentScenario = 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED';
       this.activeErrors.push('BARCODE_SCANNER.SCENARIO_UNRESERVED_WARN');
-    }
-    else if (count == 1){
+    } else if (count == 1) {
       const targetReservation = this.matchedReservations[0];
       const hasMissingEquipment = targetReservation.items?.some(
         (eq: any) => !this.scannedEquipmentIds.includes(eq.id)
@@ -356,12 +334,10 @@ export class BarcodeScannerComponent implements OnInit {
       if (hasMissingEquipment) {
         this.equipmentScenario = 'SOME_RESERVED_EQUIPMENT_SCANNED';
         this.activeErrors.push('BARCODE_SCANNER.SCENARIO_SOME_RESERVED_WARN');
-      }
-      else {
+      } else {
         this.equipmentScenario = 'ALL_RESERVED_EQUIPMENT_SCANNED';
       }
-    }
-    else {
+    } else {
       this.equipmentScenario = 'SOME_RESERVED_EQUIPMENT_SCANNED';
     }
   }
@@ -420,9 +396,9 @@ export class BarcodeScannerComponent implements OnInit {
 
     this.walkInForm = this.fb.group({
       userId: [null, Validators.required],
-      customerProfileId: [{ value: null, disabled: true }, Validators.required],
-      startDate: [{ value: today, disabled: true }, Validators.required],
-      pickUpTime: [{ value: nowTime, disabled: true }, Validators.required],
+      customerProfileId: [{value: null, disabled: true}, Validators.required],
+      startDate: [{value: today, disabled: true}, Validators.required],
+      pickUpTime: [{value: nowTime, disabled: true}, Validators.required],
       endDate: [null, Validators.required]
     });
 
@@ -441,8 +417,8 @@ export class BarcodeScannerComponent implements OnInit {
   private loadAllSystemUsers(): void {
     // TODO: Replace with real API-call from UserService when ready
     this.allUsers = [
-      { id: 1, username: 'hans.huber' },
-      { id: 2, username: 'susi.sonnenschein' }
+      {id: 1, username: 'hans.huber'},
+      {id: 2, username: 'susi.sonnenschein'}
     ];
   }
 
@@ -453,7 +429,7 @@ export class BarcodeScannerComponent implements OnInit {
         this.filteredProfiles = profiles;
         this.walkInForm.get('customerProfileId')?.enable();
         if (profiles.length > 0) {
-          this.walkInForm.patchValue({ customerProfileId: profiles[0].id });
+          this.walkInForm.patchValue({customerProfileId: profiles[0].id});
         }
       },
       error: (err) => {
@@ -541,8 +517,7 @@ export class BarcodeScannerComponent implements OnInit {
 
     if (this.scanScenario === 'NO_RESERVATION') {
       this.submitWalkInCheckout();
-    }
-    else {
+    } else {
       this.submitExistingReservation();
 
     }
@@ -551,11 +526,16 @@ export class BarcodeScannerComponent implements OnInit {
   //Helper-method to give RentalStatus-Enum-Values nice background coloring in HTML
   getStatusClass(status: string): string {
     switch (status) {
-      case 'FREE': return 'bg-success';
-      case 'RESERVED': return 'bg-warning text-dark';
-      case 'RENTED': return 'bg-danger';
-      case 'MAINTENANCE': return 'bg-secondary';
-      default: return 'bg-light text-dark';
+      case 'FREE':
+        return 'bg-success';
+      case 'RESERVED':
+        return 'bg-warning text-dark';
+      case 'RENTED':
+        return 'bg-danger';
+      case 'MAINTENANCE':
+        return 'bg-secondary';
+      default:
+        return 'bg-light text-dark';
     }
   }
 
