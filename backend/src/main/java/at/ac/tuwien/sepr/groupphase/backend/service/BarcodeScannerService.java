@@ -1,13 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
-
-//TODO: Create this interface
-
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationUpdateDto;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 /**
  * Service interface for managing scanning-related operations.
