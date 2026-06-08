@@ -36,6 +36,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 //TODO: use generated data in tests, need to work on cleanup and setup
+//Umgeschrieben, sodass customer der gelöscht/geupdatet wird vorher noch angelegt wird
 @ActiveProfiles({"test", "datagenerator"})
 @SpringBootTest
 public class UserServiceTest {
