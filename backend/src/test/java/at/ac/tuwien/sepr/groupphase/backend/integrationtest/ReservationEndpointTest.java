@@ -1,401 +1,357 @@
-//package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
-//
-//import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationCreationDto;
-//import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationDetailDto;
-//import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
-//import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
-//import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
-//import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Helmet;
-//import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Ski;
-//import at.ac.tuwien.sepr.groupphase.backend.entity.user.Customer;
-//import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
-//import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.EquipmentRepository;
-//import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerProfileRepository;
-//import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
-//import at.ac.tuwien.sepr.groupphase.backend.service.ReservationService;
-//import jakarta.transaction.Transactional;
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.Test;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.context.SpringBootTest;
-//import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-//import org.springframework.http.MediaType;
-//import org.springframework.test.annotation.Rollback;
-//import org.springframework.test.context.ActiveProfiles;
-//import org.springframework.test.web.servlet.MockMvc;
-//import org.springframework.test.web.servlet.MvcResult;
-//
-//import java.time.LocalDate;
-//import java.time.LocalTime;
-//import java.util.List;
-//
-//import static org.assertj.core.api.Assertions.assertThat;
-//import static org.assertj.core.api.Assertions.fail;
-//import static org.junit.jupiter.api.Assertions.assertAll;
-//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-//
-//@ActiveProfiles({"test", "datagenerator"})
-//@AutoConfigureMockMvc
-//@SpringBootTest
-//public class ReservationEndpointTest {
-//
-//    @Autowired
-//    private MockMvc mockMvc;
-//
-//    @Autowired
-//    private ReservationService reservationService;
-//
-//    @Autowired
-//    private CustomerRepository customerRepository;
-//
-//    @Autowired
-//    private CustomerProfileRepository customerProfileRepository;
-//
-//    @Autowired
-//    private EquipmentRepository equipmentRepository;
-//
-//    private CustomerProfile testProfile;
-//    private Equipment testEquipment1;
-//    private Equipment testEquipment2;
-//
-//    @BeforeEach
-//    public void setup() {
-//        Customer customer = new Customer("Test", "User", "test@user.com", "123", "456", LocalDate.of(1990, 1, 1));
-//        customer = customerRepository.save(customer);
-//
-//        testProfile = new CustomerProfile("Max Mustermann", 180, 75, 42, SkillLevel.ADVANCED, customer);
-//        testProfile = customerProfileRepository.save(testProfile);
-//
-//        testEquipment1 = new Helmet("Test Helmet", 15.0, 58.0, RentalStatus.FREE, SkillLevel.BEGINNER);
-//        testEquipment1 = equipmentRepository.save(testEquipment1);
-//
-//        testEquipment2 = new Ski("Test Ski", 50.0, 170.0, RentalStatus.FREE, SkillLevel.ADVANCED);
-//        testEquipment2 = equipmentRepository.save(testEquipment2);
-//    }
-//
-//    @Test
-//    @Transactional
-//    @Rollback
-//    public void createReservation_withValidDto_returns200AndSavedData() {
-//
-//        String json = """
-//            {
-//              "customerProfileId": %d,
-//              "equipmentIds": [%d],
-//              "pickUpDate": "%s",
-//              "pickUpTime": "10:00:00",
-//              "rentDurationDays": 3
-//            }
-//            """.formatted(
-//            testProfile.getId(),
-//            testEquipment1.getId(),
-//            LocalDate.now().plusDays(2).toString()
-//        );
-//
-//        try {
-//            MvcResult result = mockMvc.perform(post("/api/v1/reservation")
-//                    .contentType(MediaType.APPLICATION_JSON)
-//                    .content(json))
-//                .andReturn();
-//
-//            String responseBody = result.getResponse().getContentAsString();
-//
-//            assertAll(
-//                "Check if reservation was successfully created via Endpoint",
-//                () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
-//                () -> assertThat(responseBody).contains("Max Mustermann"),
-//                () -> assertThat(responseBody).contains("Test Helmet")
-//            );
-//        } catch (Exception e) {
-//            fail("Test failed because of unexpected exception: " + e.getMessage());
-//        }
-//    }
-//
-//    @Test
-//    @Transactional
-//    @Rollback
-//    public void updateReservation_withValidDto_returns200AndUpdatedFields() {
-//        ReservationCreationDto createDto = new ReservationCreationDto();
-//        createDto.setCustomerProfileId(testProfile.getId());
-//        createDto.setEquipmentIds(List.of(testEquipment1.getId()));
-//        createDto.setPickUpDate(LocalDate.now().plusDays(2));
-//        createDto.setPickUpTime(LocalTime.of(10, 0));
-//        createDto.setRentDurationDays(3);
-//
-//        ReservationDetailDto created = reservationService.createReservation(createDto);
-//
-//        String patchJson = """
-//            {
-//              "id": %d,
-//              "customerProfileId": %d,
-//              "equipmentIds": [%d],
-//              "pickUpDate": "%s",
-//              "pickUpTime": "10:00:00",
-//              "rentDurationDays": 5
-//            }
-//            """.formatted(
-//            created.getId(),
-//            testProfile.getId(),
-//            testEquipment1.getId(),
-//            LocalDate.now().plusDays(10).toString()
-//        );
-//
-//        try {
-//            MvcResult result = mockMvc.perform(patch("/api/v1/reservation/{id}", created.getId())
-//                    .contentType(MediaType.APPLICATION_JSON)
-//                    .content(patchJson))
-//                .andReturn();
-//
-//            String responseBody = result.getResponse().getContentAsString();
-//
-//            assertAll(
-//                "Check HTTP-Status and whether the duration was updated",
-//                () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
-//                () -> assertThat(responseBody).contains("\"rentDurationDays\":5")
-//            );
-//        } catch (Exception e) {
-//            fail("Test failed because of unexpected exception: " + e.getMessage());
-//        }
-//    }
-//
-//    @Test
-//    @Transactional
-//    @Rollback
-//    public void removeEquipmentFromReservation_withValidData_returns200AndRemovesItem() {
-//        ReservationCreationDto createDto = new ReservationCreationDto();
-//        createDto.setCustomerProfileId(testProfile.getId());
-//        createDto.setEquipmentIds(List.of(testEquipment1.getId(), testEquipment2.getId()));
-//        createDto.setPickUpDate(LocalDate.now().plusDays(2));
-//        createDto.setPickUpTime(LocalTime.of(10, 0));
-//        createDto.setRentDurationDays(3);
-//
-//        ReservationDetailDto created = reservationService.createReservation(createDto);
-//
-//        String json = """
-//            {
-//              "id": %d,
-//              "equipmentIds": [%d]
-//            }
-//            """.formatted(created.getId(), testEquipment1.getId());
-//
-//        try {
-//            MvcResult result = mockMvc.perform(delete("/api/v1/reservation/equipment")
-//                    .contentType(MediaType.APPLICATION_JSON)
-//                    .content(json))
-//                .andReturn();
-//
-//            String responseBody = result.getResponse().getContentAsString();
-//
-//            assertAll(
-//                "Check if equipment was removed correctly",
-//                () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
-//                () -> assertThat(responseBody).doesNotContain("Test Helmet"),
-//                () -> assertThat(responseBody).contains("Test Ski")
-//            );
-//        } catch (Exception e) {
-//            fail("Test failed because of unexpected exception: " + e.getMessage());
-//        }
-//    }
-//
-//    @Test
-//    @Transactional
-//    @Rollback
-//    public void addEquipmentToReservation_withValidData_returns200AndAddsItem() {
-//        ReservationCreationDto createDto = new ReservationCreationDto();
-//        createDto.setCustomerProfileId(testProfile.getId());
-//        createDto.setEquipmentIds(List.of(testEquipment1.getId()));
-//        createDto.setPickUpDate(LocalDate.now().plusDays(2));
-//        createDto.setPickUpTime(LocalTime.of(10, 0));
-//        createDto.setRentDurationDays(3);
-//
-//        ReservationDetailDto created = reservationService.createReservation(createDto);
-//
-//        String json = """
-//            {
-//              "id": %d,
-//              "equipmentIds": [%d]
-//            }
-//            """.formatted(created.getId(), testEquipment2.getId());
-//
-//        try {
-//            MvcResult result = mockMvc.perform(post("/api/v1/reservation/equipment")
-//                    .contentType(MediaType.APPLICATION_JSON)
-//                    .content(json))
-//                .andReturn();
-//
-//            String responseBody = result.getResponse().getContentAsString();
-//
-//            assertAll(
-//                "Check if equipment was added correctly",
-//                () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
-//                () -> assertThat(responseBody).contains("Test Helmet"),
-//                () -> assertThat(responseBody).contains("Test Ski")
-//            );
-//        } catch (Exception e) {
-//            fail("Test failed because of unexpected exception: " + e.getMessage());
-//        }
-//    }
-//
-//    @Test
-//    @Transactional
-//    @Rollback
-//    public void createReservation_withUnknownCustomerProfileId_returns404() {
-//        String json = """
-//            {
-//              "customerProfileId": 99999,
-//              "equipmentIds": [%d],
-//              "pickUpDate": "%s",
-//              "pickUpTime": "10:00:00",
-//              "rentDurationDays": 3
-//            }
-//            """.formatted(
-//            testEquipment1.getId(),
-//            LocalDate.now().plusDays(2).toString()
-//        );
-//
-//        try {
-//            MvcResult result = mockMvc.perform(post("/api/v1/reservation")
-//                    .contentType(MediaType.APPLICATION_JSON)
-//                    .content(json))
-//                .andReturn();
-//
-//            assertAll(
-//                "Check if creating a reservation for an unknown user returns 404 Not Found",
-//                () -> assertThat(result.getResponse().getStatus()).isEqualTo(404)
-//            );
-//        } catch (Exception e) {
-//            fail("Test failed because of unexpected exception: " + e.getMessage());
-//        }
-//    }
-//
-//    @Test
-//    @Transactional
-//    @Rollback
-//    public void updateReservation_withUnknownReservationId_returns400() {
-//        long unknownId = 99999L;
-//
-//        String patchJson = """
-//            {
-//              "id": 99999,
-//              "customerProfileId": %d,
-//              "equipmentIds": [%d],
-//              "pickUpDate": "%s",
-//              "pickUpTime": "10:00:00",
-//              "rentDurationDays": 5
-//            }
-//            """.formatted(
-//            unknownId,
-//            testProfile.getId(),
-//            testEquipment1.getId(),
-//            LocalDate.now().plusDays(2).toString()
-//        );
-//
-//        try {
-//            MvcResult result = mockMvc.perform(patch("/api/v1/reservation/{id}", unknownId)
-//                    .contentType(MediaType.APPLICATION_JSON)
-//                    .content(patchJson))
-//                .andReturn();
-//
-//            assertAll(
-//                "Check if updating an unknown reservation returns 400 Bad Request",
-//                () -> assertThat(result.getResponse().getStatus()).isEqualTo(400)
-//            );
-//        } catch (Exception e) {
-//            fail("Test failed because of unexpected exception: " + e.getMessage());
-//        }
-//    }
-//
-//    @Test
-//    @Transactional
-//    @Rollback
-//    public void removeEquipmentFromReservation_withUnknownReservationId_returns404() {
-//        String json = """
-//            {
-//              "id": 99999,
-//              "equipmentIds": [%d]
-//            }
-//            """.formatted(testEquipment1.getId());
-//
-//        try {
-//            MvcResult result = mockMvc.perform(delete("/api/v1/reservation/equipment")
-//                    .contentType(MediaType.APPLICATION_JSON)
-//                    .content(json))
-//                .andReturn();
-//
-//            assertAll(
-//                "Check if deleting equipment from an unknown reservation returns 404",
-//                () -> assertThat(result.getResponse().getStatus()).isEqualTo(404)
-//            );
-//        } catch (Exception e) {
-//            fail("Test failed because of unexpected exception: " + e.getMessage());
-//        }
-//    }
-//
-//    @Test
-//    @Transactional
-//    @Rollback
-//    public void searchReservations_withMatchingParams_returns200AndFilteredList() {
-//        ReservationCreationDto createDto = new ReservationCreationDto();
-//        createDto.setCustomerProfileId(testProfile.getId());
-//        createDto.setEquipmentIds(List.of(testEquipment1.getId()));
-//        createDto.setPickUpDate(LocalDate.now().plusDays(10));
-//        createDto.setPickUpTime(LocalTime.of(10, 0));
-//        createDto.setRentDurationDays(3);
-//
-//        reservationService.createReservation(createDto);
-//
-//        try {
-//            MvcResult result = mockMvc.perform(get("/api/v1/reservation")
-//                    .param("customerProfileId", testProfile.getId().toString())
-//                    .param("pickUpDate", LocalDate.now().plusDays(10).toString())
-//                    .contentType(MediaType.APPLICATION_JSON))
-//                .andReturn();
-//
-//            String responseBody = result.getResponse().getContentAsString();
-//
-//            assertAll(
-//                "Check if the search endpoint correctly filters and returns 200",
-//                () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
-//                () -> assertThat(responseBody).contains("Max Mustermann"),
-//                () -> assertThat(responseBody).contains("Test Helmet")
-//            );
-//        } catch (Exception e) {
-//            fail("Test failed because of unexpected exception: " + e.getMessage());
-//        }
-//    }
-//
-//    @Test
-//    @Transactional
-//    @Rollback
-//    public void searchReservations_withNoMatchingParams_returns200AndEmptyList() {
-//        ReservationCreationDto createDto = new ReservationCreationDto();
-//        createDto.setCustomerProfileId(testProfile.getId());
-//        createDto.setEquipmentIds(List.of(testEquipment1.getId()));
-//        createDto.setPickUpDate(LocalDate.now().plusDays(2));
-//        createDto.setPickUpTime(LocalTime.of(10, 0));
-//        createDto.setRentDurationDays(3);
-//
-//        reservationService.createReservation(createDto);
-//
-//        try {
-//            MvcResult result = mockMvc.perform(get("/api/v1/reservation")
-//                    .param("customerProfileId", "99999")
-//                    .param("pickUpDate", "2099-01-01")
-//                    .contentType(MediaType.APPLICATION_JSON))
-//                .andReturn();
-//
-//            String responseBody = result.getResponse().getContentAsString();
-//
-//            assertAll(
-//                "Check if a search without matches returns an empty JSON array",
-//                () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
-//                () -> assertThat(responseBody).isEqualTo("[]")
-//            );
-//        } catch (Exception e) {
-//            fail("Test failed because of unexpected exception: " + e.getMessage());
-//        }
-//    }
-//}
+package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
+
+import at.ac.tuwien.sepr.groupphase.backend.basetest.IntegrationTestBase;
+import at.ac.tuwien.sepr.groupphase.backend.basetest.TestData;
+import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationCreationDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
+import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
+import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
+import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Helmet;
+import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Ski;
+import at.ac.tuwien.sepr.groupphase.backend.entity.user.Customer;
+import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
+import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
+import at.ac.tuwien.sepr.groupphase.backend.service.ReservationService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@ActiveProfiles({"test"})
+@AutoConfigureMockMvc
+@SpringBootTest
+public class ReservationEndpointTest extends IntegrationTestBase implements TestData {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ReservationService reservationService;
+
+    @Autowired
+    private JwtTokenizer jwtTokenizer;
+
+    @Autowired
+    private SecurityProperties securityProperties;
+
+    private Customer testCustomer;
+    private CustomerProfile testProfile;
+    private Equipment testEquipment1;
+    private Equipment testEquipment2;
+
+    private String userToken() {
+        return jwtTokenizer.getAuthToken(
+            testCustomer.getEmail(),
+            testCustomer.getId(),
+            USER_PERMISSIONS
+        );
+    }
+
+    @BeforeEach
+    public void setup() {
+        String uniqueSuffix = UUID.randomUUID().toString();
+
+        testCustomer = new Customer(
+            "reservation_test_user_" + uniqueSuffix,
+            "hashedPassword",
+            "reservation.test.user." + uniqueSuffix + "@example.com",
+            Set.of(),
+            Set.of(),
+            "Test",
+            "User",
+            LocalDate.of(1990, 1, 1)
+        );
+        testCustomer = customerRepository.save(testCustomer);
+
+        testProfile = new CustomerProfile(
+            "Max Mustermann",
+            180,
+            75,
+            42,
+            SkillLevel.ADVANCED,
+            testCustomer
+        );
+        testProfile = customerProfileRepository.save(testProfile);
+
+        testEquipment1 = new Helmet(
+            "Test Helmet",
+            15.0,
+            58.0,
+            RentalStatus.FREE,
+            SkillLevel.BEGINNER
+        );
+        testEquipment1 = equipmentRepository.save(testEquipment1);
+
+        testEquipment2 = new Ski(
+            "Test Ski",
+            50.0,
+            170.0,
+            RentalStatus.FREE,
+            SkillLevel.ADVANCED
+        );
+        testEquipment2 = equipmentRepository.save(testEquipment2);
+    }
+
+    @Test
+    public void createReservation_withValidDto_returns200AndSavedData() throws Exception {
+        String json = """
+            {
+              "customerProfileId": %d,
+              "equipmentIds": [%d],
+              "startDate": "%s",
+              "endDate": "%s",
+              "pickUpTime": "10:00:00"
+            }
+            """.formatted(
+            testProfile.getId(),
+            testEquipment1.getId(),
+            LocalDate.now().plusDays(2),
+            LocalDate.now().plusDays(5)
+        );
+
+        mockMvc.perform(post("/api/v1/reservation")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json)
+                .header(securityProperties.getAuthHeader(), userToken())
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("Max Mustermann")))
+            .andExpect(content().string(containsString("Test Helmet")));
+    }
+
+    @Test
+    public void updateReservation_withValidDto_returns200AndUpdatedFields() throws Exception {
+        ReservationDetailDto created = createTestReservation(
+            List.of(testEquipment1.getId()),
+            LocalDate.now().plusDays(2),
+            LocalDate.now().plusDays(5)
+        );
+
+        LocalDate updatedStartDate = LocalDate.now().plusDays(10);
+        LocalDate updatedEndDate = LocalDate.now().plusDays(15);
+
+        String patchJson = """
+            {
+              "id": %d,
+              "customerProfileId": %d,
+              "equipmentIds": [%d],
+              "startDate": "%s",
+              "endDate": "%s",
+              "pickUpTime": "10:00:00"
+            }
+            """.formatted(
+            created.getId(),
+            testProfile.getId(),
+            testEquipment1.getId(),
+            updatedStartDate,
+            updatedEndDate
+        );
+
+        mockMvc.perform(patch("/api/v1/reservation/{id}", created.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(patchJson)
+                .header(securityProperties.getAuthHeader(), userToken())
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(created.getId()))
+            .andExpect(jsonPath("$.startDate").value(updatedStartDate.toString()))
+            .andExpect(jsonPath("$.endDate").value(updatedEndDate.toString()));
+    }
+
+    @Test
+    public void removeEquipmentFromReservation_withValidData_returns200AndRemovesItem() throws Exception {
+        ReservationDetailDto created = createTestReservation(
+            List.of(testEquipment1.getId(), testEquipment2.getId()),
+            LocalDate.now().plusDays(2),
+            LocalDate.now().plusDays(5)
+        );
+
+        String json = """
+            {
+              "id": %d,
+              "equipmentIds": [%d]
+            }
+            """.formatted(created.getId(), testEquipment1.getId());
+
+        mockMvc.perform(delete("/api/v1/reservation/equipment")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json)
+                .header(securityProperties.getAuthHeader(), userToken())
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().string(not(containsString("Test Helmet"))))
+            .andExpect(content().string(containsString("Test Ski")));
+    }
+
+    @Test
+    public void addEquipmentToReservation_withValidData_returns200AndAddsItem() throws Exception {
+        ReservationDetailDto created = createTestReservation(
+            List.of(testEquipment1.getId()),
+            LocalDate.now().plusDays(2),
+            LocalDate.now().plusDays(5)
+        );
+
+        String json = """
+            {
+              "id": %d,
+              "equipmentIds": [%d]
+            }
+            """.formatted(created.getId(), testEquipment2.getId());
+
+        mockMvc.perform(post("/api/v1/reservation/equipment")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json)
+                .header(securityProperties.getAuthHeader(), userToken())
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("Test Helmet")))
+            .andExpect(content().string(containsString("Test Ski")));
+    }
+
+    @Test
+    public void createReservation_withUnknownCustomerProfileId_returns404() throws Exception {
+        String json = """
+            {
+              "customerProfileId": 99999,
+              "equipmentIds": [%d],
+              "startDate": "%s",
+              "endDate": "%s",
+              "pickUpTime": "10:00:00"
+            }
+            """.formatted(
+            testEquipment1.getId(),
+            LocalDate.now().plusDays(2),
+            LocalDate.now().plusDays(5)
+        );
+
+        mockMvc.perform(post("/api/v1/reservation")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json)
+                .header(securityProperties.getAuthHeader(), userToken())
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void updateReservation_withUnknownReservationId_returns400() throws Exception {
+        long unknownId = 99999L;
+
+        String patchJson = """
+            {
+              "id": %d,
+              "customerProfileId": %d,
+              "equipmentIds": [%d],
+              "startDate": "%s",
+              "endDate": "%s",
+              "pickUpTime": "10:00:00"
+            }
+            """.formatted(
+            unknownId,
+            testProfile.getId(),
+            testEquipment1.getId(),
+            LocalDate.now().plusDays(2),
+            LocalDate.now().plusDays(5)
+        );
+
+        mockMvc.perform(patch("/api/v1/reservation/{id}", unknownId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(patchJson)
+                .header(securityProperties.getAuthHeader(), userToken())
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void removeEquipmentFromReservation_withUnknownReservationId_returns404() throws Exception {
+        String json = """
+            {
+              "id": 99999,
+              "equipmentIds": [%d]
+            }
+            """.formatted(testEquipment1.getId());
+
+        mockMvc.perform(delete("/api/v1/reservation/equipment")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json)
+                .header(securityProperties.getAuthHeader(), userToken())
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void searchReservations_withMatchingParams_returns200AndFilteredList() throws Exception {
+        LocalDate startDate = LocalDate.now().plusDays(10);
+        LocalDate endDate = LocalDate.now().plusDays(13);
+
+        createTestReservation(
+            List.of(testEquipment1.getId()),
+            startDate,
+            endDate
+        );
+
+        mockMvc.perform(get("/api/v1/reservation")
+                .param("customerProfileId", testProfile.getId().toString())
+                .param("startDate", startDate.toString())
+                .param("endDate", endDate.toString())
+                .header(securityProperties.getAuthHeader(), userToken())
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("Max Mustermann")))
+            .andExpect(content().string(containsString("Test Helmet")));
+    }
+
+    @Test
+    public void searchReservations_withNoMatchingParams_returns200AndEmptyList() throws Exception {
+        createTestReservation(
+            List.of(testEquipment1.getId()),
+            LocalDate.now().plusDays(2),
+            LocalDate.now().plusDays(5)
+        );
+
+        mockMvc.perform(get("/api/v1/reservation")
+                .param("customerProfileId", "99999")
+                .param("startDate", "2099-01-01")
+                .param("endDate", "2099-01-05")
+                .header(securityProperties.getAuthHeader(), userToken())
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().json("[]"));
+    }
+
+    private ReservationDetailDto createTestReservation(
+        List<Long> equipmentIds,
+        LocalDate startDate,
+        LocalDate endDate
+    ) {
+        ReservationCreationDto createDto = new ReservationCreationDto();
+        createDto.setCustomerProfileId(testProfile.getId());
+        createDto.setEquipmentIds(equipmentIds);
+        createDto.setStartDate(startDate);
+        createDto.setEndDate(endDate);
+        createDto.setPickUpTime(LocalTime.of(10, 0));
+
+        return reservationService.createReservation(createDto);
+    }
+}
