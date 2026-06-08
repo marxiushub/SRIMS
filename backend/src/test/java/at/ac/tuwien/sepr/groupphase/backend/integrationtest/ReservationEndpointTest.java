@@ -6,6 +6,7 @@ import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
+import at.ac.tuwien.sepr.groupphase.backend.entity.enums.ReservationStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Helmet;
@@ -122,7 +123,8 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
               "equipmentIds": [%d],
               "startDate": "%s",
               "endDate": "%s",
-              "pickUpTime": "10:00:00"
+              "pickUpTime": "10:00:00",
+              "reservationStatus": "CREATED"
             }
             """.formatted(
             testProfile.getId(),
@@ -138,7 +140,8 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(content().string(containsString("Max Mustermann")))
-            .andExpect(content().string(containsString("Test Helmet")));
+            .andExpect(content().string(containsString("Test Helmet")))
+            .andExpect(jsonPath("$.reservationStatus").value("CREATED"));
     }
 
     @Test
@@ -159,7 +162,8 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
               "equipmentIds": [%d],
               "startDate": "%s",
               "endDate": "%s",
-              "pickUpTime": "10:00:00"
+              "pickUpTime": "10:00:00",
+              "reservationStatus": "PICKED_UP"
             }
             """.formatted(
             created.getId(),
@@ -177,7 +181,8 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(created.getId()))
             .andExpect(jsonPath("$.startDate").value(updatedStartDate.toString()))
-            .andExpect(jsonPath("$.endDate").value(updatedEndDate.toString()));
+            .andExpect(jsonPath("$.endDate").value(updatedEndDate.toString()))
+            .andExpect(jsonPath("$.reservationStatus").value("PICKED_UP"));
     }
 
     @Test
@@ -231,14 +236,15 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
     }
 
     @Test
-    public void createReservation_withUnknownCustomerProfileId_returns404() throws Exception {
+    public void createReservation_withUnknownCustomerProfileId_returns400() throws Exception {
         String json = """
             {
               "customerProfileId": 99999,
               "equipmentIds": [%d],
               "startDate": "%s",
               "endDate": "%s",
-              "pickUpTime": "10:00:00"
+              "pickUpTime": "10:00:00",
+              "reservationStatus": "CREATED"
             }
             """.formatted(
             testEquipment1.getId(),
@@ -265,7 +271,8 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
               "equipmentIds": [%d],
               "startDate": "%s",
               "endDate": "%s",
-              "pickUpTime": "10:00:00"
+              "pickUpTime": "10:00:00",
+              "reservationStatus": "PICKED_UP"
             }
             """.formatted(
             unknownId,
@@ -315,11 +322,13 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
                 .param("customerProfileId", testProfile.getId().toString())
                 .param("startDate", startDate.toString())
                 .param("endDate", endDate.toString())
+                .param("reservationStatus", "CREATED")
                 .header(securityProperties.getAuthHeader(), userToken())
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(content().string(containsString("Max Mustermann")))
-            .andExpect(content().string(containsString("Test Helmet")));
+            .andExpect(content().string(containsString("Test Helmet")))
+            .andExpect(content().string(containsString("CREATED")));
     }
 
     @Test
@@ -334,6 +343,7 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
                 .param("customerProfileId", "99999")
                 .param("startDate", "2099-01-01")
                 .param("endDate", "2099-01-05")
+                .param("reservationStatus", "CREATED")
                 .header(securityProperties.getAuthHeader(), userToken())
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
@@ -351,6 +361,7 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
         createDto.setStartDate(startDate);
         createDto.setEndDate(endDate);
         createDto.setPickUpTime(LocalTime.of(10, 0));
+        createDto.setReservationStatus(ReservationStatus.CREATED);
 
         return reservationService.createReservation(createDto);
     }
