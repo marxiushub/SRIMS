@@ -9,8 +9,6 @@ import java.util.List;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.*;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.PeriodType;
-import at.ac.tuwien.sepr.groupphase.backend.entity.enums.ReservationStatus;
-import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Helmet;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.Customer;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
@@ -23,13 +21,13 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.SkiBootReposito
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerProfileRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.ReservationService;
+import at.ac.tuwien.sepr.groupphase.backend.repository.TimePeriodsRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.test.annotation.Rollback;
 
 @ActiveProfiles({"test", "datagenerator", "generateData"})
 @SpringBootTest
@@ -49,6 +47,8 @@ public class ReservationServiceTest {
     private HelmetRepository helmetRepository;
     @Autowired
     private SkiBootRepository skiBootRepository;
+    @Autowired
+    private TimePeriodsRepository timePeriodsRepository;
     // Zentrale Test-Daten aus dem Data-Generator
     private Customer testCustomer;
     private CustomerProfile testCustomerProfile;
@@ -74,13 +74,20 @@ public class ReservationServiceTest {
 
         // 3. Equipment laden
         List<Helmet> testEquipmentlist = helmetRepository.findAll();
+        if (testEquipmentlist.size() < 2) {
+            throw new IllegalStateException("At least two helmets are required for ReservationServiceTest");
+        }
         testEquipment = testEquipmentlist.get(0);
         testEquipment2 = testEquipmentlist.get(1);
     }
 
+    @AfterEach
+    public void cleanupCreatedReservationData() {
+        timePeriodsRepository.deleteAllInBatch();
+        reservationRepository.deleteAll();
+    }
+
     @Test
-    @Transactional
-    @Rollback
     public void createReservation_withValidData_returnsSavedReservationDto() {
         ReservationCreationDto dto = new ReservationCreationDto();
         dto.setCustomerProfileId(testCustomerProfile.getId());
@@ -88,7 +95,6 @@ public class ReservationServiceTest {
         dto.setStartDate(LocalDate.now().plusDays(2));
         dto.setEndDate(LocalDate.now().plusDays(5));
         dto.setPickUpTime(LocalTime.of(10, 0));
-        dto.setReservationStatus(ReservationStatus.CREATED);
         double expectedTotalPrice = testEquipment.getPrice() * 3;
 
 
@@ -106,8 +112,6 @@ public class ReservationServiceTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void createReservation_withUnknownCustomerProfileId_throwsNotFoundException() {
         ReservationCreationDto dto = new ReservationCreationDto();
         dto.setCustomerProfileId(99999L);
@@ -130,8 +134,6 @@ public class ReservationServiceTest {
 
 
     @Test
-    @Transactional
-    @Rollback
     public void updateReservation_withValidData_returnsUpdatedReservationDto() {
         // Initial-Reservierung erstellen
         ReservationCreationDto createDto = new ReservationCreationDto();
@@ -140,7 +142,6 @@ public class ReservationServiceTest {
         createDto.setStartDate(LocalDate.now().plusDays(2));
         createDto.setEndDate(LocalDate.now().plusDays(3));
         createDto.setPickUpTime(LocalTime.of(10, 0));
-        createDto.setReservationStatus(ReservationStatus.CREATED);
 
         ReservationDetailDto createdReservation = reservationService.createReservation(createDto);
         assertThat(createdReservation.getId()).isNotNull();
@@ -170,8 +171,6 @@ public class ReservationServiceTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void addEquipmentToReservation_withValidData_addsEquipment() {
         ReservationCreationDto createDto = new ReservationCreationDto();
         createDto.setCustomerProfileId(testCustomerProfile.getId());
@@ -179,7 +178,6 @@ public class ReservationServiceTest {
         createDto.setStartDate(LocalDate.now().plusDays(10));
         createDto.setEndDate(LocalDate.now().plusDays(15));
         createDto.setPickUpTime(LocalTime.of(10, 0));
-        createDto.setReservationStatus(ReservationStatus.CREATED);
 
         ReservationDetailDto created = reservationService.createReservation(createDto);
 
@@ -196,9 +194,7 @@ public class ReservationServiceTest {
         LocalDate expectedStart = createDto.getStartDate();
         LocalDate expectedEnd = createDto.getEndDate();
 
-        Equipment updatedEquipment = equipmentRepository.findById(testEquipment2.getId()).orElseThrow();
-
-        assertThat(updatedEquipment.getTimePeriodsList())
+        assertThat(timePeriodsRepository.findByEquipment(testEquipment2))
             .anyMatch(tp ->
                 tp.getStartDate().equals(expectedStart) &&
                     tp.getEndDate().equals(expectedEnd) &&
@@ -216,8 +212,6 @@ public class ReservationServiceTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void deleteReservation_withValidId_removesReservationAndTimePeriods() {
         ReservationCreationDto createDto = new ReservationCreationDto();
         createDto.setCustomerProfileId(testCustomerProfile.getId());
@@ -225,7 +219,6 @@ public class ReservationServiceTest {
         createDto.setStartDate(LocalDate.now().plusDays(10));
         createDto.setEndDate(LocalDate.now().plusDays(15));
         createDto.setPickUpTime(LocalTime.of(10, 0));
-        createDto.setReservationStatus(ReservationStatus.CREATED);
 
         ReservationDetailDto created = reservationService.createReservation(createDto);
         Long reservationId = created.getId();
@@ -236,19 +229,17 @@ public class ReservationServiceTest {
         LocalDate expectedStart = createDto.getStartDate();
         LocalDate expectedEnd = createDto.getEndDate();
 
-        Equipment equipmentBeforeDelete = equipmentRepository.findById(testEquipment.getId()).orElseThrow();
-
-        assertThat(equipmentBeforeDelete.getTimePeriodsList())
-            .anyMatch(tp -> tp.getStartDate().equals(expectedStart) && tp.getEndDate().equals(expectedEnd));
-        assertThat(created.getTotalPrice()).isEqualTo(expectedTotalPrice);
+        assertThat(timePeriodsRepository.findByEquipment(testEquipment))
+            .anyMatch(tp ->
+                tp.getStartDate().equals(expectedStart) &&
+                    tp.getEndDate().equals(expectedEnd)
+            );
 
         reservationService.deleteReservation(reservationId);
 
         assertThat(reservationRepository.existsById(reservationId)).isFalse();
 
-        Equipment equipmentAfterDelete = equipmentRepository.findById(testEquipment.getId()).orElseThrow();
-
-        assertThat(equipmentAfterDelete.getTimePeriodsList())
+        assertThat(timePeriodsRepository.findByEquipment(testEquipment))
             .noneMatch(tp ->
                 tp.getStartDate().equals(expectedStart) &&
                     tp.getEndDate().equals(expectedEnd) &&
@@ -257,8 +248,6 @@ public class ReservationServiceTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void deleteReservation_withUnknownId_throwsNotFoundException() {
         assertThrows(NotFoundException.class, () ->
             reservationService.deleteReservation(99999L)
@@ -266,8 +255,6 @@ public class ReservationServiceTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void removeEquipmentFromReservation_withValidData_removesEquipmentAndFreesTimePeriod() {
         ReservationCreationDto createDto = new ReservationCreationDto();
         createDto.setCustomerProfileId(testCustomerProfile.getId());
@@ -275,7 +262,6 @@ public class ReservationServiceTest {
         createDto.setStartDate(LocalDate.now().plusDays(5));
         createDto.setEndDate(LocalDate.now().plusDays(8));
         createDto.setPickUpTime(LocalTime.of(9, 0));
-        createDto.setReservationStatus(ReservationStatus.CREATED);
 
         ReservationDetailDto created = reservationService.createReservation(createDto);
 
@@ -286,8 +272,7 @@ public class ReservationServiceTest {
         LocalDate expectedStart = createDto.getStartDate();
         LocalDate expectedEnd = createDto.getEndDate();
 
-        Equipment equipmentBeforeDelete = equipmentRepository.findById(testEquipment2.getId()).orElseThrow();
-        assertThat(equipmentBeforeDelete.getTimePeriodsList())
+        assertThat(timePeriodsRepository.findByEquipment(testEquipment2))
             .anyMatch(tp ->
                 tp.getStartDate().equals(expectedStart) &&
                     tp.getEndDate().equals(expectedEnd) &&
@@ -309,8 +294,7 @@ public class ReservationServiceTest {
             () -> assertThat(result.getItems().stream().anyMatch(item -> item.getId().equals(testEquipment.getId()))).isTrue()
         );
 
-        Equipment equipmentAfterDelete = equipmentRepository.findById(testEquipment2.getId()).orElseThrow();
-        assertThat(equipmentAfterDelete.getTimePeriodsList())
+        assertThat(timePeriodsRepository.findByEquipment(testEquipment2))
             .noneMatch(tp ->
                 tp.getStartDate().equals(expectedStart) &&
                     tp.getEndDate().equals(expectedEnd) &&
@@ -319,8 +303,6 @@ public class ReservationServiceTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void removeEquipmentFromReservation_withUnknownReservationId_throwsNotFoundException() {
         ReservationAddDeleteEquipmentDto removeDto = new ReservationAddDeleteEquipmentDto();
         removeDto.setId(99999L);
@@ -332,8 +314,6 @@ public class ReservationServiceTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void searchReservations_withMatchingCriteria_returnsFilteredList() {
         ReservationCreationDto createDto = new ReservationCreationDto();
         createDto.setCustomerProfileId(testCustomerProfile.getId());
@@ -342,7 +322,6 @@ public class ReservationServiceTest {
         createDto.setStartDate(searchDate);
         createDto.setEndDate(searchDate.plusDays(3));
         createDto.setPickUpTime(LocalTime.of(10, 0));
-        createDto.setReservationStatus(ReservationStatus.CREATED);
 
         ReservationDetailDto created = reservationService.createReservation(createDto);
 
@@ -353,21 +332,23 @@ public class ReservationServiceTest {
 
         List<ReservationDetailDto> result = reservationService.searchReservations(searchDto);
 
+        ReservationDetailDto found = result.stream()
+            .filter(res -> res.getId().equals(created.getId()))
+            .findFirst()
+            .orElseThrow();
+
         assertAll(
             "Verify that the search returns the correct reservation",
             () -> assertThat(result).isNotNull(),
             () -> assertThat(result).isNotEmpty(),
-            () -> assertThat(result.stream().anyMatch(res -> res.getId().equals(created.getId()))).isTrue(),
-            () -> assertThat(result.get(0).getCustomerName()).isEqualTo("Hans"),
-            () -> assertThat(result.get(0).getStartDate()).isEqualTo(searchDate),
-            () -> assertThat(result.get(0).getTotalPrice()).isEqualTo(testEquipment.getPrice() * 3),
-            () -> assertThat(result.get(0).getItems().stream().anyMatch(item -> item.getId().equals(testEquipment.getId()))).isTrue()
+            () -> assertThat(found.getCustomerName()).isEqualTo("Hans"),
+            () -> assertThat(found.getStartDate()).isEqualTo(searchDate),
+            () -> assertThat(found.getTotalPrice()).isEqualTo(testEquipment.getPrice() * 3),
+            () -> assertThat(found.getItems().stream().anyMatch(item -> item.getId().equals(testEquipment.getId()))).isTrue()
         );
     }
 
     @Test
-    @Transactional
-    @Rollback
     public void searchReservations_withNoMatchingCriteria_returnsEmptyList() {
         ReservationCreationDto createDto = new ReservationCreationDto();
         createDto.setCustomerProfileId(testCustomerProfile.getId());
@@ -375,7 +356,6 @@ public class ReservationServiceTest {
         createDto.setStartDate(LocalDate.now().plusDays(5));
         createDto.setEndDate(LocalDate.now().plusDays(8));
         createDto.setPickUpTime(LocalTime.of(10, 0));
-        createDto.setReservationStatus(ReservationStatus.CREATED);
 
         reservationService.createReservation(createDto);
 
