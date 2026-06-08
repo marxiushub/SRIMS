@@ -1,3 +1,5 @@
+import {ReservationStatus} from "./ReservationStatus";
+
 export interface ReservationSearch {
   customerProfileId?: number;
   accountId?: number;
@@ -7,4 +9,5 @@ export interface ReservationSearch {
   searchRangeStart?: string,
   searchRangeEnd?: string,
   equipmentIds?: number[];
+  reservationStatus?: ReservationStatus;
 }

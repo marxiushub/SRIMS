@@ -25,12 +25,12 @@ public class PoleDataGenerator {
     private final PoleRepository poleRepository;
     private final List<Pole> poles = new ArrayList<>(Arrays.asList(
         new Pole("Salomon Arctic Carbon", 7.0, 110.0, RentalStatus.FREE, SkillLevel.BEGINNER),
-        new Pole("Atomic AMT Ultra SQS", 9.0, 115.0, RentalStatus.RENTED, SkillLevel.INTERMEDIATE),
+        new Pole("Atomic AMT Ultra SQS", 9.0, 115.0, RentalStatus.FREE, SkillLevel.INTERMEDIATE),
         new Pole("Leki Spitfire Vario", 13.0, 120.0, RentalStatus.FREE, SkillLevel.ADVANCED),
-        new Pole("Head Carbon Race", 10.0, 118.0, RentalStatus.MAINTENANCE, SkillLevel.INTERMEDIATE),
+        new Pole("Head Carbon Race", 10.0, 118.0, RentalStatus.FREE, SkillLevel.INTERMEDIATE),
         new Pole("K2 Power Composite", 6.0, 105.0, RentalStatus.FREE, SkillLevel.BEGINNER),
         new Pole("Black Diamond Razor Carbon", 12.0, 122.0, RentalStatus.FREE, SkillLevel.ADVANCED),
-        new Pole("Rossignol Tactic Pro", 8.0, 112.0, RentalStatus.RENTED, SkillLevel.BEGINNER),
+        new Pole("Rossignol Tactic Pro", 8.0, 112.0, RentalStatus.FREE, SkillLevel.BEGINNER),
         new Pole("Fischer RC4 Carbon", 11.0, 117.0, RentalStatus.FREE, SkillLevel.INTERMEDIATE),
         new Pole("Dynastar Speed Zone", 8.0, 114.0, RentalStatus.FREE, SkillLevel.BEGINNER),
         new Pole("Völkl Phantastick Carbon", 14.0, 123.0, RentalStatus.FREE, SkillLevel.ADVANCED)

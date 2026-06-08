@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
+import at.ac.tuwien.sepr.groupphase.backend.entity.enums.ReservationStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
 import jakarta.persistence.Column;
@@ -46,14 +47,17 @@ public class Reservation {
 
     private Boolean confirmationEmailSent;
 
+    private ReservationStatus reservationStatus;
+
     protected Reservation() {
     }
 
-    public Reservation(CustomerProfile customerProfile, LocalTime pickUpTime, LocalDate startDate, LocalDate endDate) {
+    public Reservation(CustomerProfile customerProfile, LocalTime pickUpTime, LocalDate startDate, LocalDate endDate, ReservationStatus reservationStatus) {
         this.customerProfile = customerProfile;
         this.pickUpTime = pickUpTime;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.reservationStatus = reservationStatus;
     }
 
     /**
@@ -86,6 +90,10 @@ public class Reservation {
         this.endDate = endDate;
     }
 
+    public void setReservationStatus(ReservationStatus reservationStatus) {
+        this.reservationStatus = reservationStatus;
+    }
+
     public void setTotalPrice(double totalPrice) {
         this.totalPrice = totalPrice;
     }
@@ -94,10 +102,6 @@ public class Reservation {
      * Getter.
      *
      */
-    public double getTotalPrice() {
-        return totalPrice;
-    }
-
     public List<ReservationRelation> getItems() {
         return items;
     }
@@ -125,6 +129,14 @@ public class Reservation {
 
     public LocalDate getEndDate() {
         return endDate;
+    }
+
+    public ReservationStatus getReservationStatus() {
+        return reservationStatus;
+    }
+
+    public double getTotalPrice() {
+        return totalPrice;
     }
 
 }

@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto;
 
+import at.ac.tuwien.sepr.groupphase.backend.entity.enums.ReservationStatus;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.NotEmpty;
@@ -25,6 +26,9 @@ public class ReservationCreationDto {
     @NotNull(message = "Return date must not be empty")
     @FutureOrPresent(message = "Return date must not be in the past")
     private LocalDate endDate;
+
+    @NotNull(message = "Reservation Status must be specified")
+    private ReservationStatus reservationStatus;
 
     public ReservationCreationDto() {}
 
@@ -66,6 +70,14 @@ public class ReservationCreationDto {
 
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
+    }
+
+    public ReservationStatus getReservationStatus() {
+        return reservationStatus;
+    }
+
+    public void setReservationStatus(ReservationStatus reservationStatus) {
+        this.reservationStatus = reservationStatus;
     }
 
 }

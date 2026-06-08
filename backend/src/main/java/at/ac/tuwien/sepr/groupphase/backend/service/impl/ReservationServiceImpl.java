@@ -73,7 +73,8 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
             profile,
             dto.getPickUpTime(),
             dto.getStartDate(),
-            dto.getEndDate()
+            dto.getEndDate(),
+            dto.getReservationStatus()
         );
         List<Equipment> equipmentList = equipmentRepository.findAllById(dto.getEquipmentIds());
         for (Equipment equipment : equipmentList) {
@@ -129,6 +130,9 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
         }
         if (dto.getEndDate() != null) {
             reservation.setEndDate(dto.getEndDate());
+        }
+        if (dto.getReservationStatus() != null) {
+            reservation.setReservationStatus(dto.getReservationStatus());
         }
 
         if (dto.getCustomerProfileId() != null) {
@@ -221,6 +225,12 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
                 return root.join("items").join("equipment").get("id")
                     .in(finalSearchDto.getEquipmentIds());
             });
+        }
+
+        if (finalSearchDto.getReservationStatus() != null) {
+            spec = spec.and((root, query, cb) ->
+                cb.equal(root.get("reservationStatus"), finalSearchDto.getReservationStatus())
+            );
         }
 
         List<Reservation> foundReservations = reservationRepository.findAll(spec);

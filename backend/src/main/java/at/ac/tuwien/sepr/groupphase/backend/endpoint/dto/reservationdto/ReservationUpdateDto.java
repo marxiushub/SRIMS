@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto;
 
+import at.ac.tuwien.sepr.groupphase.backend.entity.enums.ReservationStatus;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
@@ -20,6 +21,8 @@ public class ReservationUpdateDto {
     private List<Long> equipmentIds;
 
     private Long customerProfileId;
+
+    private ReservationStatus reservationStatus;
 
     public Long getCustomerProfileId() {
         return customerProfileId;
@@ -67,5 +70,13 @@ public class ReservationUpdateDto {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public ReservationStatus getReservationStatus() {
+        return reservationStatus;
+    }
+
+    public void setReservationStatus(ReservationStatus reservationStatus) {
+        this.reservationStatus = reservationStatus;
     }
 }

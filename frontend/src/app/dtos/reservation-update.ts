@@ -1,3 +1,5 @@
+import {ReservationStatus} from "./ReservationStatus";
+
 export interface ReservationUpdate {
   id: number;
   customerProfileId?: number;
@@ -5,4 +7,5 @@ export interface ReservationUpdate {
   startDate?: string;
   endDate?: string;
   equipmentIds?: number[];
+  reservationStatus?: ReservationStatus;
 }

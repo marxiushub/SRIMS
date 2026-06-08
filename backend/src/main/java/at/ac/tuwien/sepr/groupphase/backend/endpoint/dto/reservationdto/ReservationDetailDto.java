@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.detail.EquipmentDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.enums.ReservationStatus;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -19,6 +20,8 @@ public class ReservationDetailDto {
     private double totalPrice;
 
     private List<EquipmentDetailDto> items;
+
+    private ReservationStatus reservationStatus;
 
     public ReservationDetailDto() {
     }
@@ -102,6 +105,14 @@ public class ReservationDetailDto {
 
     public Long getAccountId() {
         return accountId;
+    }
+
+    public ReservationStatus getReservationStatus() {
+        return reservationStatus;
+    }
+
+    public void setReservationStatus(ReservationStatus reservationStatus) {
+        this.reservationStatus = reservationStatus;
     }
 
 }
