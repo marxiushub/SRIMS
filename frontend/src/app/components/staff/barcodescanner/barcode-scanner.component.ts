@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, OnDestroy} from '@angular/core';
 import {EquipmentService} from '../../../services/equipment.service';
 import {ReservationService} from '../../../services/reservation.service';
 import {BarcodeScannerService} from '../../../services/barcode-scanner.service';
@@ -14,12 +14,6 @@ import {CustomerProfile} from "../../../dtos/customer-profile";
 import {EquipmentType} from "../../../dtos/equipmenttype";
 import {ToastrService} from "ngx-toastr";
 import {ReservationCreation} from "../../../dtos/reservation-creation";
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {EquipmentService} from '../../../services/equipment.service';
-import {TranslateService} from '@ngx-translate/core';
-import {Equipment} from '../../../dtos/equipment';
-import {RentalStatus} from '../../../dtos/rentalstatus';
-import {ToastrService} from 'ngx-toastr';
 import ScanbotSDK from 'scanbot-web-sdk/ui';
 //TODO: Import Service for Accounts/Users
 
@@ -53,6 +47,10 @@ export class BarcodeScannerComponent implements OnInit {
   submitLoading = false;
   submitError: string | null = null;
 
+  isCameraOpen = false;
+  private SDK: any = null;
+  private scanbotScanner: any = null;
+
   readonly EquipmentTypeEnum = EquipmentType;
 
   constructor(
@@ -65,10 +63,96 @@ export class BarcodeScannerComponent implements OnInit {
     private notification: ToastrService
   ) {}
 
-  ngOnInit(): void {
+  async ngOnInit() {
     this.initWalkInForm();
     this.loadAllSystemUsers();
+
+    try {
+      this.SDK = await ScanbotSDK.initialize({
+        licenseKey: '',
+        enginePath: 'assets/scanbot-bin/'
+      })
+    } catch(error) {
+      console.error('Scanbot SDK initialization failed', error);
+    }
   }
+
+  //----------------------------------------------------------------------------------------------------------
+  //Scanner-Code
+
+  ngOnDestroy(): void {
+    this.closeCamera();
+  }
+
+  async openCamera(): Promise<void> {
+    if (!this.SDK) {
+      this.notification.error('Scanner engine is not ready yet.');
+      return;
+    }
+
+    const info = await this.SDK.getLicenseInfo();
+    console.log('License status:', info.status, 'isValid:', info.isValid);
+    if (!info.isValid) {
+      this.notification.error('License invalid/expired — restart for a new trial minute.');
+      this.isCameraOpen = false;
+      return;
+    }
+
+    this.isCameraOpen = true;
+
+    setTimeout(async () => {
+      const configuration = {
+        containerId: 'reader',
+        onBarcodesDetected: (result: any) => {
+          if (result && result.barcodes && result.barcodes.length > 0) {
+            const scannedText = result.barcodes[0].text;
+            this.onCodeResult(scannedText);
+            this.closeCamera();
+          }
+        },
+        onError: (err: any) => {
+          console.error('Scanbot encountered an error', err);
+          this.onScanError(err);
+          this.closeCamera();
+        },
+        style: {
+          window: {
+            aspectRatio: 2.5
+          }
+        },
+        barcodeFormats: ['CODE_128', 'QR_CODE']
+      };
+
+      try {
+        this.scanbotScanner = await this.SDK.createBarcodeScanner(configuration);
+      } catch (err) {
+        console.error('Error starting Scanbot camera', err);
+        this.isCameraOpen = false;
+      }
+    }, 100);
+  }
+
+  closeCamera(): void {
+    this.isCameraOpen = false;
+    if (this.scanbotScanner) {
+      this.scanbotScanner.dispose();
+      this.scanbotScanner = null;
+    }
+  }
+
+  private onCodeResult(resultString: string): void {
+    this.notification.success(this.translateService.instant('BARCODE_SCANNER.SUCCESS_ADDED', { model: resultString }) || "Scanned successfully.");
+    this.inputBarcodeId = resultString;
+    this.searchEquipment();
+  }
+
+  private onScanError(err: any): void {
+    console.error('Scan error', err);
+    this.notification.error("Scanner Error occurred.");
+  }
+
+  //----------------------------------------------------------------------------------------------------------
+  //General Business-Logic of Barcode-Scanner
 
   //Searches for equipment corresponding to the input barcodeId (using the getEquipmentByBarcodeId-method,
   //not the search-method of equipmentservice)

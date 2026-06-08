@@ -179,7 +179,7 @@
     "BTN_SUBMIT_WALK_IN": "Complete Direct Rental & Issue Gear",
     "WALK_IN_CONFIRM_PROMPT": "Are you sure you want to create this direct walk-in rental?",
     "WALK_IN_SUCCESS_TOAST": "Walk-In rental successfully processed!",
-    "WALK_IN_INFO_TEXT": "Note: A new Reservation with the items chosen below will be created during this check-out."
+    "WALK_IN_INFO_TEXT": "Note: A new Reservation with the items chosen below will be created during this check-out.",
     "CAMERA_SCANNER": "Camera Scanner",
     "CLOSE_CAMERA": "Close Camera",
     "OPEN_CAMERA": "Open Camera"

@@ -7,6 +7,19 @@
 
   <div class="card mb-4 shadow-sm">
     <div class="card-body">
+      @if (isCameraOpen) {
+        <div class="camera-container mb-4 border rounded p-3 bg-light animate-fade-in">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="m-0 text-primary fw-bold">
+              <i class="bi bi-camera-fill me-2"></i>{{ 'BARCODE_SCANNER.CAMERA_SCANNER' | translate }}
+            </h5>
+            <button class="btn btn-outline-danger btn-sm" type="button" (click)="closeCamera()">
+              {{ 'BARCODE_SCANNER.CLOSE_CAMERA' | translate }}
+            </button>
+          </div>
+          <div id="reader" style="width: 100%; height: 350px; background-color: black; overflow: hidden; position: relative;" class="rounded shadow-inner"></div>
+        </div>
+      }
       <form class="d-flex gap-2" (ngSubmit)="searchEquipment()">
         <div class="flex-grow-1">
           <input
@@ -19,6 +32,10 @@
             autofocus
           />
         </div>
+        <button type="button" class="btn btn-outline-secondary" (click)="openCamera()"
+                [disabled]="loading || isCameraOpen || scanScenario === 'CONFLICT_RESERVATION' || equipmentScenario === 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED'">
+          <i class="bi bi-camera-fill"></i> {{ 'BARCODE_SCANNER.OPEN_CAMERA' | translate }}
+        </button>
         <button class="btn btn-primary btn-lg"
                 type="submit"
                 [disabled]="loading || scanScenario === 'CONFLICT_RESERVATION' || equipmentScenario === 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED'">
