@@ -8,18 +8,33 @@
   <div class="card mb-4 shadow-sm">
     <div class="card-body">
       @if (isCameraOpen) {
-        <div class="camera-container mb-4 border rounded p-3 bg-light animate-fade-in">
+        <div class="camera-container mb-4">
           <div class="d-flex justify-content-between align-items-center mb-2">
-            <h5 class="m-0 text-primary fw-bold">
-              <i class="bi bi-camera-fill me-2"></i>{{ 'BARCODE_SCANNER.CAMERA_SCANNER' | translate }}
-            </h5>
-            <button class="btn btn-outline-danger btn-sm" type="button" (click)="closeCamera()">
-              {{ 'BARCODE_SCANNER.CLOSE_CAMERA' | translate }}
+            <h5 class="m-0 text-primary">Camera Scanner</h5>
+            <button class="btn btn-outline-danger btn-sm"
+                    (click)="closeCamera()">{{ 'BARCODE_SCANNER.CLOSE_CAMERA' | translate }}
             </button>
           </div>
-          <div id="reader" style="width: 100%; height: 350px; background-color: black; overflow: hidden; position: relative;" class="rounded shadow-inner"></div>
+
+          <!-- Video Feed from ZXing -->
+          <zxing-scanner
+            class="scanner-container"
+            [formats]="allowedFormats"
+            [videoConstraints]="{
+              width: { ideal: 1920 },
+              height: { ideal: 1080 },
+              advanced: [
+                { focusMode: 'continuous' },
+                { zoom: 2.0 }
+              ]
+            }"
+            (scanSuccess)="onCodeResult($event)"
+            (camerasNotFound)="onNoCameraFound()"
+            (scanError)="onCameraError($event)"
+          ></zxing-scanner>
         </div>
       }
+
       <form class="d-flex gap-2" (ngSubmit)="searchEquipment()">
         <div class="flex-grow-1">
           <input
@@ -51,7 +66,8 @@
   @for (error of activeErrors; track error) {
     <div class="alert shadow-sm mb-2"
          [ngClass]="(scanScenario === 'CONFLICT_RESERVATION' || equipmentScenario === 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED' || errorMessage) ? 'alert-danger border-danger border-2 fw-bold' : 'alert-warning'">
-      <i class="bi" [ngClass]="(scanScenario === 'CONFLICT_RESERVATION' || equipmentScenario === 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED' || errorMessage) ? 'bi-exclamation-triangle-fill me-2' : 'bi-info-circle-fill me-2'"></i>
+      <i class="bi"
+         [ngClass]="(scanScenario === 'CONFLICT_RESERVATION' || equipmentScenario === 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED' || errorMessage) ? 'bi-exclamation-triangle-fill me-2' : 'bi-info-circle-fill me-2'"></i>
       {{ error | translate }}
     </div>
   }
@@ -77,9 +93,13 @@
             <form [formGroup]="walkInForm" (ngSubmit)="openConfirmationModal(confirmDialog)">
               <div class="row g-3 mb-3">
                 <div class="col-md-6">
-                  <label for="walkInUser" class="form-label small fw-bold">{{ 'BARCODE_SCANNER.WALK_IN_SELECT_USER' | translate }} *</label>
+                  <label for="walkInUser"
+                         class="form-label small fw-bold">{{ 'BARCODE_SCANNER.WALK_IN_SELECT_USER' | translate }}
+                    *</label>
                   <select id="walkInUser" formControlName="userId" class="form-select">
-                    <option [ngValue]="null" disabled>-- {{ 'BARCODE_SCANNER.CHOOSE_USER_PLACEHOLDER' | translate }} --</option>
+                    <option [ngValue]="null" disabled>-- {{ 'BARCODE_SCANNER.CHOOSE_USER_PLACEHOLDER' | translate }}
+                      --
+                    </option>
                     @for (user of allUsers; track user.id) {
                       <option [ngValue]="user.id">{{ user.username }}</option>
                     }
@@ -87,9 +107,12 @@
                 </div>
 
                 <div class="col-md-6">
-                  <label for="walkInProfile" class="form-label small fw-bold">{{ 'RESERVATION.SELECT_PROFILE' | translate }} *</label>
+                  <label for="walkInProfile"
+                         class="form-label small fw-bold">{{ 'RESERVATION.SELECT_PROFILE' | translate }} *</label>
                   <select id="walkInProfile" formControlName="customerProfileId" class="form-select">
-                    <option [ngValue]="null" disabled>-- {{ 'BARCODE_SCANNER.CHOOSE_PROFILE_PLACEHOLDER' | translate }} --</option>
+                    <option [ngValue]="null" disabled>-- {{ 'BARCODE_SCANNER.CHOOSE_PROFILE_PLACEHOLDER' | translate }}
+                      --
+                    </option>
                     @for (profile of filteredProfiles; track profile.id) {
                       <option [ngValue]="profile.id">
                         {{ profile.profileName }} ({{ 'SKILL_LEVEL.' + profile.skillLevel | translate }})
@@ -101,22 +124,29 @@
 
               <div class="row g-3 mb-3">
                 <div class="col-md-4">
-                  <label class="form-label small text-muted">{{ 'RESERVATION.PICKUP_DATE' | translate }} ({{ 'BARCODE_SCANNER.FIXED' | translate }})</label>
+                  <label class="form-label small text-muted">{{ 'RESERVATION.PICKUP_DATE' | translate }}
+                    ({{ 'BARCODE_SCANNER.FIXED' | translate }})</label>
                   <input type="date" formControlName="startDate" class="form-control text-muted bg-white">
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label small text-muted">{{ 'RESERVATION.PICKUP_TIME' | translate }} ({{ 'BARCODE_SCANNER.FIXED' | translate }})</label>
+                  <label class="form-label small text-muted">{{ 'RESERVATION.PICKUP_TIME' | translate }}
+                    ({{ 'BARCODE_SCANNER.FIXED' | translate }})</label>
                   <input type="time" formControlName="pickUpTime" class="form-control text-muted bg-white">
                 </div>
                 <div class="col-md-4">
-                  <label for="walkInEndDate" class="form-label small fw-bold text-primary">{{ 'RESERVATION.RETURN_DATE' | translate }} *</label>
+                  <label for="walkInEndDate"
+                         class="form-label small fw-bold text-primary">{{ 'RESERVATION.RETURN_DATE' | translate }}
+                    *</label>
                   <input type="date" id="walkInEndDate" formControlName="endDate" class="form-control border-primary">
                 </div>
               </div>
 
-              <div class="alert alert-info py-2 px-3 small d-flex align-items-center gap-2 mb-3 shadow-sm border-0 bg-opacity-10 text-primary" style="background-color: rgba(13, 202, 240, 0.08);">
+              <div
+                class="alert alert-info py-2 px-3 small d-flex align-items-center gap-2 mb-3 shadow-sm border-0 bg-opacity-10 text-primary"
+                style="background-color: rgba(13, 202, 240, 0.08);">
                 <i class="bi bi-info-circle-fill"></i>
-                <span [innerHTML]="'BARCODE_SCANNER.WALK_IN_INFO_TEXT' | translate:{ count: scannedEquipments.length }"></span>
+                <span
+                  [innerHTML]="'BARCODE_SCANNER.WALK_IN_INFO_TEXT' | translate:{ count: scannedEquipments.length }"></span>
               </div>
 
               @if (isWalkInDateRangeInvalid) {
@@ -177,23 +207,28 @@
               <tr class="border-top-0">
                 <td colspan="5" class="p-0 bg-white">
                   <div class="ps-4 pe-4 pb-3 pt-1 border-start border-primary border-2 ms-3 my-1">
-                    <div class="text-muted small fw-bold mb-1 text-uppercase tracking-wider" style="font-size: 0.75rem;">
+                    <div class="text-muted small fw-bold mb-1 text-uppercase tracking-wider"
+                         style="font-size: 0.75rem;">
                       {{ 'RESERVATION.SELECTED_EQUIPMENT' | translate }}:
                     </div>
 
                     <div class="border rounded bg-light-subtle">
                       @for (eq of item.items; track eq.id) {
-                        <div class="d-flex align-items-center justify-content-between py-1 px-3 border-bottom text-secondary small"
-                             [ngClass]="{'bg-success-subtle text-success-emphasis border-success-subtle fw-semibold': scannedEquipmentIds.includes(eq.id)}"
-                             [class.border-bottom-0]="$last">
+                        <div
+                          class="d-flex align-items-center justify-content-between py-1 px-3 border-bottom text-secondary small"
+                          [ngClass]="{'bg-success-subtle text-success-emphasis border-success-subtle fw-semibold': scannedEquipmentIds.includes(eq.id)}"
+                          [class.border-bottom-0]="$last">
 
                           <div class="d-flex align-items-center gap-2">
                             @if (scannedEquipmentIds.includes(eq.id)) {
-                              <span class="badge bg-success rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width: 16px; height: 16px; font-size: 10px;">
+                              <span
+                                class="badge bg-success rounded-circle p-0 d-inline-flex align-items-center justify-content-center"
+                                style="width: 16px; height: 16px; font-size: 10px;">
                                 ✓
                               </span>
                             } @else {
-                              <span class="border border-secondary rounded-circle d-inline-block" style="width: 16px; height: 16px; opacity: 0.4;"></span>
+                              <span class="border border-secondary rounded-circle d-inline-block"
+                                    style="width: 16px; height: 16px; opacity: 0.4;"></span>
                             }
 
                             <div>
@@ -294,15 +329,17 @@
 
     @if (scanScenario === 'SINGLE_RESERVATION' && equipmentScenario === 'ALL_RESERVED_EQUIPMENT_SCANNED') {
       @if (matchedReservations[0].reservationStatus === ReservationStatus.CREATED) {
-        <button class="btn btn-success btn-lg" type="button" [disabled]="loading" (click)="openConfirmationModal(confirmDialog)">
+        <button class="btn btn-success btn-lg" type="button" [disabled]="loading"
+                (click)="openConfirmationModal(confirmDialog)">
           <i class="bi bi-box-arrow-up me-2"></i>
-          {{ 'BARCODE_SCANNER.BTN_CHECKOUT_FOR' | translate:{ name: matchedReservations[0].customerName } }}
+          {{ 'BARCODE_SCANNER.BTN_CHECKOUT_FOR' | translate:{name: matchedReservations[0].customerName} }}
         </button>
       }
       @if (matchedReservations[0].reservationStatus === ReservationStatus.PICKED_UP) {
-        <button class="btn btn-info text-white btn-lg" type="button" [disabled]="loading" (click)="openConfirmationModal(confirmDialog)">
+        <button class="btn btn-info text-white btn-lg" type="button" [disabled]="loading"
+                (click)="openConfirmationModal(confirmDialog)">
           <i class="bi bi-box-arrow-in-down me-2"></i>
-          {{ 'BARCODE_SCANNER.BTN_CHECKIN_FOR' | translate:{ name: matchedReservations[0].customerName } }}
+          {{ 'BARCODE_SCANNER.BTN_CHECKIN_FOR' | translate:{name: matchedReservations[0].customerName} }}
         </button>
       }
     }
@@ -343,10 +380,11 @@
             {{ 'BARCODE_SCANNER.WALK_IN_CONFIRM_PROMPT' | translate }}
           </p>
           <small class="text-muted">
-            {{ 'BARCODE_SCANNER.WALK_IN_INFO_TEXT' | translate:{ count: scannedEquipments.length } }}
+            {{ 'BARCODE_SCANNER.WALK_IN_INFO_TEXT' | translate:{count: scannedEquipments.length} }}
           </small>
         } @else {
-          <p class="fs-5 mb-1" [innerHTML]="'BARCODE_SCANNER.MODAL_QUESTION' | translate:{ name: '<strong>' + pendingCustomerName + '</strong>' }"></p>
+          <p class="fs-5 mb-1"
+             [innerHTML]="'BARCODE_SCANNER.MODAL_QUESTION' | translate:{ name: '<strong>' + pendingCustomerName + '</strong>' }"></p>
           <small class="text-muted">
             {{ 'BARCODE_SCANNER.MODAL_SUBTEXT' | translate }}
           </small>

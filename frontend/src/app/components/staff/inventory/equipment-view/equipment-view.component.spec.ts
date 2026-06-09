@@ -10,6 +10,7 @@ import {of, throwError} from 'rxjs';
 import {registerLocaleData} from '@angular/common';
 import localeDe from '@angular/common/locales/de';
 import {ReservationService} from '../../../../services/reservation.service';
+import {ReservationStatus} from "../../../../dtos/ReservationStatus";
 
 registerLocaleData(localeDe, 'de');
 
@@ -97,7 +98,8 @@ describe('EquipmentViewComponent', () => {
         startDate: '2026-12-24',
         endDate: '2026-12-26',
         confirmationEmailSent: true,
-        items: []
+        items: [],
+        reservationStatus: ReservationStatus.CREATED
       }
     ]));
 

@@ -59,7 +59,7 @@ export class EquipmentViewComponent implements OnInit {
         setTimeout(() => {
           JsBarcode("#barcode", this.equipment?.barcodeId || "Unknown", {
             format: "code128",
-            width: 1,
+            width: 1.5,
             height: 80,
             displayValue: true
           });

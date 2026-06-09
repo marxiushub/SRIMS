@@ -44,6 +44,7 @@ import {
   CustomerEquipmentViewComponent
 } from "./components/customer/customer-inventory/equipment-view/equipment-view.component";
 import {ReservationComponent} from "./components/customer/reservation/reservation.component";
+import {ZXingScannerModule} from '@zxing/ngx-scanner';
 
 registerLocaleData(localeDe, 'de');
 
@@ -93,7 +94,8 @@ export function HttpLoaderFactory(http: HttpClient): TranslateLoader {
         useFactory: HttpLoaderFactory,
         deps: [HttpClient]
       }
-    })
+    }),
+    ZXingScannerModule
   ],
   providers: [
     httpInterceptorProviders,

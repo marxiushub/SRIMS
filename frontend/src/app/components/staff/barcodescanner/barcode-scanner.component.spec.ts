@@ -1,15 +1,3 @@
-import {ComponentFixture, fakeAsync, TestBed, tick} from '@angular/core/testing';
-import {BarcodeScannerComponent} from './barcode-scanner.component';
-import {FormsModule} from '@angular/forms';
-import {TranslateModule, TranslateService} from '@ngx-translate/core';
-import {of, throwError} from 'rxjs';
-import {EquipmentService} from '../../../services/equipment.service';
-
-import {RentalStatus} from '../../../dtos/rentalstatus';
-import {Equipment} from '../../../dtos/equipment';
-import {ToastrService} from 'ngx-toastr';
-import ScanbotSDK from 'scanbot-web-sdk/ui';
-
 //TODO: Needs a complete rework for the no-longer-prototype-version of this
 
 /*
@@ -50,14 +38,6 @@ describe('BarcodeScannerComponent', () => {
         {provide: ToastrService, useValue: toastrMock}
       ]
     }).compileComponents();
-
-    spyOn(ScanbotSDK, 'initialize').and.returnValue(Promise.resolve({
-      getLicenseInfo: () => Promise.resolve({status: 'OK', isValid: true}),
-      createBarcodeScanner: () => Promise.resolve({
-        dispose: () => {
-        }
-      })
-    } as any));
 
     fixture = TestBed.createComponent(BarcodeScannerComponent);
     component = fixture.componentInstance;
