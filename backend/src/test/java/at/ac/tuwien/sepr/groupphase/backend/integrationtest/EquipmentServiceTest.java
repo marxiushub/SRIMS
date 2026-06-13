@@ -279,7 +279,9 @@ public class EquipmentServiceTest {
 
         List<EquipmentDetailDto> result = equipmentService.searchEquipment(searchDto);
 
-        assertThat(result).isEmpty();
+        assertAll(
+            () -> assertThat(result).isEmpty()
+        );
     }
 
     @Test

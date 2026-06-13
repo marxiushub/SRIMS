@@ -627,8 +627,6 @@ public class ReservationServiceTest {
 
     @Test
     public void deleteReservation_withMixedTimePeriods_removesOnlyMatchingPeriods() {
-        // 1. Eigenes, frisches Equipment für diesen Test erstellen
-        // (Das verhindert die LazyInitializationException, da es noch kein Datenbank-Proxy ist)
         Helmet customEquipment = new Helmet("Mixed Period Helmet", 100.0, 55.0, RentalStatus.FREE, SkillLevel.BEGINNER);
 
         customEquipment.addTimePeriod(LocalDate.now().plusDays(20), LocalDate.now().plusDays(25), PeriodType.REPAIR, null);
