@@ -95,7 +95,9 @@ class BarcodeScannerServiceTest {
             barcodeScannerService.checkOutOrInWithExistingReservation(updateDto)
         );
 
-        assertThat(exception.getMessage()).contains("Invalid reservation status", "CREATED");
+        assertAll(
+            () -> assertThat(exception.getMessage()).contains("Invalid reservation status", "CREATED")
+        );
     }
 
     @Test
@@ -149,6 +151,8 @@ class BarcodeScannerServiceTest {
             barcodeScannerService.checkOutWithoutExistingReservation(createDto)
         );
 
-        assertThat(exception.getMessage()).contains("Invalid reservation status", "CANCELLED");
+        assertAll(
+            () -> assertThat(exception.getMessage()).contains("Invalid reservation status", "CANCELLED")
+        );
     }
 }
