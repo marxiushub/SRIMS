@@ -76,22 +76,6 @@ public class UserServiceTest {
 
         Staff admin = staffRepository.findByEmail("admin@email.com")
             .orElseThrow();
-        /*Staff admin = staffRepository.findByEmail("admin@email.com")
-            .orElseGet(() -> {
-                Set<Role> rolesStaff = roleRepository.findByName("ROLE_STAFF")
-                    .map(Set::of)
-                    .orElse(Collections.emptySet());
-
-                Staff newAdmin = new Staff(
-                    "Admin",
-                    passwordEncoder.encode("password"),
-                    "admin@email.com",
-                    rolesStaff,
-                    new HashSet<>()
-                );
-                // Use userRepository to save, matching your CommandLineRunner
-                return userRepository.save(newAdmin);
-            });*/
 
         List<SimpleGrantedAuthority> authorities = List.of(
             new SimpleGrantedAuthority("USER_ADMIN"),
