@@ -21,6 +21,7 @@ public interface TestData {
         {
             add("EQUIPMENT_CREATE");
             add("EQUIPMENT_READ");
+            add("EQUIPMENT_SEARCH");
             add("RESERVATION_SEARCH");
             add("EQUIPMENT_UPDATE");
             add("EQUIPMENT_DELETE");
@@ -44,6 +45,7 @@ public interface TestData {
             add("CUSTOMERPROFILE_UPDATE");
             add("CUSTOMERPROFILE_DELETE");
             add("EQUIPMENT_READ");
+            add("EQUIPMENT_SEARCH");
             add("CUSTOMER_READ");
             add("CUSTOMER_UPDATE");
             add("CUSTOMER_DELETE");
