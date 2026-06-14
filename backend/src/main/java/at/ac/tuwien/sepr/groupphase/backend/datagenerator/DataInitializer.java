@@ -135,6 +135,14 @@ public class DataInitializer {
         Permission deleteStaff = permissionRepository.findByName("STAFF_DELETE")
             .orElseGet(() -> permissionRepository.save(new Permission("STAFF_DELETE")));
 
+        //___________________________________________________________________________________________
+
+        //BarcodeScanner
+
+        Permission checkOutOrInScan = permissionRepository.findByName("CHECK_OUT_OR_IN_SCAN")
+            .orElseGet(() -> permissionRepository.save(new Permission("CHECK_OUT_OR_IN_SCAN")));
+
+
 
         //ROLES
         //Customer
@@ -192,6 +200,9 @@ public class DataInitializer {
                 r.getPermissions().add(readStaff);
                 r.getPermissions().add(updateStaff);
                 r.getPermissions().add(deleteStaff);
+
+                // BarcodeScanner -> full Rights
+                r.getPermissions().add(checkOutOrInScan);
 
                 return roleRepository.save(r);
             });
