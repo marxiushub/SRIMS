@@ -214,9 +214,10 @@
 
     <div class="mt-4 d-flex gap-2">
       <button
-        type="submit"
+        type="button"
         class="btn btn-success btn-lg flex-grow-1"
-        [disabled]="reservationForm.invalid || selectedEquipment.length === 0 || isDateRangeInvalid || submitLoading">
+        [disabled]="reservationForm.invalid || selectedEquipment.length === 0 || isDateRangeInvalid || submitLoading"
+        (click) = submitConfirmDialog.showModal()>
         @if (submitLoading) {
           {{ 'INVENTORY.LOADING' | translate }}...
         } @else {
@@ -233,4 +234,31 @@
     </div>
 
   </form>
+
+  <dialog #submitConfirmDialog class="border-0 rounded shadow-lg p-0 backend-modal" style="max-width: 500px; width: 100%;">
+    <div class="card border-0">
+      <div class="card-header bg-primary text-white py-3">
+        <h5 class="card-title mb-0 d-flex align-items-center">
+          <i class="bi bi-question-circle-fill me-2"></i>
+          {{ 'RESERVATION.CONFIRM_TITLE' | translate }}
+        </h5>
+      </div>
+      <div class="card-body p-4">
+        <p class="fs-5 mb-1">
+          {{ 'RESERVATION.CONFIRM_PROMPT' | translate }}
+        </p>
+        <small class="text-muted">
+          {{ 'RESERVATION.CONFIRM_SUBTEXT' | translate }}
+        </small>
+      </div>
+      <div class="card-footer bg-light d-flex justify-content-end gap-2 py-3">
+        <button type="button" class="btn btn-outline-secondary px-4" (click)="submitConfirmDialog.close()">
+          {{ 'BARCODE_SCANNER.MODAL_BTN_CANCEL' | translate }}
+        </button>
+        <button type="button" class="btn btn-primary px-4 fw-bold" (click)="confirmAndSubmit(submitConfirmDialog)">
+          {{ 'BARCODE_SCANNER.MODAL_BTN_CONFIRM' | translate }}
+        </button>
+      </div>
+    </div>
+  </dialog>
 </div>

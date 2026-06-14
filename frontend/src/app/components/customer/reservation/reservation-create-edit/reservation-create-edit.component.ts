@@ -341,6 +341,12 @@ export class ReservationCreateEditComponent implements OnInit {
     this.router.navigate(['/customer/reservation']);
   }
 
+  //Helper-Method to connect HTML to Confirmation-Pop-Up.
+  confirmAndSubmit(dialogElement: HTMLDialogElement): void {
+    dialogElement.close();
+    this.submitReservation();
+  }
+
   /**
    * Submits finished reservation to backend.
    */
@@ -351,18 +357,12 @@ export class ReservationCreateEditComponent implements OnInit {
 
     if (this.selectedEquipment.length === 0) {
       //Also caught in HTML, but here again just to be sure.
-      alert('Please choose at least 1 piece of equipment');
+      this.notification.warning('Please choose at least 1 piece of equipment');
       return;
     }
 
     if (this.isDateRangeInvalid) {
-      alert('The return date cannot be before the pick-up date');
-      return;
-    }
-
-    // Confirmation Pop-Up before submission
-    const hasConfirmed = window.confirm('Are you sure you want to submit this reservation?');
-    if (!hasConfirmed) {
+      this.notification.error('The return date cannot be before the pick-up date');
       return;
     }
 
