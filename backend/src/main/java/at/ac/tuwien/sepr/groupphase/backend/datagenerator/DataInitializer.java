@@ -27,7 +27,6 @@ import java.util.Set;
 @Configuration
 public class DataInitializer {
 
-
     private final UserRepository userRepository;
     private final PasswordEncoder encoder;
     private final CustomerRepository customerRepository;
@@ -282,4 +281,5 @@ public class DataInitializer {
         }
 
     }
+
 }
