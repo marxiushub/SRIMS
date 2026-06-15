@@ -72,6 +72,9 @@ public class DataInitializer {
         Permission deleteEquipment = permissionRepository.findByName("EQUIPMENT_DELETE")
             .orElseGet(() -> permissionRepository.save(new Permission("EQUIPMENT_DELETE")));
 
+        Permission searchEquipment = permissionRepository.findByName("EQUIPMENT_SEARCH")
+            .orElseGet(() -> permissionRepository.save(new Permission("EQUIPMENT_SEARCH")));
+
         //___________________________________________________________________________________________
 
         //Reservation
@@ -86,6 +89,9 @@ public class DataInitializer {
 
         Permission deleteReservation = permissionRepository.findByName("RESERVATION_DELETE")
             .orElseGet(() -> permissionRepository.save(new Permission("RESERVATION_DELETE")));
+
+        Permission searchReservation = permissionRepository.findByName("RESERVATION_SEARCH")
+            .orElseGet(() -> permissionRepository.save(new Permission("RESERVATION_SEARCH")));
 
         //___________________________________________________________________________________________
 
@@ -129,6 +135,14 @@ public class DataInitializer {
         Permission deleteStaff = permissionRepository.findByName("STAFF_DELETE")
             .orElseGet(() -> permissionRepository.save(new Permission("STAFF_DELETE")));
 
+        //___________________________________________________________________________________________
+
+        //BarcodeScanner
+
+        Permission checkOutOrInScan = permissionRepository.findByName("CHECK_OUT_OR_IN_SCAN")
+            .orElseGet(() -> permissionRepository.save(new Permission("CHECK_OUT_OR_IN_SCAN")));
+
+
 
         //ROLES
         //Customer
@@ -136,22 +150,24 @@ public class DataInitializer {
             .orElseGet(() -> {
                 Role r = new Role("ROLE_CUSTOMER");
 
-                // Reservation -> alle Rechte
+                // Equipment -> only Read and Search
+                r.getPermissions().add(readEquipment);
+                r.getPermissions().add(searchEquipment);
+
+                // Reservation -> full Rights
                 r.getPermissions().add(createReservation);
                 r.getPermissions().add(readReservation);
                 r.getPermissions().add(updateReservation);
                 r.getPermissions().add(deleteReservation);
+                r.getPermissions().add(searchReservation);
 
-                // CustomerProfile -> alle Rechte
+                // CustomerProfile -> full Rights
                 r.getPermissions().add(createCustomerProfile);
                 r.getPermissions().add(readCustomerProfile);
                 r.getPermissions().add(updateCustomerProfile);
                 r.getPermissions().add(deleteCustomerProfile);
 
-                // Equipment -> nur READ
-                r.getPermissions().add(readEquipment);
-
-                // Customer -> alle Rechte
+                // Customer -> full Rights
                 r.getPermissions().add(readCustomer);
                 r.getPermissions().add(updateCustomer);
                 r.getPermissions().add(deleteCustomer);
@@ -165,20 +181,28 @@ public class DataInitializer {
             .orElseGet(() -> {
                 Role r = new Role("ROLE_STAFF");
 
-                // Equipment -> alles
+                // Equipment -> full Rights
                 r.getPermissions().add(createEquipment);
                 r.getPermissions().add(readEquipment);
                 r.getPermissions().add(updateEquipment);
                 r.getPermissions().add(deleteEquipment);
+                r.getPermissions().add(searchEquipment);
 
-                // Reservation -> nur READ
+                // Reservation -> only Read and Search
                 r.getPermissions().add(readReservation);
+                r.getPermissions().add(searchReservation);
 
-                // Staff -> alles
+                // CustomerProfile - only READ
+                r.getPermissions().add(readCustomerProfile);
+
+                // Staff -> full Rights
                 r.getPermissions().add(createStaff);
                 r.getPermissions().add(readStaff);
                 r.getPermissions().add(updateStaff);
                 r.getPermissions().add(deleteStaff);
+
+                // BarcodeScanner -> full Rights
+                r.getPermissions().add(checkOutOrInScan);
 
                 return roleRepository.save(r);
             });

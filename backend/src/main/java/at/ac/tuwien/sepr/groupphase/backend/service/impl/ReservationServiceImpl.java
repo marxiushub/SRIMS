@@ -10,6 +10,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ReservationMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Reservation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ReservationRelation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.PeriodType;
+import at.ac.tuwien.sepr.groupphase.backend.entity.enums.ReservationStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
@@ -116,6 +117,8 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
             || (dto.getEndDate() != null && !dto.getEndDate().equals(reservation.getEndDate()));
         boolean equipmentChanged = dto.getEquipmentIds() != null;
 
+        //If the startDate and/or endDate of the Reservation changes, or if the included Equipments is changed,
+        // delete corresponding old timePeriods of the Equipments included in the Reservation
         if (datesChanged || equipmentChanged) {
             List<Equipment> currentEquipments = reservation.getItems().stream()
                 .map(ReservationRelation::getEquipment).toList();
@@ -151,12 +154,26 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
                 .map(ReservationRelation::getEquipment).toList();
         }
 
+        //If the startDate or endDate of the Reservation were changed, or if the included Equipments were changed,
+        // add new timePeriods for the Equipments included in the Reservation (as the old ones were deleted above)
         if (datesChanged || equipmentChanged) {
             LocalDate newStart = reservation.getStartDate();
             LocalDate newEnd = reservation.getEndDate();
 
             for (Equipment equipment : finalEquipmentsToReserve) {
                 equipment.addTimePeriod(newStart, newEnd, PeriodType.RENTED, reservation);
+            }
+        }
+
+        //If the ReservationStatus is changed to RETURNED or CANCELLED, delete all corresponding timePeriods
+        // of the included Equipment to free the Equipment up again and reduce the size of the Equipment-table in the databse
+        if (dto.getReservationStatus() != null) {
+            if (dto.getReservationStatus() == ReservationStatus.RETURNED
+                || dto.getReservationStatus() == ReservationStatus.CANCELLED) {
+
+                List<Equipment> currentEquipments = reservation.getItems().stream()
+                    .map(ReservationRelation::getEquipment).toList();
+                deleteTimePeriodsForEquipment(currentEquipments, reservation);
             }
         }
 

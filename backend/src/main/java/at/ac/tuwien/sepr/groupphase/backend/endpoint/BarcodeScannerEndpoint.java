@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,7 +42,7 @@ public class BarcodeScannerEndpoint {
      * @param reservationUpdateDto A DTO of the reservation that the check-in or check-out should happen for.
      * @return The updated details of the reservation we checked in or out for.
      */
-    @PermitAll
+    @PreAuthorize("hasAnyAuthority('CHECK_OUT_OR_IN_SCAN')")
     @ResponseStatus(HttpStatus.OK)
     @PatchMapping("/{id}")
     public ReservationDetailDto checkOutOrInScanWithExistingReservation(
@@ -57,7 +58,7 @@ public class BarcodeScannerEndpoint {
      * @param reservationCreationDto A DTO of the reservation that should be created for the check-out.
      * @return The details of the created Reservation we checked out with.
      */
-    @PermitAll
+    @PreAuthorize("hasAnyAuthority('CHECK_OUT_OR_IN_SCAN')")
     @ResponseStatus(HttpStatus.OK)
     @PostMapping
     public ReservationDetailDto checkOutScanWithoutExistingReservation(

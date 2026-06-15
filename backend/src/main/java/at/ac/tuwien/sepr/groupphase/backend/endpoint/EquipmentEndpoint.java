@@ -132,7 +132,7 @@ public class EquipmentEndpoint {
      * @param searchDto dynamically mapped from URL query parameters
      * @return a list of equipment matching the criteria
      */
-    @PreAuthorize("hasAuthority('EQUIPMENT_READ')")
+    @PreAuthorize("hasAuthority('EQUIPMENT_SEARCH')")
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<EquipmentDetailDto> searchEquipment(EquipmentSearchDto searchDto) {

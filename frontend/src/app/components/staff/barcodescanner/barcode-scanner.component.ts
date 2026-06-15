@@ -417,8 +417,8 @@ export class BarcodeScannerComponent implements OnInit {
   private loadAllSystemUsers(): void {
     // TODO: Replace with real API-call from UserService when ready
     this.allUsers = [
-      {id: 1, username: 'hans.huber'},
-      {id: 2, username: 'susi.sonnenschein'}
+      {id: 1, username: 'Hans'},
+      {id: 2, username: 'Not Actually An User'}
     ];
   }
 

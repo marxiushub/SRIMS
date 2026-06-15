@@ -8,6 +8,8 @@ import {TranslateService} from '@ngx-translate/core';
 import {ReservationService} from '../../../../services/reservation.service';
 import {ReservationDetail} from '../../../../dtos/reservation-detail';
 import JsBarcode from 'jsbarcode';
+import { forkJoin } from 'rxjs';
+import {ReservationStatus} from "../../../../dtos/ReservationStatus";
 
 @Component({
   selector: 'app-equipment-detail',
@@ -77,17 +79,30 @@ export class EquipmentViewComponent implements OnInit {
     this.reservationsLoading = true;
     this.reservationsError = false;
 
-    this.reservationService.search({equipmentIds: [equipmentId]}).subscribe({
-      next: (data) => {
-        this.reservations = data;
+    //Reservations with ReservationStatus CREATED
+    const createdQuery = this.reservationService.search({
+      equipmentIds: [equipmentId],
+      reservationStatus: ReservationStatus.CREATED
+    });
+
+    //Reservations with ReservationStatus PICKED_UP
+    const pickedUpQuery = this.reservationService.search({
+      equipmentIds: [equipmentId],
+      reservationStatus: ReservationStatus.PICKED_UP
+    });
+
+    //Do both Requests at the same time and wait till both return via forkJoin
+    forkJoin([createdQuery, pickedUpQuery]).subscribe({
+      next: ([createdData, pickedUpData]) => {
+        this.reservations = [...(createdData || []), ...(pickedUpData || [])];
         this.reservationsLoading = false;
       },
       error: (err) => {
-        console.error('Failed to load reservations details for equipment', err);
+        console.error('Failed to load active reservations for equipment via parallel requests', err);
         this.reservationsError = true;
         this.reservationsLoading = false;
       }
-    })
+    });
   }
 
   openEditPage(): void {
