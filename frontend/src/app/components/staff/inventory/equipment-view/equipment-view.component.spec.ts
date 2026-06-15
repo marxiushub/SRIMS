@@ -82,7 +82,13 @@ describe('EquipmentViewComponent', () => {
     expect(component.equipment).toBeTruthy();
     expect(component.equipment?.id).toBe(1);
 
-    expect(reservationServiceSpy.search).toHaveBeenCalledWith({equipmentIds: [1]});
+    expect(reservationServiceSpy.search).toHaveBeenCalledWith(
+      jasmine.objectContaining({ equipmentIds: [1], reservationStatus: ReservationStatus.CREATED })
+    );
+    expect(reservationServiceSpy.search).toHaveBeenCalledWith(
+      jasmine.objectContaining({ equipmentIds: [1], reservationStatus: ReservationStatus.PICKED_UP })
+    );
+
     expect(component.reservations.length).toBe(0);
     expect(component.reservationsError).toBeFalse();
   });
@@ -107,7 +113,7 @@ describe('EquipmentViewComponent', () => {
 
     expect(component.reservationsLoading).toBeFalse();
     expect(component.reservationsError).toBeFalse();
-    expect(component.reservations.length).toBe(1);
+    expect(component.reservations.length).toBe(2);
     expect(component.reservations[0].customerName).toBe('Max Mustermann');
     expect(component.reservations[0].id).toBe(42);
   });
