@@ -56,14 +56,13 @@ export class LoginRegisterComponent implements OnInit {
     if (this.loginForm.valid) {
       if (this.mode === LoginRegisterMode.register) {
         const customerDto: CustomerCreationDto = {
+          type: "CUSTOMER",
           userName: this.loginForm.controls.username.value,
           password: this.loginForm.controls.password.value,
           email: this.loginForm.controls.email.value,
           firstName: this.loginForm.controls.firstName.value,
           lastName: this.loginForm.controls.lastName.value,
           dateOfBirth: this.loginForm.controls.dateOfBirth.value
-            .toISOString()
-            .split('T')[0]
         };
         console.log(customerDto)
         this.registerUser(customerDto);
