@@ -4,8 +4,27 @@
     "LOGIN": "Login",
     "LOGOUT": "Logout",
     "REGISTER": "Register",
+    "USERNAME": "Username",
+    "PASSWORD": "Password",
+    "REPEAT_PASSWORD": "Repeat Password",
+    "FIRST_NAME": "First Name",
+    "LAST_NAME": "Last Name",
+    "EMAIL": "Email",
+    "DATE_OF_BIRTH": "Date of Birth",
+
     "HAVE_ACCOUNT": "Already have an account?",
-    "NO_ACCOUNT": "Don't have an account?"
+    "NO_ACCOUNT": "Don't have an account?",
+    "CREATE_ACCOUNT": "Create account",
+    "USERNAME_REQUIRED": "Username is required!",
+    "PASSWORD_REQUIRED": "Password is required!",
+    "PASSWORD_MIN_LENGTH": "Password must be at least 8 characters long!",
+    "PASSWORD_MISMATCH": "Passwords do not match!",
+    "FIRST_NAME_REQUIRED": "First name is required!",
+    "LAST_NAME_REQUIRED": "Last name is required!",
+    "EMAIL_REQUIRED": "Email is required!",
+    "EMAIL_INVALID": "Please enter a valid email address!",
+    "DATE_OF_BIRTH_REQUIRED": "Date of birth is required!"
+
   },
   "INVENTORY": {
     "TITLE": "Ski Equipment Inventory",
