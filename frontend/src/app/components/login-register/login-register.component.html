@@ -1,0 +1,127 @@
+@if (error) {
+  <div class="alert alert-warning alert-dismissible fade show" role="alert">
+    <strong>Authentication problems!</strong> {{ errorMessage }}
+    <button type="button" (click)="vanishError()" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+}
+
+<div class="pt-5">
+  <div class="row">
+    <div class="col-md-6 mx-auto">
+      <span class="anchor" id="formLogin"></span>
+
+      <div class="card rounded-0">
+        <div class="card-header">
+          @if (mode === LoginRegisterMode.login) {
+            <h3 class="mb-0">{{ 'COMMON.LOGIN' | translate }}</h3>
+          } @else {
+            <h3 class="mb-0">{{ 'COMMON.REGISTER' | translate }}</h3>
+          }
+        </div>
+
+        <div class="card-body">
+          <form class="form" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+
+            <div class="form-group">
+              <label for="inputUsername">Username</label>
+              <input type="text" name="username" formControlName="username" class="form-control" id="inputUsername"
+                     aria-describedby="usernameHelp" placeholder="Enter username">
+              @if (submitted && loginForm.controls.username.errors) {
+                <div class="error">
+                  @if (loginForm.controls.username.errors.required) {
+                    <small class="form-text text-warning">Your username is
+                      required!
+                    </small>
+                  }
+                </div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input type="password" name="password" formControlName="password" class="form-control" id="password"
+                     placeholder="Password">
+
+              @if (submitted && loginForm.controls.password.errors) {
+                <div class="error">
+                  @if (loginForm.controls.password.errors.required) {
+                    <small class="form-text text-warning">Your password
+                      is
+                      required!
+                    </small>
+                  }
+                  @if (loginForm.controls.password.errors.minlength) {
+                    <small class="form-text text-warning">Your password
+                      must be at least 8 characters long!
+                    </small>
+                  }
+                </div>
+              }
+            </div>
+
+            @if (mode === LoginRegisterMode.register) {
+              <label for="repeat-password">Repeat Password</label>
+              <input type="password" name="repeat-password" formControlName="repeatPassword"
+                     class="form-control" id="repeat-password"
+                     placeholder="Repeat Password">
+              @if (submitted && loginForm.get('repeatPassword')?.hasError('required')) {
+                <div class="text-danger small">Repeat password is required.</div>
+              }
+              @if (submitted && loginForm.hasError('passwordsMismatch')) {
+                <div class="text-danger small">Passwords do not match.</div>
+              }
+
+              <label for="firstName">First Name</label>
+              <input type="text" name="firstName" formControlName="firstName" class="form-control" id="firstName"
+                     placeholder="First Name">
+              @if (submitted && loginForm.get('firstName')?.hasError('required')) {
+                <div class="text-danger small">First name is required.</div>
+              }
+
+              <label for="lastName">Last Name</label>
+              <input type="text" name="lastName" formControlName="lastName" class="form-control" id="lastName"
+                     placeholder="Last Name">
+              @if (submitted && loginForm.get('lastName')?.hasError('required')) {
+                <div class="text-danger small">Last name is required.</div>
+              }
+
+              <label for="email">Email</label>
+              <input type="email" name="email" formControlName="email" class="form-control" id="email"
+                     placeholder="Email">
+              @if (submitted && loginForm.get('email')?.hasError('required')) {
+                <div class="text-danger small">Email is required.</div>
+              }
+              @if (submitted && loginForm.get('email')?.hasError('email')) {
+                <div class="text-danger small">Please enter a valid email address.</div>
+              }
+
+              <label for="dateOfBirth">Date of Birth</label>
+              <input type="date" name="dateOfBirth" formControlName="dateOfBirth" class="form-control" id="dateOfBirth">
+              @if (submitted && loginForm.get('dateOfBirth')?.hasError('required')) {
+                <div class="text-danger small">Date of birth is required.</div>
+              }
+            }
+
+            <div>
+              @if (mode === LoginRegisterMode.login) {
+                <span class="float-left">{{ 'COMMON.NO_ACCOUNT' | translate }}</span>
+                <a class="nav-link" routerLink="/register"
+                   routerLinkActive="active">{{ 'COMMON.REGISTER' | translate }}</a>
+              } @else {
+                <span class="float-left">{{ 'COMMON.HAVE_ACCOUNT' | translate }}</span>
+                <a class="nav-link" routerLink="/login" routerLinkActive="active">{{ 'COMMON.LOGIN' | translate }}</a>
+              }
+            </div>
+
+            <button type="button" (click)="onSubmit()" class="btn btn-success float-right">Login</button>
+
+          </form>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>

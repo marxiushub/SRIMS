@@ -8,7 +8,7 @@ import {AppComponent} from './app.component';
 import {HeaderComponent} from './components/header/header.component';
 import {FooterComponent} from './components/footer/footer.component';
 import {HomeComponent} from './components/home/home.component';
-import {LoginComponent} from './components/login/login.component';
+import {LoginRegisterComponent} from './components/login-register/login-register.component';
 import {MessageComponent} from './components/message/message.component';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
@@ -62,7 +62,7 @@ export function HttpLoaderFactory(http: HttpClient): TranslateLoader {
     HeaderComponent,
     FooterComponent,
     HomeComponent,
-    LoginComponent,
+    LoginRegisterComponent,
     MessageComponent,
     StaffComponent,
     InventoryComponent,

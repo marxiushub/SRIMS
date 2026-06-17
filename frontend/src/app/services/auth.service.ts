@@ -1,10 +1,11 @@
 import {Injectable} from '@angular/core';
 import {AuthRequest} from '../dtos/auth-request';
 import {Observable} from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import {HttpClient} from '@angular/common/http';
 import {tap} from 'rxjs/operators';
 import {jwtDecode} from 'jwt-decode';
 import {Globals} from '../global/globals';
+import {CustomerCreationDto} from '../dtos/customer-creation';
 
 @Injectable({
   providedIn: 'root'
@@ -28,6 +29,14 @@ export class AuthService {
       );
   }
 
+  /**
+   * Register a new customer account.
+   *
+   * @param authRequest User registration data
+   */
+  registerUser(customerDto: CustomerCreationDto): Observable<any> {
+    return this.httpClient.post<any>(`${this.authBaseUri.replace('/authentication', '')}/customer/create`, customerDto);
+  }
 
   /**
    * Check if a valid JWT token is saved in the localStorage

@@ -2,7 +2,10 @@
   "COMMON": {
     "APP_NAME": "SRIMS - Ski Verleih & Inventory Management System",
     "LOGIN": "Einloggen",
-    "LOGOUT": "Ausloggen"
+    "LOGOUT": "Ausloggen",
+    "REGISTER": "Registrieren",
+    "HAVE_ACCOUNT": "Du hast bereits einen Account?",
+    "NO_ACCOUNT": "Du hast noch keinen Account?"
   },
   "INVENTORY": {
     "TITLE": "Skiausrüstung Inventar",

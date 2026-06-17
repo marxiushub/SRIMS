@@ -15,6 +15,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,20 +45,19 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      * from e.g. Spring
      */
     @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+        MethodArgumentNotValidException ex,
         HttpHeaders headers,
-        HttpStatusCode status, WebRequest request) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        //Get all errors
-        List<String> errors = ex.getBindingResult()
-            .getFieldErrors()
-            .stream()
-            .map(err -> err.getField() + " " + err.getDefaultMessage())
-            .collect(Collectors.toList());
-        body.put("Validation errors", errors);
+        HttpStatusCode status,
+        WebRequest request) {
 
-        return new ResponseEntity<>(body.toString(), headers, status);
+        Map<String, String> errors = new HashMap<>();
 
+        ex.getBindingResult().getFieldErrors()
+            .forEach(error ->
+                errors.put(error.getField(), error.getDefaultMessage()));
+
+        return ResponseEntity.badRequest().body(errors);
     }
 
     @ExceptionHandler(value = {IllegalArgumentException.class})
@@ -86,7 +86,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             body, new HttpHeaders(), HttpStatus.BAD_REQUEST
         );
     }
-
 
 
 }
