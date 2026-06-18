@@ -449,4 +449,58 @@ public class CustomerProfileServiceTest {
 
         assertThat(exception).isNotNull();
     }
+
+    @Test
+    public void getCustomerProfileById_withExistingProfile_returnsProfile() {
+        Customer customer = createTestCustomer("get_by_id");
+        CustomerProfile profile = createTestProfile(customer, "Profile By Id", SkillLevel.BEGINNER);
+
+        CustomerProfileDetailDto result = customerProfileService.getCustomerProfileById(profile.getId());
+
+        assertAll(
+            "Verify that a customer profile can be retrieved by ID",
+            () -> assertThat(result).isNotNull(),
+            () -> assertThat(result.getId()).isEqualTo(profile.getId()),
+            () -> assertThat(result.getCustomerId()).isEqualTo(customer.getId()),
+            () -> assertThat(result.getProfileName()).isEqualTo("Profile By Id"),
+            () -> assertThat(result.getHeight()).isEqualTo(175),
+            () -> assertThat(result.getWeight()).isEqualTo(70),
+            () -> assertThat(result.getShoeSize()).isEqualTo(42),
+            () -> assertThat(result.getSkillLevel()).isEqualTo(SkillLevel.BEGINNER)
+        );
+    }
+
+    @Test
+    public void getCustomerProfileById_withUnknownProfile_throwsNotFoundException() {
+        NotFoundException exception = assertThrows(NotFoundException.class, () ->
+            customerProfileService.getCustomerProfileById(99999L)
+        );
+
+        assertAll(
+            "Verify that getting an unknown customer profile fails",
+            () -> assertThat(exception).isNotNull(),
+            () -> assertThat(exception.getMessage()).containsIgnoringCase("not found")
+        );
+    }
+
+    @Test
+    public void updateCustomerProfile_withOnlyWeightAndShoeSize_updatesCorrectly() {
+        Customer customer = createTestCustomer("update_weight_shoe");
+        CustomerProfile profile = createTestProfile(customer, "Weight Shoe Test", SkillLevel.BEGINNER);
+
+        CustomerProfileUpdateDto dto = new CustomerProfileUpdateDto();
+        dto.setWeight(85.0);
+        dto.setShoeSize(44.0);
+
+        CustomerProfileDetailDto result = customerProfileService.updateCustomerProfile(profile.getId(), dto);
+
+        assertAll(
+            "Verify that weight and shoeSize are updated, other fields unchanged",
+            () -> assertThat(result.getWeight()).isEqualTo(85.0),
+            () -> assertThat(result.getShoeSize()).isEqualTo(44.0),
+            () -> assertThat(result.getProfileName()).isEqualTo("Weight Shoe Test"),
+            () -> assertThat(result.getHeight()).isEqualTo(175.0),
+            () -> assertThat(result.getSkillLevel()).isEqualTo(SkillLevel.BEGINNER)
+        );
+    }
 }
