@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.unittests;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.CustomerCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.CustomerUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.StaffUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.UserServiceValidator;
@@ -93,9 +94,30 @@ class UserServiceValidatorTest {
     }
 
     @Test
+    void userUpdateDtoValidator_withEmptyStaffDto_throwsValidation() {
+        StaffUpdateDto dto = new StaffUpdateDto();  // alles null, kein CustomerUpdateDto
+
+        assertThrows(ValidationException.class, () -> validator.userUpdateDtoValidator(dto));
+    }
+
+    @Test
     void userUpdateDtoValidator_withOnlyFirstName_doesNotThrow() {
         CustomerUpdateDto dto = new CustomerUpdateDto();
         dto.setFirstName("Max");
+        assertDoesNotThrow(() -> validator.userUpdateDtoValidator(dto));
+    }
+
+    @Test
+    void userUpdateDtoValidator_withOnlyLastName_doesNotThrow() {
+        CustomerUpdateDto dto = new CustomerUpdateDto();
+        dto.setLastName("Mustermann");
+        assertDoesNotThrow(() -> validator.userUpdateDtoValidator(dto));
+    }
+
+    @Test
+    void userUpdateDtoValidator_withUserName_doesNotThrow() {
+        StaffUpdateDto dto = new StaffUpdateDto();
+        dto.setUserName("updated_staff");
         assertDoesNotThrow(() -> validator.userUpdateDtoValidator(dto));
     }
 
