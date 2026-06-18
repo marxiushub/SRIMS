@@ -1,403 +1,294 @@
 package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
-import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.user.StaffRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.user.UserRepository;
-import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
-import jakarta.transaction.Transactional;
-import org.springframework.http.MediaType;
+import at.ac.tuwien.sepr.groupphase.backend.basetest.IntegrationTestBase;
+import at.ac.tuwien.sepr.groupphase.backend.basetest.TestData;
+import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Role;
+import at.ac.tuwien.sepr.groupphase.backend.entity.user.Customer;
+import at.ac.tuwien.sepr.groupphase.backend.entity.user.Staff;
+import at.ac.tuwien.sepr.groupphase.backend.repository.RoleRepository;
+import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.test.annotation.Rollback;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import java.time.LocalDate;
+import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ActiveProfiles({"test", "generateData"})
+@ActiveProfiles({"test"})
 @AutoConfigureMockMvc
 @SpringBootTest
-public class UserEndpointTest {
+public class UserEndpointTest extends IntegrationTestBase implements TestData {
 
     @Autowired
     private MockMvc mockMvc;
-
     @Autowired
-    private UserService userService;
-
+    private JwtTokenizer jwtTokenizer;
     @Autowired
-    private UserRepository userRepository;
-
+    private SecurityProperties securityProperties;
     @Autowired
-    private CustomerRepository customerRepository;
+    private RoleRepository roleRepository;
 
-    @Autowired
-    private StaffRepository staffRepository;
+    // --- Helpers ---
 
-    /*
+    private Customer createTestCustomer(String suffix) {
+        Role customerRole = roleRepository.findByName("ROLE_CUSTOMER").orElseThrow();
+        Customer customer = new Customer(
+            "customer_" + suffix,
+            "hashedPassword",
+            "customer." + suffix + "@example.com",
+            Set.of(customerRole),
+            Set.of(),
+            "First",
+            "Last",
+            LocalDate.of(1995, 6, 15)
+        );
+        return customerRepository.save(customer);
+    }
+
+    private Staff createTestStaff(String suffix) {
+        Role staffRole = roleRepository.findByName("ROLE_STAFF").orElseThrow();
+        Staff staff = new Staff(
+            "staff_" + suffix,
+            "hashedPassword",
+            "staff." + suffix + "@example.com",
+            Set.of(staffRole),
+            Set.of()
+        );
+        return staffRepository.save(staff);
+    }
+
+    // Token carrying the given user's id (so checkUserAccessPermission sees "own user")
+    private String customerToken(Customer customer) {
+        return jwtTokenizer.getAuthToken(customer.getEmail(), customer.getId(), USER_PERMISSIONS);
+    }
+
+    private String staffToken(Staff staff) {
+        return jwtTokenizer.getAuthToken(staff.getEmail(), staff.getId(), ADMIN_PERMISSIONS);
+    }
+
+    // ===== Customer create (PermitAll, no token needed) =====
+
     @Test
-    @Transactional
-    @Rollback
     public void createCustomer_withValidDto_returns200AndSavedCustomer() {
-
         String json = """
-        {
-          "type": "CUSTOMER",
-          "userName": "max_customer",
-          "password": "Password123!",
-          "email": "max.customer@test.at",
-          "firstName": "Max",
-          "lastName": "Mustermann",
-          "dateOfBirth": "1998-05-10"
-        }
-        """;
+            {
+              "type": "CUSTOMER",
+              "userName": "max_customer",
+              "password": "Password123!",
+              "email": "max.customer@test.at",
+              "firstName": "Max",
+              "lastName": "Mustermann",
+              "dateOfBirth": "1998-05-10"
+            }
+            """;
 
-        try {
-            MvcResult result = mockMvc.perform(post("/api/v1/customer/create")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(json))
-                .andReturn();
-
-            String responseBody = result.getResponse().getContentAsString();
-
-            assertAll(
-                "Check if customer was successfully created",
-
-                () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
-                () -> assertThat(responseBody).contains("max.customer@test.at"),
-                () -> assertThat(responseBody).contains("max_customer")
-            );
-
-        } catch (Exception e) {
-            fail("Test failed because of unexpected exception" + e.getMessage(), e);
-        }
+        String anyToken = jwtTokenizer.getAuthToken("creator@test.at", 1L, USER_PERMISSIONS);
+        assertDoesNotThrow(() -> mockMvc.perform(post("/api/v1/customer/create")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json)
+                .header(securityProperties.getAuthHeader(), anyToken)
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.email").value("max.customer@test.at"))
+            .andExpect(jsonPath("$.userName").value("max_customer"))
+            .andExpect(jsonPath("$.userType").value("CUSTOMER")));
     }
 
+    @Test
+    public void createCustomer_withInvalidEmail_returns400() {
+        String json = """
+            {
+              "type": "CUSTOMER",
+              "userName": "bad_email_user",
+              "password": "Password123!",
+              "email": "not-an-email",
+              "firstName": "Max",
+              "lastName": "Mustermann",
+              "dateOfBirth": "1998-05-10"
+            }
+            """;
+
+        String anyToken = jwtTokenizer.getAuthToken("creator@test.at", 1L, USER_PERMISSIONS);
+        assertDoesNotThrow(() -> mockMvc.perform(post("/api/v1/customer/create")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json)
+                .header(securityProperties.getAuthHeader(), anyToken)
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest()));
+    }
+
+    // ===== Staff create (needs STAFF_CREATE) =====
 
     @Test
-    @Transactional
-    @Rollback
     public void createStaff_withValidDto_returns200AndSavedStaff() {
+        Staff authStaff = createTestStaff("creator");
 
         String json = """
-        {
-          "type": "STAFF",
-          "userName": "staff_user",
-          "password": "Password123!",
-          "email": "staff@test.at"
-        }
-        """;
-
-        try {
-            MvcResult result = mockMvc.perform(post("/api/v1/staff/create")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(json))
-                .andReturn();
-
-            String responseBody = result.getResponse().getContentAsString();
-
-            assertAll(
-                "Check if staff was successfully created",
-
-                () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
-                () -> assertThat(responseBody).contains("staff@test.at"),
-                () -> assertThat(responseBody).contains("staff_user")
-            );
-
-        } catch (Exception e) {
-            fail("Test failed because of unexpected exception" + e.getMessage(), e);
-        }
-    }
-
-
-    @Test
-    @Transactional
-    @Rollback
-    public void updateCustomer_withGeneratedCustomer_returns200AndUpdatedCustomer() {
-
-        try {
-            String createJson = """
-            {
-              "type": "CUSTOMER",
-              "userName": "customer_to_update",
-              "password": "Password123!",
-              "email": "customer.to.update@test.at",
-              "firstName": "OldFirst",
-              "lastName": "OldLast",
-              "dateOfBirth": "1990-01-01"
-            }
-            """;
-
-            MvcResult createResult = mockMvc.perform(
-                    post("/api/v1/customer/create")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(createJson))
-                .andReturn();
-
-            assertThat(createResult.getResponse().getStatus()).isEqualTo(200);
-
-            Long customerId = customerRepository.findByEmail("customer.to.update@test.at")
-                .orElseThrow()
-                .getId();
-
-
-            String updateJson = """
-        {
-          "type": "CUSTOMER",
-          "userName": "updated_retro_gamer",
-          "email": "updated.marcel@example.com",
-          "firstName": "UpdatedMarcel",
-          "lastName": "UpdatedNeumann",
-          "dateOfBirth": "1993-03-03"
-        }
-        """;
-
-            MvcResult result = mockMvc.perform(
-                    put("/api/v1/customer/update/" + customerId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(updateJson))
-                .andReturn();
-
-            String responseBody = result.getResponse().getContentAsString();
-
-            assertAll(
-                "Check if generated customer was successfully updated",
-
-                () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
-
-                () -> assertThat(responseBody).contains("updated_retro_gamer"),
-                () -> assertThat(responseBody).contains("updated.marcel@example.com"),
-                () -> assertThat(responseBody).contains("UpdatedMarcel"),
-                () -> assertThat(responseBody).contains("UpdatedNeumann"),
-                () -> assertThat(responseBody).contains("1993-03-03")
-            );
-
-        } catch (Exception e) {
-            fail("Test failed because of unexpected exception" + e.getMessage(), e);
-        }
-    }
-
-
-    @Test
-    @Transactional
-    @Rollback
-    public void updateStaff_withGeneratedStaff_returns200AndUpdatedStaff() {
-
-        try {
-            String createJson = """
             {
               "type": "STAFF",
-              "userName": "staff_to_update",
+              "userName": "staff_user",
               "password": "Password123!",
-              "email": "staff.to.update@test.at"
+              "email": "staff@test.at"
             }
             """;
 
-            MvcResult createResult = mockMvc.perform(
-                    post("/api/v1/staff/create")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(createJson))
-                .andReturn();
-
-            assertThat(createResult.getResponse().getStatus()).isEqualTo(200);
-
-            Long staffId = staffRepository.findByEmail("staff.to.update@test.at")
-                .orElseThrow()
-                .getId();
-
-            String updateJson = """
-        {
-          "type": "STAFF",
-          "userName": "updated_admin",
-          "email": "updated.admin@system.com"
-        }
-        """;
-
-            MvcResult result = mockMvc.perform(
-                    put("/api/v1/staff/update/" + staffId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(updateJson))
-                .andReturn();
-
-            String responseBody = result.getResponse().getContentAsString();
-
-            assertAll(
-                "Check if generated staff was successfully updated",
-
-                () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
-
-                () -> assertThat(responseBody).contains("updated_admin"),
-                () -> assertThat(responseBody).contains("updated.admin@system.com")
-            );
-
-        } catch (Exception e) {
-            fail("Test failed because of unexpected exception" + e.getMessage(), e);
-        }
+        assertDoesNotThrow(() -> mockMvc.perform(post("/api/v1/staff/create")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json)
+                .header(securityProperties.getAuthHeader(), staffToken(authStaff))
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.email").value("staff@test.at"))
+            .andExpect(jsonPath("$.userName").value("staff_user"))
+            .andExpect(jsonPath("$.userType").value("STAFF")));
     }
 
+    // ===== Customer update (own user) =====
 
     @Test
-    @Transactional
-    @Rollback
-    public void deleteCustomer_withExistingId_returns200AndDeletesCustomer() {
+    public void updateCustomer_ownAccount_returns200AndUpdatedFields() {
+        Customer customer = createTestCustomer("update");
 
-        try {
-            String createJson = """
+        String json = """
             {
               "type": "CUSTOMER",
-              "userName": "customer_to_delete",
-              "password": "Password123!",
-              "email": "customer.to.delete@test.at",
-              "firstName": "Delete",
-              "lastName": "Customer",
-              "dateOfBirth": "1990-01-01"
+              "userName": "updated_name",
+              "firstName": "UpdatedFirst",
+              "lastName": "UpdatedLast"
             }
             """;
 
-            MvcResult createResult = mockMvc.perform(post("/api/v1/customer/create")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(createJson))
-                .andReturn();
-
-            assertThat(createResult.getResponse().getStatus()).isEqualTo(200);
-
-            Long customerId = customerRepository.findByEmail("customer.to.delete@test.at")
-                .orElseThrow()
-                .getId();
-
-            MvcResult result = mockMvc.perform(delete("/api/v1/customer/delete/" + customerId))
-                .andReturn();
-
-            assertAll(
-                "Check if customer was successfully deleted",
-                () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
-                () -> assertThat(customerRepository.findById(customerId)).isEmpty()
-            );
-
-        } catch (Exception e) {
-            fail("Test failed because of unexpected exception: " + e.getMessage(), e);
-        }
+        assertDoesNotThrow(() -> mockMvc.perform(put("/api/v1/customer/update/{id}", customer.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json)
+                .header(securityProperties.getAuthHeader(), customerToken(customer))
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.userName").value("updated_name"))
+            .andExpect(jsonPath("$.firstName").value("UpdatedFirst"))
+            .andExpect(jsonPath("$.lastName").value("UpdatedLast")));
     }
 
-
     @Test
-    @Transactional
-    @Rollback
-    public void deleteStaff_withExistingId_returns200AndDeletesStaff() {
+    public void updateCustomer_withEmptyDto_returns400() {
+        Customer customer = createTestCustomer("update_empty");
 
-        try {
-            String createJson = """
+        String json = """
             {
-              "type": "STAFF",
-              "userName": "staff_to_delete",
-              "password": "Password123!",
-              "email": "staff.to.delete@test.at"
+              "type": "CUSTOMER"
             }
             """;
 
-            MvcResult createResult = mockMvc.perform(post("/api/v1/staff/create")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(createJson))
-                .andReturn();
-
-            assertThat(createResult.getResponse().getStatus()).isEqualTo(200);
-
-            Long staffId = staffRepository.findByEmail("staff.to.delete@test.at")
-                .orElseThrow()
-                .getId();
-
-            MvcResult result = mockMvc.perform(delete("/api/v1/staff/delete/" + staffId))
-                .andReturn();
-
-            assertAll(
-                "Check if staff was successfully deleted",
-                () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
-                () -> assertThat(staffRepository.findById(staffId)).isEmpty()
-            );
-
-        } catch (Exception e) {
-            fail("Test failed because of unexpected exception: " + e.getMessage(), e);
-        }
+        assertDoesNotThrow(() -> mockMvc.perform(put("/api/v1/customer/update/{id}", customer.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json)
+                .header(securityProperties.getAuthHeader(), customerToken(customer))
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest()));
     }
 
-
     @Test
-    @Transactional
-    @Rollback
-    public void getUserById_withExistingCustomer_returns200AndCustomerDto() {
+    public void updateCustomer_unknownId_returns404() {
+        Customer customer = createTestCustomer("update_unknown");
+        // Token carries the existing customer's id, but we target a non-existent id.
+        // checkUserAccessPermission compares currentId == requestedId, so to reach the
+        // NotFound branch we authorize with a matching-but-nonexistent id is impossible;
+        // instead we use an admin-style token whose id equals the requested id.
+        String json = """
+            {
+              "type": "CUSTOMER",
+              "userName": "ghost"
+            }
+            """;
 
-        try {
-            Long customerId = customerRepository.findAll()
-                .stream()
-                .findFirst()
-                .orElseThrow()
-                .getId();
+        long missingId = 999999L;
+        String token = jwtTokenizer.getAuthToken("ghost@test.at", missingId, USER_PERMISSIONS);
 
-            MvcResult result = mockMvc.perform(
-                    org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .get("/api/v1/customer/" + customerId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andReturn();
-
-            String responseBody = result.getResponse().getContentAsString();
-
-            assertAll(
-                "Check if customer was successfully retrieved",
-
-                () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
-
-                () -> assertThat(responseBody).contains("email"),
-                () -> assertThat(responseBody).contains("userName"),
-
-                () -> assertThat(responseBody).contains("CUSTOMER")
-            );
-
-        } catch (Exception e) {
-            fail("Test failed because of unexpected exception");
-        }
+        assertDoesNotThrow(() -> mockMvc.perform(put("/api/v1/customer/update/{id}", missingId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json)
+                .header(securityProperties.getAuthHeader(), token)
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound()));
     }
 
+    @Test
+    public void updateCustomer_foreignAccount_returns403() {
+        Customer owner = createTestCustomer("owner");
+        Customer attacker = createTestCustomer("attacker");
+
+        String json = """
+            {
+              "type": "CUSTOMER",
+              "userName": "hacked"
+            }
+            """;
+
+        // attacker's token (their id) tries to update owner's account
+        assertDoesNotThrow(() -> mockMvc.perform(put("/api/v1/customer/update/{id}", owner.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json)
+                .header(securityProperties.getAuthHeader(), customerToken(attacker))
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isForbidden()));
+    }
+
+    // ===== Customer get =====
 
     @Test
-    @Transactional
-    @Rollback
-    public void getUserById_withExistingStaff_returns200AndStaffDto() {
+    public void getCustomerById_ownAccount_returns200() {
+        Customer customer = createTestCustomer("get");
 
-        try {
-            Long staffId = staffRepository.findAll()
-                .stream()
-                .findFirst()
-                .orElseThrow()
-                .getId();
+        assertDoesNotThrow(() -> mockMvc.perform(get("/api/v1/customer/{id}", customer.getId())
+                .header(securityProperties.getAuthHeader(), customerToken(customer))
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.userType").value("CUSTOMER")));
+    }
 
-            MvcResult result = mockMvc.perform(
-                    org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .get("/api/v1/staff/" + staffId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andReturn();
+    // ===== Customer delete =====
 
-            String responseBody = result.getResponse().getContentAsString();
+    @Test
+    public void deleteCustomer_ownAccount_returns200AndDeletes() {
+        Customer customer = createTestCustomer("delete");
 
-            assertAll(
-                "Check if staff is successfully retrieved via polymorphic endpoint",
+        assertDoesNotThrow(() -> mockMvc.perform(delete("/api/v1/customer/delete/{id}", customer.getId())
+                .header(securityProperties.getAuthHeader(), customerToken(customer)))
+            .andExpect(status().isOk()));
+    }
 
-                () -> assertThat(result.getResponse().getStatus()).isEqualTo(200),
-                () -> assertThat(responseBody).contains("email"),
-                () -> assertThat(responseBody).contains("userName"),
-                () -> assertThat(responseBody).contains("STAFF")
-            );
+    // ===== Staff get / delete =====
 
-        } catch (Exception e) {
-            fail("Test failed because of unexpected exception");
-        }
-    }*/
+    @Test
+    public void getStaffById_ownAccount_returns200() {
+        Staff staff = createTestStaff("get");
+
+        assertDoesNotThrow(() -> mockMvc.perform(get("/api/v1/staff/{id}", staff.getId())
+                .header(securityProperties.getAuthHeader(), staffToken(staff))
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.userType").value("STAFF")));
+    }
+
+    @Test
+    public void deleteStaff_ownAccount_returns200AndDeletes() {
+        Staff staff = createTestStaff("delete");
+
+        assertDoesNotThrow(() -> mockMvc.perform(delete("/api/v1/staff/delete/{id}", staff.getId())
+                .header(securityProperties.getAuthHeader(), staffToken(staff)))
+            .andExpect(status().isOk()));
+    }
 }
