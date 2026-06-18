@@ -32,7 +32,7 @@ export class AuthService {
   /**
    * Register a new customer account.
    *
-   * @param authRequest User registration data
+   * @param customerDto User data for the new account
    */
   registerUser(customerDto: CustomerCreationDto): Observable<any> {
     return this.httpClient.post<any>(`${this.authBaseUri.replace('/authentication', '')}/customer/create`, customerDto);
