@@ -30,6 +30,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
+import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -39,7 +47,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 //TODO: use generated data in tests, need to work on cleanup and setup
-//Umgeschrieben, sodass customer der gelöscht/geupdatet wird vorher noch angelegt wird
+//Customer which are updated or deleted are created beforehand and do not use generated data
 @ActiveProfiles({"test", "datagenerator"})
 @SpringBootTest
 public class UserServiceTest {
@@ -70,7 +78,6 @@ public class UserServiceTest {
 
     private final List<Long> createdUserIds = new ArrayList<>();
 
-    //workaround für security, richtiger admin wird noch gebraucht
     @BeforeEach
     public void setupSecurityContext() {
 
@@ -406,6 +413,107 @@ public class UserServiceTest {
 
             () -> assertThat(result.getEmail())
                 .isEqualTo(existingStaff.getEmail())
+        );
+    }
+
+    @Test
+    public void findApplicationUserByEmail_withExistingEmail_returnsUser() {
+        CustomerCreationDto dto = validCustomerDto(uniqueEmail("customer.find"));
+        UserDetailDto created = userService.createUser(dto);
+        rememberCreatedUser(created);
+
+        ApplicationUser result = userService.findApplicationUserByEmail(dto.getEmail());
+
+        assertAll(
+            "Verify that user can be found by email",
+            () -> assertThat(result).isNotNull(),
+            () -> assertThat(result.getId()).isEqualTo(created.getId()),
+            () -> assertThat(result.getEmail()).isEqualTo(dto.getEmail()),
+            () -> assertThat(result.getUserName()).isEqualTo(dto.getUserName())
+        );
+    }
+
+    @Test
+    public void findApplicationUserByEmail_withUnknownEmail_throwsNotFoundException() {
+        String unknownEmail = uniqueEmail("unknown.find");
+
+        assertThrows(
+            NotFoundException.class,
+            () -> userService.findApplicationUserByEmail(unknownEmail)
+        );
+    }
+
+    @Test
+    public void loadUserByUsername_withExistingUser_returnsUserDetailsWithAuthorities() {
+        StaffCreationDto dto = validStaffDto(uniqueEmail("staff.load"));
+        UserDetailDto created = userService.createUser(dto);
+        rememberCreatedUser(created);
+
+        UserDetails result = userService.loadUserByUsername(dto.getEmail());
+
+        assertAll(
+            "Verify that Spring Security UserDetails are loaded correctly",
+            () -> assertThat(result).isNotNull(),
+            () -> assertThat(result.getUsername()).isEqualTo(dto.getEmail()),
+            () -> assertThat(passwordEncoder.matches(dto.getPassword(), result.getPassword())).isTrue(),
+            () -> assertThat(result.getAuthorities()).isNotEmpty()
+        );
+    }
+
+    @Test
+    public void loadUserByUsername_withUnknownEmail_throwsUsernameNotFoundException() {
+        String unknownEmail = uniqueEmail("unknown.load");
+
+        assertThrows(
+            UsernameNotFoundException.class,
+            () -> userService.loadUserByUsername(unknownEmail)
+        );
+    }
+
+    @Test
+    public void login_withValidCredentials_returnsJwtToken() {
+        StaffCreationDto dto = validStaffDto(uniqueEmail("staff.login"));
+        UserDetailDto created = userService.createUser(dto);
+        rememberCreatedUser(created);
+
+        UserLoginDto loginDto = new UserLoginDto();
+        loginDto.setEmail(dto.getEmail());
+        loginDto.setPassword(dto.getPassword());
+
+        String token = userService.login(loginDto);
+
+        assertAll(
+            "Verify that login returns a valid token",
+            () -> assertThat(token).isNotNull(),
+            () -> assertThat(token).isNotBlank()
+        );
+    }
+
+    @Test
+    public void login_withWrongPassword_throwsBadCredentialsException() {
+        CustomerCreationDto dto = validCustomerDto(uniqueEmail("customer.login.wrong"));
+        UserDetailDto created = userService.createUser(dto);
+        rememberCreatedUser(created);
+
+        UserLoginDto loginDto = new UserLoginDto();
+        loginDto.setEmail(dto.getEmail());
+        loginDto.setPassword("DefinitelyWrongPassword123!");
+
+        assertThrows(
+            BadCredentialsException.class,
+            () -> userService.login(loginDto)
+        );
+    }
+
+    @Test
+    public void login_withUnknownEmail_throwsUsernameNotFoundException() {
+        UserLoginDto loginDto = new UserLoginDto();
+        loginDto.setEmail(uniqueEmail("unknown.login"));
+        loginDto.setPassword("Password123!");
+
+        assertThrows(
+            UsernameNotFoundException.class,
+            () -> userService.login(loginDto)
         );
     }
 
