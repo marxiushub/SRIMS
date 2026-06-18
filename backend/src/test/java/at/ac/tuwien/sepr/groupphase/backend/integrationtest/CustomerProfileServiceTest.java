@@ -292,4 +292,25 @@ public class CustomerProfileServiceTest {
             () -> assertThat(exception.getMessage()).containsIgnoringCase("not found")
         );
     }
+
+    @Test
+    public void updateCustomerProfile_withOnlyWeightAndShoeSize_updatesCorrectly() {
+        Customer customer = createTestCustomer("update_weight_shoe");
+        CustomerProfile profile = createTestProfile(customer, "Weight Shoe Test", SkillLevel.BEGINNER);
+
+        CustomerProfileUpdateDto dto = new CustomerProfileUpdateDto();
+        dto.setWeight(85.0);
+        dto.setShoeSize(44.0);
+
+        CustomerProfileDetailDto result = customerProfileService.updateCustomerProfile(profile.getId(), dto);
+
+        assertAll(
+            "Verify that weight and shoeSize are updated, other fields unchanged",
+            () -> assertThat(result.getWeight()).isEqualTo(85.0),
+            () -> assertThat(result.getShoeSize()).isEqualTo(44.0),
+            () -> assertThat(result.getProfileName()).isEqualTo("Weight Shoe Test"),
+            () -> assertThat(result.getHeight()).isEqualTo(175.0),
+            () -> assertThat(result.getSkillLevel()).isEqualTo(SkillLevel.BEGINNER)
+        );
+    }
 }
