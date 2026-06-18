@@ -4,6 +4,8 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {AuthService} from '../../services/auth.service';
 import {AuthRequest} from '../../dtos/auth-request';
 import {CustomerCreationDto} from '../../dtos/customer-creation';
+import {ToastrService} from "ngx-toastr";
+import {TranslateService} from "@ngx-translate/core";
 
 export enum LoginRegisterMode {
   login,
@@ -23,11 +25,9 @@ export class LoginRegisterComponent implements OnInit {
   loginForm: UntypedFormGroup;
   // After first submission attempt, form validation will start
   submitted = false;
-  // Error flag
-  error = false;
   errorMessage = '';
 
-  constructor(private formBuilder: UntypedFormBuilder, private authService: AuthService, private router: Router, private route: ActivatedRoute) {
+  constructor(private formBuilder: UntypedFormBuilder, private authService: AuthService, public translateService: TranslateService, private router: Router, private route: ActivatedRoute, private notification: ToastrService) {
     this.loginForm = this.formBuilder.group({
       username: ['', [Validators.required]],
       password: ['', [Validators.required, Validators.minLength(8)]],
@@ -56,7 +56,6 @@ export class LoginRegisterComponent implements OnInit {
     if (this.loginForm.valid) {
       if (this.mode === LoginRegisterMode.register) {
         const customerDto: CustomerCreationDto = {
-          type: "CUSTOMER",
           userName: this.loginForm.controls.username.value,
           password: this.loginForm.controls.password.value,
           email: this.loginForm.controls.email.value,
@@ -76,7 +75,7 @@ export class LoginRegisterComponent implements OnInit {
   }
 
   /**
-   * Send authentication data to the authService. If the authentication was successfully, the user will be forwarded to the message page
+   * Send authentication data to the authService. If the authentication was successfully, the user will be forwarded to the home page
    *
    * @param authRequest authentication data from the user login form
    */
@@ -85,7 +84,8 @@ export class LoginRegisterComponent implements OnInit {
     this.authService.loginUser(authRequest).subscribe({
       next: () => {
         console.log('Successfully logged in user: ' + authRequest.email);
-        this.router.navigate(['/message']);
+        this.notification.success(this.translateService.instant('COMMON.LOGIN_SUCCESS'));
+        this.router.navigate(['/']);
       },
       error: error => this.handleError(error)
     });
@@ -99,7 +99,8 @@ export class LoginRegisterComponent implements OnInit {
     this.authService.registerUser(customerDto).subscribe({
       next: () => {
         console.log('Successfully registered user: ' + customerDto.email);
-        this.router.navigate(['/message']);
+        this.notification.success(this.translateService.instant('COMMON.REGISTER_SUCCESS'));
+        this.router.navigate(['/']);
       },
       error: error => this.handleError(error)
     });
@@ -110,16 +111,8 @@ export class LoginRegisterComponent implements OnInit {
    */
   private handleError(error: any) {
     console.log('Action failed due to:');
-    console.log(error);
-    this.error = true;
     this.errorMessage = (typeof error.error === 'object') ? error.error.error : error.error;
-  }
-
-  /**
-   * Error flag will be deactivated, which clears the error message
-   */
-  vanishError() {
-    this.error = false;
+    this.notification.error(this.errorMessage);
   }
 
   ngOnInit() {
@@ -129,14 +122,19 @@ export class LoginRegisterComponent implements OnInit {
       }
 
       const registrationControls = ['repeatPassword', 'email', 'firstName', 'lastName', 'dateOfBirth'];
+      const usernameControl = this.loginForm.get('username');
 
       if (this.mode === LoginRegisterMode.register) {
+        usernameControl?.setValidators([Validators.required]);
         this.loginForm.setValidators([this.passwordMatchValidator.bind(this)]);
       } else {
+        usernameControl?.setValidators([Validators.required, Validators.email]);
         registrationControls.forEach(control => this.loginForm.get(control)?.clearValidators());
         this.loginForm.clearValidators();
       }
 
+      usernameControl?.updateValueAndValidity();
+      registrationControls.forEach(control => this.loginForm.get(control)?.updateValueAndValidity());
       this.loginForm.updateValueAndValidity();
     });
   }
