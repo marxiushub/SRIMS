@@ -1,0 +1,135 @@
+@if (error) {
+  <div class="alert alert-warning alert-dismissible fade show" role="alert">
+    <strong>Authentication problems!</strong> {{ errorMessage }}
+    <button type="button" (click)="vanishError()" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+}
+
+<div class="pt-5">
+  <div class="row">
+    <div class="col-md-6 mx-auto">
+      <span class="anchor" id="formLogin"></span>
+
+      <div class="card rounded-0">
+        <div class="card-header">
+          @if (mode === LoginRegisterMode.login) {
+            <h3 class="mb-0">{{ 'COMMON.LOGIN' | translate }}</h3>
+          } @else {
+            <h3 class="mb-0">{{ 'COMMON.REGISTER' | translate }}</h3>
+          }
+        </div>
+
+        <div class="card-body">
+          <form class="form" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+
+            <div class="form-group">
+              <label for="inputUsername">{{ 'COMMON.USERNAME' | translate }}</label>
+              <input type="text" name="username" formControlName="username" class="form-control" id="inputUsername"
+                     aria-describedby="usernameHelp" placeholder="{{ 'COMMON.USERNAME' | translate }}">
+              @if (submitted && loginForm.controls.username.errors) {
+                <div class="error">
+                  @if (loginForm.controls.username.errors.required) {
+                    <small class="form-text text-danger">{{ 'COMMON.USERNAME_REQUIRED' | translate }}</small>
+                  }
+                </div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="password">{{ 'COMMON.PASSWORD' | translate }}</label>
+              <input type="password" name="password" formControlName="password" class="form-control" id="password"
+                     placeholder="{{ 'COMMON.PASSWORD' | translate }}">
+
+              @if (submitted && loginForm.controls.password.errors) {
+                <div class="error">
+                  @if (loginForm.controls.password.errors.required) {
+                    <small class="form-text text-danger">{{ 'COMMON.PASSWORD_REQUIRED' | translate }}</small>
+                  }
+                  @if (loginForm.controls.password.errors.minlength) {
+                    <small class="form-text text-danger">{{ 'COMMON.PASSWORD_MIN_LENGTH' | translate }}</small>
+                  }
+                </div>
+              }
+            </div>
+
+            @if (mode === LoginRegisterMode.register) {
+              <div class="form-group">
+                <label for="repeat-password">{{ 'COMMON.REPEAT_PASSWORD' | translate }}</label>
+                <input type="password" name="repeat-password" formControlName="repeatPassword"
+                       class="form-control" id="repeat-password"
+                       placeholder="{{ 'COMMON.REPEAT_PASSWORD' | translate }}">
+                @if (submitted && loginForm.hasError('passwordsMismatch')) {
+                  <small class="form-text text-danger">{{ 'COMMON.PASSWORD_MISMATCH' | translate }}</small>
+                }
+              </div>
+
+              <div class="form-group">
+                <label for="firstName">{{ 'COMMON.FIRST_NAME' | translate }}</label>
+                <input type="text" name="firstName" formControlName="firstName" class="form-control" id="firstName"
+                       placeholder="{{ 'COMMON.FIRST_NAME' | translate }}">
+                @if (submitted && loginForm.get('firstName')?.hasError('required')) {
+                  <small class="form-text text-danger">{{ 'COMMON.FIRST_NAME_REQUIRED' | translate }}</small>
+                }
+              </div>
+
+              <div class="form-group">
+                <label for="lastName">{{ 'COMMON.LAST_NAME' | translate }}</label>
+                <input type="text" name="lastName" formControlName="lastName" class="form-control" id="lastName"
+                       placeholder="{{ 'COMMON.LAST_NAME' | translate }}">
+                @if (submitted && loginForm.get('lastName')?.hasError('required')) {
+                  <small class="form-text text-danger">{{ 'COMMON.LAST_NAME_REQUIRED' | translate }}</small>
+                }
+              </div>
+
+              <div class="form-group">
+                <label for="email">{{ 'COMMON.EMAIL' | translate }}</label>
+                <input type="email" name="email" formControlName="email" class="form-control" id="email"
+                       placeholder="{{ 'COMMON.EMAIL' | translate }}">
+                @if (submitted && loginForm.get('email')?.hasError('required')) {
+                  <small class="form-text text-danger">{{ 'COMMON.EMAIL_REQUIRED' | translate }}</small>
+                }
+                @if (submitted && loginForm.get('email')?.hasError('email')) {
+                  <small class="form-text text-danger">{{ 'COMMON.EMAIL_INVALID' | translate }}</small>
+                }
+              </div>
+
+              <div class="form-group">
+                <label for="dateOfBirth">{{ 'COMMON.DATE_OF_BIRTH' | translate }}</label>
+                <input type="date" name="dateOfBirth" formControlName="dateOfBirth" class="form-control" id="dateOfBirth">
+                @if (submitted && loginForm.get('dateOfBirth')?.hasError('required')) {
+                  <small class="form-text text-danger">{{ 'COMMON.DATE_OF_BIRTH_REQUIRED' | translate }}</small>
+                }
+              </div>
+            }
+
+            <div class="auth-actions">
+              <button type="button" (click)="onSubmit()" class="btn btn-success">
+                @if (mode === LoginRegisterMode.login) {
+                  {{ 'COMMON.LOGIN' | translate }}
+                } @else {
+                  {{ 'COMMON.CREATE_ACCOUNT' | translate }}
+                }
+              </button>
+
+              <div class="auth-switch">
+                @if (mode === LoginRegisterMode.login) {
+                  <span>{{ 'COMMON.NO_ACCOUNT' | translate }}</span>
+                  <a class="nav-link" routerLink="/register"
+                     routerLinkActive="active">{{ 'COMMON.REGISTER' | translate }}</a>
+                } @else {
+                  <span>{{ 'COMMON.HAVE_ACCOUNT' | translate }}</span>
+                  <a class="nav-link" routerLink="/login" routerLinkActive="active">{{ 'COMMON.LOGIN' | translate }}</a>
+                }
+              </div>
+            </div>
+
+          </form>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>

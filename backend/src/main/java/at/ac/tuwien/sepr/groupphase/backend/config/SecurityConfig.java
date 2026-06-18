@@ -32,20 +32,21 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
             .cors(Customizer.withDefaults())
-          .csrf(AbstractHttpConfigurer::disable)
-          .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-          .headers(httpSecurityHeadersConfigurer -> httpSecurityHeadersConfigurer.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
+            .csrf(AbstractHttpConfigurer::disable)
+            .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .headers(httpSecurityHeadersConfigurer -> httpSecurityHeadersConfigurer.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
 
             //Start
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/health", "/health/**").permitAll()
                 .requestMatchers("/api/v1/authentication/**").permitAll()
+                .requestMatchers("/api/v1/customer/create").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
                 .anyRequest().authenticated()
             )
             //End
             .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
-          .build();
+            .build();
     }
 
     @Configuration
