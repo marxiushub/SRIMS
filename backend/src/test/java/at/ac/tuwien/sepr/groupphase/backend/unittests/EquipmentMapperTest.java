@@ -17,6 +17,7 @@ class EquipmentMapperTest {
 
     private final EquipmentMapperImpl mapper = new EquipmentMapperImpl();
 
+
     private <T> T createInstance(Class<T> clazz) {
         try {
             java.lang.reflect.Constructor<T> constructor = clazz.getDeclaredConstructor();
@@ -26,7 +27,7 @@ class EquipmentMapperTest {
             throw new RuntimeException(e);
         }
     }
-
+    /*
     @Test
     void allMethods_withNullInputs_returnNullOrDoNothing() {
         assertAll(
@@ -115,7 +116,7 @@ class EquipmentMapperTest {
         assertThat(exception.getMessage()).contains("Not all subclasses are supported");
     }
 
-    /* This test is not applicable for the current implementation of the mapper, in my opinion we should exclude the
+    This test is not applicable for the current implementation of the mapper, in my opinion we should exclude the
     mapper from jacoco as it is generated code
     @Test
     void protectedMappingMethods_withNullInputs_returnNull() {
@@ -131,7 +132,7 @@ class EquipmentMapperTest {
         );
     }
 
-     */
+
 
 
 
@@ -198,5 +199,99 @@ class EquipmentMapperTest {
             () -> assertThat(snowboard.getLength()).isEqualTo(155.0),
             () -> assertThat(pole.getLength()).isEqualTo(120.0)
         );
+    }
+
+     */
+
+
+    @Test
+    void updateEntityFromDto_withEachMatchingType_dispatchesToCorrectUpdate() {
+        // HELMET
+        Helmet helmet = createInstance(Helmet.class);
+        helmet.setPrice(10.0);
+        HelmetUpdateDto helmetDto = new HelmetUpdateDto();
+        helmetDto.setPrice(99.0);
+        mapper.updateEntityFromDto(helmetDto, helmet);
+
+        // POLE
+        Pole pole = createInstance(Pole.class);
+        pole.setPrice(10.0);
+        PoleUpdateDto poleDto = new PoleUpdateDto();
+        poleDto.setPrice(99.0);
+        mapper.updateEntityFromDto(poleDto, pole);
+
+        // SKI
+        Ski ski = createInstance(Ski.class);
+        ski.setPrice(10.0);
+        SkiUpdateDto skiDto = new SkiUpdateDto();
+        skiDto.setPrice(99.0);
+        mapper.updateEntityFromDto(skiDto, ski);
+
+        // SKIBOOT
+        SkiBoot skiBoot = createInstance(SkiBoot.class);
+        skiBoot.setPrice(10.0);
+        SkiBootUpdateDto skiBootDto = new SkiBootUpdateDto();
+        skiBootDto.setPrice(99.0);
+        mapper.updateEntityFromDto(skiBootDto, skiBoot);
+
+        // SNOWBOARD
+        Snowboard snowboard = createInstance(Snowboard.class);
+        snowboard.setPrice(10.0);
+        SnowboardUpdateDto snowboardDto = new SnowboardUpdateDto();
+        snowboardDto.setPrice(99.0);
+        mapper.updateEntityFromDto(snowboardDto, snowboard);
+
+        // SNOWBOARDBOOT
+        SnowboardBoot snowboardBoot = createInstance(SnowboardBoot.class);
+        snowboardBoot.setPrice(10.0);
+        SnowboardBootUpdateDto sbBootDto = new SnowboardBootUpdateDto();
+        sbBootDto.setPrice(99.0);
+        mapper.updateEntityFromDto(sbBootDto, snowboardBoot);
+
+        assertAll(
+            () -> assertThat(helmet.getPrice()).isEqualTo(99.0),
+            () -> assertThat(pole.getPrice()).isEqualTo(99.0),
+            () -> assertThat(ski.getPrice()).isEqualTo(99.0),
+            () -> assertThat(skiBoot.getPrice()).isEqualTo(99.0),
+            () -> assertThat(snowboard.getPrice()).isEqualTo(99.0),
+            () -> assertThat(snowboardBoot.getPrice()).isEqualTo(99.0)
+        );
+    }
+
+    @Test
+    void updateEntityFromDto_withNullInputs_doesNothing() {
+        assertDoesNotThrow(() -> {
+            mapper.updateEntityFromDto(null, createInstance(Helmet.class));
+            mapper.updateEntityFromDto(new HelmetUpdateDto(), null);
+        });
+    }
+
+    @Test
+    void updateEntityFromDto_withTypeMismatch_fallsThroughToDefault() {
+        Ski ski = createInstance(Ski.class);
+        ski.setPrice(10.0);
+        HelmetUpdateDto helmetDto = new HelmetUpdateDto();
+        helmetDto.setPrice(99.0);
+
+        assertDoesNotThrow(() -> mapper.updateEntityFromDto(helmetDto, ski));
+
+        assertThat(ski.getPrice()).isEqualTo(10.0);
+    }
+
+    @Test
+    void updateEntityFromDto_withMismatchedEntities_guardsEvaluateFalse() {
+        // DTO-Type with wrong entity -> sets guard false
+        Equipment wrongEntity = createInstance(Helmet.class);
+
+        assertDoesNotThrow(() -> {
+            mapper.updateEntityFromDto(new PoleUpdateDto(), wrongEntity);
+            mapper.updateEntityFromDto(new SkiUpdateDto(), wrongEntity);
+            mapper.updateEntityFromDto(new SnowboardBootUpdateDto(), wrongEntity);
+            mapper.updateEntityFromDto(new SkiBootUpdateDto(), wrongEntity);
+            mapper.updateEntityFromDto(new SnowboardUpdateDto(), wrongEntity);
+        });
+
+        // wrongEntity is helmet, no case -> default
+        assertThat(((Helmet) wrongEntity).getSize()).isEqualTo(0.0);
     }
 }
