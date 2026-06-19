@@ -1,9 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
+import at.ac.tuwien.sepr.groupphase.backend.entity.Reservation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 /**
@@ -31,15 +29,27 @@ public interface EmailService {
     /**
      * Sends a reservation confirmation email to the specified email address.
      *
-     * @param emailAddressTo receiver address
      * @param equipmentList list of equipment reserved
-     * @param startDate start date of the reservation
-     * @param endDate end date of the reservation
-     * @param pickUpTime pick-up time of the reservation
-     * @param firstName first name of the customer to personalize the email
-     * @param lastName last name of the customer to personalize the email
-     * @param totalPrice total price of the reservation (in the application's currency)
+     * @param reservation the reservation being confirmed
      */
-    void sendReservationConfirmation(String emailAddressTo, List<Equipment> equipmentList, LocalDate startDate, LocalDate endDate, LocalTime pickUpTime, String firstName, String lastName, double totalPrice);
+    void sendReservationConfirmation(List<Equipment> equipmentList, Reservation reservation);
 
+    /**
+     * Sends an overdue reminder email to the specified email address informing the customer
+     * that their reservation ended on the given {@code endDate} and listing the equipment that
+     * is overdue.
+     *
+     * @param reservation the reservation that is overdue
+     * @param equipmentList list of equipment that is overdue
+     */
+    void sendOverdueReminder(List<Equipment> equipmentList, Reservation reservation);
+
+    /**
+     * Sends a pick-up reminder email to the customer informing them about their upcoming reservation
+     * and the equipment that needs to be picked up.
+     *
+     * @param equipmentList list of equipment to be picked up
+     * @param reservation reservation details including customer information and dates
+     */
+    void sendPickUpReminderEmail(List<Equipment> equipmentList, Reservation reservation);
 }

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Action Required: Overdue Rental Equipment</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; padding: 20px; color: #333; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+
+        /* Attention Header */
+        .header { text-align: center; color: #e74c3c; margin-bottom: 30px; border-bottom: 2px solid #f9ebea; padding-bottom: 15px; }
+
+        /* Warning Box */
+        .info-box { background-color: #fdf2e9; border-left: 4px solid #e67e22; padding: 15px 20px; margin: 25px 0; border-radius: 4px; }
+
+        .equipment-grid { text-align: center; width: 100%; margin-top: 30px; }
+        .card {
+            display: inline-block; vertical-align: top; background: white; border: 1px solid #eee;
+            border-radius: 8px; width: 210px; margin: 10px; overflow: hidden; text-align: center; padding-bottom: 15px;
+        }
+        .card img { width: 100%; height: 150px; object-fit: cover; border-bottom: 1px solid #eee; display: block; }
+        .card h3 { color: #2c3e50; margin: 12px 10px 5px 10px; font-size: 1.1em; word-wrap: break-word; }
+        .badge { display: inline-block; background-color: #e67e22; color: white; padding: 3px 8px; border-radius: 12px; font-size: 0.8em; margin-top: 10px; }
+
+        .footer-text { margin-top: 30px; text-align: left; width: 100%; display: block; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h2>⚠️ Action Required: Overdue Equipment</h2>
+    </div>
+
+    <p>Dear <strong th:text="${firstName} + ' ' + ${lastName}">Max Mustermann</strong>,</p>
+
+    <p>We hope you had a fantastic time in the snow! Our records indicate that the rental period for your equipment has ended, but the items have not yet been returned to us.</p>
+
+    <div class="info-box">
+        <strong>📅 Scheduled Return Date:</strong> <span th:text="${#temporals.format(endDate, 'dd.MM.yyyy')}">01.01.2026</span><br>
+        <strong>⚠️ Status:</strong> Overdue
+    </div>
+
+    <p>Please return the following items to our store <strong>as soon as possible</strong> to avoid any additional late fees:</p>
+
+    <div class="equipment-grid">
+        <div class="card" th:each="item : ${equipmentList}">
+            <div th:switch="${item.equipmentTypeName}">
+                <img th:case="'Helmet'" src="https://images.unsplash.com/photo-1743275532239-47a4a15b9e60?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0" alt="Helmet">
+                <img th:case="'Pole'" src="https://images.unsplash.com/photo-1610916150455-05fc7918c825?q=80&w=1471&auto=format&fit=crop&ixlib=rb-4.1.0" alt="Pole">
+                <img th:case="'Ski'" src="https://images.unsplash.com/photo-1551524559-8af4e6624178?auto=format&fit=crop&w=400&q=80" alt="Ski">
+                <img th:case="'SkiBoot'" src="https://images.unsplash.com/photo-1727582921373-9d19faeac630?w=900&auto=format&fit=crop&q=80&ixlib=rb-4.1.0" alt="Ski Boot">
+                <img th:case="'Snowboard'" src="https://images.unsplash.com/photo-1709566506043-d2cc3f6beba6?q=80&w=627&auto=format&fit=crop&ixlib=rb-4.1.0" alt="Snowboard">
+                <img th:case="'SnowboardBoot'" src="https://www.snowmagazine.com/images/Best%20Snowboard%20Boots-%20Burton%20Ruler%20Boa%201.jpg?t=1731001416526" alt="Snowboard Boot">
+                <img th:case="*" src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=400&q=80" alt="Equipment">
+            </div>
+
+            <h3 th:text="${item.model}">Equipment Name</h3>
+            <span class="badge" th:text="${item.equipmentTypeName}">TYPE</span>
+        </div>
+    </div>
+
+    <div style="clear: both; display: block; width: 100%; height: 1px;"></div>
+
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+        <tr>
+            <td class="footer-text" style="text-align: left; padding: 0; color: #7f8c8d;">
+                <p style="margin: 0 0 12px 0;">If you have already returned the items or wish to extend your rental period, please contact our support team immediately.</p>
+                <p style="margin: 0;">Best regards,<br><strong style="color: #2c3e50;">Your SRIMS Support Team</strong></p>
+            </td>
+        </tr>
+    </table>
+</div>
+
+</body>
+</html>
