@@ -5,6 +5,7 @@ import {ReactiveFormsModule} from '@angular/forms';
 import {provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
 import {LoginRegisterComponent} from './login-register.component';
 import { TranslateModule } from '@ngx-translate/core';
+import { ToastrModule } from 'ngx-toastr';
 
 describe('LoginRegisterComponent', () => {
   let component: LoginRegisterComponent;
@@ -13,7 +14,7 @@ describe('LoginRegisterComponent', () => {
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [LoginRegisterComponent],
-      imports: [RouterTestingModule, ReactiveFormsModule, TranslateModule.forRoot()],
+      imports: [RouterTestingModule, ReactiveFormsModule, TranslateModule.forRoot(), ToastrModule.forRoot()],
       providers: [provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()]
     })
       .compileComponents();
