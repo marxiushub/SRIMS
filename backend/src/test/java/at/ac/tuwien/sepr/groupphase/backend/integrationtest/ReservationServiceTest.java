@@ -66,16 +66,16 @@ public class ReservationServiceTest {
     @BeforeEach
     public void setUp() {
         testCustomer = customerRepository
-            .findByEmail("hans.hansinger@email.com")
-            .orElseThrow(() -> new IllegalStateException("Test-Customer nicht im DataInitializer gefunden!"));
+            .findByEmail("benjamin.marius.widmer@gmail.com")
+            .orElseThrow(() -> new IllegalStateException("Test customer not found in DataInitializer!"));
 
         testCustomerProfile = customerProfileRepository
             .findByCustomerAndProfileName(testCustomer, "Hans")
-            .orElseThrow(() -> new IllegalStateException("Profil 'Hans' nicht gefunden!"));
+            .orElseThrow(() -> new IllegalStateException("Profile 'Hans' not found!"));
 
         testCustomerProfile2 = customerProfileRepository
             .findByCustomerAndProfileName(testCustomer, "Hansine")
-            .orElseThrow(() -> new IllegalStateException("Profil 'Hansine' nicht gefunden!"));
+            .orElseThrow(() -> new IllegalStateException("Profile 'Hansine' not found!"));
 
         List<Helmet> testEquipmentList = helmetRepository.findAll();
         if (testEquipmentList.size() < 2) {
