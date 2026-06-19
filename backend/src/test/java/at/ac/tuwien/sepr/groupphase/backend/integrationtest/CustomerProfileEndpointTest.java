@@ -4,9 +4,12 @@ package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 import at.ac.tuwien.sepr.groupphase.backend.basetest.IntegrationTestBase;
 import at.ac.tuwien.sepr.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Permission;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Role;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.Customer;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
+import at.ac.tuwien.sepr.groupphase.backend.entity.user.Staff;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +79,28 @@ public class CustomerProfileEndpointTest extends IntegrationTestBase implements 
             customer.getEmail(),
             customer.getId(),
             USER_PERMISSIONS
+        );
+    }
+
+    //Creates Test-Staff-User
+    private Staff createTestStaff(String suffix) {
+        Staff staff = new Staff(
+            "staff_user_" + suffix,
+            "hashedPassword",
+            "staff.user." + suffix + "@example.com",
+            Set.<Role>of(),
+            Set.<Permission>of()
+        );
+
+        return staffRepository.save(staff);
+    }
+
+    //Creates a Token for a Staff-User
+    private String staffToken(Staff staff) {
+        return jwtTokenizer.getAuthToken(
+            staff.getEmail(),
+            staff.getId(),
+            ADMIN_PERMISSIONS
         );
     }
 
@@ -182,6 +207,65 @@ public class CustomerProfileEndpointTest extends IntegrationTestBase implements 
                 .header(securityProperties.getAuthHeader(), token)
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void getCustomerProfiles_asStaff_withExistingCustomer_returns200AndProfiles() throws Exception {
+        Customer customer = createTestCustomer("staff_get_profiles");
+
+        createTestProfile(customer, "Staff First Profile", SkillLevel.BEGINNER);
+        createTestProfile(customer, "Staff Second Profile", SkillLevel.ADVANCED);
+
+        Staff staff = createTestStaff("reader");
+
+        mockMvc.perform(get("/api/v1/customer/{customerId}/profiles", customer.getId())
+                .header(securityProperties.getAuthHeader(), staffToken(staff))
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[*].profileName").value(hasItem("Staff First Profile")))
+            .andExpect(jsonPath("$[*].profileName").value(hasItem("Staff Second Profile")))
+            .andExpect(jsonPath("$[*].customerId").value(hasItem(customer.getId().intValue())));
+    }
+
+    @Test
+    public void getCustomerProfiles_asStaff_withUnknownCustomer_returns404() throws Exception {
+
+        Staff staff = createTestStaff("reader");
+
+        mockMvc.perform(get("/api/v1/customer/{customerId}/profiles", 99999L)
+                .header(securityProperties.getAuthHeader(), staffToken(staff))
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void getCustomerProfiles_asCustomer_onStaffEndpoint_returns403() throws Exception {
+        Customer customer = createTestCustomer("no_staff_access");
+
+        String token = userToken(customer);
+
+        mockMvc.perform(get("/api/v1/customer/{customerId}/profiles", 1L)
+                .header(securityProperties.getAuthHeader(), token)
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void getCustomerProfiles_asStaffWithoutPermission_returns403() throws Exception {
+        Customer customer = createTestCustomer("restricted");
+
+        Staff staff = createTestStaff("no_permission");
+
+        String token = jwtTokenizer.getAuthToken(
+            staff.getEmail(),
+            staff.getId(),
+            List.of("STAFF") // missing CUSTOMERPROFILE_READ
+        );
+
+        mockMvc.perform(get("/api/v1/customer/{customerId}/profiles", customer.getId())
+                .header(securityProperties.getAuthHeader(), token)
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isForbidden());
     }
 
     @Test

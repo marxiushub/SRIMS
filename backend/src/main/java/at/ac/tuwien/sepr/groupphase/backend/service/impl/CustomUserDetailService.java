@@ -220,13 +220,13 @@ public class CustomUserDetailService implements UserService {
 
         boolean isOwnUser = Objects.equals(currentUserId, requestedUserId);
 
-        boolean hasAdminPermission =
+        boolean hasStaffPermission =
             SecurityContextHolder.getContext().getAuthentication()
                 .getAuthorities()
                 .stream()
-                .anyMatch(a -> a.getAuthority().equals("USER_ADMIN"));
+                .anyMatch(a -> a.getAuthority().equals("STAFF"));
 
-        if (!isOwnUser && !hasAdminPermission) {
+        if (!isOwnUser && !hasStaffPermission) {
             throw new AccessDeniedException("You have no permission to perform this action.");
         }
     }

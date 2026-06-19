@@ -8,10 +8,12 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Role;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.Customer;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
+import at.ac.tuwien.sepr.groupphase.backend.entity.user.Staff;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerProfileRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.user.StaffRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.CurrentUserService;
 import at.ac.tuwien.sepr.groupphase.backend.service.CustomerProfileService;
 import org.junit.jupiter.api.AfterEach;
@@ -43,6 +45,9 @@ public class CustomerProfileServiceTest {
 
     @Autowired
     private CustomerProfileRepository customerProfileRepository;
+
+    @Autowired
+    private StaffRepository staffRepository;
 
     @MockitoBean
     private CurrentUserService currentUserService;
@@ -182,6 +187,64 @@ public class CustomerProfileServiceTest {
             () -> assertThat(exception).isNotNull(),
             () -> assertThat(exception.getMessage())
                 .containsIgnoringCase("not found")
+        );
+    }
+
+    @Test
+    public void getCustomerProfiles_withExistingCustomerId_returnsProfiles() {
+        Customer customer = createTestCustomer("staff_list_profiles");
+
+        createTestProfile(customer, "First Test Profile", SkillLevel.BEGINNER);
+        createTestProfile(customer, "Second Test Profile", SkillLevel.ADVANCED);
+
+        List<CustomerProfileDetailDto> result =
+            customerProfileService.getCustomerProfiles(customer.getId());
+
+        assertAll(
+            "Verify that all profiles for the given customer are returned",
+            () -> assertThat(result).isNotNull(),
+            () -> assertThat(result).hasSize(2),
+            () -> assertThat(result)
+                .extracting(CustomerProfileDetailDto::getProfileName)
+                .containsExactlyInAnyOrder(
+                    "First Test Profile",
+                    "Second Test Profile"
+                ),
+            () -> assertThat(result)
+                .allMatch(profile ->
+                    profile.getCustomerId().equals(customer.getId()))
+        );
+    }
+
+    @Test
+    public void getCustomerProfiles_withUnknownCustomerId_throwsNotFoundException() {
+
+        NotFoundException exception = assertThrows(
+            NotFoundException.class,
+            () -> customerProfileService.getCustomerProfiles(99999L)
+        );
+
+        assertAll(
+            "Verify that getting profiles for an unknown customer fails",
+            () -> assertThat(exception).isNotNull(),
+            () -> assertThat(exception.getMessage())
+                .containsIgnoringCase("not found")
+        );
+    }
+
+    @Test
+    public void getCustomerProfiles_withNullCustomerId_throwsIllegalArgumentException() {
+
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class,
+            () -> customerProfileService.getCustomerProfiles(null)
+        );
+
+        assertAll(
+            "Verify that a null customer id is rejected",
+            () -> assertThat(exception).isNotNull(),
+            () -> assertThat(exception.getMessage())
+                .containsIgnoringCase("cannot be null")
         );
     }
 

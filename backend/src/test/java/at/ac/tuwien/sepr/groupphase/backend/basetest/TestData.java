@@ -30,6 +30,8 @@ public interface TestData {
             add("STAFF_READ");
             add("STAFF_UPDATE");
             add("STAFF_DELETE");
+            add("CUSTOMERPROFILE_READ");
+            add("STAFF");
         }
     };
     String DEFAULT_USER = "admin@email.com";

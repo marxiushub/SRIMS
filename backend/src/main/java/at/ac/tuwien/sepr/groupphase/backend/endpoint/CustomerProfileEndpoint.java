@@ -47,12 +47,22 @@ public class CustomerProfileEndpoint {
         return customerProfileService.createCustomerProfile(dto);
     }
 
+    //Allows Customers to Read all of their CustomerProfiles
     @PreAuthorize("hasAuthority('CUSTOMERPROFILE_READ')")
     @GetMapping("/profiles")
     @ResponseStatus(HttpStatus.OK)
     public List<CustomerProfileDetailDto> getCustomerProfiles() {
         LOGGER.info("GET /api/v1/customer/profiles");
         return customerProfileService.getCustomerProfiles();
+    }
+
+    //Allows Staff to Read all of their CustomerProfiles
+    @PreAuthorize("hasAuthority('CUSTOMERPROFILE_READ') and hasAuthority('STAFF')")
+    @GetMapping("/{customerId}/profiles")
+    @ResponseStatus(HttpStatus.OK)
+    public List<CustomerProfileDetailDto> getCustomerProfiles(@PathVariable("customerId") Long customerId) {
+        LOGGER.info("GET /api/v1/customer/{}/profiles", customerId);
+        return customerProfileService.getCustomerProfiles(customerId);
     }
 
     @PreAuthorize("hasAuthority('CUSTOMERPROFILE_DELETE')")

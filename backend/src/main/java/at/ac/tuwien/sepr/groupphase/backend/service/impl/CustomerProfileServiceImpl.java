@@ -10,6 +10,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerProfileRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.user.StaffRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.CurrentUserService;
 import at.ac.tuwien.sepr.groupphase.backend.service.CustomerProfileService;
 import org.slf4j.Logger;
@@ -82,6 +83,21 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
             .stream()
             .map(customerProfileMapper::entityToDetailDto)
             .toList();
+    }
+
+    @Override
+    public List<CustomerProfileDetailDto> getCustomerProfiles(Long customerId) {
+        LOGGER.trace("Get customer profiles for customer with id {}", customerId);
+
+        if (customerId == null) {
+            throw new IllegalArgumentException("Customer ID cannot be null.");
+        }
+
+        if (!customerRepository.existsById(customerId)) {
+            throw new NotFoundException("Customer with ID " + customerId + " was not found.");
+        }
+
+        return customerProfileRepository.findByCustomerId(customerId).stream().map(customerProfileMapper::entityToDetailDto).toList();
     }
 
     @Override

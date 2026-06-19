@@ -27,11 +27,20 @@ public interface CustomerProfileService {
     CustomerProfileDetailDto createCustomerProfile(CustomerProfileCreationDto dto);
 
     /**
-     * Retrieves all customer profiles belonging to a specific customer.
+     * Retrieves all customer profiles belonging to a specific customer via the CustomerID encoded in the Token.
+     * Should only be used with Customer-Accounts
      *
      * @return a list if {@link CustomerProfileDetailDto} belonging to the customer
      */
     List<CustomerProfileDetailDto> getCustomerProfiles();
+
+    /**
+     * Retrieves all customer profiles belonging to a specific customer via a CustomerID given in the HTTP-Request.
+     * Should only be used with Staff- or Admin-Accounts
+     *
+     * @return a list if {@link CustomerProfileDetailDto} belonging to the customer
+     */
+    List<CustomerProfileDetailDto> getCustomerProfiles(Long  customerId);
 
     /**
      * Partially updates an existing customer profile.
