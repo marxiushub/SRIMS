@@ -21,8 +21,8 @@ public class ReservationReminderJob {
         this.reservationService = reservationService;
     }
 
-    //@Scheduled(cron = "0 0 22 * * *")
-    @Scheduled(fixedDelay = 10000)
+    @Scheduled(cron = "0 0 22 * * *")
+    //@Scheduled(fixedDelay = 10000)
     public void processPickupReminders() {
         LOGGER.info("Searching for overdue reservations...");
 
@@ -31,8 +31,8 @@ public class ReservationReminderJob {
         reservationService.processOverdueReservations(boundaryDate);
     }
 
-    //@Scheduled(cron = "0 0 8 * * *")
-    @Scheduled(fixedDelay = 10000)
+    @Scheduled(cron = "0 0 8 * * *")
+    //@Scheduled(fixedDelay = 10000)
     public void processPickUpReminders() {
         LOGGER.info("Searching for upcoming reservations (<= 2 days)...");
         reservationService.processPickUpReminders();
