@@ -18,8 +18,8 @@ export class CustomerProfileService {
   /**
    * Loads all profiles from the backend corresponding to the given customer ID.
    */
-  getCustomerProfiles(customerId: number): Observable<CustomerProfile[]> {
-    return this.httpClient.get<CustomerProfile[]>(`${this.globals.backendUri}/customer/${customerId}/profiles`);
+  getCustomerProfiles(): Observable<CustomerProfile[]> {
+    return this.httpClient.get<CustomerProfile[]>(this.customerBaseUri);
   }
 
   /**

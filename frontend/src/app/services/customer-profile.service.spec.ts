@@ -49,7 +49,7 @@ describe('CustomerProfileService', () => {
         expect(profiles.length).toBe(2);
       });
 
-      const req = httpMock.expectOne(`${globals.backendUri}/customer/${customerId}/profiles`);
+      const req = httpMock.expectOne(`${globals.backendUri}/customer/profiles`);
       expect(req.request.method).toBe('GET');
       req.flush(mockProfiles);
     });

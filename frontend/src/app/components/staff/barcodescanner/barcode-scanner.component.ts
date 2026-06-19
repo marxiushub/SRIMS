@@ -416,6 +416,7 @@ export class BarcodeScannerComponent implements OnInit {
   //Loads all customerAccounts for the dropdown
   private loadAllSystemUsers(): void {
     // TODO: Replace with real API-call from UserService when ready
+    // TODO: Replace this with a call for the searchMethod for CustomerAccounts, also make it a search with input
     this.allUsers = [
       {id: 1, username: 'Hans'},
       {id: 2, username: 'Not Actually An User'}
@@ -424,7 +425,7 @@ export class BarcodeScannerComponent implements OnInit {
 
   //Loads the customerProfiles for the selected customerAccount
   private loadProfilesForUser(userId: number): void {
-    this.customerProfileService.getCustomerProfiles(userId).subscribe({
+    this.customerProfileService.getCustomerProfiles().subscribe({
       next: (profiles) => {
         this.filteredProfiles = profiles;
         this.walkInForm.get('customerProfileId')?.enable();
