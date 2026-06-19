@@ -16,6 +16,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.user.StaffRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RoleRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.AppUserDetails;
+import at.ac.tuwien.sepr.groupphase.backend.security.CurrentUserService;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import org.slf4j.Logger;
@@ -54,9 +55,10 @@ public class CustomUserDetailService implements UserService {
     private final UserMapper mapper;
     private final  RoleRepository roleRepository;
     private final PermissionService permissionService;
+    private final CurrentUserService currentUserService;
 
     /**
-     * Constructor for EquipmentService. Initializes the service with the necessary repositories and mapper.
+     * Constructor for UserService. Initializes the service with the necessary repositories and mapper.
      *
      * @param userRepository        the repository for managing user entities
      * @param passwordEncoder       the encoder used to hash the passwords of users
@@ -64,10 +66,11 @@ public class CustomUserDetailService implements UserService {
      * @param customerRepository    the repository for managing customer entities
      * @param staffRepository       the repository for managing staff entities
      * @param mapper                the mapper for converting between entities and DTOs
+     * @param currentUserService    the service to retrieve the current ApplicationUser from the Security Context
      */
     @Autowired
     public CustomUserDetailService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtTokenizer jwtTokenizer,  CustomerRepository customerRepository, StaffRepository staffRepository,
-                                   UserMapper mapper, RoleRepository roleRepository, UserServiceValidator validator, PermissionService permissionService) {
+                                   UserMapper mapper, RoleRepository roleRepository, UserServiceValidator validator, PermissionService permissionService, CurrentUserService currentUserService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenizer = jwtTokenizer;
@@ -81,6 +84,7 @@ public class CustomUserDetailService implements UserService {
             UserType.STAFF, staffRepository
         );
         this.mapper = mapper;
+        this.currentUserService = currentUserService;
     }
 
     @Override
@@ -209,43 +213,21 @@ public class CustomUserDetailService implements UserService {
 
 
     //Helper Methods:
-    //Gets the current user's ID from the security context.
-    private Long getCurrentUserId() {
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null) {
-            return -1L;
-        }
-
-        // Try to get from details first (set by JwtAuthorizationFilter)
-        Object details = auth.getDetails();
-        if (details instanceof Long) {
-            return (Long) details;
-        }
-
-        // Fallback to AppUserDetails if available
-        Object principal = auth.getPrincipal();
-        if (principal instanceof AppUserDetails) {
-            return ((AppUserDetails) principal).getUserId();
-        }
-
-        return -1L;
-    }
-
-    //Checks if the given id in a DTO is the same ID as the ID of the user who wants to perform a CRUD action
+    //Checks if the given id (requestedUserID) is the same ID as the ID of the user who wants to perform the CRUD action
     private void checkUserAccessPermission(Long requestedUserId) {
-        Long currentUserId = getCurrentUserId();
 
-        // Erlaubt: eigene ID ODER User hat "USER_ADMIN" Permission
+        Long currentUserId = currentUserService.getUserId();
+
         boolean isOwnUser = Objects.equals(currentUserId, requestedUserId);
-        boolean hasAdminPermission = SecurityContextHolder.getContext().getAuthentication()
-            .getAuthorities()
-            .stream()
-            .anyMatch(a -> a.getAuthority().equals("USER_ADMIN"));
+
+        boolean hasAdminPermission =
+            SecurityContextHolder.getContext().getAuthentication()
+                .getAuthorities()
+                .stream()
+                .anyMatch(a -> a.getAuthority().equals("USER_ADMIN"));
 
         if (!isOwnUser && !hasAdminPermission) {
-            throw new AccessDeniedException(
-                String.format("User %d is not authorized to access user %d", currentUserId, requestedUserId)
-            );
+            throw new AccessDeniedException("You have no permission to perform this action.");
         }
     }
 }

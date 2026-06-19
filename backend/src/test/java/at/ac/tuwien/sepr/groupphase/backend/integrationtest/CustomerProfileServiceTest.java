@@ -12,12 +12,14 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerProfileRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
+import at.ac.tuwien.sepr.groupphase.backend.security.CurrentUserService;
 import at.ac.tuwien.sepr.groupphase.backend.service.CustomerProfileService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -26,6 +28,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
 //TODO: rework test to use datagenerators and integrationtestbase
 @ActiveProfiles({"test"})
@@ -40,6 +43,9 @@ public class CustomerProfileServiceTest {
 
     @Autowired
     private CustomerProfileRepository customerProfileRepository;
+
+    @MockitoBean
+    private CurrentUserService currentUserService;
 
     @AfterEach
     public void cleanup() {
@@ -79,8 +85,10 @@ public class CustomerProfileServiceTest {
     public void createCustomerProfile_withValidDto_returnsSavedProfileWithId() {
         Customer savedCustomer = createTestCustomer("create_valid");
 
+        when(currentUserService.getUserId())
+            .thenReturn(savedCustomer.getId());
+
         CustomerProfileCreationDto dto = new CustomerProfileCreationDto();
-        dto.setCustomerId(savedCustomer.getId());
         dto.setProfileName("Test Profile");
         dto.setHeight(175);
         dto.setWeight(70);
@@ -108,8 +116,11 @@ public class CustomerProfileServiceTest {
 
     @Test
     public void createCustomerProfile_withUnknownCustomerId_throwsNotFoundException() {
+
+        when(currentUserService.getUserId())
+            .thenReturn(99999L);
+
         CustomerProfileCreationDto dto = new CustomerProfileCreationDto();
-        dto.setCustomerId(99999L);
         dto.setProfileName("Unknown Customer Profile");
         dto.setHeight(175);
         dto.setWeight(70);
@@ -131,10 +142,13 @@ public class CustomerProfileServiceTest {
     public void getCustomerProfiles_withExistingCustomer_returnsProfiles() {
         Customer customer = createTestCustomer("list_profiles");
 
+        when(currentUserService.getUserId())
+            .thenReturn(customer.getId());
+
         createTestProfile(customer, "First Test Profile", SkillLevel.BEGINNER);
         createTestProfile(customer, "Second Test Profile", SkillLevel.ADVANCED);
 
-        List<CustomerProfileDetailDto> result = customerProfileService.getCustomerProfiles(customer.getId());
+        List<CustomerProfileDetailDto> result = customerProfileService.getCustomerProfiles();
 
         assertAll(
             "Verify that all profiles for the customer are returned",
@@ -142,22 +156,32 @@ public class CustomerProfileServiceTest {
             () -> assertThat(result).hasSize(2),
             () -> assertThat(result)
                 .extracting(CustomerProfileDetailDto::getProfileName)
-                .containsExactlyInAnyOrder("First Test Profile", "Second Test Profile"),
+                .containsExactlyInAnyOrder(
+                    "First Test Profile",
+                    "Second Test Profile"
+                ),
             () -> assertThat(result)
-                .allMatch(profile -> profile.getCustomerId().equals(customer.getId()))
+                .allMatch(profile ->
+                    profile.getCustomerId().equals(customer.getId()))
         );
     }
 
     @Test
     public void getCustomerProfiles_withUnknownCustomer_throwsNotFoundException() {
-        NotFoundException exception = assertThrows(NotFoundException.class, () ->
-            customerProfileService.getCustomerProfiles(99999L)
+
+        when(currentUserService.getUserId())
+            .thenReturn(99999L);
+
+        NotFoundException exception = assertThrows(
+            NotFoundException.class,
+            () -> customerProfileService.getCustomerProfiles()
         );
 
         assertAll(
             "Verify that getting profiles for an unknown customer fails",
             () -> assertThat(exception).isNotNull(),
-            () -> assertThat(exception.getMessage()).containsIgnoringCase("not found")
+            () -> assertThat(exception.getMessage())
+                .containsIgnoringCase("not found")
         );
     }
 
@@ -165,6 +189,9 @@ public class CustomerProfileServiceTest {
     public void deleteCustomerProfile_withExistingProfile_deletesProfile() {
         Customer customer = createTestCustomer("delete_profile");
         CustomerProfile profile = createTestProfile(customer, "Profile To Delete", SkillLevel.BEGINNER);
+
+        when(currentUserService.getUserId())
+            .thenReturn(customer.getId());
 
         customerProfileService.deleteCustomerProfile(profile.getId());
 
@@ -188,6 +215,9 @@ public class CustomerProfileServiceTest {
     public void updateCustomerProfile_withValidDto_updatesOnlyProvidedFields() {
         Customer customer = createTestCustomer("update_profile");
         CustomerProfile profile = createTestProfile(customer, "Old Profile Name", SkillLevel.BEGINNER);
+
+        when(currentUserService.getUserId())
+            .thenReturn(customer.getId());
 
         CustomerProfileUpdateDto dto = new CustomerProfileUpdateDto();
         dto.setProfileName("Updated Profile Name");
@@ -264,6 +294,9 @@ public class CustomerProfileServiceTest {
     public void getCustomerProfileById_withExistingProfile_returnsProfile() {
         Customer customer = createTestCustomer("get_by_id");
         CustomerProfile profile = createTestProfile(customer, "Profile By Id", SkillLevel.BEGINNER);
+
+        when(currentUserService.getUserId())
+            .thenReturn(customer.getId());
 
         CustomerProfileDetailDto result = customerProfileService.getCustomerProfileById(profile.getId());
 

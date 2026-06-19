@@ -10,9 +10,11 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerProfileRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
+import at.ac.tuwien.sepr.groupphase.backend.security.CurrentUserService;
 import at.ac.tuwien.sepr.groupphase.backend.service.CustomerProfileService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
@@ -20,7 +22,6 @@ import java.util.List;
 
 /**
  * Implementation of {@link CustomUserDetailService} for handling customer profile-related operations.
- * TODO: change Id to token
  */
 @Service
 public class CustomerProfileServiceImpl implements CustomerProfileService {
@@ -29,23 +30,27 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
     private final CustomerRepository customerRepository;
     private final CustomerProfileMapper customerProfileMapper;
     private final CustomerProfileValidator customerProfileValidator;
-
+    private final CurrentUserService currentUserService;
 
     public CustomerProfileServiceImpl(CustomerProfileRepository customerProfileRepository,
                                       CustomerRepository customerRepository,
                                       CustomerProfileMapper mapper,
-                                      CustomerProfileValidator customerProfileValidator) {
+                                      CustomerProfileValidator customerProfileValidator,
+                                      CurrentUserService currentUserService) {
         this.customerProfileRepository = customerProfileRepository;
         this.customerRepository = customerRepository;
         this.customerProfileMapper = mapper;
         this.customerProfileValidator = customerProfileValidator;
+        this.currentUserService = currentUserService;
     }
 
     @Override
     public CustomerProfileDetailDto createCustomerProfile(CustomerProfileCreationDto dto) {
-        LOGGER.trace("Creating customer profile for customer with id {}", dto.getCustomerId());
+        Long customerId = currentUserService.getUserId();
 
-        Customer customer = customerRepository.findById(dto.getCustomerId()).orElseThrow(() -> new NotFoundException("Customer with ID " + dto.getCustomerId() + " was not found."));
+        LOGGER.trace("Creating customer profile for customer with id {}", customerId);
+
+        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new NotFoundException("Customer with ID " + customerId + " was not found."));
 
         CustomerProfile customerProfile = new CustomerProfile(
             dto.getProfileName(),
@@ -61,30 +66,32 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
     }
 
     @Override
-    public List<CustomerProfileDetailDto> getCustomerProfiles(Long customerId) {
+    public List<CustomerProfileDetailDto> getCustomerProfiles() {
+
+        Long customerId = currentUserService.getUserId();
+
         LOGGER.trace("Get customer profiles for customer with id {}", customerId);
 
-        if (customerId == null) {
-            throw new IllegalArgumentException("Customer ID cannot be null.");
-        }
         if (!customerRepository.existsById(customerId)) {
-            throw new NotFoundException("Customer with ID " + customerId + " was not found.");
+            throw new NotFoundException(
+                "Customer with ID " + customerId + " was not found."
+            );
         }
-        return customerProfileRepository.findByCustomerId(customerId).stream().map(customerProfileMapper::entityToDetailDto).toList();
+
+        return customerProfileRepository.findByCustomerId(customerId)
+            .stream()
+            .map(customerProfileMapper::entityToDetailDto)
+            .toList();
     }
 
     @Override
     public CustomerProfileDetailDto updateCustomerProfile(Long customerProfileId, CustomerProfileUpdateDto dto) {
         LOGGER.trace("Updating customer profile for customer with id {}", customerProfileId);
 
-        if (customerProfileId == null) {
-            throw new IllegalArgumentException("Customer ID cannot be null.");
-        }
-
         customerProfileValidator.validateUpdateDto(dto);
 
-        CustomerProfile profile = customerProfileRepository.findById(customerProfileId).orElseThrow(
-            () -> new NotFoundException("Customer profile with ID " + customerProfileId + " was not found."));
+        Long currentUserId = currentUserService.getUserId();
+        CustomerProfile profile = checkUserAccessPermission(customerProfileId, currentUserId);
 
         if (dto.getProfileName() != null) {
             profile.setProfileName(dto.getProfileName());
@@ -106,20 +113,17 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
             profile.setSkillLevel(dto.getSkillLevel());
         }
 
-        CustomerProfile savedProfile = customerProfileRepository.save(profile);
-        return customerProfileMapper.entityToDetailDto(savedProfile);
+        return customerProfileMapper.entityToDetailDto(
+            customerProfileRepository.save(profile)
+        );
     }
 
     @Override
     public CustomerProfileDetailDto getCustomerProfileById(Long customerProfileId) {
         LOGGER.trace("Get customer profile by id {}", customerProfileId);
 
-        if (customerProfileId == null) {
-            throw new IllegalArgumentException("Customer profile id is null.");
-        }
-
-        CustomerProfile profile = customerProfileRepository.findById(customerProfileId).orElseThrow(
-            () -> new NotFoundException("Customer profile with ID " + customerProfileId + " was not found."));
+        Long currentUserId = currentUserService.getUserId();
+        CustomerProfile profile = checkUserAccessPermission(customerProfileId, currentUserId);
 
         return customerProfileMapper.entityToDetailDto(profile);
     }
@@ -128,13 +132,30 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
     public void deleteCustomerProfile(Long customerProfileId) {
         LOGGER.trace("Deleting customer profile with id {}", customerProfileId);
 
-        if (customerProfileId == null) {
-            throw new IllegalArgumentException("Customer profile id is null");
-        }
-        if (!customerProfileRepository.existsById(customerProfileId)) {
-            throw new NotFoundException("Customer profile with id " + customerProfileId + " was not found.");
+        Long currentUserId = currentUserService.getUserId();
+        CustomerProfile profile = checkUserAccessPermission(customerProfileId, currentUserId);
+
+        customerProfileRepository.delete(profile);
+    }
+
+
+    //Helper Methods
+    //Checks whether a given CustomerProfileID belongs to a given CustomerID
+    private CustomerProfile checkUserAccessPermission(Long profileId, Long currentCustomerId) {
+
+        if (profileId == null) {
+            throw new IllegalArgumentException("Customer profile id is null.");
         }
 
-        customerProfileRepository.deleteById(customerProfileId);
+        CustomerProfile profile = customerProfileRepository.findById(profileId)
+            .orElseThrow(() ->
+                new NotFoundException("Customer profile with ID " + profileId + " was not found.")
+            );
+
+        if (!profile.getCustomer().getId().equals(currentCustomerId)) {
+            throw new AccessDeniedException("You have no permission to perform this action.");
+        }
+
+        return profile;
     }
 }
