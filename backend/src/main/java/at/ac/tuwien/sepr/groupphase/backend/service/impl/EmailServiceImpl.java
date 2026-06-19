@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
+import at.ac.tuwien.sepr.groupphase.backend.entity.Reservation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.service.EmailService;
 import jakarta.mail.internet.MimeMessage;
@@ -15,8 +16,6 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.lang.invoke.MethodHandles;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Locale;
 
@@ -68,39 +67,104 @@ public class EmailServiceImpl implements EmailService {
 
 
             mailSender.send(mimeMessage);
-            LOGGER.warn("Sent account creation success email to {} for customer {}", emailAddressTo, customerName);
-
         } catch (Exception e) {
             throw new RuntimeException("Error sending the HTML email: " + e.getMessage(), e);
         }
     }
 
     @Override
-    public void sendReservationConfirmation(String emailAddressTo, List<Equipment> equipmentList, LocalDate startDate, LocalDate endDate, LocalTime pickUpTime, String firstName, String lastName, double totalPrice) {
+    public void sendReservationConfirmation(List<Equipment> equipmentList, Reservation reservation) {
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             Context context = new Context();
             context.setVariable("equipmentList", equipmentList);
-            context.setVariable("startDate", startDate);
-            context.setVariable("endDate", endDate);
-            context.setVariable("pickUpTime", pickUpTime);
-            context.setVariable("firstName", firstName);
-            context.setVariable("lastName", lastName);
-            context.setVariable("totalPrice", String.format(Locale.US, "%.2f €", totalPrice));
+            context.setVariable("startDate", reservation.getStartDate());
+            context.setVariable("endDate", reservation.getEndDate());
+            context.setVariable("pickUpTime", reservation.getPickUpTime());
+            context.setVariable("firstName", reservation.getCustomerProfile().getCustomer().getFirstName());
+            context.setVariable("lastName", reservation.getCustomerProfile().getCustomer().getLastName());
+            context.setVariable("totalPrice", String.format(Locale.US,
+                "%.2f €", reservation.getTotalPrice()));
 
             String htmlContent = templateEngine.process("reservation-created-email", context);
 
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
             helper.setFrom("srims@widmer.wien");
-            helper.setTo(emailAddressTo);
-            helper.setSubject(String.format("Reservation Confirmation for %s", firstName + " " + lastName));
+            helper.setTo(reservation.getCustomerProfile().getCustomer().getEmail());
+            helper.setSubject(String.format("Reservation Confirmation for %s",
+                context.getVariable("firstName") + " " + context.getVariable("lastName")));
             helper.setText(htmlContent, true);
 
             mailSender.send(mimeMessage);
-            LOGGER.warn("Sent reservation confirmation email to {} for customer {}", emailAddressTo, firstName + " " + lastName);
+        } catch (Exception e) {
+            throw new RuntimeException("Error sending the HTML email: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void sendOverdueReminder(List<Equipment> equipmentList, Reservation reservation) {
+        try {
+
+
+            MimeMessage message = mailSender.createMimeMessage();
+            Context context = new Context();
+            context.setVariable("equipmentList", equipmentList);
+            context.setVariable("endDate", reservation.getEndDate());
+            context.setVariable("firstName", reservation.getCustomerProfile().getCustomer().getFirstName());
+            context.setVariable("lastName", reservation.getCustomerProfile().getCustomer().getLastName());
+
+            String htmlContent = templateEngine.process("overdue-email", context);
+
+            MimeMessageHelper helper = new MimeMessageHelper(message, "utf-8");
+            helper.setFrom("srims@widmer.wien");
+            helper.setTo(reservation.getCustomerProfile().getCustomer().getEmail());
+            helper.setSubject(String.format("Overdue reminder for %s %s — items due %s",
+                context.getVariable("firstName"), context.getVariable("lastName"),
+                context.getVariable("endDate")));
+            helper.setText(htmlContent, true);
+
+            mailSender.send(message);
 
         } catch (Exception e) {
             throw new RuntimeException("Error sending the HTML email: " + e.getMessage(), e);
+
+        }
+
+    }
+
+    @Override
+    public void sendPickUpReminderEmail( List<Equipment> equipmentList, Reservation reservation) {
+
+        String to = reservation.getCustomerProfile().getCustomer().getEmail();
+
+        LOGGER.info("Preparing pick-up reminder email for {}", to);
+
+        try {
+
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setTo(to);
+            helper.setFrom("srims@widmer.wien");
+            helper.setSubject("Get Ready: Your Rental Starts Soon!");
+
+            Context context = new Context();
+            context.setVariable("firstName", reservation.getCustomerProfile().getCustomer().getFirstName());
+            context.setVariable("lastName", reservation.getCustomerProfile().getCustomer().getLastName());
+            context.setVariable("startDate", reservation.getStartDate());
+            context.setVariable("pickUpTime", reservation.getPickUpTime());
+            context.setVariable("equipmentList", equipmentList);
+
+            String htmlContent = templateEngine.process("pick-up-reminder-email", context);
+            helper.setText(htmlContent, true);
+
+
+            mailSender.send(message);
+            LOGGER.info("Pick-up reminder email successfully sent to {}", to);
+
+        } catch (Exception e) {
+            LOGGER.error("Failed to send pick-up reminder email to {}", to, e);
+            throw new RuntimeException("Error sending the pick-up reminder email", e);
         }
     }
 }

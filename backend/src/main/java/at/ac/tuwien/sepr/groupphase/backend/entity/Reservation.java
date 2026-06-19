@@ -49,6 +49,12 @@ public class Reservation {
 
     private ReservationStatus reservationStatus;
 
+    @Column(nullable = false)
+    private boolean overdueReminderSent = false;
+
+    @Column(nullable = false)
+    private boolean pickUpReminderSent = false;
+
     protected Reservation() {
     }
 
@@ -98,6 +104,14 @@ public class Reservation {
         this.totalPrice = totalPrice;
     }
 
+    public void setOverdueReminderSent(boolean reminderSent) {
+        this.overdueReminderSent = reminderSent;
+    }
+
+    public void setPickUpReminderSent(boolean reminderSent) {
+        this.pickUpReminderSent = reminderSent;
+    }
+
     /**
      * Getter.
      *
@@ -137,6 +151,14 @@ public class Reservation {
 
     public double getTotalPrice() {
         return totalPrice;
+    }
+
+    public boolean isOverdueReminderSent() {
+        return overdueReminderSent;
+    }
+
+    public boolean isPickUpReminderSent() {
+        return pickUpReminderSent;
     }
 
 }

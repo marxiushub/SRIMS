@@ -88,10 +88,8 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
         }
         calculateAndSetTotalPrice(reservation);
         Reservation savedReservation = reservationRepository.save(reservation);
-        emailService.sendReservationConfirmation(profile.getCustomer().getEmail(),
-            equipmentList, reservation.getStartDate(),
-            reservation.getEndDate(), reservation.getPickUpTime(),
-            profile.getCustomer().getFirstName(), profile.getCustomer().getLastName(), reservation.getTotalPrice());
+        emailService.sendReservationConfirmation(equipmentList, savedReservation);
+        reservation.setConfirmationEmailSent();
         return reservationMapper.entityToDetailDto(savedReservation);
     }
 
@@ -296,6 +294,78 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
         calculateAndSetTotalPrice(reservation);
         Reservation savedReservation = reservationRepository.save(reservation);
         return reservationMapper.entityToDetailDto(savedReservation);
+    }
+
+    @Transactional(readOnly = false)
+    @Override
+    public void processOverdueReservations(LocalDate boundaryDate) {
+
+        List<Reservation> overdueReservations = reservationRepository
+            .findByEndDateBeforeAndReservationStatusAndOverdueReminderSentFalse(
+                boundaryDate, ReservationStatus.PICKED_UP);
+
+        if (overdueReservations.isEmpty()) {
+            LOGGER.info("No overdue reservations found for boundary date: {}", boundaryDate);
+            return;
+        }
+
+        LOGGER.info("Found {} overdue reservations! Starting reminder process...", overdueReservations.size());
+
+        for (Reservation res : overdueReservations) {
+            try {
+
+                List<Equipment> currentEquipment = res.getItems().stream()
+                    .map(ReservationRelation::getEquipment).toList();
+
+                emailService.sendOverdueReminder(currentEquipment, res);
+
+                res.setOverdueReminderSent(true);
+                reservationRepository.save(res);
+
+                LOGGER.info("Overdue reminder successfully sent to {} (Reservation ID: {}).",
+                    res.getCustomerProfile().getCustomer().getEmail(), res.getId());
+
+            } catch (Exception e) {
+                LOGGER.error("Failed to process overdue reminder for Reservation ID {}: {}", res.getId(), e.getMessage());
+            }
+        }
+    }
+
+    @Transactional(readOnly = false)
+    @Override
+    public void processPickUpReminders() {
+        LocalDate today = LocalDate.now();
+        LocalDate boundaryDate = today.plusDays(2);
+
+        List<Reservation> upcomingReservations = reservationRepository
+            .findByStartDateBetweenAndReservationStatusAndPickUpReminderSentFalse(
+                today, boundaryDate, ReservationStatus.CREATED);
+
+        if (upcomingReservations.isEmpty()) {
+            LOGGER.info("No upcoming reservations found needing a pick-up reminder.");
+            return;
+        }
+
+        LOGGER.info("Found {} upcoming reservations. Starting pick-up reminder process...", upcomingReservations.size());
+
+        for (Reservation res : upcomingReservations) {
+            try {
+
+                List<Equipment> currentEquipment = res.getItems().stream()
+                    .map(ReservationRelation::getEquipment).toList();
+
+                emailService.sendPickUpReminderEmail(currentEquipment, res);
+
+                res.setPickUpReminderSent(true);
+                reservationRepository.save(res);
+
+                LOGGER.info("Pick-up reminder successfully sent to {} (Reservation ID: {}).",
+                    res.getCustomerProfile().getCustomer().getEmail(), res.getId());
+
+            } catch (Exception e) {
+                LOGGER.error("Failed to send pick-up reminder for Reservation ID {}: {}", res.getId(), e.getMessage());
+            }
+        }
     }
 
     private void deleteTimePeriodsForEquipment(List<Equipment> equipmentList, Reservation reservation) {

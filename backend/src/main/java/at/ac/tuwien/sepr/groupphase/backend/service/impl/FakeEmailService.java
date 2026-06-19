@@ -1,14 +1,12 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
+import at.ac.tuwien.sepr.groupphase.backend.entity.Reservation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.service.EmailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -29,9 +27,17 @@ public class FakeEmailService implements EmailService {
 
 
     @Override
-    public void sendReservationConfirmation(String emailAddressTo, List<Equipment> equipmentList, LocalDate startDate,
-                                            LocalDate endDate, LocalTime pickUpTime, String firstName, String lastName,
-                                            double totalPrice) {
-        LOGGER.info("Fake email sent to {} (Reservation)", emailAddressTo);
+    public void sendReservationConfirmation(List<Equipment> equipmentList, Reservation reservation) {
+        LOGGER.info("Fake email sent to {} (Reservation)", reservation.getCustomerProfile().getCustomer().getEmail());
+    }
+
+    @Override
+    public void sendOverdueReminder(List<Equipment> equipmentList, Reservation reservation) {
+        LOGGER.info("Fake email sent to {} (Overdue)", reservation.getCustomerProfile().getCustomer().getEmail());
+    }
+
+    @Override
+    public void sendPickUpReminderEmail(List<Equipment> equipmentList, Reservation reservation) {
+        LOGGER.info("Fake email sent to {} (Pick up reminder)", reservation.getCustomerProfile().getCustomer().getEmail());
     }
 }
