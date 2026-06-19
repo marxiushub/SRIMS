@@ -29,10 +29,9 @@ public interface CustomerProfileService {
     /**
      * Retrieves all customer profiles belonging to a specific customer.
      *
-     * @param customerId the ID of the customer whose profiles should be retrieved
      * @return a list if {@link CustomerProfileDetailDto} belonging to the customer
      */
-    List<CustomerProfileDetailDto> getCustomerProfiles(Long customerId);
+    List<CustomerProfileDetailDto> getCustomerProfiles();
 
     /**
      * Partially updates an existing customer profile.

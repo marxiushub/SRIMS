@@ -98,8 +98,10 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         MDC.put("u", username);
 
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(username, null, authorities);
-        auth.setDetails(uid);
+        AppUserDetails principal = new AppUserDetails(username, "", authorities, uid);
+
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(principal, null, authorities);
+
         return auth;
     }
 }

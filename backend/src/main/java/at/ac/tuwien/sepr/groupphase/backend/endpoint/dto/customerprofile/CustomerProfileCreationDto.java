@@ -33,9 +33,6 @@ public class CustomerProfileCreationDto {
     @NotNull(message = "Skill level is required")
     private SkillLevel skillLevel;
 
-    @NotNull(message = "Customer id is required")
-    private Long customerId;
-
     public CustomerProfileCreationDto() {
     }
 
@@ -79,11 +76,4 @@ public class CustomerProfileCreationDto {
         this.skillLevel = skillLevel;
     }
 
-    public Long getCustomerId() {
-        return customerId;
-    }
-
-    public void setCustomerId(Long customerId) {
-        this.customerId = customerId;
-    }
 }

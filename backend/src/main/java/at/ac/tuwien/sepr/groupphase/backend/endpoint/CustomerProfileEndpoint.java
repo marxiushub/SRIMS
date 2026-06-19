@@ -48,11 +48,11 @@ public class CustomerProfileEndpoint {
     }
 
     @PreAuthorize("hasAuthority('CUSTOMERPROFILE_READ')")
-    @GetMapping("/{customerId}/profiles")
+    @GetMapping("/profiles")
     @ResponseStatus(HttpStatus.OK)
-    public List<CustomerProfileDetailDto> getCustomerProfiles(@PathVariable("customerId") Long customerId) {
-        LOGGER.info("GET /api/v1/customer/{}/profiles", customerId);
-        return customerProfileService.getCustomerProfiles(customerId);
+    public List<CustomerProfileDetailDto> getCustomerProfiles() {
+        LOGGER.info("GET /api/v1/customer/profiles");
+        return customerProfileService.getCustomerProfiles();
     }
 
     @PreAuthorize("hasAuthority('CUSTOMERPROFILE_DELETE')")

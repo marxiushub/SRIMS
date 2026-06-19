@@ -17,6 +17,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 import static org.hamcrest.Matchers.hasItem;
@@ -83,15 +84,14 @@ public class CustomerProfileEndpointTest extends IntegrationTestBase implements 
         Customer savedCustomer = createTestCustomer("create_valid");
 
         String json = """
-            {
-              "customerId": %d,
-              "profileName": "Endpoint Test Profile",
-              "height": 175,
-              "weight": 70,
-              "shoeSize": 42,
-              "skillLevel": "BEGINNER"
-            }
-            """.formatted(savedCustomer.getId());
+        {
+          "profileName": "Endpoint Test Profile",
+          "height": 175,
+          "weight": 70,
+          "shoeSize": 42,
+          "skillLevel": "BEGINNER"
+        }
+        """;
 
         mockMvc.perform(post("/api/v1/customer/profiles")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -104,24 +104,29 @@ public class CustomerProfileEndpointTest extends IntegrationTestBase implements 
     }
 
     @Test
-    public void createCustomerProfile_withUnknownCustomerId_returns404() throws Exception {
+    public void createCustomerProfile_withUnknownCustomerInToken_returns404() throws Exception {
         Customer authCustomer = createTestCustomer("create_unknown_auth");
 
         String json = """
-            {
-              "customerId": 99999,
-              "profileName": "Unknown Customer Profile",
-              "height": 175,
-              "weight": 70,
-              "shoeSize": 42,
-              "skillLevel": "BEGINNER"
-            }
-            """;
+        {
+          "profileName": "Unknown Customer Profile",
+          "height": 175,
+          "weight": 70,
+          "shoeSize": 42,
+          "skillLevel": "BEGINNER"
+        }
+        """;
+
+        String invalidToken = jwtTokenizer.getAuthToken(
+            authCustomer.getEmail(),
+            99999L,
+            List.of("CUSTOMERPROFILE_CREATE")
+        );
 
         mockMvc.perform(post("/api/v1/customer/profiles")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json)
-                .header(securityProperties.getAuthHeader(), userToken(authCustomer))
+                .header(securityProperties.getAuthHeader(), invalidToken)
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound());
     }
@@ -132,7 +137,6 @@ public class CustomerProfileEndpointTest extends IntegrationTestBase implements 
 
         String json = """
             {
-              "customerId": %d,
               "profileName": "",
               "height": 175,
               "weight": 70,
@@ -156,7 +160,7 @@ public class CustomerProfileEndpointTest extends IntegrationTestBase implements 
         createTestProfile(customer, "Endpoint First Profile", SkillLevel.BEGINNER);
         createTestProfile(customer, "Endpoint Second Profile", SkillLevel.ADVANCED);
 
-        mockMvc.perform(get("/api/v1/customer/{customerId}/profiles", customer.getId())
+        mockMvc.perform(get("/api/v1/customer/profiles")
                 .header(securityProperties.getAuthHeader(), userToken(customer))
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
@@ -167,10 +171,15 @@ public class CustomerProfileEndpointTest extends IntegrationTestBase implements 
 
     @Test
     public void getCustomerProfiles_withUnknownCustomer_returns404() throws Exception {
-        Customer authCustomer = createTestCustomer("auth_get_unknown");
 
-        mockMvc.perform(get("/api/v1/customer/{customerId}/profiles", 99999L)
-                .header(securityProperties.getAuthHeader(), userToken(authCustomer))
+        String token = jwtTokenizer.getAuthToken(
+            "unknown@test.at",
+            99999L,
+            List.of("CUSTOMERPROFILE_READ")
+        );
+
+        mockMvc.perform(get("/api/v1/customer/profiles")
+                .header(securityProperties.getAuthHeader(), token)
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound());
     }
