@@ -133,7 +133,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendPickUpReminderEmail( List<Equipment> equipmentList, Reservation reservation) {
+    public void sendPickUpReminderEmail(List<Equipment> equipmentList, Reservation reservation) {
 
         String to = reservation.getCustomerProfile().getCustomer().getEmail();
 

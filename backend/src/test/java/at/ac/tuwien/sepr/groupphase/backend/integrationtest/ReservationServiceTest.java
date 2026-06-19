@@ -5,6 +5,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.Reservat
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Reservation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.PeriodType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.ReservationStatus;
@@ -19,13 +20,16 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.TimePeriodsRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.HelmetRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerProfileRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
+import at.ac.tuwien.sepr.groupphase.backend.service.EmailService;
 import at.ac.tuwien.sepr.groupphase.backend.service.ReservationService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -34,6 +38,11 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ActiveProfiles({"test", "datagenerator", "generateData"})
 @SpringBootTest
@@ -56,6 +65,9 @@ public class ReservationServiceTest {
 
     @Autowired
     private TimePeriodsRepository timePeriodsRepository;
+
+    @MockitoBean
+    private EmailService emailService;
 
     private Customer testCustomer;
     private CustomerProfile testCustomerProfile;
@@ -673,5 +685,64 @@ public class ReservationServiceTest {
             () -> assertThat(result.getItems()).isEmpty(),
             () -> assertThat(result.getTotalPrice()).isEqualTo(0.0) // Dies testet Zeile 290
         );
+    }
+
+    @Test
+    public void processOverdueReservations_withOverdueItems_sendsEmailAndUpdatesFlag() {
+        ReservationCreationDto createDto = createReservationCreationDto(
+            testCustomerProfile.getId(),
+            List.of(testEquipment.getId()),
+            LocalDate.now().plusDays(2),
+            LocalDate.now().plusDays(5),
+            LocalTime.of(10, 0)
+        );
+        ReservationDetailDto created = reservationService.createReservation(createDto);
+
+        Reservation reservation = reservationRepository.findById(created.getId()).orElseThrow();
+        reservation.setStartDate(LocalDate.now().minusDays(10));
+        reservation.setEndDate(LocalDate.now().minusDays(2));
+        reservation.setReservationStatus(ReservationStatus.PICKED_UP);
+        reservation.setOverdueReminderSent(false);
+        reservationRepository.save(reservation);
+
+        LocalDate boundaryDate = LocalDate.now().minusDays(1);
+        reservationService.processOverdueReservations(boundaryDate);
+
+        Reservation updated = reservationRepository.findById(created.getId()).orElseThrow();
+
+        assertAll(
+            "Verify that the overdue job correctly updates the flag and calls the email service",
+            () -> assertThat(updated.isOverdueReminderSent()).isTrue()
+        );
+
+        verify(emailService, times(1)).sendOverdueReminder(anyList(),any(Reservation.class));
+    }
+
+    @Test
+    public void processPickUpReminders_withUpcomingItems_sendsEmailAndUpdatesFlag() {
+        ReservationCreationDto createDto = createReservationCreationDto(
+            testCustomerProfile.getId(),
+            List.of(testEquipment.getId()),
+            LocalDate.now().plusDays(2),
+            LocalDate.now().plusDays(5),
+            LocalTime.of(10, 0)
+        );
+        ReservationDetailDto created = reservationService.createReservation(createDto);
+
+        Reservation reservation = reservationRepository.findById(created.getId()).orElseThrow();
+        reservation.setReservationStatus(ReservationStatus.CREATED);
+        reservation.setPickUpReminderSent(false);
+        reservationRepository.save(reservation);
+
+        reservationService.processPickUpReminders();
+
+        Reservation updated = reservationRepository.findById(created.getId()).orElseThrow();
+
+        assertAll(
+            "Verify that the pick-up job correctly updates the flag and calls the email service",
+            () -> assertThat(updated.isPickUpReminderSent()).isTrue()
+        );
+
+        verify(emailService, times(1)).sendPickUpReminderEmail(anyList(), any(Reservation.class));
     }
 }
