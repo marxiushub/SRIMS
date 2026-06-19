@@ -17,6 +17,7 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.EquipmentRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ReservationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerProfileRepository;
+import at.ac.tuwien.sepr.groupphase.backend.service.EmailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,18 +38,20 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
     private final ReservationRepository reservationRepository;
     private final EquipmentRepository equipmentRepository;
     private final CustomerProfileRepository customerProfileRepository;
+    private final EmailService emailService;
 
     @Autowired
     public ReservationServiceImpl(ReservationMapper reservationMapper,
                                   ReservationRepository reservationRepository,
                                   EquipmentRepository equipmentRepository,
                                   CustomerProfileRepository customerProfileRepository,
-                                  ReservationValidator validator) {
+                                  ReservationValidator validator, EmailService emailService) {
         this.reservationMapper = reservationMapper;
         this.reservationRepository = reservationRepository;
         this.equipmentRepository = equipmentRepository;
         this.customerProfileRepository = customerProfileRepository;
         this.validator = validator;
+        this.emailService = emailService;
     }
 
 
@@ -85,7 +88,10 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
         }
         calculateAndSetTotalPrice(reservation);
         Reservation savedReservation = reservationRepository.save(reservation);
-        //bestätigungs-email senden
+        emailService.sendReservationConfirmation(profile.getCustomer().getEmail(),
+            equipmentList, reservation.getStartDate(),
+            reservation.getEndDate(), reservation.getPickUpTime(),
+            profile.getCustomer().getFirstName(), profile.getCustomer().getLastName(), reservation.getTotalPrice());
         return reservationMapper.entityToDetailDto(savedReservation);
     }
 
@@ -166,7 +172,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
         }
 
         //If the ReservationStatus is changed to RETURNED or CANCELLED, delete all corresponding timePeriods
-        // of the included Equipment to free the Equipment up again and reduce the size of the Equipment-table in the databse
+        // of the included Equipment to free the Equipment up again and reduce the size of the Equipment-table in the database
         if (dto.getReservationStatus() != null) {
             if (dto.getReservationStatus() == ReservationStatus.RETURNED
                 || dto.getReservationStatus() == ReservationStatus.CANCELLED) {
