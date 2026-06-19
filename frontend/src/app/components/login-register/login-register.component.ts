@@ -6,6 +6,7 @@ import {AuthRequest} from '../../dtos/auth-request';
 import {CustomerCreationDto} from '../../dtos/customer-creation';
 import {ToastrService} from "ngx-toastr";
 import {TranslateService} from "@ngx-translate/core";
+import {jwtDecode} from "jwt-decode";
 
 export enum LoginRegisterMode {
   login,
@@ -82,10 +83,28 @@ export class LoginRegisterComponent implements OnInit {
   authenticateUser(authRequest: AuthRequest) {
     console.log('Try to authenticate user: ' + authRequest.email);
     this.authService.loginUser(authRequest).subscribe({
-      next: () => {
+      next: (rawResponse: string) => {
         console.log('Successfully logged in user: ' + authRequest.email);
-        this.notification.success(this.translateService.instant('COMMON.LOGIN_SUCCESS'));
-        this.router.navigate(['/']);
+
+        try {
+          const token = rawResponse.startsWith('Bearer ')
+            ? rawResponse.replace('Bearer ', '').trim()
+            : rawResponse;
+          const decodedToken: any = jwtDecode(token);
+          console.log('Successfully decoded token structure:', decodedToken);
+
+          const permissions: string[] = decodedToken.perms || [];
+          const isStaff = permissions.includes('STAFF_READ') || permissions.includes('STAFF_CREATE');
+
+          if (isStaff) {
+            this.router.navigate(['/staff']);
+          } else {
+            this.router.navigate(['/customer']);
+          }
+        } catch (err) {
+          console.error('Failed to decode JWT token:', err);
+          this.router.navigate(['/']);
+        }
       },
       error: error => this.handleError(error)
     });

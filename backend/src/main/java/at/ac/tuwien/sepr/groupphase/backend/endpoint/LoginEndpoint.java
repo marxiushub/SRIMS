@@ -1,6 +1,5 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
-import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import jakarta.annotation.security.PermitAll;
@@ -22,7 +21,6 @@ public class LoginEndpoint {
     @PostMapping
     @PermitAll
     public String login(@RequestBody UserLoginDto userLoginDto) {
-        String token = userService.login(userLoginDto);
-        return token;
+        return userService.login(userLoginDto);
     }
 }
