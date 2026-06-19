@@ -6,6 +6,7 @@ import jakarta.mail.internet.MimeMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Locale;
 
 @Service
+@Profile("!test")
 public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender mailSender;
@@ -36,8 +38,6 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendEmail(String emailAddressTo, String subject, String body) {
         SimpleMailMessage message = new SimpleMailMessage();
-
-        message.setFrom("deine-brevo-registrierungs-mail@domain.com");
 
         message.setTo(emailAddressTo);
         message.setSubject(subject);
