@@ -1,12 +1,12 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.CustomerCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.UserCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.detail.UserDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.UserSearchResponseDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.UserUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.UserMapper;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Permission;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Role;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.UserType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.ApplicationUser;
@@ -17,6 +17,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.user.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RoleRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.AppUserDetails;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
+import at.ac.tuwien.sepr.groupphase.backend.service.EmailService;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,8 +38,6 @@ import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class CustomUserDetailService implements UserService {
@@ -54,6 +53,7 @@ public class CustomUserDetailService implements UserService {
     private final UserMapper mapper;
     private final  RoleRepository roleRepository;
     private final PermissionService permissionService;
+    private final EmailService emailService;
 
     /**
      * Constructor for EquipmentService. Initializes the service with the necessary repositories and mapper.
@@ -67,7 +67,7 @@ public class CustomUserDetailService implements UserService {
      */
     @Autowired
     public CustomUserDetailService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtTokenizer jwtTokenizer,  CustomerRepository customerRepository, StaffRepository staffRepository,
-                                   UserMapper mapper, RoleRepository roleRepository, UserServiceValidator validator, PermissionService permissionService) {
+                                   UserMapper mapper, RoleRepository roleRepository, UserServiceValidator validator, PermissionService permissionService, EmailService  emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenizer = jwtTokenizer;
@@ -81,6 +81,7 @@ public class CustomUserDetailService implements UserService {
             UserType.STAFF, staffRepository
         );
         this.mapper = mapper;
+        this.emailService = emailService;
     }
 
     @Override
@@ -143,6 +144,11 @@ public class CustomUserDetailService implements UserService {
         user.getRoles().add(role);
         ApplicationUser saved = repo.save(user);
         UserDetailDto created = mapper.entityToDetailDto(saved);
+
+        if (userCreationDto instanceof CustomerCreationDto) {
+            emailService.sendAccountCreationSuccessEmail(user.getEmail(), user.getUserName());
+        }
+
         return created;
     }
 

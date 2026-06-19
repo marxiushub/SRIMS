@@ -3,8 +3,6 @@ package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Permission;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Role;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
-import at.ac.tuwien.sepr.groupphase.backend.entity.enums.UserType;
-import at.ac.tuwien.sepr.groupphase.backend.entity.user.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.Customer;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.Staff;
@@ -12,7 +10,6 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.PermissionRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RoleRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerProfileRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.user.StaffRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -212,11 +209,11 @@ public class DataInitializer {
         //Customer
         Set<Role> rolesCustomer = Set.of(roleRepository.findByName("ROLE_CUSTOMER").orElseThrow());
 
-        if (userRepository.findUserByEmail("hans.hansinger@email.com").isEmpty()) {
+        if (userRepository.findUserByEmail("benjamin.marius.widmer@gmail.com").isEmpty()) {
             userRepository.save(new Customer(
                 "Hans McHansFace",
                 encoder.encode("password"),
-                "hans.hansinger@email.com",
+                "benjamin.marius.widmer@gmail.com",
                 rolesCustomer,
                 new HashSet<>(),
                 "Hans",
@@ -226,7 +223,7 @@ public class DataInitializer {
         }
 
         //CustomerProfiles
-        Customer customer = customerRepository.findByEmail("hans.hansinger@email.com").orElseThrow();
+        Customer customer = customerRepository.findByEmail("benjamin.marius.widmer@gmail.com").orElseThrow();
 
         if (profileRepository.findByCustomerAndProfileName(customer, "Hans").isEmpty()) {
             CustomerProfile profile1 = new CustomerProfile(
