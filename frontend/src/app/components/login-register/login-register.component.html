@@ -1,12 +1,3 @@
-@if (error) {
-  <div class="alert alert-warning alert-dismissible fade show" role="alert">
-    <strong>Authentication problems!</strong> {{ errorMessage }}
-    <button type="button" (click)="vanishError()" class="close" data-dismiss="alert" aria-label="Close">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-}
-
 <div class="pt-5">
   <div class="row">
     <div class="col-md-6 mx-auto">
@@ -25,13 +16,25 @@
           <form class="form" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
 
             <div class="form-group">
-              <label for="inputUsername">{{ 'COMMON.USERNAME' | translate }}</label>
+              <label for="inputUsername">
+                @if (mode === LoginRegisterMode.login) {
+                  {{ 'COMMON.EMAIL' | translate }}
+                } @else {
+                  {{ 'COMMON.USERNAME' | translate }}
+                }
+              </label>
               <input type="text" name="username" formControlName="username" class="form-control" id="inputUsername"
-                     aria-describedby="usernameHelp" placeholder="{{ 'COMMON.USERNAME' | translate }}">
+                     aria-describedby="usernameHelp"
+                     [placeholder]="mode === LoginRegisterMode.login ? ('COMMON.EMAIL' | translate) : ('COMMON.USERNAME' | translate)">
               @if (submitted && loginForm.controls.username.errors) {
                 <div class="error">
                   @if (loginForm.controls.username.errors.required) {
-                    <small class="form-text text-danger">{{ 'COMMON.USERNAME_REQUIRED' | translate }}</small>
+                    <small class="form-text text-danger">
+                      {{ mode === LoginRegisterMode.login ? ('COMMON.EMAIL_REQUIRED' | translate) : ('COMMON.USERNAME_REQUIRED' | translate) }}
+                    </small>
+                  }
+                  @if (loginForm.controls.username.errors.email) {
+                    <small class="form-text text-danger">{{ 'COMMON.EMAIL_INVALID' | translate }}</small>
                   }
                 </div>
               }
@@ -105,7 +108,7 @@
             }
 
             <div class="auth-actions">
-              <button type="button" (click)="onSubmit()" class="btn btn-success">
+              <button type="submit" class="btn btn-success">
                 @if (mode === LoginRegisterMode.login) {
                   {{ 'COMMON.LOGIN' | translate }}
                 } @else {

@@ -32,7 +32,7 @@ export class AuthService {
   /**
    * Register a new customer account.
    *
-   * @param authRequest User registration data
+   * @param customerDto User data for the new account
    */
   registerUser(customerDto: CustomerCreationDto): Observable<any> {
     return this.httpClient.post<any>(`${this.authBaseUri.replace('/authentication', '')}/customer/create`, customerDto);
@@ -67,7 +67,7 @@ export class AuthService {
     if (token != null) {
       const decoded: any = jwtDecode(token);
       const authInfo: string[] = decoded.rol;
-      if (authInfo.includes('ROLE_ADMIN')) {
+      if (authInfo?.includes('ROLE_ADMIN')) {
         return 'ADMIN';
       } else if (authInfo.includes('ROLE_USER')) {
         return 'USER';
