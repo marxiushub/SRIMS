@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Locale;
 
 @Service
-@Profile("!test")
+@Profile("!test & !no-email")
 public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender mailSender;
