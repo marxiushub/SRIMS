@@ -19,6 +19,7 @@ import at.ac.tuwien.sepr.groupphase.backend.security.CurrentUserService;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.EmailService;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -132,6 +133,10 @@ public class CustomUserDetailService implements UserService {
     @Override
     public UserDetailDto createUser(UserCreationDto userCreationDto) {
         LOGGER.trace("Creating user with email {}", userCreationDto.getEmail());
+
+        if (userRepository.findUserByEmail(userCreationDto.getEmail()).isPresent()) {
+            throw new ValidationException("Email is already in use", List.of("Email " + userCreationDto.getEmail() + " is already in use."));
+        }
 
         validator.userCreationDtoValidator(userCreationDto);
         ApplicationUser user = userCreationDto.toEntity();
