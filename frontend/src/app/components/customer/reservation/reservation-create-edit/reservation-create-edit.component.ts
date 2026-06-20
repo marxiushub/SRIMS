@@ -110,13 +110,11 @@ export class ReservationCreateEditComponent implements OnInit {
   }
 
   /**
-   * Loads genuine customer profiles from backend for the hardcoded customer ID 1.
+   * Loads genuine customer profiles from backend for the current customer.
    * Also checks whether we are editing an existing reservation.
-   * TODO: Remove hard-coding accountId to 1 once proper Accounts with AccountId exist
    */
   private loadCustomerProfilesAndInit(editId?: number): void {
-    const hardcodedCustomerId = 1;
-    this.customerProfileService.getCustomerProfiles(hardcodedCustomerId).subscribe({
+    this.customerProfileService.getCustomerProfiles().subscribe({
       next: (profiles) => {
         this.customerProfiles = profiles;
 

@@ -424,7 +424,7 @@ export class BarcodeScannerComponent implements OnInit {
 
   //Loads the customerProfiles for the selected customerAccount
   private loadProfilesForUser(userId: number): void {
-    this.customerProfileService.getCustomerProfiles(userId).subscribe({
+    this.customerProfileService.getProfilesByCustomerId(userId).subscribe({
       next: (profiles) => {
         this.filteredProfiles = profiles;
         this.walkInForm.get('customerProfileId')?.enable();
