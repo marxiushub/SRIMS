@@ -3,8 +3,8 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.UserCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.CustomerUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.UserUpdateDto;
-import at.ac.tuwien.sepr.groupphase.backend.entity.enums.UserType;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
+import at.ac.tuwien.sepr.groupphase.backend.repository.user.UserRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -12,6 +12,12 @@ import java.util.List;
 
 @Component
 public class UserServiceValidator {
+
+    private final UserRepository userRepository;
+
+    public UserServiceValidator(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     public void userCreationDtoValidator(UserCreationDto userCreationDto) {
         List<String> validationErrors = new ArrayList<>();
@@ -21,9 +27,9 @@ public class UserServiceValidator {
         } else {
             if (userCreationDto.getEmail() == null || userCreationDto.getEmail().isBlank()) {
                 validationErrors.add("email is blank");
+            } else if (userRepository.existsByEmail(userCreationDto.getEmail())) {
+                validationErrors.add("This email address is already registered to an account.");
             }
-
-
         }
 
         if (!validationErrors.isEmpty()) {

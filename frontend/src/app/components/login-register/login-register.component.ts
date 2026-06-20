@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {AbstractControl, UntypedFormBuilder, UntypedFormGroup, ValidationErrors, Validators} from '@angular/forms';
+import {AbstractControl, UntypedFormBuilder, UntypedFormGroup, ValidationErrors, Validators, ValidatorFn} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {AuthService} from '../../services/auth.service';
 import {AuthRequest} from '../../dtos/auth-request';
@@ -10,6 +10,19 @@ import {TranslateService} from "@ngx-translate/core";
 export enum LoginRegisterMode {
   login,
   register
+}
+
+export function maxDateTodayValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (!control.value) {
+      return null;
+    }
+
+    const inputDate = new Date(control.value);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return inputDate > today ? { futureDate: true } : null;
+  };
 }
 
 @Component({
@@ -31,12 +44,15 @@ export class LoginRegisterComponent implements OnInit {
   constructor(private formBuilder: UntypedFormBuilder, private authService: AuthService, public translateService: TranslateService, private router: Router, private route: ActivatedRoute, private notification: ToastrService) {
     this.loginForm = this.formBuilder.group({
       username: ['', [Validators.required]],
-      password: ['', [Validators.required, Validators.minLength(8)]],
+      password: ['', [Validators.required,
+        Validators.minLength(10),
+        Validators.pattern('^(?=.*[A-Za-z])(?=.*\\d)(?=.*[^A-Za-z0-9]).+$')
+      ]],
       repeatPassword: ['', [Validators.required]],
       firstName: ['', [Validators.required]],
       lastName: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
-      dateOfBirth: ['', [Validators.required]]
+      dateOfBirth: ['', [Validators.required, maxDateTodayValidator()]]
     });
   }
 
@@ -118,8 +134,22 @@ export class LoginRegisterComponent implements OnInit {
    * Reusable error handler for HTTP failures
    */
   private handleError(error: any) {
-    console.log('Action failed due to:');
-    this.errorMessage = (typeof error.error === 'object') ? error.error.error : error.error;
+    console.log('Action failed due to:', error);
+
+    if(error.error && typeof error.error === 'object' ) {
+      if (error.error.errors) {
+        this.errorMessage = error.error.errors;
+      } else if (error.error.message) {
+        this.errorMessage = error.error.message;
+      } else if (error.error.error) {
+        this.errorMessage = error.error.error;
+      }
+    } else if (error.error && typeof error.error === 'string') {
+      this.errorMessage = error.error;
+    } else {
+      this.errorMessage = this.translateService.instant('COMMON.UNKNOWN_ERROR') || 'An unexpected error occurred.';
+    }
+
     this.notification.error(this.errorMessage);
   }
 
@@ -156,5 +186,4 @@ export class LoginRegisterComponent implements OnInit {
       this.loginForm.updateValueAndValidity();
     });
   }
-
 }

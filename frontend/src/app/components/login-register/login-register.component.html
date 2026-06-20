@@ -59,9 +59,10 @@
                   <div class="error">
                     @if (loginForm.controls.password.errors.required) {
                       <small class="form-text text-danger">{{ 'COMMON.PASSWORD_REQUIRED' | translate }}</small>
-                    }
-                    @if (loginForm.controls.password.errors.minlength) {
+                    } @else if (loginForm.controls.password.errors.minlength) {
                       <small class="form-text text-danger">{{ 'COMMON.PASSWORD_MIN_LENGTH' | translate }}</small>
+                    } @else if (loginForm.controls.password.errors.pattern && mode === LoginRegisterMode.register) {
+                      <small class="form-text text-danger">{{ 'COMMON.PASSWORD_PATTERN' | translate }}</small>
                     }
                   </div>
                 }
@@ -73,8 +74,13 @@
                   <input type="password" name="repeat-password" formControlName="repeatPassword"
                          class="form-control" id="repeat-password"
                          placeholder="{{ 'COMMON.REPEAT_PASSWORD' | translate }}">
-                  @if (submitted && loginForm.hasError('passwordsMismatch')) {
-                    <small class="form-text text-danger">{{ 'COMMON.PASSWORD_MISMATCH' | translate }}</small>
+
+                  @if (submitted && loginForm.controls.repeatPassword.errors) {
+                    <div class="error">
+                      @if (submitted && loginForm.hasError('passwordsMismatch')) {
+                        <small class="form-text text-danger">{{ 'COMMON.PASSWORD_MISMATCH' | translate }}</small>
+                      }
+                    </div>
                   }
                 </div>
 
@@ -82,8 +88,13 @@
                   <label for="firstName">{{ 'COMMON.FIRST_NAME' | translate }}</label>
                   <input type="text" name="firstName" formControlName="firstName" class="form-control" id="firstName"
                          placeholder="{{ 'COMMON.FIRST_NAME' | translate }}">
-                  @if (submitted && loginForm.get('firstName')?.hasError('required')) {
-                    <small class="form-text text-danger">{{ 'COMMON.FIRST_NAME_REQUIRED' | translate }}</small>
+
+                  @if (submitted && loginForm.controls.firstName.errors) {
+                    <div class="error">
+                      @if (submitted && loginForm.get('firstName')?.hasError('required')) {
+                        <small class="form-text text-danger">{{ 'COMMON.FIRST_NAME_REQUIRED' | translate }}</small>
+                      }
+                    </div>
                   }
                 </div>
 
@@ -91,8 +102,13 @@
                   <label for="lastName">{{ 'COMMON.LAST_NAME' | translate }}</label>
                   <input type="text" name="lastName" formControlName="lastName" class="form-control" id="lastName"
                          placeholder="{{ 'COMMON.LAST_NAME' | translate }}">
-                  @if (submitted && loginForm.get('lastName')?.hasError('required')) {
-                    <small class="form-text text-danger">{{ 'COMMON.LAST_NAME_REQUIRED' | translate }}</small>
+
+                  @if (submitted && loginForm.controls.lastName.errors) {
+                    <div class="error">
+                      @if (submitted && loginForm.get('lastName')?.hasError('required')) {
+                        <small class="form-text text-danger">{{ 'COMMON.LAST_NAME_REQUIRED' | translate }}</small>
+                      }
+                    </div>
                   }
                 </div>
 
@@ -100,19 +116,30 @@
                   <label for="email">{{ 'COMMON.EMAIL' | translate }}</label>
                   <input type="email" name="email" formControlName="email" class="form-control" id="email"
                          placeholder="{{ 'COMMON.EMAIL' | translate }}">
-                  @if (submitted && loginForm.get('email')?.hasError('required')) {
-                    <small class="form-text text-danger">{{ 'COMMON.EMAIL_REQUIRED' | translate }}</small>
-                  }
-                  @if (submitted && loginForm.get('email')?.hasError('email')) {
-                    <small class="form-text text-danger">{{ 'COMMON.EMAIL_INVALID' | translate }}</small>
+                  @if (submitted && loginForm.controls.email.errors) {
+                    <div class="error">
+                      @if (submitted && loginForm.get('email')?.hasError('required')) {
+                        <small class="form-text text-danger">{{ 'COMMON.EMAIL_REQUIRED' | translate }}</small>
+                      }
+                      @if (submitted && loginForm.get('email')?.hasError('email')) {
+                        <small class="form-text text-danger">{{ 'COMMON.EMAIL_INVALID' | translate }}</small>
+                      }
+                    </div>
                   }
                 </div>
 
                 <div class="form-group">
                   <label for="dateOfBirth">{{ 'COMMON.DATE_OF_BIRTH' | translate }}</label>
                   <input type="date" name="dateOfBirth" formControlName="dateOfBirth" class="form-control" id="dateOfBirth">
-                  @if (submitted && loginForm.get('dateOfBirth')?.hasError('required')) {
-                    <small class="form-text text-danger">{{ 'COMMON.DATE_OF_BIRTH_REQUIRED' | translate }}</small>
+                  @if ((submitted || loginForm.get('dateOfBirth')?.touched) && loginForm.get('dateOfBirth')?.errors) {
+                    <div class="error">
+                      @if (submitted && loginForm.get('dateOfBirth')?.hasError('required')) {
+                        <small class="form-text text-danger">{{ 'COMMON.DATE_OF_BIRTH_REQUIRED' | translate }}</small>
+                      }
+                      @if (loginForm.get('dateOfBirth')?.hasError('futureDate')) {
+                        <small class="form-text text-danger d-block">{{ 'COMMON.DATE_OF_BIRTH_FUTURE' | translate }}</small>
+                      }
+                    </div>
                   }
                 </div>
               }
