@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-@Profile("test")
+@Profile({"test", "no-email"})
 public class FakeEmailService implements EmailService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FakeEmailService.class);

@@ -9,3 +9,6 @@
 If the database is not clean, the test data won't be inserted
 
 `mvn spring-boot:run -Dspring-boot.run.profiles=generateData`
+
+#### Start the backed with no email service
+`mvn spring-boot:run -Dspring-boot.run.profiles=no-email`
