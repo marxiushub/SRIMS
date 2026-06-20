@@ -15,7 +15,6 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.RoleRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.StaffRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.UserRepository;
-import at.ac.tuwien.sepr.groupphase.backend.security.AppUserDetails;
 import at.ac.tuwien.sepr.groupphase.backend.security.CurrentUserService;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.EmailService;
@@ -70,8 +69,7 @@ public class CustomUserDetailService implements UserService {
      */
     @Autowired
     public CustomUserDetailService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtTokenizer jwtTokenizer,  CustomerRepository customerRepository, StaffRepository staffRepository,
-                                   UserMapper mapper, RoleRepository roleRepository, UserServiceValidator validator, PermissionService permissionService, EmailService  emailService) {
-                                   UserMapper mapper, RoleRepository roleRepository, UserServiceValidator validator, PermissionService permissionService, CurrentUserService currentUserService) {
+                                   UserMapper mapper, RoleRepository roleRepository, UserServiceValidator validator, PermissionService permissionService, EmailService  emailService, CurrentUserService currentUserService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenizer = jwtTokenizer;
