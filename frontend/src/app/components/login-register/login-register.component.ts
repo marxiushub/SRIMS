@@ -6,7 +6,6 @@ import {AuthRequest} from '../../dtos/auth-request';
 import {CustomerCreationDto} from '../../dtos/customer-creation';
 import {ToastrService} from "ngx-toastr";
 import {TranslateService} from "@ngx-translate/core";
-import {jwtDecode} from "jwt-decode";
 
 export enum LoginRegisterMode {
   login,
@@ -84,7 +83,7 @@ export class LoginRegisterComponent implements OnInit {
   authenticateUser(authRequest: AuthRequest) {
     console.log('Try to authenticate user: ' + authRequest.email);
     this.authService.loginUser(authRequest).subscribe({
-      next: (rawResponse: string) => {
+      next: () => {
         console.log('Successfully logged in user: ' + authRequest.email);
 
         const role = this.authService.getUserRole();
@@ -122,6 +121,15 @@ export class LoginRegisterComponent implements OnInit {
     console.log('Action failed due to:');
     this.errorMessage = (typeof error.error === 'object') ? error.error.error : error.error;
     this.notification.error(this.errorMessage);
+  }
+
+  get isLoggedIn(): boolean {
+    return this.authService.isLoggedIn();
+  }
+
+  logout() {
+    this.authService.logoutUser();
+    console.log('User logged out successfully.');
   }
 
   ngOnInit() {
