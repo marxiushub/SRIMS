@@ -47,12 +47,32 @@ public class CustomerProfileEndpoint {
         return customerProfileService.createCustomerProfile(dto);
     }
 
+    //Allows Customers to Read all of their CustomerProfiles
     @PreAuthorize("hasAuthority('CUSTOMERPROFILE_READ')")
     @GetMapping("/profiles")
     @ResponseStatus(HttpStatus.OK)
     public List<CustomerProfileDetailDto> getCustomerProfiles() {
         LOGGER.info("GET /api/v1/customer/profiles");
         return customerProfileService.getCustomerProfiles();
+    }
+
+    //Allows Staff to Read all of their CustomerProfiles
+    @PreAuthorize("hasAuthority('CUSTOMERPROFILE_READ') and hasAuthority('STAFF')")
+    @GetMapping("/{customerId}/profiles")
+    @ResponseStatus(HttpStatus.OK)
+    public List<CustomerProfileDetailDto> getCustomerProfiles(@PathVariable("customerId") Long customerId) {
+        LOGGER.info("GET /api/v1/customer/{}/profiles", customerId);
+        return customerProfileService.getCustomerProfiles(customerId);
+    }
+
+    //Allows Staff to read a specific CustomerProfiles when a valid CustomerProfileID is provided
+    //Allows Customer to read a specific CustomerProfile, that belongs to the Customer sending the Request
+    @PreAuthorize("hasAuthority('CUSTOMERPROFILE_READ') or hasAuthority('STAFF')")
+    @GetMapping("/profiles/{profileId}")
+    @ResponseStatus(HttpStatus.OK)
+    public CustomerProfileDetailDto getCustomerProfileById(@PathVariable("profileId") Long profileId) {
+        LOGGER.info("GET /api/v1/customer/profiles/{}", profileId);
+        return customerProfileService.getCustomerProfileById(profileId);
     }
 
     @PreAuthorize("hasAuthority('CUSTOMERPROFILE_DELETE')")
@@ -70,13 +90,5 @@ public class CustomerProfileEndpoint {
         LOGGER.info("PATCH /api/v1/customer/profiles/{} - {}", profileId, dto);
 
         return customerProfileService.updateCustomerProfile(profileId, dto);
-    }
-
-    @PreAuthorize("hasAuthority('CUSTOMERPROFILE_READ')")
-    @GetMapping("/profiles/{profileId}")
-    @ResponseStatus(HttpStatus.OK)
-    public CustomerProfileDetailDto getCustomerProfileById(@PathVariable("profileId") Long profileId) {
-        LOGGER.info("GET /api/v1/customer/profiles/{profileId}", profileId);
-        return customerProfileService.getCustomerProfileById(profileId);
     }
 }

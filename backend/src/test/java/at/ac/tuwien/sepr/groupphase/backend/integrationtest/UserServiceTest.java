@@ -9,7 +9,6 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.UserSearchResponseDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.CustomerUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.StaffUpdateDto;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Role;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.Customer;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.Staff;
@@ -78,7 +77,7 @@ public class UserServiceTest {
             .orElseThrow();
 
         List<SimpleGrantedAuthority> authorities = List.of(
-            new SimpleGrantedAuthority("USER_ADMIN"),
+            new SimpleGrantedAuthority("STAFF"),
 
             new SimpleGrantedAuthority("STAFF_READ"),
             new SimpleGrantedAuthority("STAFF_UPDATE"),

@@ -10,8 +10,10 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.user.Customer;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
+import org.springframework.security.access.AccessDeniedException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerProfileRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.user.StaffRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.CurrentUserService;
 import at.ac.tuwien.sepr.groupphase.backend.service.CustomerProfileService;
 import org.junit.jupiter.api.AfterEach;
@@ -43,6 +45,9 @@ public class CustomerProfileServiceTest {
 
     @Autowired
     private CustomerProfileRepository customerProfileRepository;
+
+    @Autowired
+    private StaffRepository staffRepository;
 
     @MockitoBean
     private CurrentUserService currentUserService;
@@ -186,6 +191,161 @@ public class CustomerProfileServiceTest {
     }
 
     @Test
+    public void getCustomerProfiles_withExistingCustomerId_returnsProfiles() {
+        Customer customer = createTestCustomer("staff_list_profiles");
+
+        createTestProfile(customer, "First Test Profile", SkillLevel.BEGINNER);
+        createTestProfile(customer, "Second Test Profile", SkillLevel.ADVANCED);
+
+        List<CustomerProfileDetailDto> result =
+            customerProfileService.getCustomerProfiles(customer.getId());
+
+        assertAll(
+            "Verify that all profiles for the given customer are returned",
+            () -> assertThat(result).isNotNull(),
+            () -> assertThat(result).hasSize(2),
+            () -> assertThat(result)
+                .extracting(CustomerProfileDetailDto::getProfileName)
+                .containsExactlyInAnyOrder(
+                    "First Test Profile",
+                    "Second Test Profile"
+                ),
+            () -> assertThat(result)
+                .allMatch(profile ->
+                    profile.getCustomerId().equals(customer.getId()))
+        );
+    }
+
+    @Test
+    public void getCustomerProfiles_withUnknownCustomerId_throwsNotFoundException() {
+
+        NotFoundException exception = assertThrows(
+            NotFoundException.class,
+            () -> customerProfileService.getCustomerProfiles(99999L)
+        );
+
+        assertAll(
+            "Verify that getting profiles for an unknown customer fails",
+            () -> assertThat(exception).isNotNull(),
+            () -> assertThat(exception.getMessage())
+                .containsIgnoringCase("not found")
+        );
+    }
+
+    @Test
+    public void getCustomerProfiles_withNullCustomerId_throwsIllegalArgumentException() {
+
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class,
+            () -> customerProfileService.getCustomerProfiles(null)
+        );
+
+        assertAll(
+            "Verify that a null customer id is rejected",
+            () -> assertThat(exception).isNotNull(),
+            () -> assertThat(exception.getMessage())
+                .containsIgnoringCase("cannot be null")
+        );
+    }
+
+    @Test
+    public void getCustomerProfile_withOwnProfile_returnsProfile() {
+        Customer customer = createTestCustomer("own_profile");
+
+        CustomerProfile profile = createTestProfile(
+            customer,
+            "My Profile",
+            SkillLevel.BEGINNER
+        );
+
+        when(currentUserService.getUserId())
+            .thenReturn(customer.getId());
+
+        when(currentUserService.hasAuthority("STAFF"))
+            .thenReturn(false);
+
+        CustomerProfileDetailDto result =
+            customerProfileService.getCustomerProfileById(profile.getId());
+
+        assertAll(
+            () -> assertThat(result).isNotNull(),
+            () -> assertThat(result.getId()).isEqualTo(profile.getId()),
+            () -> assertThat(result.getProfileName()).isEqualTo("My Profile"),
+            () -> assertThat(result.getCustomerId()).isEqualTo(customer.getId())
+        );
+    }
+
+    @Test
+    public void getCustomerProfile_asStaff_returnsProfile() {
+        Customer customer = createTestCustomer("staff_access");
+
+        CustomerProfile profile = createTestProfile(
+            customer,
+            "Customer Profile",
+            SkillLevel.ADVANCED
+        );
+
+        when(currentUserService.getUserId())
+            .thenReturn(999L);
+
+        when(currentUserService.hasAuthority("STAFF"))
+            .thenReturn(true);
+
+        CustomerProfileDetailDto result =
+            customerProfileService.getCustomerProfileById(profile.getId());
+
+        assertAll(
+            () -> assertThat(result).isNotNull(),
+            () -> assertThat(result.getId()).isEqualTo(profile.getId()),
+            () -> assertThat(result.getCustomerId()).isEqualTo(customer.getId())
+        );
+    }
+
+    @Test
+    public void getCustomerProfile_withForeignProfile_throwsAccessDeniedException() {
+        Customer owner = createTestCustomer("owner");
+        Customer otherCustomer = createTestCustomer("other");
+
+        CustomerProfile profile = createTestProfile(
+            owner,
+            "Protected Profile",
+            SkillLevel.BEGINNER
+        );
+
+        when(currentUserService.getUserId())
+            .thenReturn(otherCustomer.getId());
+
+        when(currentUserService.hasAuthority("STAFF"))
+            .thenReturn(false);
+
+        AccessDeniedException exception = assertThrows(
+            AccessDeniedException.class,
+            () -> customerProfileService.getCustomerProfileById(profile.getId())
+        );
+
+        assertThat(exception.getMessage())
+            .containsIgnoringCase("permission");
+    }
+
+    @Test
+    public void getCustomerProfile_withUnknownProfile_throwsNotFoundException() {
+
+        when(currentUserService.getUserId())
+            .thenReturn(1L);
+
+        when(currentUserService.hasAuthority("STAFF"))
+            .thenReturn(false);
+
+        NotFoundException exception = assertThrows(
+            NotFoundException.class,
+            () -> customerProfileService.getCustomerProfileById(99999L)
+        );
+
+        assertThat(exception.getMessage())
+            .containsIgnoringCase("not found");
+    }
+
+    @Test
     public void deleteCustomerProfile_withExistingProfile_deletesProfile() {
         Customer customer = createTestCustomer("delete_profile");
         CustomerProfile profile = createTestProfile(customer, "Profile To Delete", SkillLevel.BEGINNER);
@@ -288,41 +448,5 @@ public class CustomerProfileServiceTest {
         );
 
         assertThat(exception).isNotNull();
-    }
-
-    @Test
-    public void getCustomerProfileById_withExistingProfile_returnsProfile() {
-        Customer customer = createTestCustomer("get_by_id");
-        CustomerProfile profile = createTestProfile(customer, "Profile By Id", SkillLevel.BEGINNER);
-
-        when(currentUserService.getUserId())
-            .thenReturn(customer.getId());
-
-        CustomerProfileDetailDto result = customerProfileService.getCustomerProfileById(profile.getId());
-
-        assertAll(
-            "Verify that a customer profile can be retrieved by ID",
-            () -> assertThat(result).isNotNull(),
-            () -> assertThat(result.getId()).isEqualTo(profile.getId()),
-            () -> assertThat(result.getCustomerId()).isEqualTo(customer.getId()),
-            () -> assertThat(result.getProfileName()).isEqualTo("Profile By Id"),
-            () -> assertThat(result.getHeight()).isEqualTo(175),
-            () -> assertThat(result.getWeight()).isEqualTo(70),
-            () -> assertThat(result.getShoeSize()).isEqualTo(42),
-            () -> assertThat(result.getSkillLevel()).isEqualTo(SkillLevel.BEGINNER)
-        );
-    }
-
-    @Test
-    public void getCustomerProfileById_withUnknownProfile_throwsNotFoundException() {
-        NotFoundException exception = assertThrows(NotFoundException.class, () ->
-            customerProfileService.getCustomerProfileById(99999L)
-        );
-
-        assertAll(
-            "Verify that getting an unknown customer profile fails",
-            () -> assertThat(exception).isNotNull(),
-            () -> assertThat(exception.getMessage()).containsIgnoringCase("not found")
-        );
     }
 }

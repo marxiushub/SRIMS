@@ -56,6 +56,13 @@ public class DataInitializer {
 
     public void initializeData() {
         //PERMISSIONS
+        //Role-Permissions
+        Permission customerPermission = permissionRepository.findByName("CUSTOMER")
+            .orElseGet(() -> permissionRepository.save(new Permission("CUSTOMER")));
+
+        Permission staffPermission = permissionRepository.findByName("STAFF")
+            .orElseGet(() -> permissionRepository.save(new Permission("STAFF")));
+
         //Equipment
         Permission createEquipment = permissionRepository.findByName("EQUIPMENT_CREATE")
             .orElseGet(() -> permissionRepository.save(new Permission("EQUIPMENT_CREATE")));
@@ -146,6 +153,8 @@ public class DataInitializer {
         Role customerRole = roleRepository.findByName("ROLE_CUSTOMER")
             .orElseGet(() -> {
                 Role r = new Role("ROLE_CUSTOMER");
+                // Role-Permission
+                r.getPermissions().add(customerPermission);
 
                 // Equipment -> only Read and Search
                 r.getPermissions().add(readEquipment);
@@ -177,6 +186,8 @@ public class DataInitializer {
         Role staffRole = roleRepository.findByName("ROLE_STAFF")
             .orElseGet(() -> {
                 Role r = new Role("ROLE_STAFF");
+                // Role-Permission
+                r.getPermissions().add(staffPermission);
 
                 // Equipment -> full Rights
                 r.getPermissions().add(createEquipment);
