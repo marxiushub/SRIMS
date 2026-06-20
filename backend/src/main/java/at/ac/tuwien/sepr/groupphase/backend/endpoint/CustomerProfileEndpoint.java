@@ -65,6 +65,16 @@ public class CustomerProfileEndpoint {
         return customerProfileService.getCustomerProfiles(customerId);
     }
 
+    //Allows Staff to read a specific CustomerProfiles when a valid CustomerProfileID is provided
+    //Allows Customer to read a specific CustomerProfile, that belongs to the Customer sending the Request
+    @PreAuthorize("hasAuthority('CUSTOMERPROFILE_READ') or hasAuthority('STAFF')")
+    @GetMapping("/profiles/{profileId}")
+    @ResponseStatus(HttpStatus.OK)
+    public CustomerProfileDetailDto getCustomerProfileById(@PathVariable("profileId") Long profileId) {
+        LOGGER.info("GET /api/v1/customer/profiles/{}", profileId);
+        return customerProfileService.getCustomerProfileById(profileId);
+    }
+
     @PreAuthorize("hasAuthority('CUSTOMERPROFILE_DELETE')")
     @DeleteMapping("/profiles/{profileId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -80,13 +90,5 @@ public class CustomerProfileEndpoint {
         LOGGER.info("PATCH /api/v1/customer/profiles/{} - {}", profileId, dto);
 
         return customerProfileService.updateCustomerProfile(profileId, dto);
-    }
-
-    @PreAuthorize("hasAuthority('CUSTOMERPROFILE_READ')")
-    @GetMapping("/profiles/{profileId}")
-    @ResponseStatus(HttpStatus.OK)
-    public CustomerProfileDetailDto getCustomerProfileById(@PathVariable("profileId") Long profileId) {
-        LOGGER.info("GET /api/v1/customer/profiles/{profileId}", profileId);
-        return customerProfileService.getCustomerProfileById(profileId);
     }
 }

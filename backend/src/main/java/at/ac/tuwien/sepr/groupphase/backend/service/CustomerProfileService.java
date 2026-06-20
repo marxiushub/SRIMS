@@ -43,6 +43,15 @@ public interface CustomerProfileService {
     List<CustomerProfileDetailDto> getCustomerProfiles(Long  customerId);
 
     /**
+     * Retrieves a specific customer profile for the given CustomerProfileID if the User in the Request-Token has the right permission.
+     * Access is granted for User with Staff Permission or for Customers when reading CustomerProfiles belonging to their account.
+     *
+     * @param profileId the ID of the CustomerProfile that should be retrieved
+     * @return an Object of type {@link CustomerProfileDetailDto} if the given profileID is valid
+     */
+    CustomerProfileDetailDto getCustomerProfileById(Long profileId);
+
+    /**
      * Partially updates an existing customer profile.
      * Only the fields provided in the update DTO will be applied.
      *
@@ -51,12 +60,4 @@ public interface CustomerProfileService {
      * @return a {@link CustomerProfileDetailDto} representing the updated customer profile
      */
     CustomerProfileDetailDto updateCustomerProfile(Long customerProfileId, CustomerProfileUpdateDto dto);
-
-    /**
-     * Retrieves a customer profile by its ID.
-     *
-     * @param customerProfileId the ID of the customer profile to retrieve
-     * @return a {@link CustomerProfileDetailDto} representing the customer profile
-     */
-    CustomerProfileDetailDto getCustomerProfileById(Long customerProfileId);
 }

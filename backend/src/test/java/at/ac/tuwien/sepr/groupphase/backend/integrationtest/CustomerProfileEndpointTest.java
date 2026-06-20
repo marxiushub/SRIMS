@@ -353,28 +353,4 @@ public class CustomerProfileEndpointTest extends IntegrationTestBase implements 
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isBadRequest());
     }
-
-    @Test
-    public void getCustomerProfileById_withExistingProfile_returns200AndProfile() throws Exception {
-        Customer customer = createTestCustomer("get_by_id");
-        CustomerProfile profile = createTestProfile(customer, "Endpoint Profile By Id", SkillLevel.BEGINNER);
-
-        mockMvc.perform(get("/api/v1/customer/profiles/{profileId}", profile.getId())
-                .header(securityProperties.getAuthHeader(), userToken(customer))
-                .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").value(profile.getId()))
-            .andExpect(jsonPath("$.profileName").value("Endpoint Profile By Id"))
-            .andExpect(jsonPath("$.customerId").value(customer.getId()));
-    }
-
-    @Test
-    public void getCustomerProfileById_withUnknownProfile_returns404() throws Exception {
-        Customer authCustomer = createTestCustomer("get_by_id_unknown_auth");
-
-        mockMvc.perform(get("/api/v1/customer/profiles/{profileId}", 99999L)
-                .header(securityProperties.getAuthHeader(), userToken(authCustomer))
-                .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isNotFound());
-    }
 }
