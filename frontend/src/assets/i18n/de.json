@@ -12,8 +12,8 @@
     "EMAIL": "E-Mail",
     "DATE_OF_BIRTH": "Geburtsdatum",
 
-    "HAVE_ACCOUNT": "Du hast bereits einen Account?",
-    "NO_ACCOUNT": "Du hast noch keinen Account?",
+    "HAVE_ACCOUNT": "Sie haben bereits einen Account?",
+    "NO_ACCOUNT": "Sie haben noch keinen Account?",
     "CREATE_ACCOUNT": "Account erstellen",
     "USERNAME_REQUIRED": "Benutzer ist erforderlich!",
     "PASSWORD_REQUIRED": "Passwort ist erforderlich!",
@@ -24,11 +24,11 @@
     "EMAIL_REQUIRED": "E-Mail ist erforderlich!",
     "EMAIL_INVALID": "Bitte geben Sie eine gültige E-Mail-Adresse ein!",
     "DATE_OF_BIRTH_REQUIRED": "Geburtsdatum ist erforderlich!",
+    "ALREADY_LOGGED_IN": "Sie sind bereits eingeloggt.",
 
     "LOGIN_SUCCESS": "Erfolgreich angemeldet.",
     "REGISTER_SUCCESS": "Erfolgreich registriert. Bitte loggen Sie sich ein.",
     "LOGOUT_SUCCESS": "Erfolgreich ausgeloggt."
-
   },
   "INVENTORY": {
     "TITLE": "Skiausrüstung Inventar",
@@ -191,19 +191,19 @@
     "BTN_BLOCKED_CONFLICT": "Blockiert (Reservierungs-Konflikt)",
     "SUCCESS_PROCESS_COMPLETED": "Vorgang erfolgreich im System verbucht!",
     "MODAL_TITLE": "Vorgang bestätigen",
-    "MODAL_QUESTION": "Möchtest du den Scan-Vorgang für {{name}} jetzt abschließen?",
+    "MODAL_QUESTION": "Möchten Sie den Scan-Vorgang für {{name}} jetzt abschließen?",
     "MODAL_SUBTEXT": "Die Statusänderungen der Ausrüstung werden direkt im System verbucht.",
     "MODAL_BTN_CANCEL": "Abbrechen",
     "MODAL_BTN_CONFIRM": "Ja, abschließen",
     "WALK_IN_TITLE": "Direkt-Ausleihe anlegen (Walk-In)",
-    "WALK_IN_SUBTITLE": "Für dieses eingescannte Equipment liegt heute keine Reservierung vor. Du kannst die Ausrüstung hier direkt einem Kunden zuweisen.",
+    "WALK_IN_SUBTITLE": "Für dieses eingescannte Equipment liegt heute keine Reservierung vor. Sie können die Ausrüstung hier direkt einem Kunden zuweisen.",
     "WALK_IN_SELECT_USER": "1. Mitarbeiter / Kunden-Account wählen",
     "CHOOSE_USER_PLACEHOLDER": "Bitte Benutzer auswählen",
     "CHOOSE_PROFILE_PLACEHOLDER": "Zuerst Benutzer auswählen",
     "FIXED": "fixiert",
     "ERROR_INVALID_RETURN_DATE": "Das Rückgabedatum darf nicht vor dem Ausleihtag liegen!",
     "BTN_SUBMIT_WALK_IN": "Sofort-Ausleihe abschließen & ausgeben",
-    "WALK_IN_CONFIRM_PROMPT": "Möchtest du diese Direkt-Ausleihe jetzt verbindlich erstellen?",
+    "WALK_IN_CONFIRM_PROMPT": "Möchten Sie diese Direkt-Ausleihe jetzt verbindlich erstellen?",
     "WALK_IN_SUCCESS_TOAST": "Spontan-Ausleihe erfolgreich verbucht!",
     "WALK_IN_INFO_TEXT": "Hinweis: Bei dieser Ausleihe wird eine neue Reservierung mit dem Equipment aus deiner gescannten Liste unten erstellt.",
     "CAMERA_SCANNER": "Kamera Scanner",
@@ -254,8 +254,8 @@
     "EQUIPMENT_COUNT": "Anzahl Ausrüstung",
     "NO_RESERVATIONS_FOUND": "Keine aktiven Reservierungen für die gescannten Gegenstände am heutigen Tag gefunden.",
     "CONFIRM_TITLE": "Reservierung bestätigen",
-    "CONFIRM_PROMPT": "Möchtest du diese Reservierung wirklich abschicken?",
-    "CONFIRM_SUBTEXT": "Bitte überprüfe noch einmal alle ausgewählten Ausrüstungsstücke und Daten, bevor du fortfährst."
+    "CONFIRM_PROMPT": "Möchten Sie diese Reservierung wirklich abschicken?",
+    "CONFIRM_SUBTEXT": "Bitte überprüfe noch einmal alle ausgewählten Ausrüstungsstücke und Daten, bevor Sie fortfahren."
   },
   "RESERVATION_STATUS": {
     "CREATED": "Erstellt",

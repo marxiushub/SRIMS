@@ -6,13 +6,6 @@
   </button>
 
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item">
-        @if (authService.isLoggedIn()) {
-          <a class="nav-link" routerLink="/message" routerLinkActive="active">Message</a>
-        }
-      </li>
-    </ul>
     <ul class="navbar-nav mr-5">
       <li class="nav-item d-flex align-items-center me-3 text-white-50">
         <span class="small me-2" [class.text-white]="!isEnglish">DE</span>

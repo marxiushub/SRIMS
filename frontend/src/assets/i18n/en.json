@@ -24,6 +24,7 @@
     "EMAIL_REQUIRED": "Email is required!",
     "EMAIL_INVALID": "Please enter a valid email address!",
     "DATE_OF_BIRTH_REQUIRED": "Date of birth is required!",
+    "ALREADY_LOGGED_IN": "You are already logged in.",
 
     "LOGIN_SUCCESS": "Login successful.",
     "REGISTER_SUCCESS": "Registration successful. You can now log in.",

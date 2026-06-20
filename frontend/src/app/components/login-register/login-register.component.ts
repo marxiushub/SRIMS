@@ -6,7 +6,6 @@ import {AuthRequest} from '../../dtos/auth-request';
 import {CustomerCreationDto} from '../../dtos/customer-creation';
 import {ToastrService} from "ngx-toastr";
 import {TranslateService} from "@ngx-translate/core";
-import {jwtDecode} from "jwt-decode";
 
 export enum LoginRegisterMode {
   login,
@@ -27,6 +26,7 @@ export class LoginRegisterComponent implements OnInit {
   // After first submission attempt, form validation will start
   submitted = false;
   errorMessage = '';
+  returnUrl: string = '';
 
   constructor(private formBuilder: UntypedFormBuilder, private authService: AuthService, public translateService: TranslateService, private router: Router, private route: ActivatedRoute, private notification: ToastrService) {
     this.loginForm = this.formBuilder.group({
@@ -83,27 +83,16 @@ export class LoginRegisterComponent implements OnInit {
   authenticateUser(authRequest: AuthRequest) {
     console.log('Try to authenticate user: ' + authRequest.email);
     this.authService.loginUser(authRequest).subscribe({
-      next: (rawResponse: string) => {
+      next: () => {
         console.log('Successfully logged in user: ' + authRequest.email);
 
-        try {
-          const token = rawResponse.startsWith('Bearer ')
-            ? rawResponse.replace('Bearer ', '').trim()
-            : rawResponse;
-          const decodedToken: any = jwtDecode(token);
-          console.log('Successfully decoded token structure:', decodedToken);
-
-          const permissions: string[] = decodedToken.perms || [];
-          const isStaff = permissions.includes('STAFF_READ') || permissions.includes('STAFF_CREATE');
-
-          if (isStaff) {
-            this.router.navigate(['/staff']);
-          } else {
-            this.router.navigate(['/customer']);
-          }
-        } catch (err) {
-          console.error('Failed to decode JWT token:', err);
-          this.router.navigate(['/']);
+        const role = this.authService.getUserRole();
+        if (role === 'USER' && this.returnUrl) {
+          this.router.navigateByUrl(this.returnUrl);
+        } else if (role === 'ADMIN') {
+          this.router.navigate(['/staff']);
+        } else {
+          this.router.navigate(['/customer']);
         }
       },
       error: error => this.handleError(error)
@@ -134,7 +123,17 @@ export class LoginRegisterComponent implements OnInit {
     this.notification.error(this.errorMessage);
   }
 
+  get isLoggedIn(): boolean {
+    return this.authService.isLoggedIn();
+  }
+
+  logout() {
+    this.authService.logoutUser();
+    console.log('User logged out successfully.');
+  }
+
   ngOnInit() {
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '';
     this.route.data.subscribe(data => {
       if (data && data['mode'] !== undefined) {
         this.mode = data['mode'];

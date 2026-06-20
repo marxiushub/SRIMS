@@ -66,10 +66,11 @@ export class AuthService {
     const token = this.getToken();
     if (token != null) {
       const decoded: any = jwtDecode(token);
-      const authInfo: string[] = decoded.rol;
-      if (authInfo?.includes('ROLE_ADMIN')) {
+      const permissions: string[] = decoded.perms || [];
+      if (permissions?.includes('STAFF_READ')) {
         return 'ADMIN';
-      } else if (authInfo.includes('ROLE_USER')) {
+      }
+      if (permissions.length > 0){
         return 'USER';
       }
     }
