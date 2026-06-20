@@ -52,8 +52,15 @@
 
               <div class="form-group">
                 <label for="password">{{ 'COMMON.PASSWORD' | translate }}</label>
-                <input type="password" name="password" formControlName="password" class="form-control" id="password"
-                       placeholder="{{ 'COMMON.PASSWORD' | translate }}">
+
+                <div class="input-group">
+                  <input [type]="showPassword ? 'text' : 'password'" name="password" formControlName="password" class="form-control" id="password"
+                         placeholder="{{ 'COMMON.PASSWORD' | translate }}">
+
+                  <button class="btn btn-sm btn-outline-secondary d-flex align-items-center py-0" type="button" (click)="showPassword = !showPassword">
+                    <i class="bi fs-4" [ngClass]="showPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
+                  </button>
+                </div>
 
                 @if (submitted && loginForm.controls.password.errors) {
                   <div class="error">
@@ -71,9 +78,16 @@
               @if (mode === LoginRegisterMode.register) {
                 <div class="form-group">
                   <label for="repeat-password">{{ 'COMMON.REPEAT_PASSWORD' | translate }}</label>
-                  <input type="password" name="repeat-password" formControlName="repeatPassword"
-                         class="form-control" id="repeat-password"
-                         placeholder="{{ 'COMMON.REPEAT_PASSWORD' | translate }}">
+
+                  <div class="input-group">
+                    <input [type]="showRepeatPassword ? 'text' : 'password'" name="repeat-password" formControlName="repeatPassword"
+                           class="form-control" id="repeat-password"
+                           placeholder="{{ 'COMMON.REPEAT_PASSWORD' | translate }}">
+
+                    <button class="btn btn-sm btn-outline-secondary d-flex align-items-center py-0" type="button" (click)="showRepeatPassword = !showRepeatPassword">
+                      <i class="bi fs-4" [ngClass]="showRepeatPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
+                    </button>
+                  </div>
 
                   @if (submitted && (loginForm.hasError('passwordsMismatch') || loginForm.get('repeatPassword')?.errors)) {
                     <div class="error">

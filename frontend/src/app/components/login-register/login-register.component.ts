@@ -40,6 +40,8 @@ export class LoginRegisterComponent implements OnInit {
   submitted = false;
   errorMessage = '';
   returnUrl: string = '';
+  showPassword = false;
+  showRepeatPassword = false;
 
   constructor(private formBuilder: UntypedFormBuilder, private authService: AuthService, public translateService: TranslateService, private router: Router, private route: ActivatedRoute, private notification: ToastrService) {
     this.loginForm = this.formBuilder.group({

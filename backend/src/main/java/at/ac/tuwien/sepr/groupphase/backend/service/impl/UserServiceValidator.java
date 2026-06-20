@@ -28,7 +28,7 @@ public class UserServiceValidator {
             if (userCreationDto.getEmail() == null || userCreationDto.getEmail().isBlank()) {
                 validationErrors.add("email is blank");
             } else if (userRepository.existsByEmail(userCreationDto.getEmail())) {
-                validationErrors.add("This email address is already registered to an account.");
+                validationErrors.add("This email address is already registered to another account.");
             }
         }
 
