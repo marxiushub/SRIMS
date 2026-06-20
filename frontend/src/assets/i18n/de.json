@@ -23,7 +23,11 @@
     "LAST_NAME_REQUIRED": "Nachname ist erforderlich!",
     "EMAIL_REQUIRED": "E-Mail ist erforderlich!",
     "EMAIL_INVALID": "Bitte geben Sie eine gültige E-Mail-Adresse ein!",
-    "DATE_OF_BIRTH_REQUIRED": "Geburtsdatum ist erforderlich!"
+    "DATE_OF_BIRTH_REQUIRED": "Geburtsdatum ist erforderlich!",
+
+    "LOGIN_SUCCESS": "Erfolgreich angemeldet.",
+    "REGISTER_SUCCESS": "Erfolgreich registriert. Bitte loggen Sie sich ein.",
+    "LOGOUT_SUCCESS": "Erfolgreich ausgeloggt."
 
   },
   "INVENTORY": {

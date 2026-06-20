@@ -6,15 +6,14 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.detail.UserDeta
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.UserSearchResponseDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.UserUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.UserMapper;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Permission;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Role;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.UserType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepr.groupphase.backend.repository.RoleRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.StaffRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.UserRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.RoleRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.AppUserDetails;
 import at.ac.tuwien.sepr.groupphase.backend.security.CurrentUserService;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
@@ -38,8 +37,6 @@ import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class CustomUserDetailService implements UserService {
@@ -53,7 +50,7 @@ public class CustomUserDetailService implements UserService {
     private final StaffRepository staffRepository;
     private final Map<UserType, JpaRepository<? extends ApplicationUser, Long>> repositoryMap;
     private final UserMapper mapper;
-    private final  RoleRepository roleRepository;
+    private final RoleRepository roleRepository;
     private final PermissionService permissionService;
     private final CurrentUserService currentUserService;
 
@@ -125,7 +122,7 @@ public class CustomUserDetailService implements UserService {
 
             return jwtTokenizer.getAuthToken(userDetails.getUsername(), user.getId(), permissions);
         }
-        throw new BadCredentialsException("Username or password is incorrect or account is locked");
+        throw new BadCredentialsException("Email or password is incorrect or account is locked");
     }
 
 
@@ -209,7 +206,6 @@ public class CustomUserDetailService implements UserService {
 
         return mapper.entityToSearchResponseDto(user);
     }
-
 
 
     //Helper Methods:
