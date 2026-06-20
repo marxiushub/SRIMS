@@ -20,6 +20,7 @@
     "PASSWORD_MIN_LENGTH": "Das Passwort muss mindestens 10 Zeichen lang sein.",
     "PASSWORD_PATTERN": "Das Passwort muss mindestens eine Zahl und ein Sonderzeichen enthalten.",
     "PASSWORD_MISMATCH": "Die Passwörter stimmen nicht überein.",
+    "REPEAT_PASSWORD_REQUIRED": "Bitte wiederholen Sie das Passwort.",
     "FIRST_NAME_REQUIRED": "Vorname ist erforderlich!",
     "LAST_NAME_REQUIRED": "Nachname ist erforderlich!",
     "EMAIL_REQUIRED": "E-Mail ist erforderlich!",

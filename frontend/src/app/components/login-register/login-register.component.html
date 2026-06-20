@@ -75,9 +75,12 @@
                          class="form-control" id="repeat-password"
                          placeholder="{{ 'COMMON.REPEAT_PASSWORD' | translate }}">
 
-                  @if (submitted && loginForm.controls.repeatPassword.errors) {
+                  @if (submitted && (loginForm.hasError('passwordsMismatch') || loginForm.get('repeatPassword')?.errors)) {
                     <div class="error">
-                      @if (submitted && loginForm.hasError('passwordsMismatch')) {
+                      @if (loginForm.get('repeatPassword')?.hasError('required')) {
+                        <small class="form-text text-danger d-block">{{ 'COMMON.REPEAT_PASSWORD_REQUIRED' | translate }}</small>
+                      }
+                      @else if (loginForm.hasError('passwordsMismatch')) {
                         <small class="form-text text-danger">{{ 'COMMON.PASSWORD_MISMATCH' | translate }}</small>
                       }
                     </div>
@@ -91,7 +94,7 @@
 
                   @if (submitted && loginForm.controls.firstName.errors) {
                     <div class="error">
-                      @if (submitted && loginForm.get('firstName')?.hasError('required')) {
+                      @if (loginForm.get('firstName')?.hasError('required')) {
                         <small class="form-text text-danger">{{ 'COMMON.FIRST_NAME_REQUIRED' | translate }}</small>
                       }
                     </div>
@@ -105,7 +108,7 @@
 
                   @if (submitted && loginForm.controls.lastName.errors) {
                     <div class="error">
-                      @if (submitted && loginForm.get('lastName')?.hasError('required')) {
+                      @if (loginForm.get('lastName')?.hasError('required')) {
                         <small class="form-text text-danger">{{ 'COMMON.LAST_NAME_REQUIRED' | translate }}</small>
                       }
                     </div>
@@ -118,10 +121,10 @@
                          placeholder="{{ 'COMMON.EMAIL' | translate }}">
                   @if (submitted && loginForm.controls.email.errors) {
                     <div class="error">
-                      @if (submitted && loginForm.get('email')?.hasError('required')) {
+                      @if (loginForm.get('email')?.hasError('required')) {
                         <small class="form-text text-danger">{{ 'COMMON.EMAIL_REQUIRED' | translate }}</small>
                       }
-                      @if (submitted && loginForm.get('email')?.hasError('email')) {
+                      @if (loginForm.get('email')?.hasError('email')) {
                         <small class="form-text text-danger">{{ 'COMMON.EMAIL_INVALID' | translate }}</small>
                       }
                     </div>
@@ -133,7 +136,7 @@
                   <input type="date" name="dateOfBirth" formControlName="dateOfBirth" class="form-control" id="dateOfBirth">
                   @if ((submitted || loginForm.get('dateOfBirth')?.touched) && loginForm.get('dateOfBirth')?.errors) {
                     <div class="error">
-                      @if (submitted && loginForm.get('dateOfBirth')?.hasError('required')) {
+                      @if (loginForm.get('dateOfBirth')?.hasError('required')) {
                         <small class="form-text text-danger">{{ 'COMMON.DATE_OF_BIRTH_REQUIRED' | translate }}</small>
                       }
                       @if (loginForm.get('dateOfBirth')?.hasError('futureDate')) {
