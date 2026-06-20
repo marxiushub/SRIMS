@@ -17,6 +17,7 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.EquipmentRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ReservationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerProfileRepository;
+import at.ac.tuwien.sepr.groupphase.backend.service.EmailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,18 +38,20 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
     private final ReservationRepository reservationRepository;
     private final EquipmentRepository equipmentRepository;
     private final CustomerProfileRepository customerProfileRepository;
+    private final EmailService emailService;
 
     @Autowired
     public ReservationServiceImpl(ReservationMapper reservationMapper,
                                   ReservationRepository reservationRepository,
                                   EquipmentRepository equipmentRepository,
                                   CustomerProfileRepository customerProfileRepository,
-                                  ReservationValidator validator) {
+                                  ReservationValidator validator, EmailService emailService) {
         this.reservationMapper = reservationMapper;
         this.reservationRepository = reservationRepository;
         this.equipmentRepository = equipmentRepository;
         this.customerProfileRepository = customerProfileRepository;
         this.validator = validator;
+        this.emailService = emailService;
     }
 
 
@@ -85,7 +88,8 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
         }
         calculateAndSetTotalPrice(reservation);
         Reservation savedReservation = reservationRepository.save(reservation);
-        //bestätigungs-email senden
+        emailService.sendReservationConfirmation(equipmentList, savedReservation);
+        reservation.setConfirmationEmailSent();
         return reservationMapper.entityToDetailDto(savedReservation);
     }
 
@@ -166,7 +170,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
         }
 
         //If the ReservationStatus is changed to RETURNED or CANCELLED, delete all corresponding timePeriods
-        // of the included Equipment to free the Equipment up again and reduce the size of the Equipment-table in the databse
+        // of the included Equipment to free the Equipment up again and reduce the size of the Equipment-table in the database
         if (dto.getReservationStatus() != null) {
             if (dto.getReservationStatus() == ReservationStatus.RETURNED
                 || dto.getReservationStatus() == ReservationStatus.CANCELLED) {
@@ -290,6 +294,78 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
         calculateAndSetTotalPrice(reservation);
         Reservation savedReservation = reservationRepository.save(reservation);
         return reservationMapper.entityToDetailDto(savedReservation);
+    }
+
+    @Transactional(readOnly = false)
+    @Override
+    public void processOverdueReservations(LocalDate boundaryDate) {
+
+        List<Reservation> overdueReservations = reservationRepository
+            .findByEndDateBeforeAndReservationStatusAndOverdueReminderSentFalse(
+                boundaryDate, ReservationStatus.PICKED_UP);
+
+        if (overdueReservations.isEmpty()) {
+            LOGGER.info("No overdue reservations found for boundary date: {}", boundaryDate);
+            return;
+        }
+
+        LOGGER.info("Found {} overdue reservations! Starting reminder process...", overdueReservations.size());
+
+        for (Reservation res : overdueReservations) {
+            try {
+
+                List<Equipment> currentEquipment = res.getItems().stream()
+                    .map(ReservationRelation::getEquipment).toList();
+
+                emailService.sendOverdueReminder(currentEquipment, res);
+
+                res.setOverdueReminderSent(true);
+                reservationRepository.save(res);
+
+                LOGGER.info("Overdue reminder successfully sent to {} (Reservation ID: {}).",
+                    res.getCustomerProfile().getCustomer().getEmail(), res.getId());
+
+            } catch (Exception e) {
+                LOGGER.error("Failed to process overdue reminder for Reservation ID {}: {}", res.getId(), e.getMessage());
+            }
+        }
+    }
+
+    @Transactional(readOnly = false)
+    @Override
+    public void processPickUpReminders() {
+        LocalDate today = LocalDate.now();
+        LocalDate boundaryDate = today.plusDays(2);
+
+        List<Reservation> upcomingReservations = reservationRepository
+            .findByStartDateBetweenAndReservationStatusAndPickUpReminderSentFalse(
+                today, boundaryDate, ReservationStatus.CREATED);
+
+        if (upcomingReservations.isEmpty()) {
+            LOGGER.info("No upcoming reservations found needing a pick-up reminder.");
+            return;
+        }
+
+        LOGGER.info("Found {} upcoming reservations. Starting pick-up reminder process...", upcomingReservations.size());
+
+        for (Reservation res : upcomingReservations) {
+            try {
+
+                List<Equipment> currentEquipment = res.getItems().stream()
+                    .map(ReservationRelation::getEquipment).toList();
+
+                emailService.sendPickUpReminderEmail(currentEquipment, res);
+
+                res.setPickUpReminderSent(true);
+                reservationRepository.save(res);
+
+                LOGGER.info("Pick-up reminder successfully sent to {} (Reservation ID: {}).",
+                    res.getCustomerProfile().getCustomer().getEmail(), res.getId());
+
+            } catch (Exception e) {
+                LOGGER.error("Failed to send pick-up reminder for Reservation ID {}: {}", res.getId(), e.getMessage());
+            }
+        }
     }
 
     private void deleteTimePeriodsForEquipment(List<Equipment> equipmentList, Reservation reservation) {

@@ -150,4 +150,8 @@ public abstract class Equipment {
 
 
     public abstract EquipmentType getEquipmentType();
+
+    public String getEquipmentTypeName() {
+        return this.getClass().getSimpleName();
+    }
 }

@@ -1,13 +1,13 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.detail.EquipmentDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationAddDeleteEquipmentDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -81,6 +81,15 @@ public interface ReservationService {
      */
     ReservationDetailDto removeEquipmentFromReservation(ReservationAddDeleteEquipmentDto dto);
 
+    /**
+     * Processes reservations that are considered overdue relative to the provided boundary date.
+     *
+     * @param boundaryDate the date used as the cutoff for determining which reservations
+     *                     are overdue; reservations with an end date on or before this
+     *                     date should be processed by the implementation
+     */
+    void processOverdueReservations(LocalDate boundaryDate);
 
-
+    @Transactional(readOnly = false)
+    void processPickUpReminders();
 }
