@@ -27,6 +27,7 @@ export class LoginRegisterComponent implements OnInit {
   // After first submission attempt, form validation will start
   submitted = false;
   errorMessage = '';
+  returnUrl: string = '';
 
   constructor(private formBuilder: UntypedFormBuilder, private authService: AuthService, public translateService: TranslateService, private router: Router, private route: ActivatedRoute, private notification: ToastrService) {
     this.loginForm = this.formBuilder.group({
@@ -86,24 +87,13 @@ export class LoginRegisterComponent implements OnInit {
       next: (rawResponse: string) => {
         console.log('Successfully logged in user: ' + authRequest.email);
 
-        try {
-          const token = rawResponse.startsWith('Bearer ')
-            ? rawResponse.replace('Bearer ', '').trim()
-            : rawResponse;
-          const decodedToken: any = jwtDecode(token);
-          console.log('Successfully decoded token structure:', decodedToken);
-
-          const permissions: string[] = decodedToken.perms || [];
-          const isStaff = permissions.includes('STAFF_READ') || permissions.includes('STAFF_CREATE');
-
-          if (isStaff) {
-            this.router.navigate(['/staff']);
-          } else {
-            this.router.navigate(['/customer']);
-          }
-        } catch (err) {
-          console.error('Failed to decode JWT token:', err);
-          this.router.navigate(['/']);
+        const role = this.authService.getUserRole();
+        if (role === 'USER' && this.returnUrl) {
+          this.router.navigateByUrl(this.returnUrl);
+        } else if (role === 'ADMIN') {
+          this.router.navigate(['/staff']);
+        } else {
+          this.router.navigate(['/customer']);
         }
       },
       error: error => this.handleError(error)
@@ -135,6 +125,7 @@ export class LoginRegisterComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '';
     this.route.data.subscribe(data => {
       if (data && data['mode'] !== undefined) {
         this.mode = data['mode'];
