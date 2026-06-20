@@ -279,8 +279,7 @@ export class BarcodeScannerComponent implements OnInit {
 
     //Filter out Reservations that have no more matching Equipment
     this.matchedReservations = this.matchedReservations.filter(res => {
-      const hasRemainingEquipment = res.items?.some((equipment: any) => this.scannedEquipmentIds.includes(equipment.id));
-      return hasRemainingEquipment;
+      return res.items?.some((equipment: any) => this.scannedEquipmentIds.includes(equipment.id));
     })
 
     this.updateScanScenario();

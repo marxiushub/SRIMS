@@ -98,8 +98,7 @@ describe('CustomerProfileCreateEditComponent', () => {
       height: 180,
       weight: 80,
       shoeSize: 44,
-      skillLevel: SkillLevel.BEGINNER,
-      customerId: 1 //Customer ID hardcoded to 1 until accounts are implemented
+      skillLevel: SkillLevel.BEGINNER
     };
 
     component.onSubmit();

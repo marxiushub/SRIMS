@@ -33,8 +33,7 @@ export class CustomerProfileCreateEditComponent {
     profileName: '',
     shoeSize: 25,
     skillLevel: SkillLevel.BEGINNER,
-    weight: 20,
-    customerId: 1, //Customer ID hardcoded to 1 until accounts are implemented
+    weight: 20
   };
 
   skillLevels = [
@@ -66,8 +65,7 @@ export class CustomerProfileCreateEditComponent {
           profileName: data.profileName,
           shoeSize: data.shoeSize,
           skillLevel: data.skillLevel,
-          weight: data.weight,
-          customerId: 1, //Customer ID hardcoded to 1 until accounts are implemented
+          weight: data.weight
         };
 
         this.loading = false;
@@ -98,8 +96,7 @@ export class CustomerProfileCreateEditComponent {
       profileName: this.profile.profileName,
       shoeSize: this.profile.shoeSize,
       skillLevel: this.profile.skillLevel,
-      weight: this.profile.weight,
-      customerId: 1, //Customer ID hardcoded to 1 until accounts are implemented
+      weight: this.profile.weight
     };
 
     if (this.mode === ProfileCreateEditMode.create) {
