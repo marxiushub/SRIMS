@@ -3,6 +3,7 @@ import {mapToCanActivate, RouterModule, Routes} from '@angular/router';
 import {HomeComponent} from './components/home/home.component';
 import {LoginRegisterComponent, LoginRegisterMode} from './components/login-register/login-register.component';
 import {AuthGuard} from './guards/auth.guard';
+import { homeGuard } from './guards/home.guard';
 import {MessageComponent} from './components/message/message.component';
 import {StaffComponent} from './components/staff/staff.component';
 import {InventoryComponent} from './components/staff/inventory/inventory.component';
@@ -32,13 +33,13 @@ import {
 import {ReservationComponent} from "./components/customer/reservation/reservation.component";
 
 const routes: Routes = [
-  {path: '', component: HomeComponent},
+  {path: '', component: HomeComponent, canActivate: [homeGuard]},
   {path: 'login', component: LoginRegisterComponent, data: {mode: LoginRegisterMode.login}},
   {path: 'register', component: LoginRegisterComponent, data: {mode: LoginRegisterMode.register}},
   {path: 'message', canActivate: mapToCanActivate([AuthGuard]), component: MessageComponent},
 
   {
-    path: 'staff', component: StaffComponent, children: [
+    path: 'staff', component: StaffComponent, canActivate: [AuthGuard], children: [
       {path: 'inventory', component: InventoryComponent},
       {path: 'inventory/create', component: EquipmentCreateEditComponent, data: {mode: EquipmentCreateEditMode.create}},
       {path: 'inventory/edit/:id', component: EquipmentCreateEditComponent, data: {mode: EquipmentCreateEditMode.edit}},
@@ -47,7 +48,7 @@ const routes: Routes = [
     ]
   },
   {
-    path: 'customer', component: CustomerComponent, children: [
+    path: 'customer', component: CustomerComponent, canActivate: [AuthGuard], children: [
       {path: 'reservation', component: ReservationComponent},
       {
         path: 'reservation/create',

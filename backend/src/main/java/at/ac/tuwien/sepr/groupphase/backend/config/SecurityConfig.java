@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.security.JwtAuthorizationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -41,6 +42,7 @@ public class SecurityConfig {
                 .requestMatchers("/health", "/health/**").permitAll()
                 .requestMatchers("/api/v1/authentication/**").permitAll()
                 .requestMatchers("/api/v1/customer/create").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/equipment").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
                 .anyRequest().authenticated()
             )
