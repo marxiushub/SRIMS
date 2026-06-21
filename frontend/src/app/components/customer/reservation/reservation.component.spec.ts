@@ -108,7 +108,7 @@ describe('ReservationComponent', () => {
   });
 
   it('should load customer profiles for dropdown on init', () => {
-    expect(customerProfileServiceMock.getCustomerProfiles).toHaveBeenCalledWith(1); // hardcodedAccountId
+    expect(customerProfileServiceMock.getCustomerProfiles).toHaveBeenCalledWith();
     expect(component.customerProfiles).toEqual(testProfiles);
   });
 
