@@ -46,10 +46,7 @@ export class LoginRegisterComponent implements OnInit {
   constructor(private formBuilder: UntypedFormBuilder, private authService: AuthService, public translateService: TranslateService, private router: Router, private route: ActivatedRoute, private notification: ToastrService) {
     this.loginForm = this.formBuilder.group({
       username: ['', [Validators.required]],
-      password: ['', [Validators.required,
-        Validators.minLength(10),
-        Validators.pattern('^(?=.*[A-Za-z])(?=.*\\d)(?=.*[^A-Za-z0-9]).+$')
-      ]],
+      password: ['', [Validators.required]],
       repeatPassword: ['', [Validators.required]],
       firstName: ['', [Validators.required]],
       lastName: ['', [Validators.required]],
@@ -173,12 +170,19 @@ export class LoginRegisterComponent implements OnInit {
 
       const registrationControls = ['repeatPassword', 'email', 'firstName', 'lastName', 'dateOfBirth'];
       const usernameControl = this.loginForm.get('username');
+      const passwordControl = this.loginForm.get('password');
 
       if (this.mode === LoginRegisterMode.register) {
         usernameControl?.setValidators([Validators.required]);
+        passwordControl?.setValidators([
+          Validators.required,
+          Validators.minLength(10),
+          Validators.pattern('^(?=.*[A-Za-z])(?=.*\\d)(?=.*[^A-Za-z0-9]).+$')
+        ]);
         this.loginForm.setValidators([this.passwordMatchValidator.bind(this)]);
       } else {
         usernameControl?.setValidators([Validators.required, Validators.email]);
+        passwordControl?.setValidators([Validators.required]);
         registrationControls.forEach(control => this.loginForm.get(control)?.clearValidators());
         this.loginForm.clearValidators();
       }
