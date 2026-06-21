@@ -258,7 +258,8 @@
     "NO_RESERVATIONS_FOUND": "No active reservations found for the scanned items today.",
     "CONFIRM_TITLE": "Confirm Reservation",
     "CONFIRM_PROMPT": "Are you sure you want to submit this reservation?",
-    "CONFIRM_SUBTEXT": "Please double-check all selected equipment items and dates before proceeding."
+    "CONFIRM_SUBTEXT": "Please double-check all selected equipment items and dates before proceeding.",
+    "TITLE_DETAIL": "View Reservation"
   },
   "RESERVATION_STATUS": {
     "CREATED": "Created",

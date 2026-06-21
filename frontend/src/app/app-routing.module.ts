@@ -31,6 +31,7 @@ import {
   CustomerEquipmentViewComponent
 } from "./components/customer/customer-inventory/equipment-view/equipment-view.component";
 import {ReservationComponent} from "./components/customer/reservation/reservation.component";
+import {ReservationViewComponent} from "./components/customer/reservation/reservation-view/reservation-view.component";
 
 const routes: Routes = [
   {path: '', component: HomeComponent, canActivate: [homeGuard]},
@@ -60,6 +61,7 @@ const routes: Routes = [
         component: ReservationCreateEditComponent,
         data: {mode: ReservationCreateEditMode.edit}
       },
+      {path: 'reservation/view/:id', component: ReservationViewComponent},
       {path: 'inventory', component: CustomerInventoryComponent},
       {path: 'inventory/view/:id', component: CustomerEquipmentViewComponent}
     ]

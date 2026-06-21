@@ -258,7 +258,8 @@
     "NO_RESERVATIONS_FOUND": "Keine aktiven Reservierungen für die gescannten Gegenstände am heutigen Tag gefunden.",
     "CONFIRM_TITLE": "Reservierung bestätigen",
     "CONFIRM_PROMPT": "Möchten Sie diese Reservierung wirklich abschicken?",
-    "CONFIRM_SUBTEXT": "Bitte überprüfe noch einmal alle ausgewählten Ausrüstungsstücke und Daten, bevor Sie fortfahren."
+    "CONFIRM_SUBTEXT": "Bitte überprüfe noch einmal alle ausgewählten Ausrüstungsstücke und Daten, bevor Sie fortfahren.",
+    "TITLE_DETAIL": "Reservierung ansehen"
   },
   "RESERVATION_STATUS": {
     "CREATED": "Erstellt",
