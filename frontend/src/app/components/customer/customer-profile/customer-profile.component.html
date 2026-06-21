@@ -1,17 +1,13 @@
 <div class="container-fluid pt-4">
 
-  <div class="d-flex align-items-center mb-3">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
     <h2 class="mb-0">{{ 'CUSTOMER_PROFILE.TITLE' | translate }}</h2>
 
-    <span style="flex: 1"></span>
-
-    <button class="btn btn-primary m-md-2" (click)="openCreatePage()">
-      {{ 'CUSTOMER_PROFILE.ADD_PROFILE' | translate }}
-    </button>
-
-    <button class="btn btn-primary" (click)="loadProfiles()">
-      {{ 'CUSTOMER_PROFILE.RELOAD' | translate }}
-    </button>
+    <div class="d-flex gap-2">
+      <button class="btn btn-primary text-nowrap" (click)="openCreatePage()">
+        {{ 'CUSTOMER_PROFILE.ADD_PROFILE' | translate }}
+      </button>
+    </div>
   </div>
 
   @if (loading) {
@@ -42,19 +38,21 @@
             <td>{{ item.profileName }}</td>
 
             <td>
-              <button
-                type="button"
-                class="btn btn-sm btn-outline-primary me-2"
-                (click)="openEditPage(item); $event.stopPropagation()">
-                {{ 'CUSTOMER_PROFILE_EDIT.TITLE' | translate }}
-              </button>
+              <div class="d-flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-primary"
+                  (click)="openEditPage(item); $event.stopPropagation()">
+                  {{ 'CUSTOMER_PROFILE_EDIT.TITLE' | translate }}
+                </button>
 
-              <button
-                type="button"
-                class="btn btn-sm btn-outline-danger"
-                (click)="openDeleteDialog(item); $event.stopPropagation()">
-                {{ 'CUSTOMER_PROFILE.DELETE' | translate }}
-              </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-danger"
+                  (click)="openDeleteDialog(item); $event.stopPropagation()">
+                  {{ 'CUSTOMER_PROFILE.DELETE' | translate }}
+                </button>
+              </div>
             </td>
           </tr>
         }

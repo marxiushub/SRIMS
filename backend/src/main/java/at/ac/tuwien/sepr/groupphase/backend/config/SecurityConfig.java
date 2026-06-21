@@ -56,7 +56,7 @@ public class SecurityConfig {
         @Override
         public void addCorsMappings(CorsRegistry registry) {
             registry.addMapping("/**")
-                .allowedOriginPatterns("http://localhost:4200", "https://*.apps.student.inso-w.at")
+                .allowedOriginPatterns("http://localhost:4200", "http://192.168.*.*:4200", "https://*.apps.student.inso-w.at")
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "HEAD");
         }
     }
