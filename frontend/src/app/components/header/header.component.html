@@ -6,14 +6,14 @@
       class="logo ms-3"
     />
   </a>
-  <button class="navbar-toggler ml-5" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+  <button class="navbar-toggler ms-5" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
           aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
 
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
-    <ul class="navbar-nav mr-5">
-      <li class="nav-item d-flex align-items-center me-3 text-white-50">
+    <ul class="navbar-nav ms-auto align-items-end align-items-lg-center pe-3 pe-lg-0 me-lg-3 pt-3 pt-lg-0">
+      <li class="nav-item d-flex align-items-center me-lg-2 mb-1 mb-lg-0 text-white-50">
         <span class="small me-2" [class.text-white]="!isEnglish">DE</span>
         <div class="form-check form-switch m-0 p-0 d-flex align-items-center" style="min-height: auto;">
           <input
@@ -30,11 +30,11 @@
 
       @if (!authService.isLoggedIn()) {
         <li class="nav-item">
-          <a class="nav-link" routerLink="/register" routerLinkActive="active">{{ 'COMMON.REGISTER' | translate }}</a>
+          <a class="nav-link" routerLink="/login" routerLinkActive="active">{{ 'COMMON.LOGIN' | translate }}</a>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link" routerLink="/login" routerLinkActive="active">{{ 'COMMON.LOGIN' | translate }}</a>
+          <a class="nav-link" routerLink="/register" routerLinkActive="active">{{ 'COMMON.REGISTER' | translate }}</a>
         </li>
       }
       @if (authService.isLoggedIn()) {
