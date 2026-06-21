@@ -52,7 +52,7 @@ export class ReservationComponent implements OnInit {
    * Loads all customer Profiles of account, to show them in filter-dropdown.
    */
   loadCustomerProfiles(): void {
-    this.customerProfileService.getCustomerProfiles(this.hardcodedAccountId).subscribe({
+    this.customerProfileService.getCustomerProfiles().subscribe({
       next: (profiles) => {
         this.customerProfiles = profiles;
       },

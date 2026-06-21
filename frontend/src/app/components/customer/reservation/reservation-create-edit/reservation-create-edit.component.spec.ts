@@ -126,7 +126,7 @@ describe('ReservationCreateEditComponent', () => {
 
   it('should load customer profiles on init and patch the first profile ID in create mode', () => {
     fixture.detectChanges();
-    expect(customerProfileServiceMock.getCustomerProfiles).toHaveBeenCalledWith(1);
+    expect(customerProfileServiceMock.getCustomerProfiles).toHaveBeenCalledWith();
     expect(component.customerProfiles).toEqual(mockProfiles);
     expect(component.reservationForm.get('customerProfileId')?.value).toBe(1);
   });
