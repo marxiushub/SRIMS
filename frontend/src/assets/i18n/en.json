@@ -1,6 +1,7 @@
 {
   "COMMON": {
     "APP_NAME": "SRIMS - Ski Rental & Inventory Management System",
+    "WELCOME": "Welcome to SRIMS!",
     "LOGIN": "Login",
     "LOGOUT": "Logout",
     "REGISTER": "Register",
@@ -55,7 +56,8 @@
     "AVAILABLE": "Available",
     "RENTED": "Rented",
     "EQUIPMENT_ALL": "All",
-    "CLEAR": "Clear",
+    "FILTERS": "Filters",
+    "CLEAR": "Clear Filters",
     "START_DATE": "Available from",
     "END_DATE": "To",
     "LOWEST_FIRST": "Lowest first",

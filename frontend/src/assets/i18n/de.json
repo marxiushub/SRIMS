@@ -1,6 +1,7 @@
 {
   "COMMON": {
     "APP_NAME": "SRIMS - Ski Verleih & Inventory Management System",
+    "WELCOME": "Willkommen zu SRIMS!",
     "LOGIN": "Einloggen",
     "LOGOUT": "Ausloggen",
     "REGISTER": "Registrieren",
@@ -55,7 +56,8 @@
     "AVAILABLE": "Verfügbar",
     "RENTED": "Verliehen",
     "EQUIPMENT_ALL": "Alle",
-    "CLEAR": "Zurücksetzen",
+    "FILTERS": "Filter",
+    "CLEAR": "Filter zurücksetzen",
     "START_DATE": "Verfügbar ab",
     "END_DATE": "Bis",
     "LOWEST_FIRST": "Preis aufsteigend",

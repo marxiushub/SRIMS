@@ -1,92 +1,125 @@
 <div class="container-fluid pt-4">
 
-  <div class="d-flex align-items-center mb-3">
+  <div class="d-flex flex-wrap align-items-center justify-content-between mb-3 gap-2">
     <h2 class="mb-0">{{ 'INVENTORY.TITLE' | translate }}</h2>
     <span style="flex: 1"></span>
-    <button class="btn btn-primary" (click)="loadEquipment()">
-      {{ 'INVENTORY.RELOAD' | translate }}
-    </button>
-  </div>
 
-  <form class="d-flex flex-row w-auto mb-3 align-items-end" (ngSubmit)="searchEquipment()">
-    <div class="me-2">
-      <label for="searchEquipmentModel" class="col-form-label">{{ 'INVENTORY.EQUIPMENT_MODEL' | translate }}</label>
-      <input type="text" id="searchEquipmentModel" name="searchEquipmentModel" [(ngModel)]="modelFilter"
-             [ngModelOptions]="{ standalone: true }" [ngbTypeahead]="searchModel" (ngModelChange)="searchEquipment()"
-             class="form-control">
-    </div>
-
-    <div class="me-2">
-      <label for="searchEquipmentType" class="col-form-label">{{ 'INVENTORY.EQUIPMENT_TYP' | translate }}</label>
-      <select id="searchEquipmentType" name="searchEquipmentType" [(ngModel)]="typeFilter"
-              [ngModelOptions]="{ standalone: true }" (ngModelChange)="searchEquipment()" class="form-select">
-        <option [ngValue]="null">{{ 'INVENTORY.EQUIPMENT_ALL' | translate }}</option>
-        @for (type of equipmentTypes; track type) {
-          <option [value]="type">{{ 'EQUIPMENT_TYPE.' + type | translate }}</option>
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-outline-secondary d-xl-none" type="button" (click)="toggleFilters()">
+        {{ 'INVENTORY.FILTERS' | translate }}
+        @if (activeFilterCount > 0) {
+          <span class="badge bg-primary rounded-pill ms-1">{{ activeFilterCount }}</span>
         }
-      </select>
-    </div>
+        <i class="bi ms-1" [ngClass]="filtersExpanded ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+      </button>
 
-    <div class="me-2">
-      <label for="searchEquipmentStatus" class="col-form-label">{{ 'INVENTORY.EQUIPMENT_STATUS' | translate }}</label>
-      <select id="searchEquipmentStatus" name="searchEquipmentStatus" [(ngModel)]="statusFilter"
-              [ngModelOptions]="{ standalone: true }" (ngModelChange)="searchEquipment()" class="form-select">
-        <option [ngValue]="null">{{ 'INVENTORY.EQUIPMENT_ALL' | translate }}</option>
-        @for (status of rentalStatuses; track status) {
-          <option [value]="status">{{ 'RENTAL_STATUS.' + status | translate }}</option>
-        }
-      </select>
-    </div>
-
-    <div class="me-2">
-      <label for="searchEquipmentSkill" class="col-form-label">{{ 'INVENTORY.EQUIPMENT_SKILL' | translate }}</label>
-      <select id="searchEquipmentSkill" name="searchEquipmentSkill" [(ngModel)]="skillFilter"
-              [ngModelOptions]="{ standalone: true }" (ngModelChange)="searchEquipment()" class="form-select">
-        <option [ngValue]="null">{{ 'INVENTORY.EQUIPMENT_ALL' | translate }}</option>
-        @for (skillLevel of skillLevels; track skillLevel) {
-          <option [value]="skillLevel">{{ 'SKILL_LEVEL.' + skillLevel | translate }}</option>
-        }
-      </select>
-    </div>
-
-    <div class="me-2">
-      <label for="searchEquipmentStart" class="col-form-label">{{ 'INVENTORY.START_DATE' | translate }}</label>
-      <input
-        type="date"
-        id="searchEquipmentStart"
-        name="searchEquipmentStart"
-        [(ngModel)]="startFilter"
-        [ngModelOptions]="{ standalone: true }"
-        (ngModelChange)="onStartDateChange()"
-        class="form-control">
-    </div>
-
-    <div class="me-2">
-      <label for="searchEquipmentEnd" class="col-form-label">{{ 'INVENTORY.END_DATE' | translate }}</label>
-      <input
-        type="date"
-        id="searchEquipmentEnd"
-        name="searchEquipmentEnd"
-        [(ngModel)]="endFilter"
-        [min]="startFilter"
-        [ngModelOptions]="{ standalone: true }"
-        (ngModelChange)="onEndDateChange()"
-        class="form-control">
-    </div>
-
-    <div class="me-2">
-      <label for="searchEquipmentPriceSort" class="col-form-label">{{ 'INVENTORY.EQUIPMENT_PRICE' | translate }}</label>
-      <select id="searchEquipmentPriceSort" name="searchEquipmentPriceSort" [(ngModel)]="priceSortDirection"
-              [ngModelOptions]="{ standalone: true }" (ngModelChange)="onPriceSortChange()" class="form-select">
-        <option value="asc">{{ 'INVENTORY.LOWEST_FIRST' | translate }}</option>
-        <option value="desc">{{ 'INVENTORY.HIGHEST_FIRST' | translate }}</option>
-      </select>
-    </div>
-
-    <div class="me-2">
-      <button class="btn btn-primary w-100" type="button" (click)="clearFilters()">
+      <button class="btn btn-primary" type="button" [disabled]="activeFilterCount === 0" (click)="clearFilters()">
         {{ 'INVENTORY.CLEAR' | translate }}
       </button>
+    </div>
+  </div>
+
+  <form class="row g-2 mb-3 align-items-end flex-xl-nowrap d-xl-flex filter-form" [ngbCollapse]="!filtersExpanded" (ngSubmit)="searchEquipment()">
+    <div class="col-12 col-sm-6 col-md-4 col-xl-auto flex-xl-shrink-1">
+      <div class="row align-items-center g-2">
+        <label for="searchEquipmentModel" class="col-4 col-sm-12 col-form-label">{{ 'INVENTORY.EQUIPMENT_MODEL' | translate }}</label>
+        <div class="col-8 col-sm-12">
+          <input type="text" id="searchEquipmentModel" name="searchEquipmentModel" [(ngModel)]="modelFilter"
+                 [ngModelOptions]="{ standalone: true }" [ngbTypeahead]="searchModel" (ngModelChange)="searchEquipment()"
+                 class="form-control">
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-md-4 col-xl-auto flex-xl-shrink-1">
+      <div class="row align-items-center g-2">
+        <label for="searchEquipmentType" class="col-4 col-sm-12 col-form-label">{{ 'INVENTORY.EQUIPMENT_TYP' | translate }}</label>
+        <div class="col-8 col-sm-12">
+          <select id="searchEquipmentType" name="searchEquipmentType" [(ngModel)]="typeFilter"
+                  [ngModelOptions]="{ standalone: true }" (ngModelChange)="searchEquipment()" class="form-select">
+            <option [ngValue]="null">{{ 'INVENTORY.EQUIPMENT_ALL' | translate }}</option>
+            @for (type of equipmentTypes; track type) {
+              <option [value]="type">{{ 'EQUIPMENT_TYPE.' + type | translate }}</option>
+            }
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-md-4 col-xl-auto flex-xl-shrink-1">
+      <div class="row align-items-center g-2">
+        <label for="searchEquipmentStatus" class="col-4 col-sm-12 col-form-label">{{ 'INVENTORY.EQUIPMENT_STATUS' | translate }}</label>
+        <div class="col-8 col-sm-12">
+          <select id="searchEquipmentStatus" name="searchEquipmentStatus" [(ngModel)]="statusFilter"
+                  [ngModelOptions]="{ standalone: true }" (ngModelChange)="searchEquipment()" class="form-select">
+            <option [ngValue]="null">{{ 'INVENTORY.EQUIPMENT_ALL' | translate }}</option>
+            @for (status of rentalStatuses; track status) {
+              <option [value]="status">{{ 'RENTAL_STATUS.' + status | translate }}</option>
+            }
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-md-4 col-xl-auto flex-xl-shrink-1">
+      <div class="row align-items-center g-2">
+        <label for="searchEquipmentSkill" class="col-4 col-sm-12 col-form-label">{{ 'INVENTORY.EQUIPMENT_SKILL' | translate }}</label>
+        <div class="col-8 col-sm-12">
+          <select id="searchEquipmentSkill" name="searchEquipmentSkill" [(ngModel)]="skillFilter"
+                  [ngModelOptions]="{ standalone: true }" (ngModelChange)="searchEquipment()" class="form-select">
+            <option [ngValue]="null">{{ 'INVENTORY.EQUIPMENT_ALL' | translate }}</option>
+            @for (skillLevel of skillLevels; track skillLevel) {
+              <option [value]="skillLevel">{{ 'SKILL_LEVEL.' + skillLevel | translate }}</option>
+            }
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-md-4 col-xl-auto flex-xl-shrink-1">
+      <div class="row align-items-center g-2">
+        <label for="searchEquipmentStart" class="col-4 col-sm-12 col-form-label">{{ 'INVENTORY.START_DATE' | translate }}</label>
+        <div class="col-8 col-sm-12">
+          <input
+            type="date"
+            id="searchEquipmentStart"
+            name="searchEquipmentStart"
+            [(ngModel)]="startFilter"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="onStartDateChange()"
+            class="form-control">
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-md-4 col-xl-auto flex-xl-shrink-1">
+      <div class="row align-items-center g-2">
+        <label for="searchEquipmentEnd" class="col-4 col-sm-12 col-form-label">{{ 'INVENTORY.END_DATE' | translate }}</label>
+        <div class="col-8 col-sm-12">
+          <input
+            type="date"
+            id="searchEquipmentEnd"
+            name="searchEquipmentEnd"
+            [(ngModel)]="endFilter"
+            [min]="startFilter"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="onEndDateChange()"
+            class="form-control">
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-md-4 col-xl-auto flex-xl-shrink-1">
+      <div class="row align-items-center g-2">
+        <label for="searchEquipmentPriceSort" class="col-4 col-sm-12 col-form-label">{{ 'INVENTORY.EQUIPMENT_PRICE' | translate }}</label>
+        <div class="col-8 col-sm-12">
+          <select id="searchEquipmentPriceSort" name="searchEquipmentPriceSort" [(ngModel)]="priceSortDirection"
+                  [ngModelOptions]="{ standalone: true }" (ngModelChange)="onPriceSortChange()" class="form-select">
+            <option value="asc">{{ 'INVENTORY.LOWEST_FIRST' | translate }}</option>
+            <option value="desc">{{ 'INVENTORY.HIGHEST_FIRST' | translate }}</option>
+          </select>
+        </div>
+      </div>
     </div>
   </form>
 
@@ -98,46 +131,50 @@
   }
 
   @if (!loading && equipment.length > 0) {
-    <table class="table table-hover table-striped align-middle">
-      <thead>
-      <tr>
-        <th>{{ 'INVENTORY.EQUIPMENT_MODEL' | translate }}</th>
-        <th>{{ 'INVENTORY.EQUIPMENT_TYP' | translate }}</th>
-        <th>{{ 'INVENTORY.EQUIPMENT_STATUS' | translate }}</th>
-        <th>{{ 'INVENTORY.EQUIPMENT_SKILL' | translate }}</th>
-        <th>{{ 'INVENTORY.EQUIPMENT_PRICE' | translate }}</th>
-      </tr>
-      </thead>
-      <tbody>
-        @for (item of equipment | slice:startIndex - 1:endIndex; track item.id) {
-          <tr (click)="openDetailPage(item)" class="clickable-row">
-            <td>{{ item.model }}</td>
-            <td>{{ 'EQUIPMENT_TYPE.' + item.equipmentType | translate }}</td>
-            <td>
-              <span class="badge" [ngClass]="getStatusClass(item.status)">
-                {{ 'RENTAL_STATUS.' + item.status | translate }}
-              </span>
-            </td>
-            <td>{{ 'SKILL_LEVEL.' + item.targetSkillLevel | translate }}</td>
-            <td>{{ item.price | currency:'EUR':'symbol':'1.2-2':(translateService.currentLang || 'de') }}</td>
-          </tr>
-        }
-      </tbody>
-    </table>
+    <div class="table-responsive">
+      <table class="table table-hover table-striped align-middle text-nowrap">
+        <thead>
+        <tr>
+          <th>{{ 'INVENTORY.EQUIPMENT_MODEL' | translate }}</th>
+          <th>{{ 'INVENTORY.EQUIPMENT_TYP' | translate }}</th>
+          <th>{{ 'INVENTORY.EQUIPMENT_STATUS' | translate }}</th>
+          <th>{{ 'INVENTORY.EQUIPMENT_SKILL' | translate }}</th>
+          <th>{{ 'INVENTORY.EQUIPMENT_PRICE' | translate }}</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (item of equipment | slice:startIndex - 1:endIndex; track item.id) {
+            <tr (click)="openDetailPage(item)" class="clickable-row">
+              <td>{{ item.model }}</td>
+              <td>{{ 'EQUIPMENT_TYPE.' + item.equipmentType | translate }}</td>
+              <td>
+                <span class="badge" [ngClass]="getStatusClass(item.status)">
+                  {{ 'RENTAL_STATUS.' + item.status | translate }}
+                </span>
+              </td>
+              <td>{{ 'SKILL_LEVEL.' + item.targetSkillLevel | translate }}</td>
+              <td>{{ item.price | currency:'EUR':'symbol':'1.2-2':(translateService.currentLang || 'de') }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
 
-    <div class="d-flex align-items-center">
-      <label for="itemLimit" class="me-2 mb-0">{{ 'INVENTORY.ROWS_PER_PAGE' | translate }}</label>
-      <select id="itemLimit" name="itemLimit" class="form-select w-auto" [(ngModel)]="itemLimit"
-              (ngModelChange)="onItemLimitChange()" [ngModelOptions]="{ standalone: true }">
-        <option [value]="5">5</option>
-        <option [value]="10">10</option>
-        <option [value]="20">20</option>
-        <option [value]="50">50</option>
-      </select>
-      <span
-        class="ms-3 text-muted">{{ startIndex + '-' + endIndex }} {{ 'INVENTORY.OF' | translate }} {{ equipment.length }}</span>
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+      <div class="d-flex align-items-center flex-wrap gap-2">
+        <label for="itemLimit" class="me-2 mb-0">{{ 'INVENTORY.ROWS_PER_PAGE' | translate }}</label>
+        <select id="itemLimit" name="itemLimit" class="form-select w-auto" [(ngModel)]="itemLimit"
+                (ngModelChange)="onItemLimitChange()" [ngModelOptions]="{ standalone: true }">
+          <option [value]="5">5</option>
+          <option [value]="10">10</option>
+          <option [value]="20">20</option>
+          <option [value]="50">50</option>
+        </select>
+        <span
+          class="ms-2 text-muted">{{ startIndex + '-' + endIndex }} {{ 'INVENTORY.OF' | translate }} {{ equipment.length }}</span>
+      </div>
 
-      <div class="btn-group ms-3">
+      <div class="btn-group">
         <button class="btn btn-sm btn-primary me-2" [disabled]="currentPage === 1" (click)="goToFirstPage()"><span
           class="fs-5 lh-1">&laquo;</span></button>
         <button class="btn btn-sm btn-primary me-4" [disabled]="currentPage === 1" (click)="previousPage()"><span

@@ -1,0 +1,9 @@
+.filter-form {
+  @media (max-width: 575.98px) {
+    .form-control,
+    .form-select {
+      width: 90%;
+      margin-left: auto;
+    }
+  }
+}

@@ -6,8 +6,8 @@
     <div class="d-flex align-items-center mb-3">
       <h2 class="mb-0">{{ 'INVENTORY.TITLE' | translate }}</h2>
       <span style="flex: 1"></span>
-      <button class="btn btn-primary" (click)="loadEquipment()">
-        {{ 'INVENTORY.RELOAD' | translate }}
+      <button class="btn btn-primary" type="button" (click)="clearFilters()">
+        {{ 'INVENTORY.CLEAR' | translate }}
       </button>
     </div>
 
@@ -84,12 +84,6 @@
           <option value="asc">{{ 'INVENTORY.LOWEST_FIRST' | translate }}</option>
           <option value="desc">{{ 'INVENTORY.HIGHEST_FIRST' | translate }}</option>
         </select>
-      </div>
-
-      <div class="me-2">
-        <button class="btn btn-primary w-100" type="button" (click)="clearFilters()">
-          {{ 'INVENTORY.CLEAR' | translate }}
-        </button>
       </div>
     </form>
 
