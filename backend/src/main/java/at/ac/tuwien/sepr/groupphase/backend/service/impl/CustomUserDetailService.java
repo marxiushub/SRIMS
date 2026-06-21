@@ -4,12 +4,14 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.CustomerCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.UserCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.detail.UserDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.search.CustomerSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.UserSearchResponseDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.UserUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.UserMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Role;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.UserType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.ApplicationUser;
+import at.ac.tuwien.sepr.groupphase.backend.entity.user.Customer;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RoleRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
@@ -215,6 +217,24 @@ public class CustomUserDetailService implements UserService {
         return mapper.entityToSearchResponseDto(user);
     }
 
+    @Override
+    public List<UserSearchResponseDto> searchCustomers(CustomerSearchDto searchDto) {
+
+        LOGGER.trace("Search customers with filter {}", searchDto);
+
+        List<Customer> customers =
+            customerRepository.searchCustomers(
+                normalize(searchDto.getEmail()),
+                normalize(searchDto.getUserName()),
+                normalize(searchDto.getFirstName()),
+                normalize(searchDto.getLastName())
+            );
+
+        return customers.stream()
+            .map(mapper::entityToSearchResponseDto)
+            .toList();
+    }
+
 
     //Helper Methods:
     //Checks if the given id (requestedUserID) is the same ID as the ID of the user who wants to perform the CRUD action
@@ -233,5 +253,10 @@ public class CustomUserDetailService implements UserService {
         if (!isOwnUser && !hasStaffPermission) {
             throw new AccessDeniedException("You have no permission to perform this action.");
         }
+    }
+
+    //Normalizes search-inputs
+    private String normalize(String value) {
+        return value == null || value.isBlank() ? null : value;
     }
 }
