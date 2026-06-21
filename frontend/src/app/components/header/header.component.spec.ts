@@ -19,7 +19,7 @@ describe('HeaderComponent', () => {
     authServiceMock.isLoggedIn.and.returnValue(false);
 
     appComponentMock = {
-      title: 'SE PR Group Phase',
+      title: 'SRIMS',
       switchLanguage: jasmine.createSpy('switchLanguage')
     };
 
