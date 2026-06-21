@@ -38,18 +38,37 @@ describe('CustomerProfileService', () => {
 
   describe('getCustomerProfiles', () => {
     it('should execute a GET request to the correct URL', () => {
-      const customerId = 123;
       const mockProfiles: CustomerProfile[] = [
         {id: 1} as CustomerProfile,
         {id: 2} as CustomerProfile
       ];
 
-      service.getCustomerProfiles(customerId).subscribe((profiles) => {
+      service.getCustomerProfiles().subscribe((profiles) => {
         expect(profiles).toEqual(mockProfiles);
         expect(profiles.length).toBe(2);
       });
 
-      const req = httpMock.expectOne(`${globals.backendUri}/customer/${customerId}/profiles`);
+      const req = httpMock.expectOne(`${globals.backendUri}/customer/profiles`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockProfiles);
+    });
+  });
+
+  describe('getProfilesByCustomerId', () => {
+    it('should execute a GET request to the correct URL with the customer ID', () => {
+      const mockProfiles: CustomerProfile[] = [
+        { id: 10 } as CustomerProfile,
+        { id: 11 } as CustomerProfile
+      ];
+      const targetCustomerId = 42;
+
+      service.getProfilesByCustomerId(targetCustomerId).subscribe((profiles) => {
+        expect(profiles).toEqual(mockProfiles);
+        expect(profiles.length).toBe(2);
+      });
+
+      const req = httpMock.expectOne(`${globals.backendUri}/customer/${targetCustomerId}/profiles`);
+
       expect(req.request.method).toBe('GET');
       req.flush(mockProfiles);
     });

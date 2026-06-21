@@ -279,8 +279,7 @@ export class BarcodeScannerComponent implements OnInit {
 
     //Filter out Reservations that have no more matching Equipment
     this.matchedReservations = this.matchedReservations.filter(res => {
-      const hasRemainingEquipment = res.items?.some((equipment: any) => this.scannedEquipmentIds.includes(equipment.id));
-      return hasRemainingEquipment;
+      return res.items?.some((equipment: any) => this.scannedEquipmentIds.includes(equipment.id));
     })
 
     this.updateScanScenario();
@@ -424,7 +423,7 @@ export class BarcodeScannerComponent implements OnInit {
 
   //Loads the customerProfiles for the selected customerAccount
   private loadProfilesForUser(userId: number): void {
-    this.customerProfileService.getCustomerProfiles(userId).subscribe({
+    this.customerProfileService.getProfilesByCustomerId(userId).subscribe({
       next: (profiles) => {
         this.filteredProfiles = profiles;
         this.walkInForm.get('customerProfileId')?.enable();

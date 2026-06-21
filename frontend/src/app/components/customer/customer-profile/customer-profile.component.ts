@@ -29,7 +29,7 @@ export class CustomerProfileComponent {
   loadProfiles(): void {
     this.loading = true;
 
-    this.customerProfileService.getCustomerProfiles(1).subscribe({ //Customer ID hardcoded to 1 until accounts are implemented
+    this.customerProfileService.getCustomerProfiles().subscribe({
       next: (data) => {
         this.profiles = data;
         this.loading = false;

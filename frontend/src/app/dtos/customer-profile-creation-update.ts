@@ -6,5 +6,4 @@ export interface CustomerProfileCreationUpdate {
   shoeSize: number;
   skillLevel: SkillLevel;
   weight: number;
-  customerId: number;
 }

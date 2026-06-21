@@ -80,7 +80,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         LOGGER.warn(ex.getMessage());
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("message", ex.getMessage());
-        body.put("errors", ex.getErrors());
+        String combinedErrors = String.join(", ", ex.getErrors());
+        body.put("errors", combinedErrors);
 
         return new ResponseEntity<>(
             body, new HttpHeaders(), HttpStatus.BAD_REQUEST
