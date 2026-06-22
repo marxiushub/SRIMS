@@ -101,9 +101,7 @@ export class StaffReservationEditComponent implements OnInit {
    * Validates already selected equipment against a newly chosen date range.
    * Removes equipment that is no longer available.
    */
-  private validateSelectedEquipmentForNewDates(startDate: string, endDate: string): void {
-    // Wenn die Daten den geladenen Originaldaten entsprechen, überspringen wir das Filtern,
-    // da das Backend die Ausrüstung für dieses Event als "besetzt" deklariert.
+  public validateSelectedEquipmentForNewDates(startDate: string, endDate: string): void {
     if (startDate === this.originalStartDate && endDate === this.originalEndDate) {
       this.validationWarning = undefined;
       return;
