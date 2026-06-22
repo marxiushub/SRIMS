@@ -19,6 +19,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.ReservationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerProfileRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.CurrentUserService;
 import at.ac.tuwien.sepr.groupphase.backend.service.EmailService;
+import jakarta.validation.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,14 +102,23 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
 
     @Override
     @Transactional
-    public void deleteReservation(Long id) {
+    public void deleteReservation(Long id, boolean isStaff) {
         LOGGER.trace("Deleting reservation with id {}", id);
 
         Reservation reservation = reservationRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Reservation with ID " + id + " was not found."));
 
+        if (!isStaff) {
+            currentUserService.getUserId();
+            if (!reservation.getCustomerProfile().getCustomer().getId().equals(currentUserService.getUserId())) {
+                throw new AccessDeniedException("You are not allowed to perform this action.");
+            }
+            if (reservation.getStartDate().isBefore(LocalDate.now().plusDays(2))) {
+                throw new ValidationException("Reservations can only be deleted at least two days before the start date.");
+            }
+        }
+
         deleteTimePeriodsForEquipment(reservation.getItems().stream().map(ReservationRelation::getEquipment).toList(), reservation);
-        //bestätigungs-mail senden
 
         reservationRepository.delete(reservation);
 

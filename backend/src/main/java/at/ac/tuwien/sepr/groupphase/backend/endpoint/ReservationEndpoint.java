@@ -55,17 +55,33 @@ public class ReservationEndpoint {
     /**
      * Delete reservation.
      *
-     * @param deleteDto the DTO containing the fields to update
+     * @param id the id of the reservation to delete
      */
     @PreAuthorize("hasAuthority('RESERVATION_DELETE')")
     @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     public void deleteReservation(
-        @Valid @RequestBody ReservationAddDeleteEquipmentDto deleteDto
+        @PathVariable Long id
     ) {
-        LOGGER.info("DELETE /api/v1/reservation - Body: {}", deleteDto);
+        LOGGER.info("DELETE /api/v1/reservation/{}", id);
 
-        service.deleteReservation(deleteDto.getId());
+        service.deleteReservation(id, false);
+    }
+
+    /**
+     * Deletes a reservation with the privileges of a Staff member.
+     *
+     * @param id the id of the reservation to delete
+     */
+    @PreAuthorize("hasAuthority('RESERVATION_DELETE') and hasAuthority('STAFF')")
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping("/staff/{id}")
+    public void deleteReservationStaff(
+        @PathVariable Long id
+    ) {
+        LOGGER.info("DELETE /api/v1/reservation/staff/{}", id);
+
+        service.deleteReservation(id, true);
     }
 
     /**

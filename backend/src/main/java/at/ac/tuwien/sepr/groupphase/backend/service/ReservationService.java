@@ -38,7 +38,7 @@ public interface ReservationService {
      *
      * @param id the unique identifier of the reservation to delete
      */
-    void deleteReservation(Long id);
+    void deleteReservation(Long id, boolean isStaff);
 
     /**
      * Partially updates an existing reservation.

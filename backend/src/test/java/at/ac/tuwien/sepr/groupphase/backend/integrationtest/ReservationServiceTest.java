@@ -107,7 +107,7 @@ public class ReservationServiceTest {
     @AfterEach
     public void cleanupCreatedReservationData() {
         reservationRepository.findAll().forEach(reservation ->
-            reservationService.deleteReservation(reservation.getId())
+            reservationService.deleteReservation(reservation.getId(), true)
         );
 
         timePeriodsRepository.deleteAllInBatch();
@@ -293,7 +293,7 @@ public class ReservationServiceTest {
                     && tp.getEndDate().equals(expectedEnd)
             );
 
-        reservationService.deleteReservation(reservationId);
+        reservationService.deleteReservation(reservationId, true);
 
         assertThat(reservationRepository.existsById(reservationId)).isFalse();
 
@@ -308,7 +308,7 @@ public class ReservationServiceTest {
     @Test
     public void deleteReservation_withUnknownId_throwsNotFoundException() {
         assertThrows(NotFoundException.class, () ->
-            reservationService.deleteReservation(99999L)
+            reservationService.deleteReservation(99999L, true)
         );
     }
 
@@ -811,7 +811,7 @@ public class ReservationServiceTest {
         );
         ReservationDetailDto created = reservationService.createReservation(createDto);
 
-        reservationService.deleteReservation(created.getId());
+        reservationService.deleteReservation(created.getId(), true);
 
         boolean maintenanceKept = timePeriodsRepository.findByEquipment(savedEquipment).stream()
             .anyMatch(tp -> tp.getPeriodType() == PeriodType.REPAIR);
