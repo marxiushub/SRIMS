@@ -154,73 +154,49 @@
     </div>
 
     <!-- Table: shown on xl+ screens -->
-    <div class="table-responsive d-none d-xl-block">
-      <table class="table table-hover table-striped align-middle text-nowrap">
-
-        <thead>
-        <tr>
-          <th>{{ 'RESERVATION.CUSTOMER_PROFILE_NAME' | translate }}</th>
-          <th>{{ 'RESERVATION.PICKUP_DATE' | translate }}</th>
-          <th>{{ 'RESERVATION.PICKUP_TIME' | translate }}</th>
-          <th>{{ 'RESERVATION.RETURN_DATE' | translate }}</th>
-          <th>{{ 'RESERVATION.RESERVATION_STATUS' | translate }}</th>
-          <th>{{ 'RESERVATION.EQUIPMENT_COUNT' | translate }}</th>
-          <th>{{ 'INVENTORY.EQUIPMENT_ACTIONS' | translate }}</th>
-        </tr>
-        </thead>
-
-        <tbody>
-          @for (item of reservations | slice:startIndex - 1:endIndex; track item.id) {
-            <tr (click)="openDetailPage(item)" class="clickable-row">
-              <td>{{ item.customerName }}</td>
-              <td>{{ item.startDate | date:'dd.MM.yyyy' }}</td>
-              <td>{{ item.pickUpTime.substring(0, 5) }}</td>
-              <td>{{ item.endDate | date:'dd.MM.yyyy' }}</td>
-              <td>
-                @if (item.reservationStatus === 'CREATED') {
-                  <span class="badge bg-warning text-dark">
-                    {{ 'RESERVATION_STATUS.CREATED' | translate }}
-                  </span>
-                }
-                @if (item.reservationStatus === 'PICKED_UP') {
-                  <span class="badge bg-info text-white">
-                    {{ 'RESERVATION_STATUS.PICKED_UP' | translate }}
-                  </span>
-                }
-                @if (item.reservationStatus === 'RETURNED') {
-                  <span class="badge bg-success text-white">
-                    {{ 'RESERVATION_STATUS.RETURNED' | translate }}
-                  </span>
-                }
-                @if (item.reservationStatus === 'CANCELLED') {
-                  <span class="badge bg-danger text-white">
-                    {{ 'RESERVATION_STATUS.CANCELLED' | translate }}
-                  </span>
-                }
-              <td>
-                <span class="badge bg-info text-dark">
-                  {{ item.items?.length || 0 }} {{ 'RESERVATION.ITEMS' | translate }}
-                </span>
-              </td>
-              <td>
-                <button
-                  type="button"
-                  class="btn btn-sm btn-outline-primary me-2"
-                  (click)="openEditPage(item); $event.stopPropagation()">
-                  {{ 'EQUIPMENT_EDIT.TITLE' | translate }}
-                </button>
-
-                <button
-                  type="button"
-                  class="btn btn-sm btn-outline-danger"
-                  (click)="openDeleteDialog(item); $event.stopPropagation()">
-                  {{ 'INVENTORY.DELETE' | translate }}
-                </button>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+    <div class="d-none d-xl-flex flex-column gap-2 mb-3">
+      @for (item of reservations | slice:startIndex - 1:endIndex; track item.id) {
+        <div class="inv-card" (click)="openDetailPage(item)">
+          <div class="inv-col-model">
+            <p class="inv-model-name">{{ item.customerName }}</p>
+          </div>
+          <div class="inv-col-type">
+            {{ item.startDate | date:'dd.MM.yyyy' }} – {{ item.endDate | date:'dd.MM.yyyy' }}
+          </div>
+          <div class="inv-col-skill">
+            <i class="bi bi-clock me-1"></i>{{ item.pickUpTime.substring(0, 5) }}
+          </div>
+          <div class="inv-col-price">
+        <span class="badge bg-info text-dark">
+          {{ item.items?.length || 0 }} {{ 'RESERVATION.ITEMS' | translate }}
+        </span>
+          </div>
+          <div class="inv-col-badge">
+            @if (item.reservationStatus === 'CREATED') {
+              <span class="badge bg-warning text-dark">{{ 'RESERVATION_STATUS.CREATED' | translate }}</span>
+            }
+            @if (item.reservationStatus === 'PICKED_UP') {
+              <span class="badge bg-info text-white">{{ 'RESERVATION_STATUS.PICKED_UP' | translate }}</span>
+            }
+            @if (item.reservationStatus === 'RETURNED') {
+              <span class="badge bg-success text-white">{{ 'RESERVATION_STATUS.RETURNED' | translate }}</span>
+            }
+            @if (item.reservationStatus === 'CANCELLED') {
+              <span class="badge bg-danger text-white">{{ 'RESERVATION_STATUS.CANCELLED' | translate }}</span>
+            }
+          </div>
+          <div class="inv-col-actions">
+            <button type="button" class="btn btn-sm btn-outline-primary me-2"
+                    (click)="openEditPage(item); $event.stopPropagation()">
+              {{ 'EQUIPMENT_EDIT.TITLE' | translate }}
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-danger"
+                    (click)="openDeleteDialog(item); $event.stopPropagation()">
+              {{ 'INVENTORY.DELETE' | translate }}
+            </button>
+          </div>
+        </div>
+      }
     </div>
 
     @if (reservations.length > 5) {

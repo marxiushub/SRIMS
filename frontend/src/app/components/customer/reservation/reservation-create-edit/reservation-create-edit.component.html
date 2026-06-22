@@ -89,33 +89,28 @@
         </div>
 
         <!-- Table: shown on xl+ screens -->
-        <div class="d-none d-xl-block table-responsive" style="max-height: 250px; overflow-y: auto;">
-          <table class="table table-sm align-middle mb-0 text-nowrap">
-            <thead>
-            <tr>
-              <th>{{ 'INVENTORY.EQUIPMENT_MODEL' | translate }}</th>
-              <th>{{ 'INVENTORY.EQUIPMENT_TYP' | translate }}</th>
-              <th>{{ 'INVENTORY.EQUIPMENT_SKILL' | translate }}</th>
-              <th>{{ 'INVENTORY.EQUIPMENT_PRICE' | translate }}</th>
-              <th class="text-end">{{ 'INVENTORY.EQUIPMENT_ACTIONS' | translate }}</th>
-            </tr>
-            </thead>
-            <tbody>
-              @for (item of selectedEquipment; track item.id) {
-                <tr>
-                  <td>{{ item.model }}</td>
-                  <td>{{ 'EQUIPMENT_TYPE.' + item.equipmentType | translate }}</td>
-                  <td>{{ 'SKILL_LEVEL.' + item.targetSkillLevel | translate }}</td>
-                  <td>{{ item.price | currency:'EUR':'symbol':'1.2-2' }}</td>
-                  <td class="text-end">
-                    <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeEquipment(item.id)">
-                      {{ 'INVENTORY.DELETE' | translate }}
-                    </button>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
+        <div class="d-none d-xl-flex flex-column gap-2" style="max-height: 250px; overflow-y: auto;">
+          @for (item of selectedEquipment; track item.id) {
+            <div class="inv-card">
+              <div class="inv-col-model">
+                <p class="inv-model-name">{{ item.model }}</p>
+              </div>
+              <div class="inv-col-type">
+                {{ 'EQUIPMENT_TYPE.' + item.equipmentType | translate }}
+              </div>
+              <div class="inv-col-skill">
+                {{ 'SKILL_LEVEL.' + item.targetSkillLevel | translate }}
+              </div>
+              <div class="inv-col-price">
+                {{ item.price | currency:'EUR':'symbol':'1.2-2' }}
+              </div>
+              <div class="inv-col-actions">
+                <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeEquipment(item.id)">
+                  {{ 'INVENTORY.DELETE' | translate }}
+                </button>
+              </div>
+            </div>
+          }
         </div>
       }
     </div>
@@ -251,36 +246,31 @@
             </div>
 
             <!-- Table: shown on xl+ screens -->
-            <div class="d-none d-xl-block table-responsive" style="max-height: 250px; overflow-y: auto;">
-            <table class="table table-sm table-hover align-middle mb-0 text-nowrap">
-              <thead>
-              <tr>
-                <th>{{ 'INVENTORY.EQUIPMENT_MODEL' | translate }}</th>
-                <th>{{ 'INVENTORY.EQUIPMENT_SKILL' | translate }}</th>
-                <th>{{ 'INVENTORY.EQUIPMENT_PRICE' | translate }}</th>
-                <th class="text-end">{{ 'RESERVATION.ACTION' | translate }}</th>
-              </tr>
-              </thead>
-              <tbody>
-                @for (item of availableEquipmentList; track item.id) {
-                  <tr>
-                    <td>{{ item.model }}</td>
-                    <td>{{ 'SKILL_LEVEL.' + item.targetSkillLevel | translate }}</td>
-                    <td>{{ item.price | currency:'EUR':'symbol':'1.2-2' }}</td>
-                    <td class="text-end">
-                      <button
-                        type="button"
-                        class="btn btn-sm btn-success"
-                        [disabled]="isAlreadySelected(item.id)"
-                        (click)="addEquipment(item)">
-                        {{ isAlreadySelected(item.id) ? ('RESERVATION.ADDED' | translate) : ('RESERVATION.ADD' | translate) }}
-                      </button>
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
+            <div class="d-none d-xl-flex flex-column gap-2" style="max-height: 250px; overflow-y: auto;">
+              @for (item of availableEquipmentList; track item.id) {
+                <div class="inv-card">
+                  <div class="inv-col-model">
+                    <p class="inv-model-name">{{ item.model }}</p>
+                  </div>
+                  <div class="inv-col-skill">
+                    {{ 'SKILL_LEVEL.' + item.targetSkillLevel | translate }}
+                  </div>
+                  <div class="inv-col-price">
+                    {{ item.price | currency:'EUR':'symbol':'1.2-2' }}
+                  </div>
+                  <div class="inv-col-actions">
+                    <button
+                      type="button"
+                      class="btn btn-sm ms-2"
+                      [ngClass]="isAlreadySelected(item.id) ? 'btn-success disabled' : 'btn-outline-success'"
+                      [disabled]="isAlreadySelected(item.id)"
+                      (click)="addEquipment(item)">
+                      {{ isAlreadySelected(item.id) ? ('RESERVATION.ADDED' | translate) : ('RESERVATION.ADD' | translate) }}
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
           }
         </div>
       </div>
