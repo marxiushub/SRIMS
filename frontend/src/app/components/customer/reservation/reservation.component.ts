@@ -7,6 +7,8 @@ import {ReservationService} from '../../../services/reservation.service';
 import {CustomerProfileService} from '../../../services/customer-profile.service';
 import {TranslateService} from '@ngx-translate/core';
 import {ToastrService} from 'ngx-toastr';
+import {forkJoin} from 'rxjs';
+import {ReservationStatus} from "../../../dtos/reservationstatus";
 
 @Component({
   selector: 'app-reservation',
@@ -27,6 +29,8 @@ export class ReservationComponent implements OnInit {
   profileFilter: number | null = null;
   dateFilter: string = '';
   timeFilter: string = '';
+
+  showPastReservations: boolean = false;
 
   itemLimit: number = 10;
   currentPage: number = 1;
@@ -66,23 +70,7 @@ export class ReservationComponent implements OnInit {
    * Loads all reservations for own accountId.
    */
   loadReservations(): void {
-    this.loading = true;
-
-    const searchRequest: ReservationSearch = {
-      accountId: this.hardcodedAccountId
-    };
-
-    this.reservationService.search(searchRequest).subscribe({
-      next: (data) => {
-        this.reservations = data;
-        this.currentPage = 1;
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Failed to load reservations', err);
-        this.loading = false;
-      }
-    });
+    this.searchReservations();
   }
 
   /**
@@ -98,23 +86,50 @@ export class ReservationComponent implements OnInit {
       pickUpTime: this.timeFilter ? this.timeFilter + ':00' : undefined
     };
 
-    this.reservationService.search(searchRequest).subscribe({
-      next: (data) => {
-        this.currentPage = 1;
-        this.reservations = data;
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Failed to search reservations', err);
-        this.loading = false;
-      }
-    });
+    //Case 1: Only show Reservations that are not in the past, i.e. only show ones that have ReservationStatus CREATED or PICKED_UP
+    if (!this.showPastReservations) {
+      const requestCreated = this.reservationService.search({
+        ...searchRequest,
+        reservationStatus: ReservationStatus.CREATED
+      });
+
+      const requestPickedUp = this.reservationService.search({
+        ...searchRequest,
+        reservationStatus: ReservationStatus.PICKED_UP
+      });
+
+      forkJoin([requestCreated, requestPickedUp]).subscribe({
+        next: ([createdData, pickedUpData]) => {
+          this.reservations = [...createdData, ...pickedUpData];
+          this.currentPage = 1;
+          this.loading = false;
+        },
+        error: (err) => {
+          console.error('Failed to search reservations via forkJoin', err);
+          this.loading = false;
+        }
+      });
+    } else {
+      //Case 2: Show all Reservations
+      this.reservationService.search(searchRequest).subscribe({
+        next: (data) => {
+          this.currentPage = 1;
+          this.reservations = data;
+          this.loading = false;
+        },
+        error: (err) => {
+          console.error('Failed to search reservations', err);
+          this.loading = false;
+        }
+      });
+    }
   }
 
   clearFilters(): void {
     this.profileFilter = null;
     this.dateFilter = '';
     this.timeFilter = '';
+    this.showPastReservations = false;
     this.loadReservations();
   }
 

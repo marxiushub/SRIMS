@@ -1,5 +1,5 @@
 import { Equipment } from './equipment';
-import {ReservationStatus} from "./ReservationStatus";
+import {ReservationStatus} from "./reservationstatus";
 
 export interface ReservationDetail {
   id: number;
@@ -10,6 +10,7 @@ export interface ReservationDetail {
   startDate: string,
   endDate: string;
   confirmationEmailSent: boolean;
+  totalPrice: number,
   items: Equipment[];
   reservationStatus: ReservationStatus;
 }

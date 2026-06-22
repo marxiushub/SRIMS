@@ -59,6 +59,19 @@
         class="form-control">
     </div>
 
+    <div class="form-check form-switch me-3 mb-2 d-flex align-items-center large-switch">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        id="showPastReservationsSwitch"
+        name="showPastReservations"
+        [(ngModel)]="showPastReservations"
+        [ngModelOptions]="{ standalone: true }"
+        (ngModelChange)="searchReservations()">
+      <label class="form-check-label" for="showPastReservationsSwitch">
+        {{ 'RESERVATION.SHOW_PAST' | translate }} </label>
+    </div>
+
     <div class="me-2">
       <button class="btn btn-primary w-100" type="button" (click)="clearFilters()">
         {{ 'INVENTORY.CLEAR' | translate }}
@@ -74,7 +87,7 @@
 
   @if (!loading && reservations.length === 0) {
     <div class="alert alert-warning">
-      {{ 'RESERVATION.NO_RESERVATIONS_FOUND' | translate }}
+      {{ 'RESERVATION.NO_RESERVATIONS_FOUND_STAFF' | translate }}
     </div>
   }
 
@@ -88,6 +101,7 @@
         <th>{{ 'RESERVATION.PICKUP_TIME' | translate }}</th>
         <th>{{ 'RESERVATION.RETURN_DATE' | translate }}</th>
         <th>{{ 'RESERVATION.RESERVATION_STATUS' | translate }}</th>
+        <th>{{ 'RESERVATION.TOTAL_PRICE' | translate }}</th>
         <th>{{ 'RESERVATION.EQUIPMENT_COUNT' | translate }}</th>
         <th>{{ 'INVENTORY.EQUIPMENT_ACTIONS' | translate }}</th>
       </tr>
@@ -121,6 +135,10 @@
                   {{ 'RESERVATION_STATUS.CANCELLED' | translate }}
                 </span>
               }
+            <td>
+              <strong>{{ item.totalPrice | currency:'EUR':'symbol':'1.2-2':'de-AT' }}
+              </strong>
+            </td>
             <td>
               <span class="badge bg-info text-dark">
                 {{ item.items?.length || 0 }} {{ 'RESERVATION.ITEMS' | translate }}
