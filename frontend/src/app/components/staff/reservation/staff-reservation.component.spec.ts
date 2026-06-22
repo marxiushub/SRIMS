@@ -23,9 +23,9 @@ describe('StaffReservationComponent', () => {
   let routerMock: jasmine.SpyObj<Router>;
 
   const mockReservations: ReservationDetail[] = [
-    { id: 1, accountId: 10, customerProfileId: 101, customerName: 'John Doe', pickUpTime: '10:00:00', startDate: '2026-02-15', endDate: '2026-02-20', confirmationEmailSent: true, items: [], reservationStatus: ReservationStatus.CREATED },
-    { id: 2, accountId: 11, customerProfileId: 102, customerName: 'Jane Doe', pickUpTime: '11:00:00', startDate: '2026-02-16', endDate: '2026-02-21', confirmationEmailSent: true, items: [], reservationStatus: ReservationStatus.PICKED_UP },
-    { id: 3, accountId: 12, customerProfileId: 103, customerName: 'Bob Smith', pickUpTime: '12:00:00', startDate: '2026-02-17', endDate: '2026-02-22', confirmationEmailSent: true, items: [], reservationStatus: ReservationStatus.RETURNED }
+    { id: 1, accountId: 10, customerProfileId: 101, customerName: 'John Doe', pickUpTime: '10:00:00', startDate: '2026-02-15', endDate: '2026-02-20', confirmationEmailSent: true, totalPrice: 10, items: [], reservationStatus: ReservationStatus.CREATED },
+    { id: 2, accountId: 11, customerProfileId: 102, customerName: 'Jane Doe', pickUpTime: '11:00:00', startDate: '2026-02-16', endDate: '2026-02-21', confirmationEmailSent: true, totalPrice: 20, items: [], reservationStatus: ReservationStatus.PICKED_UP },
+    { id: 3, accountId: 12, customerProfileId: 103, customerName: 'Bob Smith', pickUpTime: '12:00:00', startDate: '2026-02-17', endDate: '2026-02-22', confirmationEmailSent: true, totalPrice: 40, items: [], reservationStatus: ReservationStatus.RETURNED }
   ];
 
   const mockCustomerResponse: CustomerSearchResponse = {
@@ -168,7 +168,7 @@ describe('StaffReservationComponent', () => {
       reservationServiceMock.search.calls.reset();
 
       component.onCustomerFilterChange();
-      tick(400); // Debounce abwarten
+      tick(400);
 
       expect(component.selectedCustomerId).toBe(99);
       expect(reservationServiceMock.search).toHaveBeenCalledWith(jasmine.objectContaining({
@@ -322,6 +322,7 @@ describe('StaffReservationComponent', () => {
         startDate: '2026-02-15',
         endDate: '2026-02-20',
         confirmationEmailSent: true,
+        totalPrice: 20,
         items: [],
         reservationStatus: ReservationStatus.CREATED
       } as ReservationDetail));

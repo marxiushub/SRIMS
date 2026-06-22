@@ -35,6 +35,7 @@ describe('StaffReservationViewComponent', () => {
     startDate: '2026-02-15',
     endDate: '2026-02-20',
     confirmationEmailSent: true,
+    totalPrice: 0,
     items: [],
     reservationStatus: ReservationStatus.CREATED
   };

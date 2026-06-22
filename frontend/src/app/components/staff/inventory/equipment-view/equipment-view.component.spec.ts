@@ -104,6 +104,7 @@ describe('EquipmentViewComponent', () => {
         startDate: '2026-12-24',
         endDate: '2026-12-26',
         confirmationEmailSent: true,
+        totalPrice: 20,
         items: [],
         reservationStatus: ReservationStatus.CREATED
       }

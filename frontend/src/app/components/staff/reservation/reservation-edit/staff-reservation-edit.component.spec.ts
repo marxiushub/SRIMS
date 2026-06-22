@@ -47,6 +47,7 @@ describe('StaffReservationEditComponent', () => {
     startDate: '2026-02-15',
     endDate: '2026-02-20',
     confirmationEmailSent: true,
+    totalPrice: 150,
     reservationStatus: ReservationStatus.CREATED,
     items: [mockEquipment[0]]
   };
@@ -359,6 +360,64 @@ describe('StaffReservationEditComponent', () => {
 
       expect(component.submitError).toBe('An error occurred while updating the reservation.');
       expect(component.submitLoading).toBeFalse();
+    });
+  });
+
+  describe('Live Price Calculation', () => {
+    beforeEach(() => {
+      activatedRouteMock.snapshot.paramMap.get.and.returnValue('42');
+      fixture.detectChanges();
+    });
+
+    it('should return 0 if no equipment is selected', () => {
+      component.selectedEquipment = [];
+      component.reservationForm.patchValue({
+        startDate: '2026-02-15',
+        endDate: '2026-02-17'
+      });
+
+      expect(component.currentTotalPrice).toBe(0);
+    });
+
+    it('should return 0 if startDate or endDate is missing', () => {
+      component.selectedEquipment = [mockEquipment[0]]; // 25.0 €
+
+      component.reservationForm.patchValue({startDate: null, endDate: '2026-02-17'});
+      expect(component.currentTotalPrice).toBe(0);
+
+      component.reservationForm.patchValue({startDate: '2026-02-15', endDate: null});
+      expect(component.currentTotalPrice).toBe(0);
+    });
+
+    it('should return 0 if the date range is invalid (end before start)', () => {
+      component.selectedEquipment = [mockEquipment[0]];
+      component.reservationForm.patchValue({
+        startDate: '2026-02-15',
+        endDate: '2026-02-14'
+      });
+
+      expect(component.currentTotalPrice).toBe(0);
+    });
+
+    it('should calculate the correct price for a single day rental (same start and end date)', () => {
+      component.selectedEquipment = [mockEquipment[0]];
+      component.reservationForm.patchValue({
+        startDate: '2026-02-15',
+        endDate: '2026-02-15'
+      });
+
+      expect(component.currentTotalPrice).toBe(25.0);
+    });
+
+    it('should calculate the correct cumulative price for multiple items over multiple days', () => {
+      component.selectedEquipment = [mockEquipment[0], mockEquipment[1]];
+
+      component.reservationForm.patchValue({
+        startDate: '2026-02-15',
+        endDate: '2026-02-17'
+      });
+
+      expect(component.currentTotalPrice).toBe(180.0);
     });
   });
 });

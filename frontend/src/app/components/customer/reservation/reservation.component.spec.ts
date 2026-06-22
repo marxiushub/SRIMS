@@ -54,6 +54,7 @@ describe('ReservationComponent', () => {
       startDate: '2026-12-24',
       endDate: '2026-12-31',
       confirmationEmailSent: true,
+      totalPrice: 175,
       items: [{id: 1, model: 'Ski Alpha', price: 25} as any],
       reservationStatus: ReservationStatus.CREATED
     },
@@ -66,6 +67,7 @@ describe('ReservationComponent', () => {
       startDate: '2026-02-15',
       endDate: '2026-02-20',
       confirmationEmailSent: false,
+      totalPrice: 20,
       items: [],
       reservationStatus: ReservationStatus.PICKED_UP
     }
@@ -330,6 +332,7 @@ describe('ReservationComponent', () => {
         startDate: '2026-12-24',
         endDate: '2026-12-27',
         confirmationEmailSent: false,
+        totalPrice: 20,
         items: [],
         reservationStatus: ReservationStatus.CREATED
       })) as ReservationDetail[];
