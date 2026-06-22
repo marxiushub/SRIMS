@@ -1,0 +1,203 @@
+<div class="container-fluid pt-4">
+
+  <div class="d-flex align-items-center mb-3">
+    <h2 class="mb-0">{{ 'STAFF.RESERVATION_MANAGEMENT' | translate }}</h2>
+
+    <span style="flex: 1"></span>
+
+    <button class="btn btn-primary" (click)="loadReservations()">
+      {{ 'INVENTORY.RELOAD' | translate }}
+    </button>
+  </div>
+
+  <form class="mb-3" (ngSubmit)="loadReservations()">
+
+    <div class="d-flex flex-row w-auto mb-2 align-items-end">
+      <div class="me-2 flex-grow-1">
+        <label for="searchCustFirstName" class="col-form-label py-1 small text-muted">{{ 'CUSTOMER_SEARCH.FIRST_NAME' | translate }}</label>
+        <input type="text" id="searchCustFirstName" [(ngModel)]="customerSearchCriteria.firstName" (ngModelChange)="onCustomerFilterChange()" [ngModelOptions]="{ standalone: true }" class="form-control">
+      </div>
+      <div class="me-2 flex-grow-1">
+        <label for="searchCustLastName" class="col-form-label py-1 small text-muted">{{ 'CUSTOMER_SEARCH.LAST_NAME' | translate }}</label>
+        <input type="text" id="searchCustLastName" [(ngModel)]="customerSearchCriteria.lastName" (ngModelChange)="onCustomerFilterChange()" [ngModelOptions]="{ standalone: true }" class="form-control">
+      </div>
+      <div class="me-2 flex-grow-1">
+        <label for="searchCustUser" class="col-form-label py-1 small text-muted">{{ 'CUSTOMER_SEARCH.USERNAME' | translate }}</label>
+        <input type="text" id="searchCustUser" [(ngModel)]="customerSearchCriteria.userName" (ngModelChange)="onCustomerFilterChange()" [ngModelOptions]="{ standalone: true }" class="form-control">
+      </div>
+      <div class="flex-grow-1">
+        <label for="searchCustEmail" class="col-form-label py-1 small text-muted">{{ 'CUSTOMER_SEARCH.EMAIL' | translate }}</label>
+        <input type="email" id="searchCustEmail" [(ngModel)]="customerSearchCriteria.email" (ngModelChange)="onCustomerFilterChange()" [ngModelOptions]="{ standalone: true }" class="form-control">
+      </div>
+    </div>
+
+    @if (foundCustomers.length > 0) {
+      <div class="mb-3 p-2 bg-light border rounded animate-fade-in">
+        <label for="customerSelectDropdown" class="form-label small fw-bold text-primary mb-1">
+          {{ 'CUSTOMER_SEARCH.SELECT_ACCOUNT' | translate }} ({{ foundCustomers.length }} {{ 'CUSTOMER_SEARCH.CUSTOMERS_FOUND' | translate }})
+        </label>
+        <select id="customerSelectDropdown" class="form-select"
+                [(ngModel)]="selectedCustomerId"
+                [ngModelOptions]="{ standalone: true }"
+                (ngModelChange)="onCustomerSelectById($event)">
+          <option [ngValue]="null">{{ 'CUSTOMER_SEARCH.ALL_CUSTOMERS' | translate }}</option>
+          @for (cust of foundCustomers; track cust.id) {
+            <option [ngValue]="cust.id">{{ cust.firstName }} {{ cust.lastName }} ({{ cust.userName }} / {{ cust.email }})</option>
+          }
+        </select>
+      </div>
+    }
+
+    <div class="d-flex flex-row w-auto align-items-end mt-2">
+      <div class="me-2">
+        <label for="searchStartDate" class="col-form-label py-1">{{ 'RESERVATION.PICKUP_DATE' | translate }}</label>
+        <input type="date" id="searchStartDate" [(ngModel)]="dateFilter" (ngModelChange)="loadReservations()" [ngModelOptions]="{ standalone: true }" class="form-control">
+      </div>
+
+      <div class="me-2">
+        <label for="searchPickUpTime" class="col-form-label py-1">{{ 'RESERVATION.PICKUP_TIME' | translate }}</label>
+        <input type="time" id="searchPickUpTime" [(ngModel)]="timeFilter" (ngModelChange)="loadReservations()" [ngModelOptions]="{ standalone: true }" class="form-control">
+      </div>
+
+      <div class="me-2" style="min-width: 200px;">
+        <label for="searchStatus" class="col-form-label py-1">{{ 'RESERVATION.RESERVATION_STATUS' | translate }}</label>
+        <select id="searchStatus" [(ngModel)]="statusFilter" (ngModelChange)="loadReservations()" [ngModelOptions]="{ standalone: true }" class="form-select">
+          <option [ngValue]="null">{{ 'INVENTORY.EQUIPMENT_ALL' | translate }}</option>
+          <option [ngValue]="ReservationStatusEnum.CREATED">{{ 'RESERVATION_STATUS.CREATED' | translate }}</option>
+          <option [ngValue]="ReservationStatusEnum.PICKED_UP">{{ 'RESERVATION_STATUS.PICKED_UP' | translate }}</option>
+          <option [ngValue]="ReservationStatusEnum.RETURNED">{{ 'RESERVATION_STATUS.RETURNED' | translate }}</option>
+          <option [ngValue]="ReservationStatusEnum.CANCELLED">{{ 'RESERVATION_STATUS.CANCELLED' | translate }}</option>
+        </select>
+      </div>
+
+      <div class="ms-auto">
+        <button class="btn btn-primary" type="button" (click)="clearAllFilters()">
+          {{ 'INVENTORY.CLEAR' | translate }}
+        </button>
+      </div>
+    </div>
+  </form>
+
+  @if (loading) {
+    <div class="alert alert-info">
+      {{ 'INVENTORY.LOADING' | translate }}
+    </div>
+  }
+
+  @if (!loading && reservations.length === 0) {
+    <div class="alert alert-warning">
+      {{ 'RESERVATION.NO_RESERVATIONS_FOUND' | translate }}
+    </div>
+  }
+
+  @if (!loading && reservations.length > 0) {
+    <table class="table table-hover table-striped align-middle">
+      <thead>
+      <tr>
+        <th>{{ 'RESERVATION.CUSTOMER_PROFILE_NAME' | translate }}</th>
+        <th>{{ 'RESERVATION.PICKUP_DATE' | translate }}</th>
+        <th>{{ 'RESERVATION.PICKUP_TIME' | translate }}</th>
+        <th>{{ 'RESERVATION.RETURN_DATE' | translate }}</th>
+        <th>{{ 'RESERVATION.RESERVATION_STATUS' | translate }}</th>
+        <th>{{ 'RESERVATION.EQUIPMENT_COUNT' | translate }}</th>
+        <th>{{ 'INVENTORY.EQUIPMENT_ACTIONS' | translate }}</th>
+      </tr>
+      </thead>
+
+      <tbody>
+        @for (item of reservations | slice:startIndex - 1:endIndex; track item.id) {
+          <tr (click)="openDetailPage(item)" class="clickable-row">
+            <td><strong>{{ item.customerName || ('STAFF.UNKNOWN_CUSTOMER' | translate) }}</strong></td>
+            <td>{{ item.startDate | date:'dd.MM.yyyy' }}</td>
+            <td>{{ item.pickUpTime.substring(0, 5) }}</td>
+            <td>{{ item.endDate | date:'dd.MM.yyyy' }}</td>
+            <td>
+              @if (item.reservationStatus === 'CREATED') {
+                <span class="badge bg-warning text-dark">{{ 'RESERVATION_STATUS.CREATED' | translate }}</span>
+              }
+              @if (item.reservationStatus === 'PICKED_UP') {
+                <span class="badge bg-info text-white">{{ 'RESERVATION_STATUS.PICKED_UP' | translate }}</span>
+              }
+              @if (item.reservationStatus === 'RETURNED') {
+                <span class="badge bg-success text-white">{{ 'RESERVATION_STATUS.RETURNED' | translate }}</span>
+              }
+              @if (item.reservationStatus === 'CANCELLED') {
+                <span class="badge bg-danger text-white">{{ 'RESERVATION_STATUS.CANCELLED' | translate }}</span>
+              }
+            </td>
+            <td>
+              <span class="badge bg-info text-dark">
+                {{ item.items?.length || 0 }} {{ 'RESERVATION.ITEMS' | translate }}
+              </span>
+            </td>
+            <td>
+              <button type="button" class="btn btn-sm btn-outline-primary me-2" (click)="openEditPage(item); $event.stopPropagation()">
+                {{ 'EQUIPMENT_EDIT.TITLE' | translate }}
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-danger" (click)="openDeleteDialog(item); $event.stopPropagation()">
+                {{ 'INVENTORY.DELETE' | translate }}
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <div class="d-flex align-items-center mt-3">
+      <label for="itemLimit" class="me-2 mb-0">{{ 'INVENTORY.ROWS_PER_PAGE' | translate }}</label>
+      <select id="itemLimit" name="itemLimit" class="form-select w-auto" [(ngModel)]="itemLimit" (ngModelChange)="currentPage = 1" [ngModelOptions]="{ standalone: true }">
+        <option [value]="5">5</option>
+        <option [value]="10">10</option>
+        <option [value]="20">20</option>
+        <option [value]="50">50</option>
+      </select>
+
+      <span class="ms-3 text-muted">
+        {{ startIndex + '-' + endIndex }} {{ 'INVENTORY.OF' | translate }} {{ reservations.length }}
+      </span>
+
+      <div class="btn-group ms-3">
+        <button class="btn btn-sm btn-primary me-2" [disabled]="currentPage === 1" (click)="currentPage = 1">
+          <span class="fs-5 lh-1">&laquo;</span>
+        </button>
+        <button class="btn btn-sm btn-primary me-4" [disabled]="currentPage === 1" (click)="previousPage()">
+          <span class="fs-5 lh-1">&lsaquo;</span>
+        </button>
+        <button class="btn btn-sm btn-primary me-2" [disabled]="endIndex >= reservations.length" (click)="nextPage()">
+          <span class="fs-5 lh-1">&rsaquo;</span>
+        </button>
+        <button class="btn btn-sm btn-primary me-2" [disabled]="endIndex >= reservations.length" (click)="goToLastPage()">
+          <span class="fs-5 lh-1">&raquo;</span>
+        </button>
+      </div>
+    </div>
+  }
+
+  @if (reservationToDelete) {
+    <div class="modal fade show d-block" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">{{ 'RESERVATION.DELETE_TITLE' | translate }}</h5>
+            <button type="button" class="btn-close" aria-label="Close" [disabled]="deleteLoading" (click)="cancelDelete()"></button>
+          </div>
+          <div class="modal-body">
+            <p>{{ 'RESERVATION.DELETE_CONFIRMATION' | translate }}</p>
+            @if (deleteError) {
+              <div class="alert alert-danger mt-3 mb-0">{{ deleteError }}</div>
+            }
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" [disabled]="deleteLoading" (click)="cancelDelete()">
+              {{ 'INVENTORY.DELETE_CANCEL' | translate }}
+            </button>
+            <button type="button" class="btn btn-danger" [disabled]="deleteLoading" (click)="confirmDelete()">
+              {{ (deleteLoading ? 'INVENTORY.DELETE_CONFIRM' : 'INVENTORY.DELETE_CONFIRM') | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+  }
+</div>

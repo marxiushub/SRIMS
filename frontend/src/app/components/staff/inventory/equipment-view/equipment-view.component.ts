@@ -9,7 +9,7 @@ import {ReservationService} from '../../../../services/reservation.service';
 import {ReservationDetail} from '../../../../dtos/reservation-detail';
 import JsBarcode from 'jsbarcode';
 import { forkJoin } from 'rxjs';
-import {ReservationStatus} from "../../../../dtos/ReservationStatus";
+import {ReservationStatus} from "../../../../dtos/reservationstatus";
 
 @Component({
   selector: 'app-equipment-detail',

@@ -133,6 +133,8 @@
     "DASHBOARD_TITLE": "Staff Dashboard",
     "DASHBOARD_SUBTITLE": "Management & Rental Infrastructure",
     "COMING_SOON": "Coming soon",
+    "RESERVATION_MANAGEMENT": "Reservation Management (Staff)",
+    "UNKNOWN_CUSTOMER": "Unknown Customer",
     "INVENTORY": {
       "TITLE": "Inventory & Equipment",
       "DESC": "Create, edit or view skis, snowboards, etc."
@@ -153,6 +155,16 @@
       "TITLE": "Graphical Overview",
       "DESC": "Visual representation of the entire inventory status."
     }
+  },
+  "CUSTOMER_SEARCH": {
+    "FILTER_BY_CUSTOMER": "Filter by Customer Account",
+    "FIRST_NAME": "Customer First Name",
+    "LAST_NAME": "Customer Last Name",
+    "USERNAME": "Customer Username",
+    "EMAIL": "Customer Email",
+    "SELECT_ACCOUNT": "Select Account",
+    "CUSTOMERS_FOUND": "matching customers found",
+    "ALL_CUSTOMERS": "-- Show all customer accounts --"
   },
   "BARCODE_SCANNER": {
     "TITLE": "Prototype Barcode Scanner",

@@ -15,7 +15,7 @@ import {debounceTime, distinctUntilChanged} from "rxjs";
 import {CustomerProfileService} from "../../../../services/customer-profile.service";
 import {ReservationUpdate} from "../../../../dtos/reservation-update";
 import {ToastrService} from 'ngx-toastr';
-import {ReservationStatus} from "../../../../dtos/ReservationStatus";
+import {ReservationStatus} from "../../../../dtos/reservationstatus";
 
 export enum ReservationCreateEditMode {
   create,

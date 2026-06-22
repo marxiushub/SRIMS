@@ -10,7 +10,7 @@ import {of, throwError} from 'rxjs';
 import {registerLocaleData} from '@angular/common';
 import localeDe from '@angular/common/locales/de';
 import {ReservationService} from '../../../../services/reservation.service';
-import {ReservationStatus} from "../../../../dtos/ReservationStatus";
+import {ReservationStatus} from "../../../../dtos/reservationstatus";
 
 registerLocaleData(localeDe, 'de');
 

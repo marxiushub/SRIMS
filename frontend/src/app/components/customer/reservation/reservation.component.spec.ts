@@ -13,7 +13,7 @@ import {ReservationDetail} from '../../../dtos/reservation-detail';
 import {CustomerProfile} from '../../../dtos/customer-profile';
 import {SkillLevel} from "../../../dtos/skilllevel";
 import {ToastrModule, ToastrService} from 'ngx-toastr';
-import {ReservationStatus} from "../../../dtos/ReservationStatus";
+import {ReservationStatus} from "../../../dtos/reservationstatus";
 
 // AI-assisted: Code generated with Google Gemini and adapted
 describe('ReservationComponent', () => {

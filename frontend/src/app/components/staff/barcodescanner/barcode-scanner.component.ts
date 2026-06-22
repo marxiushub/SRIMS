@@ -7,7 +7,7 @@ import {Equipment} from '../../../dtos/equipment';
 import {ReservationSearch} from '../../../dtos/reservation-search';
 import {ReservationDetail} from "../../../dtos/reservation-detail";
 import {ReservationUpdate} from "../../../dtos/reservation-update";
-import {ReservationStatus} from "../../../dtos/ReservationStatus";
+import {ReservationStatus} from "../../../dtos/reservationstatus";
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {CustomerProfileService} from '../../../services/customer-profile.service';
 import {CustomerProfile} from "../../../dtos/customer-profile";

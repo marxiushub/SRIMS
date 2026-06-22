@@ -1,5 +1,5 @@
 import { Equipment } from './equipment';
-import {ReservationStatus} from "./ReservationStatus";
+import {ReservationStatus} from "./reservationstatus";
 
 export interface ReservationDetail {
   id: number;

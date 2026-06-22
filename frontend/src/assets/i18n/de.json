@@ -133,6 +133,8 @@
     "DASHBOARD_TITLE": "Mitarbeiter Dashboard",
     "DASHBOARD_SUBTITLE": "Verwaltung & Verleih-Infrastruktur",
     "COMING_SOON": "Demnächst verfügbar",
+    "RESERVATION_MANAGEMENT": "Reservierungsverwaltung (Personal)",
+    "UNKNOWN_CUSTOMER": "Unbekannter Kunde",
     "INVENTORY": {
       "TITLE": "Inventar & Equipment",
       "DESC": "Skier, Snowboards, etc. anlegen, bearbeiten oder einsehen."
@@ -153,6 +155,16 @@
       "TITLE": "Grafische Übersicht",
       "DESC": "Visuelle Darstellung des gesamten Bestands-Status."
     }
+  },
+  "CUSTOMER_SEARCH": {
+    "FILTER_BY_CUSTOMER": "Nach Kunden-Account filtern",
+    "FIRST_NAME": "Kunden-Vorname",
+    "LAST_NAME": "Kunden-Nachname",
+    "USERNAME": "Kunden-Benutzername",
+    "EMAIL": "Kunden-E-Mail",
+    "SELECT_ACCOUNT": "Konto auswählen",
+    "CUSTOMERS_FOUND": "passende Kunden gefunden",
+    "ALL_CUSTOMERS": "-- Alle Kunden-Accounts anzeigen --"
   },
   "BARCODE_SCANNER": {
     "TITLE": "Prototyp Barcode Scanner",

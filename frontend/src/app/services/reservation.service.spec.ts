@@ -8,7 +8,7 @@ import {ReservationSearch} from '../dtos/reservation-search';
 import {ReservationDetail} from '../dtos/reservation-detail';
 import {ReservationCreation} from '../dtos/reservation-creation';
 import {ReservationUpdate} from '../dtos/reservation-update';
-import {ReservationStatus} from "../dtos/ReservationStatus";
+import {ReservationStatus} from "../dtos/reservationstatus";
 
 describe('ReservationService', () => {
   let service: ReservationService;
