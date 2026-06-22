@@ -26,7 +26,6 @@ import at.ac.tuwien.sepr.groupphase.backend.service.ReservationService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.access.AccessDeniedException;
@@ -43,7 +42,6 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ActiveProfiles({"test", "datagenerator", "generateData"})
@@ -211,7 +209,7 @@ public class ReservationServiceTest {
 
         double expectedTotalPrice = testEquipment2.getPrice() * 7;
 
-        ReservationDetailDto updatedReservation = reservationService.updateReservation(updateDto);
+        ReservationDetailDto updatedReservation = reservationService.updateReservationStaff(updateDto);
 
         assertAll(
             "Verify that the reservation was updated correctly",
@@ -628,7 +626,7 @@ public class ReservationServiceTest {
         updateDto.setId(created.getId());
         updateDto.setReservationStatus(ReservationStatus.PICKED_UP);
 
-        ReservationDetailDto updated = reservationService.updateReservation(updateDto);
+        ReservationDetailDto updated = reservationService.updateReservationStaff(updateDto);
 
         assertAll(
             "Verify that null fields in DTO don't overwrite existing data",

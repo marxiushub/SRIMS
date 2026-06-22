@@ -48,7 +48,7 @@ class ReservationValidatorTest {
     @Test
     void allMethods_withNullDto_throwsException() {
         assertThrows(ValidationException.class, () -> validator.validateCreateDto(null));
-        assertThrows(ValidationException.class, () -> validator.validateUpdateDto(null));
+        assertThrows(ValidationException.class, () -> validator.validateUpdateDto(null, null));
         assertThrows(IllegalArgumentException.class, () -> validator.validateReservationAddEquip(null));
         assertThrows(IllegalArgumentException.class, () -> validator.validateReservationRemoveEquipment(null));
     }
@@ -218,7 +218,7 @@ class ReservationValidatorTest {
         when(reservationRepository.findById(1L)).thenReturn(java.util.Optional.of(reservation));
         when(customerProfileRepository.existsById(99L)).thenReturn(false);
 
-        ValidationException ex = assertThrows(ValidationException.class, () -> validator.validateUpdateDto(dto));
+        ValidationException ex = assertThrows(ValidationException.class, () -> validator.validateUpdateDto(dto, null));
 
         assertAll(
             () -> assertThat(ex.getErrors()).contains("End date is before start date"),

@@ -8,11 +8,14 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.Reservat
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.ReservationStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Permission;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Role;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Helmet;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Ski;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.Customer;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
+import at.ac.tuwien.sepr.groupphase.backend.entity.user.Staff;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.ReservationService;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,6 +61,7 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
     private SecurityProperties securityProperties;
 
     private Customer testCustomer;
+    private Staff testStaff;
     private CustomerProfile testProfile;
     private Equipment testEquipment1;
     private Equipment testEquipment2;
@@ -70,9 +74,26 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
         );
     }
 
+    private String staffToken() {
+        return jwtTokenizer.getAuthToken(
+            testStaff.getEmail(),
+            testStaff.getId(),
+            ADMIN_PERMISSIONS
+        );
+    }
+
     @BeforeEach
     public void setup() {
         String uniqueSuffix = UUID.randomUUID().toString();
+
+        testStaff = new Staff(
+            "reservation_test_staff_" + uniqueSuffix,
+            "hashedPassword",
+            "reservation.test.staff." + uniqueSuffix + "@example.com",
+            Set.<Role>of(),
+            Set.<Permission>of()
+        );
+        testStaff = staffRepository.save(testStaff);
 
         testCustomer = new Customer(
             "reservation_test_user_" + uniqueSuffix,
@@ -173,10 +194,10 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
             updatedEndDate
         );
 
-        mockMvc.perform(patch("/api/v1/reservation/{id}", created.getId())
+        mockMvc.perform(patch("/api/v1/reservation/staff/{id}", created.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(patchJson)
-                .header(securityProperties.getAuthHeader(), userToken())
+                .header(securityProperties.getAuthHeader(), staffToken())
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(created.getId()))
