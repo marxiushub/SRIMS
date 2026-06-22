@@ -146,6 +146,13 @@ export class EquipmentViewComponent implements OnInit {
     this.router.navigate(['/staff/inventory']);
   }
 
+  /**
+   * Navigates to the reservation detail view.
+   */
+  viewReservationDetails(reservationId: number): void {
+    this.router.navigate(['/staff/reservation/view', reservationId]);
+  }
+
   //Helper-method to give RentalStatus-Enum-Values nice background coloring in HTML
   getStatusClass(status: string): string {
     switch (status) {
