@@ -234,10 +234,10 @@
                       <button
                         type="button"
                         class="btn btn-sm ms-2"
-                        [ngClass]="selectedEquipment.some(e => e.id === item.id) ? 'btn-success disabled' : 'btn-outline-success'"
-                        [disabled]="selectedEquipment.some(e => e.id === item.id)"
+                        [ngClass]="isAlreadySelected(item.id) ? 'btn-success disabled' : 'btn-outline-success'"
+                        [disabled]="isAlreadySelected(item.id)"
                         (click)="addEquipment(item)">
-                        {{ selectedEquipment.some(e => e.id === item.id) ? ('RESERVATION.ADDED' | translate) : ('RESERVATION.ADD' | translate) }}
+                        {{ isAlreadySelected(item.id) ? ('RESERVATION.ADDED' | translate) : ('RESERVATION.ADD' | translate) }}
                       </button>
                     </div>
                     <div class="d-flex">
@@ -271,9 +271,9 @@
                       <button
                         type="button"
                         class="btn btn-sm btn-success"
-                        [disabled]="selectedEquipment.some(e => e.id === item.id)"
+                        [disabled]="isAlreadySelected(item.id)"
                         (click)="addEquipment(item)">
-                        {{ selectedEquipment.some(e => e.id === item.id) ? ('RESERVATION.ADDED' | translate) : ('RESERVATION.ADD' | translate) }}
+                        {{ isAlreadySelected(item.id) ? ('RESERVATION.ADDED' | translate) : ('RESERVATION.ADD' | translate) }}
                       </button>
                     </td>
                   </tr>

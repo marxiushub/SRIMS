@@ -329,6 +329,15 @@ export class ReservationCreateEditComponent implements OnInit {
   }
 
   /**
+   * Checks if a specific piece of equipment is already selected for the reservation.
+   * @param itemId ID of the equipment to check
+   * @returns true if the equipment is already selected, false otherwise
+   */
+  isAlreadySelected(itemId: number): boolean {
+    return this.selectedEquipment.some(e => e.id === itemId);
+  }
+
+  /**
    * Toggles the visibility of the available equipment list in the UI.
    */
   toggleEquipmentList(): void {
