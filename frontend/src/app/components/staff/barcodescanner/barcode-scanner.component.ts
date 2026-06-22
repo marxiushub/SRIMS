@@ -522,6 +522,59 @@ export class BarcodeScannerComponent implements OnInit {
     }
   }
 
+  /**
+   * Live total price calculation for the Walk-In / Spontaneous Rental form.
+   */
+  get walkInTotalPrice(): number {
+    if (!this.walkInForm) return 0;
+
+    const start = this.walkInForm.get('startDate')?.value;
+    const end = this.walkInForm.get('endDate')?.value;
+
+    if (!start || !end || this.isWalkInDateRangeInvalid || this.scannedEquipments.length === 0) {
+      return 0;
+    }
+
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+
+    const diffTime = endDate.getTime() - startDate.getTime();
+    const totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+    const pricePerDay = this.scannedEquipments.reduce((sum, item) => sum + (item.price || 0), 0);
+
+    return pricePerDay * totalDays;
+  }
+
+  /**
+   * Live total price for the scanned equipment block at the bottom.
+   * Calculates the price dynamically based on today's date and the Walk-In end date if set.
+   */
+  get scannedItemsTotalPrice(): number {
+    if (this.scannedEquipments.length === 0) return 0;
+
+    let totalDays = 1; // Default fallback
+
+    if (this.scanScenario === 'NO_RESERVATION' && this.walkInForm) {
+      const start = this.walkInForm.get('startDate')?.value;
+      const end = this.walkInForm.get('endDate')?.value;
+      if (start && end && !this.isWalkInDateRangeInvalid) {
+        const diffTime = new Date(end).getTime() - new Date(start).getTime();
+        totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+      }
+    } else if (this.matchedReservations.length === 1) {
+      // If matching an existing reservation, use its runtime
+      const res = this.matchedReservations[0];
+      if (res.startDate && res.endDate) {
+        const diffTime = new Date(res.endDate).getTime() - new Date(res.startDate).getTime();
+        totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+      }
+    }
+
+    const pricePerDay = this.scannedEquipments.reduce((sum, item) => sum + (item.price || 0), 0);
+    return pricePerDay * totalDays;
+  }
+
   //Helper-method to give RentalStatus-Enum-Values nice background coloring in HTML
   getStatusClass(status: string): string {
     switch (status) {
