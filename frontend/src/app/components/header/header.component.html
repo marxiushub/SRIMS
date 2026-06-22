@@ -51,11 +51,11 @@
     <ul class="navbar-nav ms-auto align-items-end align-items-lg-center pe-3 pe-lg-0 me-lg-3">
       @if (!authService.isLoggedIn()) {
         <li class="nav-item">
-          <a class="nav-link" routerLink="/login" routerLinkActive="active">{{ 'COMMON.LOGIN' | translate }}</a>
+          <a class="nav-link" routerLink="/login" routerLinkActive="active" (click)="closeNavbar()">{{ 'COMMON.LOGIN' | translate }}</a>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link" routerLink="/register" routerLinkActive="active">{{ 'COMMON.REGISTER' | translate }}</a>
+          <a class="nav-link" routerLink="/register" routerLinkActive="active" (click)="closeNavbar()">{{ 'COMMON.REGISTER' | translate }}</a>
         </li>
       }
       @if (authService.isLoggedIn()) {

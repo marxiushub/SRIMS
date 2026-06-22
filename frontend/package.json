@@ -49,6 +49,7 @@
     "@angular/compiler-cli": "21.2.7",
     "@angular/language-service": "21.2.7",
     "@eslint/js": "10.0.1",
+    "@types/bootstrap": "^5.2.11",
     "@types/jasmine": "^6.0.0",
     "@types/jasminewd2": "2.0.13",
     "@types/jsbarcode": "^3.11.4",

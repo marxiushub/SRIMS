@@ -1,7 +1,8 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, ElementRef, HostListener, OnInit} from '@angular/core';
 import {AuthService} from '../../services/auth.service';
 import {TranslateService} from "@ngx-translate/core";
 import {AppComponent} from "../../app.component";
+import { Collapse } from 'bootstrap';
 
 @Component({
     selector: 'app-header',
@@ -14,7 +15,8 @@ export class HeaderComponent implements OnInit {
   constructor(
     public authService: AuthService,
     public app: AppComponent,
-    private translate: TranslateService,) { }
+    private translate: TranslateService,
+    private elementRef: ElementRef) { }
 
   ngOnInit() {
   }
@@ -33,4 +35,28 @@ export class HeaderComponent implements OnInit {
     }
   }
 
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const clickedInside = this.elementRef.nativeElement.contains(event.target);
+
+    if (!clickedInside) {
+      const navbarEl = document.getElementById('navbarSupportedContent');
+      if (navbarEl) {
+        const bsCollapse = Collapse.getInstance(navbarEl);
+        if (bsCollapse) {
+          bsCollapse.hide();
+        }
+      }
+    }
+  }
+
+  closeNavbar(): void {
+    const navbarEl = document.getElementById('navbarSupportedContent');
+    if (navbarEl) {
+      const bsCollapse = Collapse.getInstance(navbarEl);
+      if (bsCollapse) {
+        bsCollapse.hide();
+      }
+    }
+  }
 }
