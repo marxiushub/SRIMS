@@ -12,11 +12,14 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerProfileRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
+import at.ac.tuwien.sepr.groupphase.backend.security.CurrentUserService;
 import at.ac.tuwien.sepr.groupphase.backend.service.CustomerProfileService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
@@ -26,8 +29,8 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
-//TODO: rework test to use datagenerators and integrationtestbase
 @ActiveProfiles({"test"})
 @SpringBootTest
 public class CustomerProfileServiceTest {
@@ -40,6 +43,9 @@ public class CustomerProfileServiceTest {
 
     @Autowired
     private CustomerProfileRepository customerProfileRepository;
+
+    @MockitoBean
+    private CurrentUserService currentUserService;
 
     @AfterEach
     public void cleanup() {
@@ -75,12 +81,23 @@ public class CustomerProfileServiceTest {
         return customerProfileRepository.save(profile);
     }
 
+    // Sets up the mock so the service believes "customer" is the currently authenticated, non-staff user.
+    private void actingAsCustomer(Customer customer) {
+        when(currentUserService.getUserId()).thenReturn(customer.getId());
+        when(currentUserService.hasAuthority("STAFF")).thenReturn(false);
+    }
+
+    private void actingAsStaff(Long staffId) {
+        when(currentUserService.getUserId()).thenReturn(staffId);
+        when(currentUserService.hasAuthority("STAFF")).thenReturn(true);
+    }
+
     @Test
     public void createCustomerProfile_withValidDto_returnsSavedProfileWithId() {
         Customer savedCustomer = createTestCustomer("create_valid");
+        actingAsCustomer(savedCustomer);
 
         CustomerProfileCreationDto dto = new CustomerProfileCreationDto();
-        dto.setCustomerId(savedCustomer.getId());
         dto.setProfileName("Test Profile");
         dto.setHeight(175);
         dto.setWeight(70);
@@ -108,8 +125,10 @@ public class CustomerProfileServiceTest {
 
     @Test
     public void createCustomerProfile_withUnknownCustomerId_throwsNotFoundException() {
+        // No customer with this id exists in the DB; service reads the id from the security context.
+        when(currentUserService.getUserId()).thenReturn(99999L);
+
         CustomerProfileCreationDto dto = new CustomerProfileCreationDto();
-        dto.setCustomerId(99999L);
         dto.setProfileName("Unknown Customer Profile");
         dto.setHeight(175);
         dto.setWeight(70);
@@ -130,11 +149,12 @@ public class CustomerProfileServiceTest {
     @Test
     public void getCustomerProfiles_withExistingCustomer_returnsProfiles() {
         Customer customer = createTestCustomer("list_profiles");
+        actingAsCustomer(customer);
 
         createTestProfile(customer, "First Test Profile", SkillLevel.BEGINNER);
         createTestProfile(customer, "Second Test Profile", SkillLevel.ADVANCED);
 
-        List<CustomerProfileDetailDto> result = customerProfileService.getCustomerProfiles(customer.getId());
+        List<CustomerProfileDetailDto> result = customerProfileService.getCustomerProfiles();
 
         assertAll(
             "Verify that all profiles for the customer are returned",
@@ -150,8 +170,10 @@ public class CustomerProfileServiceTest {
 
     @Test
     public void getCustomerProfiles_withUnknownCustomer_throwsNotFoundException() {
+        when(currentUserService.getUserId()).thenReturn(99999L);
+
         NotFoundException exception = assertThrows(NotFoundException.class, () ->
-            customerProfileService.getCustomerProfiles(99999L)
+            customerProfileService.getCustomerProfiles()
         );
 
         assertAll(
@@ -165,6 +187,7 @@ public class CustomerProfileServiceTest {
     public void deleteCustomerProfile_withExistingProfile_deletesProfile() {
         Customer customer = createTestCustomer("delete_profile");
         CustomerProfile profile = createTestProfile(customer, "Profile To Delete", SkillLevel.BEGINNER);
+        actingAsCustomer(customer);
 
         customerProfileService.deleteCustomerProfile(profile.getId());
 
@@ -173,6 +196,9 @@ public class CustomerProfileServiceTest {
 
     @Test
     public void deleteCustomerProfile_withUnknownProfile_throwsNotFoundException() {
+        Customer customer = createTestCustomer("delete_unknown");
+        actingAsCustomer(customer);
+
         NotFoundException exception = assertThrows(NotFoundException.class, () ->
             customerProfileService.deleteCustomerProfile(99999L)
         );
@@ -185,9 +211,23 @@ public class CustomerProfileServiceTest {
     }
 
     @Test
+    public void deleteCustomerProfile_belongingToAnotherCustomer_throwsAccessDenied() {
+        Customer owner = createTestCustomer("delete_owner");
+        Customer attacker = createTestCustomer("delete_attacker");
+        CustomerProfile profile = createTestProfile(owner, "Owner Profile", SkillLevel.BEGINNER);
+
+        actingAsCustomer(attacker);
+
+        assertThrows(AccessDeniedException.class, () ->
+            customerProfileService.deleteCustomerProfile(profile.getId())
+        );
+    }
+
+    @Test
     public void updateCustomerProfile_withValidDto_updatesOnlyProvidedFields() {
         Customer customer = createTestCustomer("update_profile");
         CustomerProfile profile = createTestProfile(customer, "Old Profile Name", SkillLevel.BEGINNER);
+        actingAsCustomer(customer);
 
         CustomerProfileUpdateDto dto = new CustomerProfileUpdateDto();
         dto.setProfileName("Updated Profile Name");
@@ -216,7 +256,32 @@ public class CustomerProfileServiceTest {
     }
 
     @Test
+    public void updateCustomerProfile_withOnlyWeightAndShoeSize_updatesOnlyThoseFields() {
+        Customer customer = createTestCustomer("update_weight_shoe");
+        CustomerProfile profile = createTestProfile(customer, "Weight Shoe Test", SkillLevel.BEGINNER);
+        actingAsCustomer(customer);
+
+        CustomerProfileUpdateDto dto = new CustomerProfileUpdateDto();
+        dto.setWeight(85.0);
+        dto.setShoeSize(44.0);
+
+        CustomerProfileDetailDto result = customerProfileService.updateCustomerProfile(profile.getId(), dto);
+
+        assertAll(
+            "Verify that weight and shoeSize are updated, other fields unchanged",
+            () -> assertThat(result.getWeight()).isEqualTo(85.0),
+            () -> assertThat(result.getShoeSize()).isEqualTo(44.0),
+            () -> assertThat(result.getProfileName()).isEqualTo("Weight Shoe Test"),
+            () -> assertThat(result.getHeight()).isEqualTo(175.0),
+            () -> assertThat(result.getSkillLevel()).isEqualTo(SkillLevel.BEGINNER)
+        );
+    }
+
+    @Test
     public void updateCustomerProfile_withUnknownProfile_throwsNotFoundException() {
+        Customer customer = createTestCustomer("update_unknown");
+        actingAsCustomer(customer);
+
         CustomerProfileUpdateDto dto = new CustomerProfileUpdateDto();
         dto.setProfileName("Updated Profile Name");
 
@@ -232,9 +297,26 @@ public class CustomerProfileServiceTest {
     }
 
     @Test
+    public void updateCustomerProfile_belongingToAnotherCustomer_throwsAccessDenied() {
+        Customer owner = createTestCustomer("update_owner");
+        Customer attacker = createTestCustomer("update_attacker");
+        CustomerProfile profile = createTestProfile(owner, "Owner Profile", SkillLevel.BEGINNER);
+
+        actingAsCustomer(attacker);
+
+        CustomerProfileUpdateDto dto = new CustomerProfileUpdateDto();
+        dto.setProfileName("Hacked Name");
+
+        assertThrows(AccessDeniedException.class, () ->
+            customerProfileService.updateCustomerProfile(profile.getId(), dto)
+        );
+    }
+
+    @Test
     public void updateCustomerProfile_withEmptyDto_throwsValidationException() {
         Customer customer = createTestCustomer("empty_update");
         CustomerProfile profile = createTestProfile(customer, "Empty Update Profile", SkillLevel.BEGINNER);
+        actingAsCustomer(customer);
 
         CustomerProfileUpdateDto dto = new CustomerProfileUpdateDto();
 
@@ -249,6 +331,7 @@ public class CustomerProfileServiceTest {
     public void updateCustomerProfile_withBlankProfileName_throwsValidationException() {
         Customer customer = createTestCustomer("blank_profile_name");
         CustomerProfile profile = createTestProfile(customer, "Blank Profile Name Test", SkillLevel.BEGINNER);
+        actingAsCustomer(customer);
 
         CustomerProfileUpdateDto dto = new CustomerProfileUpdateDto();
         dto.setProfileName("");
@@ -261,9 +344,10 @@ public class CustomerProfileServiceTest {
     }
 
     @Test
-    public void getCustomerProfileById_withExistingProfile_returnsProfile() {
+    public void getCustomerProfileById_ownProfile_returnsProfile() {
         Customer customer = createTestCustomer("get_by_id");
         CustomerProfile profile = createTestProfile(customer, "Profile By Id", SkillLevel.BEGINNER);
+        actingAsCustomer(customer);
 
         CustomerProfileDetailDto result = customerProfileService.getCustomerProfileById(profile.getId());
 
@@ -281,7 +365,33 @@ public class CustomerProfileServiceTest {
     }
 
     @Test
+    public void getCustomerProfileById_asStaff_returnsProfileEvenIfNotOwner() {
+        Customer customer = createTestCustomer("get_by_id_staff_access");
+        CustomerProfile profile = createTestProfile(customer, "Profile Seen By Staff", SkillLevel.BEGINNER);
+        actingAsStaff(999L);
+
+        CustomerProfileDetailDto result = customerProfileService.getCustomerProfileById(profile.getId());
+
+        assertThat(result.getProfileName()).isEqualTo("Profile Seen By Staff");
+    }
+
+    @Test
+    public void getCustomerProfileById_belongingToAnotherCustomer_throwsAccessDenied() {
+        Customer owner = createTestCustomer("get_by_id_owner");
+        Customer attacker = createTestCustomer("get_by_id_attacker");
+        CustomerProfile profile = createTestProfile(owner, "Owner Profile", SkillLevel.BEGINNER);
+
+        actingAsCustomer(attacker);
+
+        assertThrows(AccessDeniedException.class, () ->
+            customerProfileService.getCustomerProfileById(profile.getId())
+        );
+    }
+
+    @Test
     public void getCustomerProfileById_withUnknownProfile_throwsNotFoundException() {
+        actingAsCustomer(createTestCustomer("get_by_id_unknown"));
+
         NotFoundException exception = assertThrows(NotFoundException.class, () ->
             customerProfileService.getCustomerProfileById(99999L)
         );
@@ -290,27 +400,6 @@ public class CustomerProfileServiceTest {
             "Verify that getting an unknown customer profile fails",
             () -> assertThat(exception).isNotNull(),
             () -> assertThat(exception.getMessage()).containsIgnoringCase("not found")
-        );
-    }
-
-    @Test
-    public void updateCustomerProfile_withOnlyWeightAndShoeSize_updatesCorrectly() {
-        Customer customer = createTestCustomer("update_weight_shoe");
-        CustomerProfile profile = createTestProfile(customer, "Weight Shoe Test", SkillLevel.BEGINNER);
-
-        CustomerProfileUpdateDto dto = new CustomerProfileUpdateDto();
-        dto.setWeight(85.0);
-        dto.setShoeSize(44.0);
-
-        CustomerProfileDetailDto result = customerProfileService.updateCustomerProfile(profile.getId(), dto);
-
-        assertAll(
-            "Verify that weight and shoeSize are updated, other fields unchanged",
-            () -> assertThat(result.getWeight()).isEqualTo(85.0),
-            () -> assertThat(result.getShoeSize()).isEqualTo(44.0),
-            () -> assertThat(result.getProfileName()).isEqualTo("Weight Shoe Test"),
-            () -> assertThat(result.getHeight()).isEqualTo(175.0),
-            () -> assertThat(result.getSkillLevel()).isEqualTo(SkillLevel.BEGINNER)
         );
     }
 }
