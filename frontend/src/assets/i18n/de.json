@@ -133,6 +133,8 @@
     "DASHBOARD_TITLE": "Mitarbeiter Dashboard",
     "DASHBOARD_SUBTITLE": "Verwaltung & Verleih-Infrastruktur",
     "COMING_SOON": "Demnächst verfügbar",
+    "RESERVATION_MANAGEMENT": "Reservierungsverwaltung (Personal)",
+    "UNKNOWN_CUSTOMER": "Unbekannter Kunde",
     "INVENTORY": {
       "TITLE": "Inventar & Equipment",
       "DESC": "Skier, Snowboards, etc. anlegen, bearbeiten oder einsehen."
@@ -153,6 +155,16 @@
       "TITLE": "Grafische Übersicht",
       "DESC": "Visuelle Darstellung des gesamten Bestands-Status."
     }
+  },
+  "CUSTOMER_SEARCH": {
+    "FILTER_BY_CUSTOMER": "Nach Kunden-Account filtern",
+    "FIRST_NAME": "Kunden-Vorname",
+    "LAST_NAME": "Kunden-Nachname",
+    "USERNAME": "Kunden-Benutzername",
+    "EMAIL": "Kunden-E-Mail",
+    "SELECT_ACCOUNT": "Konto auswählen",
+    "CUSTOMERS_FOUND": "passende Kunden gefunden",
+    "ALL_CUSTOMERS": "-- Alle Kunden-Accounts anzeigen --"
   },
   "BARCODE_SCANNER": {
     "TITLE": "Prototyp Barcode Scanner",
@@ -220,6 +232,7 @@
     "PICKUP_TIME": "Abholzeit",
     "RETURN_DATE": "Rückgabedatum",
     "RESERVATION_STATUS": "Reservierungs-Status",
+    "TOTAL_PRICE": "Gesamtpreis",
     "ITEMS": "Gegenstände",
     "DURATION": "Dauer",
     "DAYS": "Tag(e)",
@@ -256,9 +269,12 @@
     "TITLE_OVERVIEW": "Zugehörige Reservierungen",
     "EQUIPMENT_COUNT": "Anzahl Ausrüstung",
     "NO_RESERVATIONS_FOUND": "Keine aktiven Reservierungen für die gescannten Gegenstände am heutigen Tag gefunden.",
+    "NO_RESERVATIONS_FOUND_STAFF": "Keine Reservierungen gefunden",
     "CONFIRM_TITLE": "Reservierung bestätigen",
     "CONFIRM_PROMPT": "Möchten Sie diese Reservierung wirklich abschicken?",
-    "CONFIRM_SUBTEXT": "Bitte überprüfe noch einmal alle ausgewählten Ausrüstungsstücke und Daten, bevor Sie fortfahren."
+    "CONFIRM_SUBTEXT": "Bitte überprüfe noch einmal alle ausgewählten Ausrüstungsstücke und Daten, bevor Sie fortfahren.",
+    "TITLE_DETAIL": "Reservierung ansehen",
+    "SHOW_PAST": "Vergangene Reservierungen anzeigen"
   },
   "RESERVATION_STATUS": {
     "CREATED": "Erstellt",

@@ -3,11 +3,7 @@
 
   <div class="d-flex align-items-center mb-3">
     <h2 class="mb-0">
-      @if (mode === ReservationCreateEditMode.create) {
-        {{ 'RESERVATION.TITLE_CREATE' | translate }}
-      } @else {
-        {{ 'RESERVATION.TITLE_EDIT' | translate }}
-      }
+      {{ 'RESERVATION.TITLE_EDIT' | translate }}
     </h2>
   </div>
 
@@ -17,15 +13,11 @@
       <div class="row g-3 align-items-end">
 
         <div class="col-md-3">
-          <label for="profile" class="form-label fw-bold">{{ 'RESERVATION.SELECT_PROFILE' | translate }} *</label>
-          <select id="profile" formControlName="customerProfileId" class="form-select" [attr.disabled]="mode === ReservationCreateEditMode.edit ? true : null">
-            <option [ngValue]="null" disabled>{{ 'RESERVATION.CHOOSE_PROFILE_PLACEHOLDER' | translate }}</option>
-            @for (profile of customerProfiles; track profile.id) {
-              <option [ngValue]="profile.id">
-                {{ profile.profileName }}
-              </option>
-            }
-          </select>
+          <label class="form-label fw-bold text-muted">{{ 'RESERVATION.SELECT_PROFILE' | translate }}</label>
+          <div class="form-control bg-secondary-subtle border-secondary-subtle d-flex align-items-center fw-semibold">
+            <i class="bi bi-person-fill me-2 text-secondary"></i>
+            {{ customerName || ('RESERVATION.LOADING_PROFILE' | translate) }}
+          </div>
         </div>
 
         <div class="col-md-3">
@@ -98,7 +90,6 @@
               </tr>
             </tfoot>
           }
-
         </table>
       }
     </div>
@@ -231,14 +222,11 @@
         type="button"
         class="btn btn-success btn-lg flex-grow-1"
         [disabled]="reservationForm.invalid || selectedEquipment.length === 0 || isDateRangeInvalid || submitLoading"
-        (click) = submitConfirmDialog.showModal()>
+        (click)="submitConfirmDialog.showModal()">
         @if (submitLoading) {
           {{ 'INVENTORY.LOADING' | translate }}...
         } @else {
-          @if (mode === ReservationCreateEditMode.create) {
-            {{ 'RESERVATION.SUBMIT' | translate }}
-          } @else {
-            {{ 'RESERVATION.UPDATE' | translate }} }
+          {{ 'RESERVATION.UPDATE' | translate }}
         }
       </button>
 

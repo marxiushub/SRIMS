@@ -133,6 +133,8 @@
     "DASHBOARD_TITLE": "Staff Dashboard",
     "DASHBOARD_SUBTITLE": "Management & Rental Infrastructure",
     "COMING_SOON": "Coming soon",
+    "RESERVATION_MANAGEMENT": "Reservation Management (Staff)",
+    "UNKNOWN_CUSTOMER": "Unknown Customer",
     "INVENTORY": {
       "TITLE": "Inventory & Equipment",
       "DESC": "Create, edit or view skis, snowboards, etc."
@@ -153,6 +155,16 @@
       "TITLE": "Graphical Overview",
       "DESC": "Visual representation of the entire inventory status."
     }
+  },
+  "CUSTOMER_SEARCH": {
+    "FILTER_BY_CUSTOMER": "Filter by Customer Account",
+    "FIRST_NAME": "Customer First Name",
+    "LAST_NAME": "Customer Last Name",
+    "USERNAME": "Customer Username",
+    "EMAIL": "Customer Email",
+    "SELECT_ACCOUNT": "Select Account",
+    "CUSTOMERS_FOUND": "matching customers found",
+    "ALL_CUSTOMERS": "-- Show all customer accounts --"
   },
   "BARCODE_SCANNER": {
     "TITLE": "Prototype Barcode Scanner",
@@ -220,6 +232,7 @@
     "PICKUP_TIME": "Pickup Time",
     "RETURN_DATE": "Return Date",
     "RESERVATION_STATUS": "Reservation-Status",
+    "TOTAL_PRICE": "Total Price",
     "ITEMS": "item(s)",
     "DURATION": "Duration",
     "DAYS": "Day(s)",
@@ -256,9 +269,12 @@
     "TITLE_OVERVIEW": "Associated Reservations",
     "EQUIPMENT_COUNT": "Equipment Count",
     "NO_RESERVATIONS_FOUND": "No active reservations found for the scanned items today.",
+    "NO_RESERVATIONS_FOUND_STAFF": "No Reservations found",
     "CONFIRM_TITLE": "Confirm Reservation",
     "CONFIRM_PROMPT": "Are you sure you want to submit this reservation?",
-    "CONFIRM_SUBTEXT": "Please double-check all selected equipment items and dates before proceeding."
+    "CONFIRM_SUBTEXT": "Please double-check all selected equipment items and dates before proceeding.",
+    "TITLE_DETAIL": "View Reservation",
+    "SHOW_PAST": "Show Past Reservations"
   },
   "RESERVATION_STATUS": {
     "CREATED": "Created",

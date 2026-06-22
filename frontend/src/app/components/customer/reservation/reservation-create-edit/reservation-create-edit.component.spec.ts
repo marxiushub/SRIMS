@@ -255,4 +255,61 @@ describe('ReservationCreateEditComponent', () => {
     expect(routerMock.navigate).toHaveBeenCalledWith(['/customer/reservation']);
     expect(toastrServiceMock.success).toHaveBeenCalledWith('Reservation updated');
   });
+
+  describe('Live Price Calculation', () => {
+    beforeEach(() => {
+      fixture.detectChanges();
+    });
+
+    it('should return 0 if no equipment is selected', () => {
+      component.selectedEquipment = [];
+      component.reservationForm.patchValue({
+        startDate: '2026-06-20',
+        endDate: '2026-06-22'
+      });
+
+      expect(component.currentTotalPrice).toBe(0);
+    });
+
+    it('should return 0 if startDate or endDate is missing', () => {
+      component.selectedEquipment = [mockEquipment[0]]; // 25 €
+
+      component.reservationForm.patchValue({ startDate: null, endDate: '2026-06-22' });
+      expect(component.currentTotalPrice).toBe(0);
+
+      component.reservationForm.patchValue({ startDate: '2026-06-20', endDate: null });
+      expect(component.currentTotalPrice).toBe(0);
+    });
+
+    it('should return 0 if the date range is invalid (end date before start date)', () => {
+      component.selectedEquipment = [mockEquipment[0]];
+      component.reservationForm.patchValue({
+        startDate: '2026-06-20',
+        endDate: '2026-06-19'
+      });
+
+      expect(component.currentTotalPrice).toBe(0);
+    });
+
+    it('should calculate the correct price for a single day rental (same start and end date)', () => {
+      component.selectedEquipment = [mockEquipment[0]];
+      component.reservationForm.patchValue({
+        startDate: '2026-06-20',
+        endDate: '2026-06-20'
+      });
+
+      expect(component.currentTotalPrice).toBe(25);
+    });
+
+    it('should calculate the correct cumulative price for multiple items over multiple days', () => {
+      component.selectedEquipment = [mockEquipment[0], mockEquipment[1]];
+
+      component.reservationForm.patchValue({
+        startDate: '2026-06-20',
+        endDate: '2026-06-22'
+      });
+
+      expect(component.currentTotalPrice).toBe(180);
+    });
+  });
 });

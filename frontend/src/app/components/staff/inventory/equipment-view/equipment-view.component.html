@@ -135,11 +135,12 @@
                 <th>{{ 'RESERVATION.PICKUP_TIME' | translate }}</th>
                 <th>{{ 'RESERVATION.RETURN_DATE' | translate }}</th>
                 <th>{{ 'RESERVATION.RESERVATION_STATUS' | translate }}</th>
+                <th>{{ 'RESERVATION.TOTAL_PRICE' | translate }}</th>
               </tr>
               </thead>
               <tbody>
                 @for (res of reservations; track res.id) {
-                  <tr>
+                  <tr (click)="viewReservationDetails(res.id)" style="cursor: pointer;">
                     <td class="fw-bold">#{{ res.id }}</td>
                     <td>{{ res.customerName }}</td>
                     <td>{{ res.startDate | date:'dd.MM.yyyy' }}</td>
@@ -166,6 +167,10 @@
                           {{ 'RESERVATION_STATUS.CANCELLED' | translate }}
                         </span>
                       }
+                    </td>
+                    <td>
+                      <strong>{{ res.totalPrice | currency:'EUR':'symbol':'1.2-2':'de-AT' }}
+                      </strong>
                     </td>
                   </tr>
                 }

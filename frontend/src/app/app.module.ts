@@ -45,6 +45,16 @@ import {
 } from "./components/customer/customer-inventory/equipment-view/equipment-view.component";
 import {ReservationComponent} from "./components/customer/reservation/reservation.component";
 import {ZXingScannerModule} from '@zxing/ngx-scanner';
+import {
+  ReservationViewComponent
+} from "./components/customer/reservation/reservation-view/reservation-view.component";
+import { StaffReservationComponent } from './components/staff/reservation/staff-reservation.component';
+import {
+  StaffReservationViewComponent
+} from "./components/staff/reservation/reservation-view/staff-reservation-view.component";
+import {
+  StaffReservationEditComponent
+} from "./components/staff/reservation/reservation-edit/staff-reservation-edit.component";
 
 registerLocaleData(localeDe, 'de');
 
@@ -68,9 +78,13 @@ export function HttpLoaderFactory(http: HttpClient): TranslateLoader {
     InventoryComponent,
     EquipmentCreateEditComponent,
     EquipmentViewComponent,
+    StaffReservationComponent,
+    StaffReservationEditComponent,
+    StaffReservationViewComponent,
+    BarcodeScannerComponent,
     ReservationComponent,
     ReservationCreateEditComponent,
-    BarcodeScannerComponent,
+    ReservationViewComponent,
     CustomerComponent,
     CustomerInventoryComponent,
     CustomerEquipmentViewComponent,
