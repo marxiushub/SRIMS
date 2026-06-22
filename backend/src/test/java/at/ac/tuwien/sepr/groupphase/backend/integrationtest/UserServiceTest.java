@@ -88,6 +88,7 @@ public class UserServiceTest {
             .orElseThrow();
 
         List<SimpleGrantedAuthority> authorities = List.of(
+            new SimpleGrantedAuthority("USER_ADMIN"),
             new SimpleGrantedAuthority("STAFF"),
 
             new SimpleGrantedAuthority("STAFF_READ"),
