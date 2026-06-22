@@ -354,6 +354,9 @@ public class UserServiceTest {
             () -> assertThat(result).isNotNull(),
             () -> assertThat(result).isInstanceOf(CustomerSearchResponseDto.class),
 
+            () -> assertThat(result.getId())
+                .isEqualTo(existingCustomer.getId()),
+
             () -> assertThat(result.getUserName())
                 .isEqualTo(existingCustomer.getUserName()),
 
@@ -392,6 +395,9 @@ public class UserServiceTest {
 
             () -> assertThat(result).isNotNull(),
             () -> assertThat(result).isInstanceOf(StaffSearchResponseDto.class),
+
+            () -> assertThat(result.getId())
+                .isEqualTo(existingStaff.getId()),
 
             () -> assertThat(result.getUserName())
                 .isEqualTo(existingStaff.getUserName()),
@@ -434,6 +440,9 @@ public class UserServiceTest {
             () -> assertThat(result)
                 .allMatch(CustomerSearchResponseDto.class::isInstance),
 
+            () -> assertThat(((CustomerSearchResponseDto) result.getFirst()).getId())
+                .isNotNull(),
+
             () -> assertThat(
                 result.stream()
                     .map(r -> ((CustomerSearchResponseDto) r).getFirstName())
@@ -462,6 +471,9 @@ public class UserServiceTest {
             "Verify that combined filters return the correct customer",
 
             () -> assertThat(result).hasSize(1),
+
+            () -> assertThat(((CustomerSearchResponseDto) result.getFirst()).getId())
+                .isNotNull(),
 
             () -> assertThat(result.getFirst().getEmail())
                 .isEqualTo(email),
