@@ -108,4 +108,11 @@ export class StaffReservationViewComponent implements OnInit {
       }
     });
   }
+
+  /**
+   * Navigates to the equipment detail view.
+   */
+  viewEquipmentDetails(equipmentId: number): void {
+    this.router.navigate(['/staff/inventory/view', equipmentId]);
+  }
 }
