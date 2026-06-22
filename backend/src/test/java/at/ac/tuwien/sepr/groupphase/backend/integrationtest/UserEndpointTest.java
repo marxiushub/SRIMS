@@ -327,7 +327,8 @@ public class UserEndpointTest extends IntegrationTestBase implements TestData {
                 .param("email", c1.getEmail())
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$[*].email").value(hasItem(c1.getEmail())));
+            .andExpect(jsonPath("$[*].email").value(hasItem(c1.getEmail())))
+            .andExpect(jsonPath("$[*].id").value(hasItem(c1.getId().intValue())));
     }
 
     @Test
