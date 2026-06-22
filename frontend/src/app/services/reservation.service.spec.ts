@@ -8,7 +8,7 @@ import {ReservationSearch} from '../dtos/reservation-search';
 import {ReservationDetail} from '../dtos/reservation-detail';
 import {ReservationCreation} from '../dtos/reservation-creation';
 import {ReservationUpdate} from '../dtos/reservation-update';
-import {ReservationStatus} from "../dtos/ReservationStatus";
+import {ReservationStatus} from "../dtos/reservationstatus";
 
 describe('ReservationService', () => {
   let service: ReservationService;
@@ -62,6 +62,7 @@ describe('ReservationService', () => {
         startDate: '2026-03-01',
         endDate: '2026-03-02',
         confirmationEmailSent: false,
+        totalPrice: 0,
         items: [],
         reservationStatus: ReservationStatus.CREATED
       };
@@ -113,6 +114,7 @@ describe('ReservationService', () => {
         startDate: '2026-03-01',
         endDate: '2026-03-02',
         confirmationEmailSent: true,
+        totalPrice: 0,
         items: [],
         reservationStatus: ReservationStatus.CREATED
       };
@@ -162,6 +164,7 @@ describe('ReservationService', () => {
         startDate: '2026-05-01',
         endDate: '2026-05-02',
         confirmationEmailSent: false,
+        totalPrice: 0,
         items: [],
         reservationStatus: ReservationStatus.CREATED
       };
@@ -272,6 +275,7 @@ describe('ReservationService', () => {
           startDate: '2026-02-15',
           endDate: '2026-02-20',
           confirmationEmailSent: true,
+          totalPrice: 0,
           items: [],
           reservationStatus: ReservationStatus.CREATED
         }

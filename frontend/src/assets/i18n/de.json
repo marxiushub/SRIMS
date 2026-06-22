@@ -135,6 +135,8 @@
     "DASHBOARD_TITLE": "Mitarbeiter Dashboard",
     "DASHBOARD_SUBTITLE": "Verwaltung & Verleih-Infrastruktur",
     "COMING_SOON": "Demnächst verfügbar",
+    "RESERVATION_MANAGEMENT": "Reservierungsverwaltung (Personal)",
+    "UNKNOWN_CUSTOMER": "Unbekannter Kunde",
     "INVENTORY": {
       "TITLE": "Inventar & Equipment",
       "DESC": "Skier, Snowboards, etc. anlegen, bearbeiten oder einsehen."
@@ -147,14 +149,54 @@
       "TITLE": "Barcode-Scanner",
       "DESC": "Equipment kontaktlos ausgeben oder zurücknehmen."
     },
-    "STATISTICS": {
-      "TITLE": "Statistiken & Analytics",
-      "DESC": "Auslastung und beliebte Verleih-Artikel analysieren."
-    },
     "OVERVIEW": {
       "TITLE": "Grafische Übersicht",
       "DESC": "Visuelle Darstellung des gesamten Bestands-Status."
+    },
+    "STATISTICS": {
+      "TITLE": "Statistiken",
+      "SUBTITLE": "Analysiere die Auslastung und Mietdauer deines Equipments.",
+      "FILTER": {
+        "START": "Von",
+        "END": "Bis",
+        "TYPE": "Typ (Optional)",
+        "ALL_TYPES": "Alle Typen",
+        "VIEW_MODE": "Ansichts-Modus",
+        "GROUP_BY_MODEL": "Nach Modell gruppieren",
+        "SHOW_IDS": "Einzelne IDs anzeigen",
+        "GENERATE": "Statistik generieren",
+        "LOADING": "Lädt..."
+      },
+      "TABLE": {
+        "MODEL_NAME": "Modellname",
+        "EQUIPMENT_ID": "Equipment ID",
+        "DAYS_RENTED": "Geliehene Tage gesamt",
+        "FILTER_HIGH_TO_LOW": "Absteigend sortieren",
+        "FILTER_LOW_TO_HIGH": "Aufsteigend sortieren"
+      },
+      "MESSAGES": {
+        "NO_DATA": "Keine Daten für den gewählten Zeitraum vorhanden. Passe die Filter an und klicke auf 'Generieren'.",
+        "ERROR": "Statistiken konnten nicht geladen werden. Bitte überprüfe die Eingaben."
+      },
+      "EQUIPMENT_TYPES": {
+        "SKI": "Ski",
+        "SNOWBOARD": "Snowboard",
+        "HELMET": "Helm",
+        "POLE": "Stöcke",
+        "SKIBOOT": "Skischuhe",
+        "SNOWBOARDBOOT": "Snowboardschuhe"
+      }
     }
+  },
+  "CUSTOMER_SEARCH": {
+    "FILTER_BY_CUSTOMER": "Nach Kunden-Account filtern",
+    "FIRST_NAME": "Kunden-Vorname",
+    "LAST_NAME": "Kunden-Nachname",
+    "USERNAME": "Kunden-Benutzername",
+    "EMAIL": "Kunden-E-Mail",
+    "SELECT_ACCOUNT": "Konto auswählen",
+    "CUSTOMERS_FOUND": "passende Kunden gefunden",
+    "ALL_CUSTOMERS": "-- Alle Kunden-Accounts anzeigen --"
   },
   "BARCODE_SCANNER": {
     "TITLE": "Prototyp Barcode Scanner",
@@ -222,6 +264,7 @@
     "PICKUP_TIME": "Abholzeit",
     "RETURN_DATE": "Rückgabedatum",
     "RESERVATION_STATUS": "Reservierungs-Status",
+    "TOTAL_PRICE": "Gesamtpreis",
     "ITEMS": "Gegenstände",
     "DURATION": "Dauer",
     "DAYS": "Tag(e)",
@@ -258,9 +301,12 @@
     "TITLE_OVERVIEW": "Zugehörige Reservierungen",
     "EQUIPMENT_COUNT": "Anzahl Ausrüstung",
     "NO_RESERVATIONS_FOUND": "Keine aktiven Reservierungen für die gescannten Gegenstände am heutigen Tag gefunden.",
+    "NO_RESERVATIONS_FOUND_STAFF": "Keine Reservierungen gefunden",
     "CONFIRM_TITLE": "Reservierung bestätigen",
     "CONFIRM_PROMPT": "Möchten Sie diese Reservierung wirklich abschicken?",
-    "CONFIRM_SUBTEXT": "Bitte überprüfe noch einmal alle ausgewählten Ausrüstungsstücke und Daten, bevor Sie fortfahren."
+    "CONFIRM_SUBTEXT": "Bitte überprüfe noch einmal alle ausgewählten Ausrüstungsstücke und Daten, bevor Sie fortfahren.",
+    "TITLE_DETAIL": "Reservierung ansehen",
+    "SHOW_PAST": "Vergangene Reservierungen anzeigen"
   },
   "RESERVATION_STATUS": {
     "CREATED": "Erstellt",

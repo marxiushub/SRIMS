@@ -1,4 +1,4 @@
-import {ReservationStatus} from "./ReservationStatus";
+import {ReservationStatus} from "./reservationstatus";
 
 export interface ReservationSearch {
   customerProfileId?: number;

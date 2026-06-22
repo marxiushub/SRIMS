@@ -78,6 +78,19 @@
         </div>
       </div>
     </div>
+
+    <div class="form-check form-switch me-3 mb-2 d-flex align-items-center large-switch">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        id="showPastReservationsSwitch"
+        name="showPastReservations"
+        [(ngModel)]="showPastReservations"
+        [ngModelOptions]="{ standalone: true }"
+        (ngModelChange)="searchReservations()">
+      <label class="form-check-label" for="showPastReservationsSwitch">
+        {{ 'RESERVATION.SHOW_PAST' | translate }} </label>
+    </div>
   </form>
 
   @if (loading) {
@@ -88,7 +101,7 @@
 
   @if (!loading && reservations.length === 0) {
     <div class="alert alert-warning">
-      {{ 'RESERVATION.NO_RESERVATIONS_FOUND' | translate }}
+      {{ 'RESERVATION.NO_RESERVATIONS_FOUND_STAFF' | translate }}
     </div>
   }
 
@@ -129,6 +142,9 @@
             <div class="d-flex align-items-center gap-2 flex-wrap">
               <span class="small text-muted">
                 <i class="bi bi-clock me-1"></i>{{ item.pickUpTime.substring(0, 5) }}
+              </span>
+              <span class="badge bg-info text-dark">
+                {{ item.totalPrice | currency:'EUR':'symbol':'1.2-2':'de-AT' }}
               </span>
               <span class="badge bg-info text-dark">
                 {{ item.items?.length || 0 }} {{ 'RESERVATION.ITEMS' | translate }}

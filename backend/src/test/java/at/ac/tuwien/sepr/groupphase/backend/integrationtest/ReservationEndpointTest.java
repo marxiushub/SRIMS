@@ -13,6 +13,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Helmet;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Ski;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.Customer;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
+import at.ac.tuwien.sepr.groupphase.backend.entity.user.Staff;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.ReservationService;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,12 +62,21 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
     private CustomerProfile testProfile;
     private Equipment testEquipment1;
     private Equipment testEquipment2;
+    private Staff testStaff;
 
     private String userToken() {
         return jwtTokenizer.getAuthToken(
             testCustomer.getEmail(),
             testCustomer.getId(),
             USER_PERMISSIONS
+        );
+    }
+
+    private String staffToken(Staff staff) {
+        return jwtTokenizer.getAuthToken(
+            staff.getEmail(),
+            staff.getId(),
+            ADMIN_PERMISSIONS
         );
     }
 
@@ -113,6 +123,14 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
             SkillLevel.ADVANCED
         );
         testEquipment2 = equipmentRepository.save(testEquipment2);
+
+        testStaff = new Staff(
+            "reservation_test_staff_" + uniqueSuffix,
+            "hashedPassword",
+            "reservation.test.user." + uniqueSuffix + "@admin.com",
+            Set.of(),
+            Set.of()
+        );
     }
 
     @Test
@@ -308,31 +326,56 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
     }
 
     @Test
-    public void searchReservations_withMatchingParams_returns200AndFilteredList() throws Exception {
+    public void searchReservations_asCustomer_returnsOwnReservations() throws Exception {
         LocalDate startDate = LocalDate.now().plusDays(10);
         LocalDate endDate = LocalDate.now().plusDays(13);
 
-        createTestReservation(
+        ReservationDetailDto created = createTestReservation(
             List.of(testEquipment1.getId()),
             startDate,
             endDate
         );
 
         mockMvc.perform(get("/api/v1/reservation")
-                .param("customerProfileId", testProfile.getId().toString())
                 .param("startDate", startDate.toString())
                 .param("endDate", endDate.toString())
-                .param("reservationStatus", "CREATED")
                 .header(securityProperties.getAuthHeader(), userToken())
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(content().string(containsString("Max Mustermann")))
-            .andExpect(content().string(containsString("Test Helmet")))
-            .andExpect(content().string(containsString("CREATED")));
+            .andExpect(jsonPath("$[0].id").value(created.getId()))
+            .andExpect(jsonPath("$[0].customerName").value("Max Mustermann"))
+            .andExpect(jsonPath("$[0].reservationStatus").value("CREATED"));
     }
 
     @Test
-    public void searchReservations_withNoMatchingParams_returns200AndEmptyList() throws Exception {
+    public void searchReservations_asCustomer_withDifferentAccountId_returns403() throws Exception {
+
+        mockMvc.perform(get("/api/v1/reservation")
+                .param("accountId", "99999")
+                .header(securityProperties.getAuthHeader(), userToken())
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void searchReservations_asCustomer_withOwnAccountId_returns200() throws Exception {
+
+        ReservationDetailDto created = createTestReservation(
+            List.of(testEquipment1.getId()),
+            LocalDate.now().plusDays(10),
+            LocalDate.now().plusDays(12)
+        );
+
+        mockMvc.perform(get("/api/v1/reservation")
+                .param("accountId", testCustomer.getId().toString())
+                .header(securityProperties.getAuthHeader(), userToken())
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].id").value(created.getId()));
+    }
+
+    @Test
+    public void searchReservations_withNoMatchingParams_returnsEmptyList() throws Exception {
         createTestReservation(
             List.of(testEquipment1.getId()),
             LocalDate.now().plusDays(2),
@@ -343,11 +386,56 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
                 .param("customerProfileId", "99999")
                 .param("startDate", "2099-01-01")
                 .param("endDate", "2099-01-05")
-                .param("reservationStatus", "CREATED")
                 .header(securityProperties.getAuthHeader(), userToken())
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(content().json("[]"));
+    }
+
+    @Test
+    public void searchReservations_asStaff_returnsAllReservations() throws Exception {
+
+        String staffToken = staffToken(testStaff);
+
+        ReservationDetailDto created = createTestReservation(
+            List.of(testEquipment1.getId()),
+            LocalDate.now().plusDays(5),
+            LocalDate.now().plusDays(7)
+        );
+
+        mockMvc.perform(get("/api/v1/reservation")
+                .header(securityProperties.getAuthHeader(), staffToken)
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].id").value(created.getId()))
+            .andExpect(jsonPath("$[0].customerName").value("Max Mustermann"));
+    }
+
+    @Test
+    public void searchReservations_asStaff_withAccountId_filtersCorrectly() throws Exception {
+
+        String staffToken = staffToken(testStaff);
+
+        ReservationDetailDto created = createTestReservation(
+            List.of(testEquipment1.getId()),
+            LocalDate.now().plusDays(5),
+            LocalDate.now().plusDays(7)
+        );
+
+        mockMvc.perform(get("/api/v1/reservation")
+                .param("accountId", testCustomer.getId().toString())
+                .header(securityProperties.getAuthHeader(), staffToken)
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].id").value(created.getId()));
+    }
+
+    @Test
+    public void searchReservations_withoutToken_returns403() throws Exception {
+
+        mockMvc.perform(get("/api/v1/reservation")
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isForbidden());
     }
 
     private ReservationDetailDto createTestReservation(
@@ -364,5 +452,89 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
         createDto.setReservationStatus(ReservationStatus.CREATED);
 
         return reservationService.createReservation(createDto);
+    }
+
+    @Test
+    public void getReservationById_asCustomer_withOwnReservation_returns200() throws Exception {
+
+        ReservationDetailDto created = createTestReservation(
+            List.of(testEquipment1.getId()),
+            LocalDate.now().plusDays(2),
+            LocalDate.now().plusDays(5)
+        );
+
+        mockMvc.perform(get("/api/v1/reservation/{id}", created.getId())
+                .header(securityProperties.getAuthHeader(), userToken())
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(created.getId()))
+            .andExpect(jsonPath("$.customerName").value("Max Mustermann"))
+            .andExpect(jsonPath("$.reservationStatus").value("CREATED"));
+    }
+
+    @Test
+    public void getReservationById_asCustomer_withForeignReservation_returns403() throws Exception {
+
+        ReservationDetailDto created = createTestReservation(
+            List.of(testEquipment1.getId()),
+            LocalDate.now().plusDays(2),
+            LocalDate.now().plusDays(5)
+        );
+
+        // anderer User (nicht owner)
+        String differentToken = jwtTokenizer.getAuthToken(
+            "other@test.com",
+            99999L,
+            USER_PERMISSIONS
+        );
+
+        mockMvc.perform(get("/api/v1/reservation/{id}", created.getId())
+                .header(securityProperties.getAuthHeader(), differentToken)
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void getReservationById_asStaff_returns200() throws Exception {
+
+        String staffToken = staffToken(testStaff);
+
+        ReservationDetailDto created = createTestReservation(
+            List.of(testEquipment1.getId()),
+            LocalDate.now().plusDays(2),
+            LocalDate.now().plusDays(5)
+        );
+
+        mockMvc.perform(get("/api/v1/reservation/{id}", created.getId())
+                .header(securityProperties.getAuthHeader(), staffToken)
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(created.getId()))
+            .andExpect(jsonPath("$.customerName").value("Max Mustermann"));
+    }
+
+    @Test
+    public void getReservationById_withUnknownId_returns404() throws Exception {
+
+        String staffToken = staffToken(testStaff);
+
+        mockMvc.perform(get("/api/v1/reservation/{id}", 99999L)
+                .header(securityProperties.getAuthHeader(), staffToken)
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void getReservationById_withoutToken_returns403() throws Exception {
+
+        ReservationDetailDto created = createTestReservation(
+            List.of(testEquipment1.getId()),
+            LocalDate.now().plusDays(2),
+            LocalDate.now().plusDays(5)
+        );
+
+        mockMvc.perform(get("/api/v1/reservation/{id}", created.getId())
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isForbidden());
     }
 }

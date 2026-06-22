@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.UserCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.detail.UserDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.search.CustomerSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.UserSearchResponseDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.UserUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.UserMapper;
@@ -10,6 +11,8 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.user.ApplicationUser;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import java.util.List;
 
 public interface UserService extends UserDetailsService {
 
@@ -99,4 +102,14 @@ public interface UserService extends UserDetailsService {
      * @throws IllegalArgumentException if the provided id is null or negative
      */
     UserSearchResponseDto getUserById(Long id);
+
+    /**
+     * Retrieves a List of Customers who meet the query parameters in the .
+     * <br>
+     *
+     * @param searchDto the query parameters to search for Customers in the Repository
+     * @return the corresponding user as a {@link UserSearchResponseDto}
+     * @throws jakarta.persistence.EntityNotFoundException if no user with the given id exists
+     */
+    List<UserSearchResponseDto> searchCustomers(CustomerSearchDto searchDto);
 }

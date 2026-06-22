@@ -13,7 +13,7 @@ import {ReservationDetail} from '../../../dtos/reservation-detail';
 import {CustomerProfile} from '../../../dtos/customer-profile';
 import {SkillLevel} from "../../../dtos/skilllevel";
 import {ToastrModule, ToastrService} from 'ngx-toastr';
-import {ReservationStatus} from "../../../dtos/ReservationStatus";
+import {ReservationStatus} from "../../../dtos/reservationstatus";
 
 // AI-assisted: Code generated with Google Gemini and adapted
 describe('ReservationComponent', () => {
@@ -54,6 +54,7 @@ describe('ReservationComponent', () => {
       startDate: '2026-12-24',
       endDate: '2026-12-31',
       confirmationEmailSent: true,
+      totalPrice: 175,
       items: [{id: 1, model: 'Ski Alpha', price: 25} as any],
       reservationStatus: ReservationStatus.CREATED
     },
@@ -66,8 +67,9 @@ describe('ReservationComponent', () => {
       startDate: '2026-02-15',
       endDate: '2026-02-20',
       confirmationEmailSent: false,
+      totalPrice: 20,
       items: [],
-      reservationStatus: ReservationStatus.CREATED
+      reservationStatus: ReservationStatus.PICKED_UP
     }
   ];
 
@@ -99,6 +101,7 @@ describe('ReservationComponent', () => {
 
     fixture = TestBed.createComponent(ReservationComponent);
     component = fixture.componentInstance;
+    reservationServiceMock.search.and.returnValue(of([]));
     fixture.detectChanges();
     await fixture.whenStable();
   });
@@ -140,7 +143,7 @@ describe('ReservationComponent', () => {
 
     component.confirmDelete();
 
-    expect(reservationServiceMock.delete).toHaveBeenCalledWith(100); // id der ersten Reservierung
+    expect(reservationServiceMock.delete).toHaveBeenCalledWith(100); // ID of first Reservation
     expect(component.reservations.length).toBe(1);
     expect(component.reservations[0].id).toBe(200);
     expect(component.reservationToDelete).toBeUndefined();
@@ -148,16 +151,97 @@ describe('ReservationComponent', () => {
     expect(toastrServiceMock.success).toHaveBeenCalledWith('Reservation deleted');
   });
 
-  it('should call search with accountId, mapped filters and correct time format', () => {
+  it('should call search twice with CREATED and PICKED_UP status when showPastReservations is false', () => {
     component.profileFilter = 10;
     component.dateFilter = '2026-12-24';
     component.timeFilter = '10:00';
+    component.showPastReservations = false;
 
-    reservationServiceMock.search.and.returnValue(of([...testReservations]));
+    reservationServiceMock.search.and.returnValues(of([testReservations[0]]), of([testReservations[1]]));
 
     component.searchReservations();
 
     expect(reservationServiceMock.search).toHaveBeenCalledWith({
+      accountId: 1,
+      customerProfileId: 10,
+      pickUpTime: '10:00:00',
+      startDate: '2026-12-24',
+      reservationStatus: ReservationStatus.CREATED
+    });
+
+    expect(reservationServiceMock.search).toHaveBeenCalledWith({
+      accountId: 1,
+      customerProfileId: 10,
+      pickUpTime: '10:00:00',
+      startDate: '2026-12-24',
+      reservationStatus: ReservationStatus.PICKED_UP
+    });
+
+    expect(component.reservations).toEqual([...testReservations]);
+    expect(component.loading).toBeFalse();
+  });
+
+  it('should call search only once without status filter when showPastReservations is true', () => {
+    component.profileFilter = 10;
+    component.dateFilter = '2026-12-24';
+    component.timeFilter = '10:00';
+    component.showPastReservations = true;
+
+    reservationServiceMock.search.calls.reset();
+    reservationServiceMock.search.and.returnValue(of(testReservations));
+
+    component.searchReservations();
+
+    expect(reservationServiceMock.search).toHaveBeenCalledOnceWith({
+      accountId: 1,
+      customerProfileId: 10,
+      pickUpTime: '10:00:00',
+      startDate: '2026-12-24'
+    });
+    expect(component.reservations).toEqual(testReservations);
+    expect(component.loading).toBeFalse();
+  });
+
+  it('should call search twice with mapped filters and status when showPastReservations is false', () => {
+    component.profileFilter = 10;
+    component.dateFilter = '2026-12-24';
+    component.timeFilter = '10:00';
+    component.showPastReservations = false;
+
+    reservationServiceMock.search.and.returnValues(of([]), of([]));
+
+    component.searchReservations();
+
+    expect(reservationServiceMock.search).toHaveBeenCalledWith({
+      accountId: 1,
+      customerProfileId: 10,
+      pickUpTime: '10:00:00',
+      startDate: '2026-12-24',
+      reservationStatus: ReservationStatus.CREATED
+    });
+
+    expect(reservationServiceMock.search).toHaveBeenCalledWith({
+      accountId: 1,
+      customerProfileId: 10,
+      pickUpTime: '10:00:00',
+      startDate: '2026-12-24',
+      reservationStatus: ReservationStatus.PICKED_UP
+    });
+    expect(component.loading).toBeFalse();
+  });
+
+  it('should call search once with mapped filters and NO status when showPastReservations is true', () => {
+    component.profileFilter = 10;
+    component.dateFilter = '2026-12-24';
+    component.timeFilter = '10:00';
+    component.showPastReservations = true;
+
+    reservationServiceMock.search.calls.reset();
+    reservationServiceMock.search.and.returnValue(of([]));
+
+    component.searchReservations();
+
+    expect(reservationServiceMock.search).toHaveBeenCalledOnceWith({
       accountId: 1,
       customerProfileId: 10,
       pickUpTime: '10:00:00',
@@ -170,6 +254,7 @@ describe('ReservationComponent', () => {
     component.profileFilter = null;
     component.dateFilter = '';
     component.timeFilter = '';
+    component.showPastReservations = false;
 
     reservationServiceMock.search.and.returnValue(of([]));
 
@@ -179,7 +264,15 @@ describe('ReservationComponent', () => {
       accountId: 1,
       customerProfileId: undefined,
       pickUpTime: undefined,
-      startDate: undefined
+      startDate: undefined,
+      reservationStatus: ReservationStatus.CREATED
+    });
+    expect(reservationServiceMock.search).toHaveBeenCalledWith({
+      accountId: 1,
+      customerProfileId: undefined,
+      pickUpTime: undefined,
+      startDate: undefined,
+      reservationStatus: ReservationStatus.PICKED_UP
     });
   });
 
@@ -187,7 +280,9 @@ describe('ReservationComponent', () => {
     component.profileFilter = 20;
     component.dateFilter = '2026-02-15';
     component.timeFilter = '08:30';
+    component.showPastReservations = true;
 
+    reservationServiceMock.search.calls.reset();
     reservationServiceMock.search.and.returnValue(of(testReservations));
 
     component.clearFilters();
@@ -195,7 +290,22 @@ describe('ReservationComponent', () => {
     expect(component.profileFilter).toBeNull();
     expect(component.dateFilter).toBe('');
     expect(component.timeFilter).toBe('');
-    expect(reservationServiceMock.search).toHaveBeenCalledWith({accountId: 1});
+    expect(component.showPastReservations).toBeFalse();
+
+    expect(reservationServiceMock.search).toHaveBeenCalledWith({
+      accountId: 1,
+      customerProfileId: undefined,
+      pickUpTime: undefined,
+      startDate: undefined,
+      reservationStatus: ReservationStatus.CREATED
+    });
+    expect(reservationServiceMock.search).toHaveBeenCalledWith({
+      accountId: 1,
+      customerProfileId: undefined,
+      pickUpTime: undefined,
+      startDate: undefined,
+      reservationStatus: ReservationStatus.PICKED_UP
+    });
   });
 
   it('should set loading false when search fails', () => {
@@ -222,6 +332,7 @@ describe('ReservationComponent', () => {
         startDate: '2026-12-24',
         endDate: '2026-12-27',
         confirmationEmailSent: false,
+        totalPrice: 20,
         items: [],
         reservationStatus: ReservationStatus.CREATED
       })) as ReservationDetail[];

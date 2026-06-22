@@ -15,7 +15,7 @@ import {debounceTime, distinctUntilChanged} from "rxjs";
 import {CustomerProfileService} from "../../../../services/customer-profile.service";
 import {ReservationUpdate} from "../../../../dtos/reservation-update";
 import {ToastrService} from 'ngx-toastr';
-import {ReservationStatus} from "../../../../dtos/ReservationStatus";
+import {ReservationStatus} from "../../../../dtos/reservationstatus";
 
 export enum ReservationCreateEditMode {
   create,
@@ -232,6 +232,29 @@ export class ReservationCreateEditComponent implements OnInit {
       return false;
     }
     return new Date(end) < new Date(start);
+  }
+
+  /**
+   * Calculates the current live total price based on selected equipment and days.
+   */
+  get currentTotalPrice(): number {
+    const start = this.reservationForm.get('startDate')?.value;
+    const end = this.reservationForm.get('endDate')?.value;
+
+    if (!start || !end || this.isDateRangeInvalid || this.selectedEquipment.length === 0) {
+      return 0;
+    }
+
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+
+    //Calculate difference in milliseconds, then transform back to dates to get the difference in days
+    const diffTime = endDate.getTime() - startDate.getTime();
+    const totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+    const pricePerDay = this.selectedEquipment.reduce((sum, item) => sum + (item.price || 0), 0);
+
+    return pricePerDay * totalDays;
   }
 
   /**

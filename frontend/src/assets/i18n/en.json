@@ -135,6 +135,8 @@
     "DASHBOARD_TITLE": "Staff Dashboard",
     "DASHBOARD_SUBTITLE": "Management & Rental Infrastructure",
     "COMING_SOON": "Coming soon",
+    "RESERVATION_MANAGEMENT": "Reservation Management (Staff)",
+    "UNKNOWN_CUSTOMER": "Unknown Customer",
     "INVENTORY": {
       "TITLE": "Inventory & Equipment",
       "DESC": "Create, edit or view skis, snowboards, etc."
@@ -148,13 +150,53 @@
       "DESC": "Check-out or check-in equipment contactlessly."
     },
     "STATISTICS": {
-      "TITLE": "Statistics & Analytics",
-      "DESC": "Analyze utilization and popular rental items."
+      "TITLE": "Statistics",
+      "SUBTITLE": "Analyze the utilization and rental duration of your equipment.",
+      "FILTER": {
+        "START": "From",
+        "END": "To",
+        "TYPE": "Type (Optional)",
+        "ALL_TYPES": "All Types",
+        "VIEW_MODE": "View Mode",
+        "GROUP_BY_MODEL": "Group by model",
+        "SHOW_IDS": "Show individual IDs",
+        "GENERATE": "Generate Statistics",
+        "LOADING": "Loading..."
+      },
+      "TABLE": {
+        "MODEL_NAME": "Model Name",
+        "EQUIPMENT_ID": "Equipment ID",
+        "DAYS_RENTED": "Total Rented Days",
+        "FILTER_HIGH_TO_LOW": "Sort descending",
+        "FILTER_LOW_TO_HIGH": "Sort ascending"
+      },
+      "MESSAGES": {
+        "NO_DATA": "No data available for the selected period. Adjust the filters and click 'Generate'.",
+        "ERROR": "Statistics could not be loaded. Please check your inputs."
+      },
+      "EQUIPMENT_TYPES": {
+        "SKI": "Skis",
+        "SNOWBOARD": "Snowboard",
+        "HELMET": "Helmet",
+        "POLE": "Poles",
+        "SKIBOOT": "Ski Boots",
+        "SNOWBOARDBOOT": "Snowboard Boots"
+      }
     },
     "OVERVIEW": {
       "TITLE": "Graphical Overview",
       "DESC": "Visual representation of the entire inventory status."
     }
+  },
+  "CUSTOMER_SEARCH": {
+    "FILTER_BY_CUSTOMER": "Filter by Customer Account",
+    "FIRST_NAME": "Customer First Name",
+    "LAST_NAME": "Customer Last Name",
+    "USERNAME": "Customer Username",
+    "EMAIL": "Customer Email",
+    "SELECT_ACCOUNT": "Select Account",
+    "CUSTOMERS_FOUND": "matching customers found",
+    "ALL_CUSTOMERS": "-- Show all customer accounts --"
   },
   "BARCODE_SCANNER": {
     "TITLE": "Prototype Barcode Scanner",
@@ -222,6 +264,7 @@
     "PICKUP_TIME": "Pickup Time",
     "RETURN_DATE": "Return Date",
     "RESERVATION_STATUS": "Reservation-Status",
+    "TOTAL_PRICE": "Total Price",
     "ITEMS": "item(s)",
     "DURATION": "Duration",
     "DAYS": "Day(s)",
@@ -258,9 +301,12 @@
     "TITLE_OVERVIEW": "Associated Reservations",
     "EQUIPMENT_COUNT": "Equipment Count",
     "NO_RESERVATIONS_FOUND": "No active reservations found for the scanned items today.",
+    "NO_RESERVATIONS_FOUND_STAFF": "No Reservations found",
     "CONFIRM_TITLE": "Confirm Reservation",
     "CONFIRM_PROMPT": "Are you sure you want to submit this reservation?",
-    "CONFIRM_SUBTEXT": "Please double-check all selected equipment items and dates before proceeding."
+    "CONFIRM_SUBTEXT": "Please double-check all selected equipment items and dates before proceeding.",
+    "TITLE_DETAIL": "View Reservation",
+    "SHOW_PAST": "Show Past Reservations"
   },
   "RESERVATION_STATUS": {
     "CREATED": "Created",

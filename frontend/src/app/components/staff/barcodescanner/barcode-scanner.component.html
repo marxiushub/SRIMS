@@ -311,6 +311,20 @@
               </tr>
             }
           </tbody>
+
+          @if (scannedItemsTotalPrice > 0) {
+            <tfoot>
+              <tr class="table-group-divider bg-light">
+                <td colspan="4" class="text-end fw-bold fs-5 py-3">
+                  {{ 'RESERVATION.TOTAL_PRICE' | translate }} ({{ scanScenario === 'NO_RESERVATION' ? ('BARCODE_SCANNER.WALK_IN_TITLE' | translate) : ('RESERVATION.TITLE_OVERVIEW' | translate) }}):
+                </td>
+                <td colspan="2" class="fw-bold text-primary fs-5 py-3 font-monospace">
+                  {{ scannedItemsTotalPrice | currency:'EUR':'symbol':'1.2-2':'de-AT' }}
+                </td>
+              </tr>
+            </tfoot>
+          }
+
         </table>
       }
     </div>
