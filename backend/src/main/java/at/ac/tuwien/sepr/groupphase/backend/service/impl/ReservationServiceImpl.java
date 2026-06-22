@@ -17,11 +17,13 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.EquipmentRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ReservationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerProfileRepository;
+import at.ac.tuwien.sepr.groupphase.backend.security.CurrentUserService;
 import at.ac.tuwien.sepr.groupphase.backend.service.EmailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,19 +41,23 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
     private final EquipmentRepository equipmentRepository;
     private final CustomerProfileRepository customerProfileRepository;
     private final EmailService emailService;
+    private final CurrentUserService currentUserService;
 
     @Autowired
     public ReservationServiceImpl(ReservationMapper reservationMapper,
                                   ReservationRepository reservationRepository,
                                   EquipmentRepository equipmentRepository,
                                   CustomerProfileRepository customerProfileRepository,
-                                  ReservationValidator validator, EmailService emailService) {
+                                  ReservationValidator validator,
+                                  EmailService emailService,
+                                  CurrentUserService currentUserService) {
         this.reservationMapper = reservationMapper;
         this.reservationRepository = reservationRepository;
         this.equipmentRepository = equipmentRepository;
         this.customerProfileRepository = customerProfileRepository;
         this.validator = validator;
         this.emailService = emailService;
+        this.currentUserService = currentUserService;
     }
 
 
@@ -59,8 +65,23 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
     @Transactional
     public ReservationDetailDto reservationById(Long id) {
         LOGGER.trace("Get reservation by id: {}", id);
+
         Reservation reservation = reservationRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Reservation with ID " + id + " was not found."));
+
+        boolean isStaff = currentUserService.hasAuthority("STAFF");
+        Long currentUserId = currentUserService.getUserId();
+
+        if (!isStaff) {
+            Long ownerId = reservation.getCustomerProfile()
+                .getCustomer()
+                .getId();
+
+            if (!ownerId.equals(currentUserId)) {
+                throw new AccessDeniedException("You are not allowed to access this reservation.");
+            }
+        }
+
         return reservationMapper.entityToDetailDto(reservation);
     }
 
@@ -189,23 +210,36 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
     @Transactional
     @Override
     public List<ReservationDetailDto> searchReservations(ReservationSearchDto searchDto) {
+        LOGGER.trace("Search reservations with filter {}", searchDto);
+
         if (searchDto == null) {
             searchDto = new ReservationSearchDto();
         }
 
         final ReservationSearchDto finalSearchDto = searchDto;
 
-        Specification<Reservation> spec = (root, query, cb) -> cb.conjunction();
+        boolean isStaff = currentUserService.hasAuthority("STAFF");
 
-        if (finalSearchDto.getCustomerProfileId() != null) {
-            spec = spec.and((root, query, cb) ->
-                cb.equal(root.get("customerProfile").get("id"), finalSearchDto.getCustomerProfileId())
-            );
+        Long effectiveAccountId = searchDto.getAccountId();
+
+        if (!isStaff) {
+            Long currentUserId = currentUserService.getUserId();
+
+            if (effectiveAccountId != null && !effectiveAccountId.equals(currentUserId)) {
+                throw new AccessDeniedException("Cannot search reservations of another customer.");
+            }
+
+            // Customer darf nur sich selbst sehen
+            effectiveAccountId = currentUserId;
         }
 
-        if (finalSearchDto.getAccountId() != null) {
+        Specification<Reservation> spec = (root, query, cb) -> cb.conjunction();
+
+        final Long accountId = effectiveAccountId;
+
+        if (accountId != null) {
             spec = spec.and((root, query, cb) ->
-                cb.equal(root.get("customerProfile").get("customer").get("id"), finalSearchDto.getAccountId())
+                cb.equal(root.get("customerProfile").get("customer").get("id"), accountId)
             );
         }
 
