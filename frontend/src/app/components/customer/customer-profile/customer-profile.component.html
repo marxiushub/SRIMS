@@ -23,41 +23,69 @@
   }
 
   @if (!loading && profiles.length > 0) {
-    <table class="table table-hover table-striped align-middle">
 
-      <thead>
-      <tr>
-        <th>{{ 'CUSTOMER_PROFILE.NAME' | translate }}</th>
-        <th>{{ 'CUSTOMER_PROFILE.PROFILE_ACTIONS' | translate }}</th>
-      </tr>
-      </thead>
+    <!-- Card list: shown on small screens -->
+    <div class="d-xl-none d-flex flex-column gap-2 mb-3 text-nowrap">
+      @for (item of profiles; track item.id) {
+        <div class="card" (click)="openDetailPage(item)" style="cursor: pointer;">
+          <div class="card-body py-2 px-3 d-flex align-items-center flex-wrap gap-2">
+            <p class="fw-medium mb-0 me-auto">{{ item.profileName }}</p>
+            <div class="d-flex gap-1 flex-shrink-0 ms-auto">
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-primary"
+                (click)="openEditPage(item); $event.stopPropagation()">
+                {{ 'CUSTOMER_PROFILE_EDIT.TITLE' | translate }}
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-danger"
+                (click)="openDeleteDialog(item); $event.stopPropagation()">
+                {{ 'CUSTOMER_PROFILE.DELETE' | translate }}
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
 
-      <tbody>
-        @for (item of profiles; track item.id) {
-          <tr (click)="openDetailPage(item)" class="clickable-row">
-            <td>{{ item.profileName }}</td>
+    <!-- Table: shown on xl+ screens -->
+    <div class="d-none d-xl-block">
+      <table class="table table-hover table-striped align-middle">
+        <thead>
+        <tr>
+          <th>{{ 'CUSTOMER_PROFILE.NAME' | translate }}</th>
+          <th>{{ 'CUSTOMER_PROFILE.PROFILE_ACTIONS' | translate }}</th>
+        </tr>
+        </thead>
 
-            <td>
-              <div class="d-flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  class="btn btn-sm btn-outline-primary"
-                  (click)="openEditPage(item); $event.stopPropagation()">
-                  {{ 'CUSTOMER_PROFILE_EDIT.TITLE' | translate }}
-                </button>
+        <tbody>
+          @for (item of profiles; track item.id) {
+            <tr (click)="openDetailPage(item)" class="clickable-row">
+              <td>{{ item.profileName }}</td>
 
-                <button
-                  type="button"
-                  class="btn btn-sm btn-outline-danger"
-                  (click)="openDeleteDialog(item); $event.stopPropagation()">
-                  {{ 'CUSTOMER_PROFILE.DELETE' | translate }}
-                </button>
-              </div>
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
+              <td>
+                <div class="d-flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-primary"
+                    (click)="openEditPage(item); $event.stopPropagation()">
+                    {{ 'CUSTOMER_PROFILE_EDIT.TITLE' | translate }}
+                  </button>
+
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-danger"
+                    (click)="openDeleteDialog(item); $event.stopPropagation()">
+                    {{ 'CUSTOMER_PROFILE.DELETE' | translate }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   }
 
   @if (profileToDelete) {

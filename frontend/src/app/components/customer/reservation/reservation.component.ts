@@ -7,6 +7,7 @@ import {ReservationService} from '../../../services/reservation.service';
 import {CustomerProfileService} from '../../../services/customer-profile.service';
 import {TranslateService} from '@ngx-translate/core';
 import {ToastrService} from 'ngx-toastr';
+import {NavbarService} from "../../../services/navbar.service";
 
 @Component({
   selector: 'app-reservation',
@@ -27,6 +28,7 @@ export class ReservationComponent implements OnInit {
   profileFilter: number | null = null;
   dateFilter: string = '';
   timeFilter: string = '';
+  filtersExpanded = false;
 
   itemLimit: number = 10;
   currentPage: number = 1;
@@ -38,6 +40,7 @@ export class ReservationComponent implements OnInit {
     private reservationService: ReservationService,
     private customerProfileService: CustomerProfileService,
     public translateService: TranslateService,
+    private navbarService: NavbarService,
     private router: Router,
     private notification: ToastrService
   ) {
@@ -118,6 +121,18 @@ export class ReservationComponent implements OnInit {
     this.loadReservations();
   }
 
+  toggleFilters(): void {
+    this.filtersExpanded = !this.filtersExpanded;
+  }
+
+  get activeFilterCount(): number {
+    let count = 0;
+    if (this.profileFilter) count++;
+    if (this.dateFilter) count++;
+    if (this.timeFilter) count++;
+    return count;
+  }
+
   openCreatePage(): void {
     this.router.navigate(['/customer/reservation/create']);
   }
@@ -127,10 +142,12 @@ export class ReservationComponent implements OnInit {
   }
 
   openEditPage(item: ReservationDetail): void {
+    this.navbarService.close();
     this.router.navigate(['/customer/reservation/edit', item.id]);
   }
 
   openDeleteDialog(item: ReservationDetail): void {
+    this.navbarService.close();
     this.reservationToDelete = item;
     this.deleteError = undefined;
   }

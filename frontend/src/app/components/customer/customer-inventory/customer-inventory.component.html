@@ -131,7 +131,36 @@
   }
 
   @if (!loading && equipment.length > 0) {
-    <div class="table-responsive">
+
+    <!-- Card list: shown on small screens -->
+    <div class="d-xl-none d-flex flex-column gap-2 mb-3">
+      @for (item of equipment | slice:startIndex - 1:endIndex; track item.id) {
+        <div class="card" (click)="openDetailPage(item)" style="cursor: pointer;">
+          <div class="card-body py-2 px-3">
+            <div class="d-flex align-items-start justify-content-between mb-1">
+              <div>
+                <p class="fw-medium mb-0">{{ item.model }}</p>
+                <p class="text-muted small mb-0">{{ 'EQUIPMENT_TYPE.' + item.equipmentType | translate }}</p>
+              </div>
+              <span class="badge ms-2 text-nowrap" [ngClass]="getStatusClass(item.status)">
+              {{ 'RENTAL_STATUS.' + item.status | translate }}
+            </span>
+            </div>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+            <span class="small text-muted">
+              <i class="bi bi-person me-1"></i>{{ 'SKILL_LEVEL.' + item.targetSkillLevel | translate }}
+            </span>
+              <span class="small fw-medium ms-auto">
+              {{ item.price | currency:'EUR':'symbol':'1.2-2':(translateService.currentLang || 'de') }}
+            </span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Table: shown on xl+ screens -->
+    <div class="d-none d-xl-block table-responsive">
       <table class="table table-hover table-striped align-middle text-nowrap">
         <thead>
         <tr>
