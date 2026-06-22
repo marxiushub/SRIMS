@@ -123,7 +123,7 @@ public class ReservationServiceTest {
             LocalTime.of(10, 0)
         );
 
-        double expectedTotalPrice = testEquipment.getPrice() * 3;
+        double expectedTotalPrice = testEquipment.getPrice() * (3 +1);
 
         ReservationDetailDto result = reservationService.createReservation(dto);
 
@@ -207,7 +207,7 @@ public class ReservationServiceTest {
         updateDto.setCustomerProfileId(testCustomerProfile2.getId());
         updateDto.setReservationStatus(ReservationStatus.PICKED_UP);
 
-        double expectedTotalPrice = testEquipment2.getPrice() * 7;
+        double expectedTotalPrice = testEquipment2.getPrice() * (7 +1);
 
         ReservationDetailDto updatedReservation = reservationService.updateReservationStaff(updateDto);
 
@@ -239,7 +239,7 @@ public class ReservationServiceTest {
         assertThat(created.getId()).isNotNull();
         assertThat(created.getItems()).hasSize(1);
 
-        double expectedPriceAfterAdd = (testEquipment.getPrice() + testEquipment2.getPrice()) * 5;
+        double expectedPriceAfterAdd = (testEquipment.getPrice() + testEquipment2.getPrice()) * (5 +1);
 
         ReservationAddDeleteEquipmentDto addDto = new ReservationAddDeleteEquipmentDto();
         addDto.setId(created.getId());
@@ -326,7 +326,7 @@ public class ReservationServiceTest {
 
         assertThat(created.getId()).isNotNull();
         assertThat(created.getItems()).hasSize(2);
-        assertThat(created.getTotalPrice()).isEqualTo((testEquipment.getPrice() + testEquipment2.getPrice()) * 3);
+        assertThat(created.getTotalPrice()).isEqualTo((testEquipment.getPrice() + testEquipment2.getPrice()) * (3 +1));
 
         LocalDate expectedStart = createDto.getStartDate();
         LocalDate expectedEnd = createDto.getEndDate();
@@ -409,7 +409,7 @@ public class ReservationServiceTest {
             () -> assertThat(found.getCustomerName()).isEqualTo("Hans"),
             () -> assertThat(found.getStartDate()).isEqualTo(searchDate),
             () -> assertThat(found.getReservationStatus()).isEqualTo(ReservationStatus.CREATED),
-            () -> assertThat(found.getTotalPrice()).isEqualTo(testEquipment.getPrice() * 3),
+            () -> assertThat(found.getTotalPrice()).isEqualTo(testEquipment.getPrice() * (3 +1)),
             () -> assertThat(found.getItems().stream()
                 .anyMatch(item -> item.getId().equals(testEquipment.getId()))).isTrue()
         );

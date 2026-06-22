@@ -443,10 +443,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
             return;
         }
 
-        long days = ChronoUnit.DAYS.between(reservation.getStartDate(), reservation.getEndDate());
-        if (days == 0) {
-            days = 1;
-        }
+        long days = ChronoUnit.DAYS.between(reservation.getStartDate(), reservation.getEndDate()) + 1;
 
         double equipmentSum = reservation.getItems().stream()
             .filter(item -> item.getEquipment() != null)
