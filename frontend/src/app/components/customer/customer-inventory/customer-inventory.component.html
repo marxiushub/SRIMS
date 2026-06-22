@@ -48,13 +48,13 @@
 
     <div class="col-12 col-sm-6 col-md-4 col-xl-auto flex-xl-shrink-1">
       <div class="row align-items-center g-2">
-        <label for="searchEquipmentStatus" class="col-4 col-sm-12 col-form-label">{{ 'INVENTORY.EQUIPMENT_STATUS' | translate }}</label>
+        <label for="searchEquipmentSkill" class="col-4 col-sm-12 col-form-label">{{ 'INVENTORY.EQUIPMENT_SKILL' | translate }}</label>
         <div class="col-8 col-sm-12">
-          <select id="searchEquipmentStatus" name="searchEquipmentStatus" [(ngModel)]="statusFilter"
+          <select id="searchEquipmentSkill" name="searchEquipmentSkill" [(ngModel)]="skillFilter"
                   [ngModelOptions]="{ standalone: true }" (ngModelChange)="searchEquipment()" class="form-select">
             <option [ngValue]="null">{{ 'INVENTORY.EQUIPMENT_ALL' | translate }}</option>
-            @for (status of rentalStatuses; track status) {
-              <option [value]="status">{{ 'RENTAL_STATUS.' + status | translate }}</option>
+            @for (skillLevel of skillLevels; track skillLevel) {
+              <option [value]="skillLevel">{{ 'SKILL_LEVEL.' + skillLevel | translate }}</option>
             }
           </select>
         </div>
@@ -63,13 +63,13 @@
 
     <div class="col-12 col-sm-6 col-md-4 col-xl-auto flex-xl-shrink-1">
       <div class="row align-items-center g-2">
-        <label for="searchEquipmentSkill" class="col-4 col-sm-12 col-form-label">{{ 'INVENTORY.EQUIPMENT_SKILL' | translate }}</label>
+        <label for="searchEquipmentStatus" class="col-4 col-sm-12 col-form-label">{{ 'INVENTORY.EQUIPMENT_STATUS' | translate }}</label>
         <div class="col-8 col-sm-12">
-          <select id="searchEquipmentSkill" name="searchEquipmentSkill" [(ngModel)]="skillFilter"
+          <select id="searchEquipmentStatus" name="searchEquipmentStatus" [(ngModel)]="statusFilter"
                   [ngModelOptions]="{ standalone: true }" (ngModelChange)="searchEquipment()" class="form-select">
             <option [ngValue]="null">{{ 'INVENTORY.EQUIPMENT_ALL' | translate }}</option>
-            @for (skillLevel of skillLevels; track skillLevel) {
-              <option [value]="skillLevel">{{ 'SKILL_LEVEL.' + skillLevel | translate }}</option>
+            @for (status of rentalStatuses; track status) {
+              <option [value]="status">{{ 'RENTAL_STATUS.' + status | translate }}</option>
             }
           </select>
         </div>
@@ -135,58 +135,53 @@
     <!-- Card list: shown on small screens -->
     <div class="d-xl-none d-flex flex-column gap-2 mb-3">
       @for (item of equipment | slice:startIndex - 1:endIndex; track item.id) {
-        <div class="card" (click)="openDetailPage(item)" style="cursor: pointer;">
-          <div class="card-body py-2 px-3">
-            <div class="d-flex align-items-start justify-content-between mb-1">
-              <div>
-                <p class="fw-medium mb-0">{{ item.model }}</p>
-                <p class="text-muted small mb-0">{{ 'EQUIPMENT_TYPE.' + item.equipmentType | translate }}</p>
-              </div>
-              <span class="badge ms-2 text-nowrap" [ngClass]="getStatusClass(item.status)">
-              {{ 'RENTAL_STATUS.' + item.status | translate }}
-            </span>
-            </div>
-            <div class="d-flex align-items-center gap-2 flex-wrap">
-            <span class="small text-muted">
-              <i class="bi bi-person me-1"></i>{{ 'SKILL_LEVEL.' + item.targetSkillLevel | translate }}
-            </span>
-              <span class="small fw-medium ms-auto">
-              {{ item.price | currency:'EUR':'symbol':'1.2-2':(translateService.currentLang || 'de') }}
-            </span>
-            </div>
+        <div class="inv-card" (click)="openDetailPage(item)">
+
+          <div class="d-flex align-items-center gap-2">
+            <p class="fw-medium mb-0 text-truncate flex-fill">{{ item.model }}</p>
+            <span class="badge ms-2 text-nowrap" [ngClass]="getStatusClass(item.status)">
+          {{ 'RENTAL_STATUS.' + item.status | translate }}
+        </span>
           </div>
+
+          <p class="text-muted small mb-1">{{ 'EQUIPMENT_TYPE.' + item.equipmentType | translate }}</p>
+
+          <div class="d-flex align-items-center gap-2">
+        <span class="small text-muted flex-fill">
+          <i class="bi bi-person me-1"></i>{{ 'SKILL_LEVEL.' + item.targetSkillLevel | translate }}
+        </span>
+            <span class="small fw-medium">
+          {{ item.price | currency:'EUR':'symbol':'1.2-2':(translateService.currentLang || 'de') }}
+        </span>
+          </div>
+
         </div>
       }
     </div>
 
     <!-- Table: shown on xl+ screens -->
-    <div class="d-none d-xl-block table-responsive">
-      <table class="table table-hover table-striped align-middle text-nowrap">
-        <thead>
-        <tr>
-          <th>{{ 'INVENTORY.EQUIPMENT_MODEL' | translate }}</th>
-          <th>{{ 'INVENTORY.EQUIPMENT_TYP' | translate }}</th>
-          <th>{{ 'INVENTORY.EQUIPMENT_STATUS' | translate }}</th>
-          <th>{{ 'INVENTORY.EQUIPMENT_SKILL' | translate }}</th>
-          <th>{{ 'INVENTORY.EQUIPMENT_PRICE' | translate }}</th>
-        </tr>
-        </thead>
-        <tbody>
-          @for (item of equipment | slice:startIndex - 1:endIndex; track item.id) {
-            <tr (click)="openDetailPage(item)" class="clickable-row">
-              <td>{{ item.model }}</td>
-              <td>{{ 'EQUIPMENT_TYPE.' + item.equipmentType | translate }}</td>
-              <td>
-                <span class="badge" [ngClass]="getStatusClass(item.status)">
-                  {{ 'RENTAL_STATUS.' + item.status | translate }}
-                </span>
-              </td>
-              <td>{{ 'SKILL_LEVEL.' + item.targetSkillLevel | translate }}</td>
-              <td>{{ item.price | currency:'EUR':'symbol':'1.2-2':(translateService.currentLang || 'de') }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
+    <div class="d-flex d-xl-block flex-column gap-2 mb-3">
+      @for (item of equipment | slice:startIndex - 1:endIndex; track item.id) {
+        <div class="inv-card" (click)="openDetailPage(item)">
+          <div class="inv-col-model">
+            <p class="inv-model-name">{{ item.model }}</p>
+          </div>
+          <div class="inv-col-type d-none d-xl-block">
+            {{ 'EQUIPMENT_TYPE.' + item.equipmentType | translate }}
+          </div>
+          <div class="inv-col-skill d-none d-sm-block">
+            <i class="bi bi-person me-1"></i>{{ 'SKILL_LEVEL.' + item.targetSkillLevel | translate }}
+          </div>
+          <div class="inv-col-price">
+            {{ item.price | currency:'EUR':'symbol':'1.2-2':(translateService.currentLang || 'de') }}
+          </div>
+          <div class="inv-col-badge">
+            <span class="badge" [ngClass]="getStatusClass(item.status)">
+              {{ 'RENTAL_STATUS.' + item.status | translate }}
+            </span>
+          </div>
+        </div>
+      }
     </div>
 
     @if (equipment.length > 5) {
