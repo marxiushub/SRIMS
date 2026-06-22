@@ -224,6 +224,7 @@ public class DataInitializer {
 
         //TESTUSER
         //Customer
+        //test
         Set<Role> rolesCustomer = Set.of(roleRepository.findByName("ROLE_CUSTOMER").orElseThrow());
 
         if (userRepository.findUserByEmail("benjamin.marius.widmer@gmail.com").isEmpty()) {

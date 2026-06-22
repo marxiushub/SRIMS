@@ -45,6 +45,9 @@ import {
 } from "./components/customer/customer-inventory/equipment-view/equipment-view.component";
 import {ReservationComponent} from "./components/customer/reservation/reservation.component";
 import {ZXingScannerModule} from '@zxing/ngx-scanner';
+
+import { StatisticsComponent } from "./components/staff/statistics/statistics.component";
+
 import {
   ReservationViewComponent
 } from "./components/customer/reservation/reservation-view/reservation-view.component";
@@ -55,6 +58,7 @@ import {
 import {
   StaffReservationEditComponent
 } from "./components/staff/reservation/reservation-edit/staff-reservation-edit.component";
+
 
 registerLocaleData(localeDe, 'de');
 
@@ -91,6 +95,7 @@ export function HttpLoaderFactory(http: HttpClient): TranslateLoader {
     CustomerProfileComponent,
     CustomerProfileCreateEditComponent,
     CustomerProfileDetailsComponent,
+    StatisticsComponent,
   ],
   bootstrap: [AppComponent],
   imports: [BrowserModule,

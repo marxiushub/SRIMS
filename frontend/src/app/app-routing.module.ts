@@ -31,6 +31,9 @@ import {
   CustomerEquipmentViewComponent
 } from "./components/customer/customer-inventory/equipment-view/equipment-view.component";
 import {ReservationComponent} from "./components/customer/reservation/reservation.component";
+
+import { StatisticsComponent } from './components/staff/statistics/statistics.component';
+
 import {ReservationViewComponent} from "./components/customer/reservation/reservation-view/reservation-view.component";
 import {StaffReservationComponent} from "./components/staff/reservation/staff-reservation.component";
 import {
@@ -39,6 +42,7 @@ import {
 import {
   StaffReservationEditComponent
 } from "./components/staff/reservation/reservation-edit/staff-reservation-edit.component";
+
 
 const routes: Routes = [
   {path: '', component: HomeComponent, canActivate: [homeGuard]},
@@ -56,6 +60,7 @@ const routes: Routes = [
       {path: 'reservation/edit/:id', component: StaffReservationEditComponent},
       {path: 'reservation/view/:id', component: StaffReservationViewComponent},
       {path: 'barcode-scanner', component: BarcodeScannerComponent},
+      {path: 'statistics', component: StatisticsComponent},
     ]
   },
   {
