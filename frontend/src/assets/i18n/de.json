@@ -145,13 +145,43 @@
       "TITLE": "Barcode-Scanner",
       "DESC": "Equipment kontaktlos ausgeben oder zurücknehmen."
     },
-    "STATISTICS": {
-      "TITLE": "Statistiken & Analytics",
-      "DESC": "Auslastung und beliebte Verleih-Artikel analysieren."
-    },
     "OVERVIEW": {
       "TITLE": "Grafische Übersicht",
       "DESC": "Visuelle Darstellung des gesamten Bestands-Status."
+    },
+    "STATISTICS": {
+      "TITLE": "Statistiken",
+      "SUBTITLE": "Analysiere die Auslastung und Mietdauer deines Equipments.",
+      "FILTER": {
+        "START": "Von",
+        "END": "Bis",
+        "TYPE": "Typ (Optional)",
+        "ALL_TYPES": "Alle Typen",
+        "VIEW_MODE": "Ansichts-Modus",
+        "GROUP_BY_MODEL": "Nach Modell gruppieren",
+        "SHOW_IDS": "Einzelne IDs anzeigen",
+        "GENERATE": "Statistik generieren",
+        "LOADING": "Lädt..."
+      },
+      "TABLE": {
+        "MODEL_NAME": "Modellname",
+        "EQUIPMENT_ID": "Equipment ID",
+        "DAYS_RENTED": "Geliehene Tage gesamt",
+        "FILTER_HIGH_TO_LOW": "Absteigend sortieren",
+        "FILTER_LOW_TO_HIGH": "Aufsteigend sortieren"
+      },
+      "MESSAGES": {
+        "NO_DATA": "Keine Daten für den gewählten Zeitraum vorhanden. Passe die Filter an und klicke auf 'Generieren'.",
+        "ERROR": "Statistiken konnten nicht geladen werden. Bitte überprüfe die Eingaben."
+      },
+      "EQUIPMENT_TYPES": {
+        "SKI": "Ski",
+        "SNOWBOARD": "Snowboard",
+        "HELMET": "Helm",
+        "POLE": "Stöcke",
+        "SKIBOOT": "Skischuhe",
+        "SNOWBOARDBOOT": "Snowboardschuhe"
+      }
     }
   },
   "BARCODE_SCANNER": {

@@ -45,7 +45,7 @@ import {
 } from "./components/customer/customer-inventory/equipment-view/equipment-view.component";
 import {ReservationComponent} from "./components/customer/reservation/reservation.component";
 import {ZXingScannerModule} from '@zxing/ngx-scanner';
-
+import { StatisticsComponent } from "./components/staff/statistics/statistics.component";
 registerLocaleData(localeDe, 'de');
 
 export function HttpLoaderFactory(http: HttpClient): TranslateLoader {
@@ -77,6 +77,7 @@ export function HttpLoaderFactory(http: HttpClient): TranslateLoader {
     CustomerProfileComponent,
     CustomerProfileCreateEditComponent,
     CustomerProfileDetailsComponent,
+    StatisticsComponent,
   ],
   bootstrap: [AppComponent],
   imports: [BrowserModule,
