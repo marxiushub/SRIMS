@@ -10,6 +10,7 @@ export interface ReservationDetail {
   startDate: string,
   endDate: string;
   confirmationEmailSent: boolean;
+  totalPrice: number,
   items: Equipment[];
   reservationStatus: ReservationStatus;
 }

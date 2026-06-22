@@ -85,6 +85,20 @@
               </tr>
             }
           </tbody>
+
+          @if (currentTotalPrice > 0) {
+            <tfoot>
+              <tr class="table-group-divider">
+                <td colspan="3" class="text-end fw-bold fs-5 py-2">
+                  {{ 'RESERVATION.TOTAL_PRICE' | translate }}:
+                </td>
+                <td colspan="2" class="fw-bold text-primary fs-5 py-2">
+                  {{ currentTotalPrice | currency:'EUR':'symbol':'1.2-2':'de-AT' }}
+                </td>
+              </tr>
+            </tfoot>
+          }
+
         </table>
       }
     </div>

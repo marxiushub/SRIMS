@@ -103,6 +103,16 @@
                 </tr>
               }
             </tbody>
+            <tfoot>
+              <tr class="table-group-divider">
+                <td colspan="3" class="text-end fw-bold fs-5 py-3">
+                  {{ 'RESERVATION.TOTAL_PRICE' | translate }}:
+                </td>
+                <td class="fw-bold text-primary fs-5 py-3">
+                  {{ reservation.totalPrice | currency:'EUR':'symbol':'1.2-2':'de-AT' }}
+                </td>
+              </tr>
+            </tfoot>
           </table>
         }
       </div>

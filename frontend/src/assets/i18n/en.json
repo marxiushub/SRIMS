@@ -232,6 +232,7 @@
     "PICKUP_TIME": "Pickup Time",
     "RETURN_DATE": "Return Date",
     "RESERVATION_STATUS": "Reservation-Status",
+    "TOTAL_PRICE": "Total Price",
     "ITEMS": "item(s)",
     "DURATION": "Duration",
     "DAYS": "Day(s)",
