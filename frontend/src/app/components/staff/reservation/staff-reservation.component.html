@@ -70,6 +70,20 @@
         </select>
       </div>
 
+      <div class="form-check form-switch me-3 mb-2 d-flex align-items-center large-switch ms-3">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          id="showPastReservationsSwitch"
+          name="showPastReservations"
+          [(ngModel)]="showPastReservations"
+          [ngModelOptions]="{ standalone: true }"
+          (ngModelChange)="loadReservations()">
+        <label class="form-check-label text-nowrap" for="showPastReservationsSwitch">
+          {{ 'RESERVATION.SHOW_PAST' | translate }}
+        </label>
+      </div>
+
       <div class="ms-auto">
         <button class="btn btn-primary" type="button" (click)="clearAllFilters()">
           {{ 'INVENTORY.CLEAR' | translate }}

@@ -9,7 +9,7 @@ import { ReservationService } from '../../../services/reservation.service';
 import { StaffService } from '../../../services/staff.service';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
+import { Subject, debounceTime, distinctUntilChanged, forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-staff-reservation',
@@ -28,6 +28,8 @@ export class StaffReservationComponent implements OnInit {
   dateFilter: string = '';
   timeFilter: string = '';
   statusFilter: ReservationStatus | null = null;
+
+  showPastReservations: boolean = false;
 
   // Customer filters for backend account lookups
   customerSearchCriteria: CustomerSearch = { firstName: '', lastName: '', email: '', userName: '' };
@@ -130,24 +132,61 @@ export class StaffReservationComponent implements OnInit {
       accountId: this.selectedCustomerId ?? undefined
     };
 
-    this.reservationService.search(searchRequest).subscribe({
-      next: (data) => {
-        this.reservations = data;
-        this.currentPage = 1;
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Failed to load reservations', err);
-        this.loading = false;
-        this.notification.error('Failed to load reservations from server.');
-      }
-    });
+    if (this.statusFilter) {
+      //Case 1: User explicitly selected a ReservationStatus in Dropdown - ignore Slider, only use ReservationStatus from Dropdown
+      this.reservationService.search({ ...searchRequest, reservationStatus: this.statusFilter }).subscribe({
+        next: (data) => {
+          this.reservations = data;
+          this.currentPage = 1;
+          this.loading = false;
+        },
+        error: (err) => {
+          this.handleLoadError(err);
+        }
+      });
+    } else if (!this.showPastReservations) {
+      //Case 2: User didn't select a ReservationStatus in Dropdown, and Slider "ShowPastReservations" is off
+      // -> only show Reservations with ReservationStatus CREATED and PICKED_UP in Dropdown
+      const requestCreated = this.reservationService.search({ ...searchRequest, reservationStatus: ReservationStatus.CREATED });
+      const requestPickedUp = this.reservationService.search({ ...searchRequest, reservationStatus: ReservationStatus.PICKED_UP });
+
+      forkJoin([requestCreated, requestPickedUp]).subscribe({
+        next: ([createdData, pickedUpData]) => {
+          this.reservations = [...createdData, ...pickedUpData];
+          this.currentPage = 1;
+          this.loading = false;
+        },
+        error: (err) => {
+          this.handleLoadError(err);
+        }
+      });
+    } else {
+      //Case 3: User didn't select a ReservationStatus in Dropdown, and Slider "ShowPastReservations" is on
+      // -> show all Reservations
+      this.reservationService.search(searchRequest).subscribe({
+        next: (data) => {
+          this.reservations = data;
+          this.currentPage = 1;
+          this.loading = false;
+        },
+        error: (err) => {
+          this.handleLoadError(err);
+        }
+      });
+    }
+  }
+
+  private handleLoadError(err: any): void {
+    console.error('Failed to load reservations', err);
+    this.loading = false;
+    this.notification.error('Failed to load reservations from server.');
   }
 
   clearAllFilters(): void {
     this.dateFilter = '';
     this.timeFilter = '';
     this.statusFilter = null;
+    this.showPastReservations = false;
     this.customerSearchCriteria = { firstName: '', lastName: '', email: '', userName: '' };
     this.foundCustomers = [];
     this.selectedCustomerAccount = null;
