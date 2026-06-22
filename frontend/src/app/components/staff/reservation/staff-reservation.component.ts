@@ -9,7 +9,7 @@ import { ReservationService } from '../../../services/reservation.service';
 import { StaffService } from '../../../services/staff.service';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { Subject, debounceTime, distinctUntilChanged, forkJoin } from 'rxjs';
+import { Subject, debounceTime, forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-staff-reservation',
@@ -62,7 +62,6 @@ export class StaffReservationComponent implements OnInit {
     // Set up debounced background search for customer accounts
     this.customerSearch$.pipe(
       debounceTime(400),
-      distinctUntilChanged()
     ).subscribe(() => {
       this.executeCustomerSearch();
     });
@@ -91,6 +90,9 @@ export class StaffReservationComponent implements OnInit {
    */
   executeCustomerSearch(): void {
     this.searchingCustomers = true;
+    this.selectedCustomerAccount = null;
+    this.selectedCustomerId = null;
+
     this.staffService.searchCustomers(this.customerSearchCriteria).subscribe({
       next: (customers) => {
         this.foundCustomers = customers;
@@ -100,8 +102,8 @@ export class StaffReservationComponent implements OnInit {
         if (customers.length === 1) {
           this.selectedCustomerAccount = customers[0];
           this.selectedCustomerId = customers[0].id ?? null;
-          this.loadReservations();
         }
+        this.loadReservations();
       },
       error: (err) => {
         console.error('Failed to search customer accounts', err);

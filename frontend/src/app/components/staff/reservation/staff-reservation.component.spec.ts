@@ -162,17 +162,18 @@ describe('StaffReservationComponent', () => {
       expect(reservationServiceMock.search).toHaveBeenCalled();
     });
 
-    it('should auto-select customer if search returns exactly one result', fakeAsync(() => {
+    it('should auto-select customer and apply accountId filter if search returns exactly one result', fakeAsync(() => {
       component.customerSearchCriteria.lastName = 'Unique';
       staffServiceMock.searchCustomers.and.returnValue(of([mockCustomerResponse]));
       reservationServiceMock.search.calls.reset();
 
       component.onCustomerFilterChange();
-      tick(400);
+      tick(400); // Debounce abwarten
 
       expect(component.selectedCustomerId).toBe(99);
-      expect(component.selectedCustomerAccount).toEqual(mockCustomerResponse);
-      expect(reservationServiceMock.search).toHaveBeenCalled();
+      expect(reservationServiceMock.search).toHaveBeenCalledWith(jasmine.objectContaining({
+        accountId: 99
+      }));
     }));
 
     it('should handle error when customer search fails', fakeAsync(() => {
@@ -195,6 +196,17 @@ describe('StaffReservationComponent', () => {
       expect(component.selectedCustomerId).toBe(99);
       expect(component.selectedCustomerAccount).toEqual(mockCustomerResponse);
       expect(reservationServiceMock.search).toHaveBeenCalled();
+    });
+
+    it('should pass the selected customer accountId to reservationService when manually selected', () => {
+      component.foundCustomers = [mockCustomerResponse];
+      reservationServiceMock.search.calls.reset();
+
+      component.onCustomerSelectById(99);
+
+      expect(reservationServiceMock.search).toHaveBeenCalledWith(jasmine.objectContaining({
+        accountId: 99
+      }));
     });
   });
 
