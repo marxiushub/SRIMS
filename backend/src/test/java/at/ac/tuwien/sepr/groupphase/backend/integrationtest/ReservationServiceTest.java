@@ -587,7 +587,10 @@ public class ReservationServiceTest {
     }
 
     @Test
-    public void reservationById_withValidId_returnsDto() {
+    public void reservationById_asCustomer_withOwnReservation_returnsDto() {
+        when(currentUserService.hasAuthority("STAFF")).thenReturn(false);
+        when(currentUserService.getUserId()).thenReturn(testCustomer.getId());
+
         ReservationCreationDto createDto = createReservationCreationDto(
             testCustomerProfile.getId(),
             List.of(testEquipment.getId()),
@@ -595,6 +598,7 @@ public class ReservationServiceTest {
             LocalDate.now().plusDays(5),
             LocalTime.of(10, 0)
         );
+
         ReservationDetailDto created = reservationService.createReservation(createDto);
 
         ReservationDetailDto found = reservationService.reservationById(created.getId());
@@ -607,7 +611,76 @@ public class ReservationServiceTest {
     }
 
     @Test
+    public void reservationById_asCustomer_withForeignReservation_throwsAccessDenied() {
+        when(currentUserService.hasAuthority("STAFF")).thenReturn(false);
+        when(currentUserService.getUserId()).thenReturn(1L);
+
+        ReservationCreationDto createDto = createReservationCreationDto(
+            testCustomerProfile.getId(),
+            List.of(testEquipment.getId()),
+            LocalDate.now().plusDays(2),
+            LocalDate.now().plusDays(5),
+            LocalTime.of(10, 0)
+        );
+
+        ReservationDetailDto created = reservationService.createReservation(createDto);
+
+        // anderer User
+        when(currentUserService.getUserId()).thenReturn(999L);
+
+        assertThatThrownBy(() ->
+            reservationService.reservationById(created.getId())
+        )
+            .isInstanceOf(AccessDeniedException.class)
+            .hasMessageContaining("not allowed");
+    }
+
+    @Test
+    public void reservationById_asStaff_returnsAnyReservation() {
+        when(currentUserService.hasAuthority("STAFF")).thenReturn(true);
+
+        ReservationCreationDto createDto = createReservationCreationDto(
+            testCustomerProfile.getId(),
+            List.of(testEquipment.getId()),
+            LocalDate.now().plusDays(2),
+            LocalDate.now().plusDays(5),
+            LocalTime.of(10, 0)
+        );
+
+        ReservationDetailDto created = reservationService.createReservation(createDto);
+
+        ReservationDetailDto found = reservationService.reservationById(created.getId());
+
+        assertAll(
+            () -> assertThat(found).isNotNull(),
+            () -> assertThat(found.getId()).isEqualTo(created.getId())
+        );
+    }
+
+    @Test
+    public void reservationById_withNullUserId_throwsAccessDenied() {
+        when(currentUserService.hasAuthority("STAFF")).thenReturn(false);
+        when(currentUserService.getUserId()).thenReturn(null);
+
+        ReservationCreationDto createDto = createReservationCreationDto(
+            testCustomerProfile.getId(),
+            List.of(testEquipment.getId()),
+            LocalDate.now().plusDays(2),
+            LocalDate.now().plusDays(5),
+            LocalTime.of(10, 0)
+        );
+
+        ReservationDetailDto created = reservationService.createReservation(createDto);
+
+        assertThatThrownBy(() ->
+            reservationService.reservationById(created.getId())
+        ).isInstanceOf(AccessDeniedException.class);
+    }
+
+    @Test
     public void reservationById_withUnknownId_throwsNotFoundException() {
+        when(currentUserService.hasAuthority("STAFF")).thenReturn(true);
+
         assertThrows(NotFoundException.class, () ->
             reservationService.reservationById(99999L)
         );

@@ -65,8 +65,23 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
     @Transactional
     public ReservationDetailDto reservationById(Long id) {
         LOGGER.trace("Get reservation by id: {}", id);
+
         Reservation reservation = reservationRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Reservation with ID " + id + " was not found."));
+
+        boolean isStaff = currentUserService.hasAuthority("STAFF");
+        Long currentUserId = currentUserService.getUserId();
+
+        if (!isStaff) {
+            Long ownerId = reservation.getCustomerProfile()
+                .getCustomer()
+                .getId();
+
+            if (!ownerId.equals(currentUserId)) {
+                throw new AccessDeniedException("You are not allowed to access this reservation.");
+            }
+        }
+
         return reservationMapper.entityToDetailDto(reservation);
     }
 
