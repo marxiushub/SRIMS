@@ -1,13 +1,10 @@
-<div class="container-fluid pt-4">
+<div class="container pt-4">
 
-  <div class="d-flex align-items-center mb-3">
-    <h2 class="mb-0">{{ profile.profileName + ' ' }} {{ 'CUSTOMER_PROFILE_DETAILS.TITLE' | translate }}</h2>
-
-    <span style="flex: 1"></span>
-
-    <button class="btn btn-primary" (click)="back()">
-      {{ 'CUSTOMER_PROFILE_DETAILS.BACK' | translate }}
+  <div class="d-flex flex-wrap align-items-center gap-2 mb-4">
+    <button class="btn btn-outline-secondary me-3 text-nowrap" (click)="back()">
+      ← {{ 'CUSTOMER_PROFILE_DETAILS.BACK' | translate }}
     </button>
+    <h1 class="display-4 mb-0">{{ 'CUSTOMER_PROFILE_DETAILS.TITLE' | translate }}</h1>
   </div>
 
   @if (loading) {
@@ -23,36 +20,43 @@
   }
 
   @if (!loading && !loadError) {
-    <div>
-      <div class="mb-3">
-        <strong>{{ 'CUSTOMER_PROFILE_DETAILS.HEIGHT' | translate }}:</strong>
-        {{ profile.height }} cm
+    <div class="card shadow-sm">
+      <h3 class="card-header d-flex justify-content-between align-items-center bg-light mb-0 fw-bold">{{ profile.profileName }}</h3>
+
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-sm-6 col-lg-3">
+            <span class="text-muted d-block">{{ 'CUSTOMER_PROFILE_DETAILS.HEIGHT' | translate }}</span>
+            <span class="fs-5 fw-semibold">{{ profile.height }} cm</span>
+          </div>
+
+          <div class="col-sm-6 col-lg-3">
+            <span class="text-muted d-block">{{ 'CUSTOMER_PROFILE_DETAILS.SHOE_SIZE' | translate }}</span>
+            <span class="fs-5 fw-semibold">{{ profile.shoeSize }}</span>
+          </div>
+
+          <div class="col-sm-6 col-lg-3">
+            <span class="text-muted d-block">{{ 'CUSTOMER_PROFILE_DETAILS.SKILL_LEVEL' | translate }}</span>
+            <span class="fs-5 fw-semibold">{{ 'SKILL_LEVEL.' + profile.skillLevel | translate }}</span>
+          </div>
+
+          <div class="col-sm-6 col-lg-3">
+            <span class="text-muted d-block">{{ 'CUSTOMER_PROFILE_DETAILS.WEIGHT' | translate }}</span>
+            <span class="fs-5 fw-semibold">{{ profile.weight }} kg</span>
+          </div>
+
+      <div class="d-flex align-items-center mb-3 gap-2">
+        <button class="btn btn-primary" (click)="openEditPage()">
+          {{ 'CUSTOMER_PROFILE_DETAILS.EDIT' | translate }}
+        </button>
+
+        <button class="btn btn-danger" (click)="openDeleteDialog(this.profile)">
+          {{ 'CUSTOMER_PROFILE_DETAILS.DELETE' | translate }}
+        </button>
       </div>
 
-      <div class="mb-3">
-        <strong>{{ 'CUSTOMER_PROFILE_DETAILS.SHOE_SIZE' | translate }}:</strong>
-        {{ profile.shoeSize }}
+        </div>
       </div>
-
-      <div class="mb-3">
-        <strong>{{ 'CUSTOMER_PROFILE_DETAILS.SKILL_LEVEL' | translate }}:</strong>
-        {{ 'SKILL_LEVEL.' + profile.skillLevel | translate }}
-      </div>
-
-      <div class="mb-3">
-        <strong>{{ 'CUSTOMER_PROFILE_DETAILS.WEIGHT' | translate }}:</strong>
-        {{ profile.weight }} kg
-      </div>
-    </div>
-
-    <div class="d-flex align-items-center mb-3">
-      <button class="btn btn-primary" (click)="openEditPage()">
-        {{ 'CUSTOMER_PROFILE_DETAILS.EDIT' | translate }}
-      </button>
-
-      <button class="btn btn-danger m-md-2" (click)="openDeleteDialog(this.profile)">
-        {{ 'CUSTOMER_PROFILE_DETAILS.DELETE' | translate }}
-      </button>
     </div>
   }
 
