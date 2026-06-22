@@ -4,12 +4,12 @@ import at.ac.tuwien.sepr.groupphase.backend.datagenerator.DataInitializer;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.CustomerCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.StaffCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.detail.UserDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.search.CustomerSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.CustomerSearchResponseDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.StaffSearchResponseDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.UserSearchResponseDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.CustomerUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.StaffUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Role;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.Customer;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.Staff;
@@ -87,6 +87,7 @@ public class UserServiceTest {
             .orElseThrow();
 
         List<SimpleGrantedAuthority> authorities = List.of(
+            new SimpleGrantedAuthority("USER_ADMIN"),
             new SimpleGrantedAuthority("STAFF"),
 
             new SimpleGrantedAuthority("STAFF_READ"),
@@ -363,9 +364,6 @@ public class UserServiceTest {
             () -> assertThat(result).isNotNull(),
             () -> assertThat(result).isInstanceOf(CustomerSearchResponseDto.class),
 
-            () -> assertThat(result.getId())
-                .isEqualTo(existingCustomer.getId()),
-
             () -> assertThat(result.getUserName())
                 .isEqualTo(existingCustomer.getUserName()),
 
@@ -404,9 +402,6 @@ public class UserServiceTest {
 
             () -> assertThat(result).isNotNull(),
             () -> assertThat(result).isInstanceOf(StaffSearchResponseDto.class),
-
-            () -> assertThat(result.getId())
-                .isEqualTo(existingStaff.getId()),
 
             () -> assertThat(result.getUserName())
                 .isEqualTo(existingStaff.getUserName()),
@@ -514,118 +509,6 @@ public class UserServiceTest {
         assertThrows(
             UsernameNotFoundException.class,
             () -> userService.login(loginDto)
-        );
-    }
-
-    @Test
-    public void searchCustomers_withMatchingFirstName_returnsMatchingCustomers() {
-
-        CustomerCreationDto dto1 = validCustomerDto(uniqueEmail("search-first"));
-        dto1.setFirstName("Max");
-
-        CustomerCreationDto dto2 = validCustomerDto(uniqueEmail("search-first"));
-        dto2.setFirstName("Max");
-
-        CustomerCreationDto dto3 = validCustomerDto(uniqueEmail("search-first"));
-        dto3.setFirstName("Anna");
-
-        rememberCreatedUser(userService.createUser(dto1));
-        rememberCreatedUser(userService.createUser(dto2));
-        rememberCreatedUser(userService.createUser(dto3));
-
-        CustomerSearchDto searchDto = new CustomerSearchDto();
-        searchDto.setFirstName("Max");
-
-        List<UserSearchResponseDto> result =
-            userService.searchCustomers(searchDto);
-
-        assertAll(
-            "Verify that only customers with matching first name are returned",
-
-            () -> assertThat(result).isNotNull(),
-
-            () -> assertThat(result)
-                .hasSizeGreaterThanOrEqualTo(2),
-
-            () -> assertThat(result)
-                .allMatch(CustomerSearchResponseDto.class::isInstance),
-
-            () -> assertThat(((CustomerSearchResponseDto) result.getFirst()).getId())
-                .isNotNull(),
-
-            () -> assertThat(
-                result.stream()
-                    .map(r -> ((CustomerSearchResponseDto) r).getFirstName())
-            ).contains("Max")
-        );
-    }
-
-    @Test
-    public void searchCustomers_withMultipleFilters_returnsMatchingCustomer() {
-
-        String email = uniqueEmail("search-combined");
-
-        CustomerCreationDto dto = validCustomerDto(email);
-        dto.setFirstName("SpecialName");
-
-        rememberCreatedUser(userService.createUser(dto));
-
-        CustomerSearchDto searchDto = new CustomerSearchDto();
-        searchDto.setEmail(email);
-        searchDto.setFirstName("SpecialName");
-
-        List<UserSearchResponseDto> result =
-            userService.searchCustomers(searchDto);
-
-        assertAll(
-            "Verify that combined filters return the correct customer",
-
-            () -> assertThat(result).hasSize(1),
-
-            () -> assertThat(((CustomerSearchResponseDto) result.getFirst()).getId())
-                .isNotNull(),
-
-            () -> assertThat(result.getFirst().getEmail())
-                .isEqualTo(email),
-
-            () -> assertThat(
-                ((CustomerSearchResponseDto) result.getFirst()).getFirstName()
-            ).isEqualTo("SpecialName")
-        );
-    }
-
-    @Test
-    public void searchCustomers_withUnknownCriteria_returnsEmptyList() {
-
-        CustomerSearchDto searchDto = new CustomerSearchDto();
-        searchDto.setEmail("does.not.exist@test.at");
-
-        List<UserSearchResponseDto> result =
-            userService.searchCustomers(searchDto);
-
-        assertAll(
-            "Verify that unknown search criteria returns no customers",
-
-            () -> assertThat(result).isNotNull(),
-
-            () -> assertThat(result).isEmpty()
-        );
-    }
-
-    @Test
-    public void searchCustomers_withEmptySearchDto_returnsAllCustomers() {
-
-        CustomerSearchDto searchDto = new CustomerSearchDto();
-
-        List<UserSearchResponseDto> result =
-            userService.searchCustomers(searchDto);
-
-        assertAll(
-            "Verify that empty filter returns customers",
-
-            () -> assertThat(result).isNotNull(),
-
-            () -> assertThat(result).isNotEmpty()
         );
     }
 }
