@@ -159,6 +159,17 @@
                         <goals>
                             <goal>report</goal>
                         </goals>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/dto/**</exclude>
+                                <exclude>**/datagenerator/**</exclude>
+                                <exclude>**/config/**</exclude>
+                                <exclude>**/entity/**</exclude>
+                                <exclude>**/exception/**</exclude>
+                                <exclude>**/BackendApplication.class</exclude>
+                                <exclude>**/*MapperImpl.class</exclude>
+                            </excludes>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
