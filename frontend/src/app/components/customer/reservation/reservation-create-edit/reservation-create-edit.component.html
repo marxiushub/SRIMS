@@ -112,6 +112,17 @@
             </div>
           }
         </div>
+
+        @if (currentTotalPrice > 0) {
+          <div class="d-flex justify-content-end align-items-center pt-2 mt-1 border-top">
+            <span class="fw-bold fs-5 me-3">
+              {{ 'RESERVATION.TOTAL_PRICE' | translate }}:
+            </span>
+            <span class="fw-bold fs-5 text-primary">
+              {{ currentTotalPrice | currency:'EUR':'symbol':'1.2-2':'de-AT' }}
+            </span>
+          </div>
+        }
       }
     </div>
 
