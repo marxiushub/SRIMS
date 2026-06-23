@@ -10,6 +10,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.enums.ReservationStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Helmet;
+import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ReservationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.EquipmentRepository;
@@ -26,8 +27,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -225,5 +225,53 @@ class ReservationValidatorTest {
             () -> assertThat(ex.getErrors()).contains("No such CustomerProfile with id: 99"),
             () -> assertThat(ex.getErrors()).contains("A reservation must contain at least one equipment.")
         );
+    }
+
+    @Test
+    void validateReservationAddEquip_withUnknownReservationId_throwsNotFoundException() {
+        ReservationAddDeleteEquipmentDto dto = new ReservationAddDeleteEquipmentDto();
+        dto.setId(99L);
+        dto.setEquipmentIds(List.of(10L));
+
+        when(reservationRepository.findById(99L)).thenReturn(Optional.empty());
+
+        NotFoundException ex = assertThrows(NotFoundException.class,
+            () -> validator.validateReservationAddEquip(dto));
+        assertThat(ex.getMessage()).contains("Reservation with ID 99 not found.");
+    }
+
+    @Test
+    void validateReservationAddEquip_withUnknownEquipmentId_throwsNotFoundException() {
+        ReservationAddDeleteEquipmentDto dto = new ReservationAddDeleteEquipmentDto();
+        dto.setId(1L);
+        dto.setEquipmentIds(List.of(99L));
+
+        Reservation reservation = new Reservation(null, null, LocalDate.now(), LocalDate.now().plusDays(2), null);
+        org.springframework.test.util.ReflectionTestUtils.setField(reservation, "id", 1L);
+
+        when(reservationRepository.findById(1L)).thenReturn(Optional.of(reservation));
+        when(equipmentRepository.findById(99L)).thenReturn(Optional.empty());
+
+        NotFoundException ex = assertThrows(NotFoundException.class,
+            () -> validator.validateReservationAddEquip(dto));
+        assertThat(ex.getMessage()).contains("Equipment with ID 99 not found.");
+    }
+
+    @Test
+    void validateReservationAddEquip_withValidData_doesNotThrow() {
+        ReservationAddDeleteEquipmentDto dto = new ReservationAddDeleteEquipmentDto();
+        dto.setId(1L);
+        dto.setEquipmentIds(List.of(10L));
+
+        Reservation reservation = new Reservation(null, null, LocalDate.now(), LocalDate.now().plusDays(2), null);
+        org.springframework.test.util.ReflectionTestUtils.setField(reservation, "id", 1L);
+
+        Equipment equipment = new Helmet("Test Helmet", 10.0, 50.0, RentalStatus.FREE, SkillLevel.BEGINNER);
+        org.springframework.test.util.ReflectionTestUtils.setField(equipment, "id", 10L);
+
+        when(reservationRepository.findById(1L)).thenReturn(Optional.of(reservation));
+        when(equipmentRepository.findById(10L)).thenReturn(Optional.of(equipment));
+
+        assertDoesNotThrow(() -> validator.validateReservationAddEquip(dto));
     }
 }
