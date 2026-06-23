@@ -345,7 +345,7 @@ export class StaffReservationEditComponent implements OnInit {
       endDate: formValue.endDate
     };
 
-    this.reservationService.update(this.reservationId, reservationPayload).subscribe({
+    this.reservationService.updateForStaff(this.reservationId, reservationPayload).subscribe({
       next: (response) => {
         console.log('Reservation updated successfully', response);
         this.submitLoading = false;

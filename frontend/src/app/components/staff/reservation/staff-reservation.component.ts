@@ -223,7 +223,7 @@ export class StaffReservationComponent implements OnInit {
     this.deleteLoading = true;
     this.deleteError = undefined;
 
-    this.reservationService.delete(this.reservationToDelete.id).subscribe({
+    this.reservationService.deleteForStaff(this.reservationToDelete.id).subscribe({
       next: () => {
         this.reservations = this.reservations.filter(
           item => item.id !== this.reservationToDelete?.id

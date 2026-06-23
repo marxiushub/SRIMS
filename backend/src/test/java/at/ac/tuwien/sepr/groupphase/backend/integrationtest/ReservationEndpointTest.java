@@ -184,7 +184,7 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
               "equipmentIds": [%d],
               "startDate": "%s",
               "endDate": "%s",
-              "pickUpTime": "10:00:00",
+              "pickUpTime": "10:00",
               "reservationStatus": "PICKED_UP"
             }
             """.formatted(
@@ -195,10 +195,10 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
             updatedEndDate
         );
 
-        assertDoesNotThrow(() -> mockMvc.perform(patch("/api/v1/reservation/{id}", created.getId())
+        assertDoesNotThrow(() -> mockMvc.perform(patch("/api/v1/reservation/staff/{id}", created.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(patchJson)
-                .header(securityProperties.getAuthHeader(), userToken())
+                .header(securityProperties.getAuthHeader(), staffToken())
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(created.getId()))
@@ -399,7 +399,7 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
     @Test
     public void searchReservations_asStaff_returnsAllReservations() {
 
-        String staffToken = staffToken(testStaff);
+        String staffToken = staffToken();
 
         ReservationDetailDto created = createTestReservation(
             List.of(testEquipment1.getId()),
@@ -418,7 +418,7 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
     @Test
     public void searchReservations_asStaff_withAccountId_filtersCorrectly() {
 
-        String staffToken = staffToken(testStaff);
+        String staffToken = staffToken();
 
         ReservationDetailDto created = createTestReservation(
             List.of(testEquipment1.getId()),
@@ -501,7 +501,7 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
     @Test
     public void getReservationById_asStaff_returns200() {
 
-        String staffToken = staffToken(testStaff);
+        String staffToken = staffToken();
 
         ReservationDetailDto created = createTestReservation(
             List.of(testEquipment1.getId()),
@@ -520,7 +520,7 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
     @Test
     public void getReservationById_withUnknownId_returns404() {
 
-        String staffToken = staffToken(testStaff);
+        String staffToken = staffToken();
 
         assertDoesNotThrow(() -> mockMvc.perform(get("/api/v1/reservation/{id}", 99999L)
                 .header(securityProperties.getAuthHeader(), staffToken)
