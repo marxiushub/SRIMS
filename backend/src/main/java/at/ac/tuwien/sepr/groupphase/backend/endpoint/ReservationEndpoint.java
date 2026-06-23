@@ -61,7 +61,7 @@ public class ReservationEndpoint {
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{id}")
     public void deleteReservation(
-        @PathVariable Long id
+        @PathVariable("id") Long id
     ) {
         LOGGER.info("DELETE /api/v1/reservation/{}", id);
 
@@ -77,7 +77,7 @@ public class ReservationEndpoint {
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/staff/{id}")
     public void deleteReservationStaff(
-        @PathVariable Long id
+        @PathVariable("id") Long id
     ) {
         LOGGER.info("DELETE /api/v1/reservation/staff/{}", id);
 
