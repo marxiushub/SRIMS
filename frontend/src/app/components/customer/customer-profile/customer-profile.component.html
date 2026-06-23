@@ -25,7 +25,7 @@
   @if (!loading && profiles.length > 0) {
     <div class="d-flex flex-column gap-2 mb-3 text-nowrap">
       @for (item of profiles; track item.id) {
-        <div class="card" (click)="openDetailPage(item)" style="cursor: pointer;">
+        <div class="card profile-card" (click)="openDetailPage(item)" style="cursor: pointer;">
           <div class="card-body py-2 px-3 d-flex align-items-center flex-wrap gap-2">
             <p class="fw-medium mb-0 me-auto">{{ item.profileName }}</p>
             <div class="d-flex gap-1 flex-shrink-0 ms-auto">

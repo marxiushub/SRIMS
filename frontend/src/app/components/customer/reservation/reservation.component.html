@@ -116,7 +116,7 @@
     <!-- Card list: shown on small screens -->
     <div class="d-xl-none d-flex flex-column gap-2 mb-3">
       @for (item of reservations | slice:startIndex - 1:endIndex; track item.id) {
-        <div class="card" (click)="openDetailPage(item)" style="cursor: pointer;">
+        <div class="card inv-card" (click)="openDetailPage(item)" style="cursor: pointer;">
           <div class="card-body py-2 px-3">
             <div class="d-flex align-items-start justify-content-between mb-1">
               <div>

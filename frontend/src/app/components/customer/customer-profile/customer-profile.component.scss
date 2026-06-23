@@ -1,0 +1,8 @@
+.profile-card {
+  transition: background 0.15s, border-color 0.15s;
+
+  &:hover {
+    background: var(--bs-secondary-bg);
+    border-color: rgba(0, 0, 0, 0.22);
+  }
+}
