@@ -26,7 +26,7 @@ export class CustomerProfileService {
    * Loads all profiles from the backend corresponding to the given customer id. Only available for staff.
    * @param customerId The id of the customer for which to load the profiles.
    */
-  getProfilesByCustomerId(customerId: number): Observable<CustomerProfile[]> {
+  getCustomerProfilesByCustomerId(customerId: number): Observable<CustomerProfile[]> {
     return this.httpClient.get<CustomerProfile[]>(`${this.globals.backendUri}/customer/${customerId}/profiles`);
   }
 

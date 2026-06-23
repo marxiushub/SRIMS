@@ -26,16 +26,16 @@ export class ReservationService {
     return this.httpClient.post<ReservationDetail>(this.reservationBaseUri, reservation);
   }
 
-    /**
-     * Fetches a single reservation by its unique ID.
-     * Maps to GET /api/v1/reservation/{id}
-     *
-     * @param id the unique identifier of the reservation
-     * @return an Observable of the specific ReservationDetail
-     */
-    getById(id: number): Observable<ReservationDetail> {
-        return this.httpClient.get<ReservationDetail>(`${this.reservationBaseUri}/${id}`);
-    }
+  /**
+   * Fetches a single reservation by its unique ID.
+   * Maps to GET /api/v1/reservation/{id}
+   *
+   * @param id the unique identifier of the reservation
+   * @return an Observable of the specific ReservationDetail
+   */
+  getById(id: number): Observable<ReservationDetail> {
+    return this.httpClient.get<ReservationDetail>(`${this.reservationBaseUri}/${id}`);
+  }
 
   /**
    * Searches for reservations in backend as specified in the search parameters.
@@ -86,19 +86,28 @@ export class ReservationService {
   }
 
   /**
+   * Updates an existing reservation in the backend with the privileges of a Staff member.
+   * Maps to PATCH /api/v1/reservation/{id}
+   */
+  updateForStaff(id: number, reservation: ReservationUpdate): Observable<ReservationDetail> {
+    return this.httpClient.patch<ReservationDetail>(`${this.reservationBaseUri}/staff/${id}`, reservation);
+  }
+
+  /**
    * Deletes an entire reservation in the backend.
    * Maps to DELETE /api/v1/reservation with ReservationAddDeleteEquipment in body
    * * @param reservationId the ID of the reservation to delete
    */
   delete(reservationId: number): Observable<void> {
-      const deletePayload: ReservationAddDeleteEquipment = {
-          id: reservationId,
-          equipmentIds: []
-      };
+    return this.httpClient.delete<void>(`${this.reservationBaseUri}/${reservationId}`);
+  }
 
-      return this.httpClient.delete<void>(this.reservationBaseUri, {
-          body: deletePayload
-      });
-    }
-
+  /**
+   * Deletes an entire reservation in the backend with the privileges of a Staff member.
+   * Maps to DELETE /api/v1/reservation with ReservationAddDeleteEquipment in body
+   * * @param reservationId the ID of the reservation to delete
+   */
+  deleteForStaff(reservationId: number): Observable<void> {
+    return this.httpClient.delete<void>(`${this.reservationBaseUri}/staff/${reservationId}`);
+  }
 }

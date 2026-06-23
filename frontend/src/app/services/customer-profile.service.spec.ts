@@ -62,7 +62,7 @@ describe('CustomerProfileService', () => {
       ];
       const targetCustomerId = 42;
 
-      service.getProfilesByCustomerId(targetCustomerId).subscribe((profiles) => {
+      service.getCustomerProfilesByCustomerId(targetCustomerId).subscribe((profiles) => {
         expect(profiles).toEqual(mockProfiles);
         expect(profiles.length).toBe(2);
       });
