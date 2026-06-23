@@ -477,10 +477,7 @@ export class ReservationCreateEditComponent implements OnInit {
           console.log('Reservation updated successfully', response);
           this.submitLoading = false;
           this.router.navigate(['/customer/reservation']);
-          const translatedMessage = this.translateService.instant('RESERVATION.EDIT_SUCCESS', {
-            id: this.reservationId
-          });
-          this.notification.success(translatedMessage);
+          this.notification.success(this.translateService.instant('RESERVATION.EDIT_SUCCESS'));
         },
         error: (err) => {
           console.error('Error during update of reservation', err);

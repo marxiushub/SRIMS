@@ -94,11 +94,7 @@ export class StaffReservationViewComponent implements OnInit {
       next: () => {
         this.showDeleteModal = false;
         this.deleteLoading = false;
-
-        const translatedMessage = this.translateService.instant('RESERVATION.DELETE_SUCCESS', {
-          id: this.reservationId
-        });
-        this.notification.success(translatedMessage);
+        this.notification.success(this.translateService.instant('RESERVATION.DELETE_SUCCESS'));
         this.backToList();
       },
       error: (err) => {

@@ -195,10 +195,7 @@ export class ReservationComponent implements OnInit {
 
         this.reservationToDelete = undefined;
         this.deleteLoading = false;
-        const translatedMessage = this.translateService.instant('RESERVATION.DELETE_SUCCESS', {
-          id: deletedReservationId
-        });
-        this.notification.success(translatedMessage);
+        this.notification.success(this.translateService.instant('RESERVATION.DELETE_SUCCESS'));
       },
       error: (err) => {
         console.error('Failed to delete reservation', err);
