@@ -9,12 +9,11 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.StaffSearchResponseDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.UserSearchResponseDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.CustomerUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.PasswordChangeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.StaffUpdateDto;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Role;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.Customer;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.Staff;
-import at.ac.tuwien.sepr.groupphase.backend.repository.RoleRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.StaffRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.UserRepository;
@@ -33,6 +32,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -73,9 +73,6 @@ public class UserServiceTest {
 
     @Autowired
     private DataInitializer dataInitializer;
-
-    @Autowired
-    RoleRepository roleRepository;
 
     private final List<Long> createdUserIds = new ArrayList<>();
 
@@ -251,12 +248,13 @@ public class UserServiceTest {
         Customer savedCustomer = customerRepository
             .findById(created.getId())
             .orElseThrow();
+        final Long createdId = created.getId();
 
         assertAll(
             "Verify that the customer was updated correctly",
 
             () -> assertThat(updated).isNotNull(),
-            () -> assertThat(updated.getId()).isEqualTo(created.getId()),
+            () -> assertThat(updated).extracting(UserDetailDto::getId).isEqualTo(createdId),
             () -> assertThat(updated.getUserName()).isEqualTo(dto.getUserName()),
             () -> assertThat(updated.getEmail()).isEqualTo(dto.getEmail()),
 
@@ -295,12 +293,13 @@ public class UserServiceTest {
         Staff savedStaff = staffRepository
             .findById(created.getId())
             .orElseThrow();
+        final Long createdId = created.getId();
 
         assertAll(
             "Verify that the staff user was updated correctly",
 
             () -> assertThat(updated).isNotNull(),
-            () -> assertThat(updated.getId()).isEqualTo(created.getId()),
+            () -> assertThat(updated).extracting(UserDetailDto::getId).isEqualTo(createdId),
             () -> assertThat(updated.getUserName()).isEqualTo(dto.getUserName()),
             () -> assertThat(updated.getEmail()).isEqualTo(dto.getEmail()),
 
@@ -312,6 +311,66 @@ public class UserServiceTest {
                 savedApplicationUser.getPassword()
             )).isTrue()
         );
+    }
+
+    @Test
+    public void changePassword_withValidDto_updatesPasswordAndReturnsUserDetail() {
+        CustomerCreationDto creationDto = validCustomerDto(uniqueEmail("customer.password"));
+        UserDetailDto created = userService.createUser(creationDto);
+        rememberCreatedUser(created);
+
+        PasswordChangeDto dto = new PasswordChangeDto();
+        dto.setOldPassword(creationDto.getPassword());
+        dto.setNewPassword("NewPassword123!");
+
+        UserDetailDto updated = userService.changePassword(created.getId(), dto);
+
+        ApplicationUser saved = userRepository.findById(created.getId()).orElseThrow();
+        final Long createdId = created.getId();
+
+        assertAll(
+            "Verify that the password was changed successfully",
+            () -> assertThat(updated).isNotNull(),
+            () -> assertThat(updated).extracting(UserDetailDto::getId).isEqualTo(createdId),
+            () -> assertThat(passwordEncoder.matches(dto.getNewPassword(), saved.getPassword())).isTrue(),
+            () -> assertThat(passwordEncoder.matches(dto.getOldPassword(), saved.getPassword())).isFalse()
+        );
+    }
+
+    @Test
+    public void changePassword_withWrongOldPassword_throwsValidationException() {
+        CustomerCreationDto creationDto = validCustomerDto(uniqueEmail("customer.password.wrongold"));
+        UserDetailDto created = userService.createUser(creationDto);
+        rememberCreatedUser(created);
+
+        PasswordChangeDto dto = new PasswordChangeDto();
+        dto.setOldPassword("DefinitelyWrongOldPassword123!");
+        dto.setNewPassword("NewPassword123!");
+
+        ValidationException exception = assertThrows(
+            ValidationException.class,
+            () -> userService.changePassword(created.getId(), dto)
+        );
+
+        assertThat(exception.getMessage()).contains("Old password is incorrect");
+    }
+
+    @Test
+    public void changePassword_withSameNewPassword_throwsValidationException() {
+        StaffCreationDto creationDto = validStaffDto(uniqueEmail("staff.password.same"));
+        UserDetailDto created = userService.createUser(creationDto);
+        rememberCreatedUser(created);
+
+        PasswordChangeDto dto = new PasswordChangeDto();
+        dto.setOldPassword(creationDto.getPassword());
+        dto.setNewPassword(creationDto.getPassword());
+
+        ValidationException exception = assertThrows(
+            ValidationException.class,
+            () -> userService.changePassword(created.getId(), dto)
+        );
+
+        assertThat(exception.getMessage()).contains("newPassword must differ from the current password.");
     }
 
     @Test
@@ -365,10 +424,10 @@ public class UserServiceTest {
             () -> assertThat(result).isNotNull(),
             () -> assertThat(result).isInstanceOf(CustomerSearchResponseDto.class),
 
-            () -> assertThat(result.getUserName())
+            () -> assertThat(result).extracting(UserSearchResponseDto::getUserName)
                 .isEqualTo(existingCustomer.getUserName()),
 
-            () -> assertThat(result.getEmail())
+            () -> assertThat(result).extracting(UserSearchResponseDto::getEmail)
                 .isEqualTo(existingCustomer.getEmail()),
 
             () -> {
@@ -404,10 +463,10 @@ public class UserServiceTest {
             () -> assertThat(result).isNotNull(),
             () -> assertThat(result).isInstanceOf(StaffSearchResponseDto.class),
 
-            () -> assertThat(result.getUserName())
+            () -> assertThat(result).extracting(UserSearchResponseDto::getUserName)
                 .isEqualTo(existingStaff.getUserName()),
 
-            () -> assertThat(result.getEmail())
+            () -> assertThat(result).extracting(UserSearchResponseDto::getEmail)
                 .isEqualTo(existingStaff.getEmail())
         );
     }
@@ -423,9 +482,9 @@ public class UserServiceTest {
         assertAll(
             "Verify that user can be found by email",
             () -> assertThat(result).isNotNull(),
-            () -> assertThat(result.getId()).isEqualTo(created.getId()),
-            () -> assertThat(result.getEmail()).isEqualTo(dto.getEmail()),
-            () -> assertThat(result.getUserName()).isEqualTo(dto.getUserName())
+            () -> assertThat(result).extracting(ApplicationUser::getId).isEqualTo(created.getId()),
+            () -> assertThat(result).extracting(ApplicationUser::getEmail).isEqualTo(dto.getEmail()),
+            () -> assertThat(result).extracting(ApplicationUser::getUserName).isEqualTo(dto.getUserName())
         );
     }
 
