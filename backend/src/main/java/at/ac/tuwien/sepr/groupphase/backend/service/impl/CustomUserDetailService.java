@@ -1,24 +1,28 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.CustomerCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.UserCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.detail.UserDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.search.CustomerSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.UserSearchResponseDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.PasswordChangeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.UserUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.UserMapper;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Permission;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Role;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.UserType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.ApplicationUser;
+import at.ac.tuwien.sepr.groupphase.backend.entity.user.Customer;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepr.groupphase.backend.repository.RoleRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.StaffRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.UserRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.RoleRepository;
-import at.ac.tuwien.sepr.groupphase.backend.security.AppUserDetails;
 import at.ac.tuwien.sepr.groupphase.backend.security.CurrentUserService;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
+import at.ac.tuwien.sepr.groupphase.backend.service.EmailService;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,8 +42,6 @@ import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class CustomUserDetailService implements UserService {
@@ -53,8 +55,9 @@ public class CustomUserDetailService implements UserService {
     private final StaffRepository staffRepository;
     private final Map<UserType, JpaRepository<? extends ApplicationUser, Long>> repositoryMap;
     private final UserMapper mapper;
-    private final  RoleRepository roleRepository;
+    private final RoleRepository roleRepository;
     private final PermissionService permissionService;
+    private final EmailService emailService;
     private final CurrentUserService currentUserService;
 
     /**
@@ -70,7 +73,7 @@ public class CustomUserDetailService implements UserService {
      */
     @Autowired
     public CustomUserDetailService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtTokenizer jwtTokenizer,  CustomerRepository customerRepository, StaffRepository staffRepository,
-                                   UserMapper mapper, RoleRepository roleRepository, UserServiceValidator validator, PermissionService permissionService, CurrentUserService currentUserService) {
+                                   UserMapper mapper, RoleRepository roleRepository, UserServiceValidator validator, PermissionService permissionService, EmailService  emailService, CurrentUserService currentUserService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenizer = jwtTokenizer;
@@ -85,6 +88,7 @@ public class CustomUserDetailService implements UserService {
         );
         this.mapper = mapper;
         this.currentUserService = currentUserService;
+        this.emailService = emailService;
     }
 
     @Override
@@ -125,13 +129,17 @@ public class CustomUserDetailService implements UserService {
 
             return jwtTokenizer.getAuthToken(userDetails.getUsername(), user.getId(), permissions);
         }
-        throw new BadCredentialsException("Username or password is incorrect or account is locked");
+        throw new BadCredentialsException("Email or password is incorrect or account is locked");
     }
 
 
     @Override
     public UserDetailDto createUser(UserCreationDto userCreationDto) {
         LOGGER.trace("Creating user with email {}", userCreationDto.getEmail());
+
+        if (userRepository.findUserByEmail(userCreationDto.getEmail()).isPresent()) {
+            throw new ValidationException("Email is already in use", List.of("Email " + userCreationDto.getEmail() + " is already in use."));
+        }
 
         validator.userCreationDtoValidator(userCreationDto);
         ApplicationUser user = userCreationDto.toEntity();
@@ -147,6 +155,11 @@ public class CustomUserDetailService implements UserService {
         user.getRoles().add(role);
         ApplicationUser saved = repo.save(user);
         UserDetailDto created = mapper.entityToDetailDto(saved);
+
+        if (userCreationDto instanceof CustomerCreationDto) {
+            emailService.sendAccountCreationSuccessEmail(user.getEmail(), user.getUserName());
+        }
+
         return created;
     }
 
@@ -210,7 +223,63 @@ public class CustomUserDetailService implements UserService {
         return mapper.entityToSearchResponseDto(user);
     }
 
+    @Override
+    public List<UserSearchResponseDto> searchCustomers(CustomerSearchDto searchDto) {
 
+        LOGGER.trace("Search customers with filter {}", searchDto);
+
+        List<Customer> customers =
+            customerRepository.searchCustomers(
+                normalize(searchDto.getEmail()),
+                normalize(searchDto.getUserName()),
+                normalize(searchDto.getFirstName()),
+                normalize(searchDto.getLastName())
+            );
+
+        return customers.stream()
+            .map(mapper::entityToSearchResponseDto)
+            .toList();
+    }
+
+    @Override
+    public UserDetailDto changePassword(Long id, PasswordChangeDto passwordChangeDto) {
+        LOGGER.info("Changing password for user with id {}", id);
+
+        validator.idTester(id);
+        checkUserAccessPermission(id);
+
+        if (passwordChangeDto == null) {
+            throw new ValidationException("Validation of the dto for changing passwords failed", List.of("passwordChangeDto is null"));
+        }
+
+        if (passwordChangeDto.getOldPassword() == null || passwordChangeDto.getOldPassword().isBlank()) {
+            throw new ValidationException("Validation of the dto for changing passwords failed", List.of("oldPassword is blank"));
+        }
+
+        if (passwordChangeDto.getNewPassword() == null || passwordChangeDto.getNewPassword().isBlank()) {
+            throw new ValidationException("Validation of the dto for changing passwords failed", List.of("newPassword is blank"));
+        }
+
+        ApplicationUser existingUser = userRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException("User with ID " + id + " was not found."));
+
+        if (!passwordEncoder.matches(passwordChangeDto.getOldPassword(), existingUser.getPassword())) {
+            throw new ValidationException("Old password is incorrect");
+        }
+
+        if (passwordEncoder.matches(passwordChangeDto.getNewPassword(), existingUser.getPassword())) {
+            throw new ValidationException(
+                "Validation of the dto for changing passwords failed",
+                List.of("newPassword must differ from the current password.")
+            );
+        }
+
+        existingUser.setPassword(passwordEncoder.encode(passwordChangeDto.getNewPassword()));
+
+        ApplicationUser savedUser = userRepository.save(existingUser);
+
+        return mapper.entityToDetailDto(savedUser);
+    }
 
     //Helper Methods:
     //Checks if the given id (requestedUserID) is the same ID as the ID of the user who wants to perform the CRUD action
@@ -220,14 +289,19 @@ public class CustomUserDetailService implements UserService {
 
         boolean isOwnUser = Objects.equals(currentUserId, requestedUserId);
 
-        boolean hasAdminPermission =
+        boolean hasStaffPermission =
             SecurityContextHolder.getContext().getAuthentication()
                 .getAuthorities()
                 .stream()
-                .anyMatch(a -> a.getAuthority().equals("USER_ADMIN"));
+                .anyMatch(a -> a.getAuthority().equals("STAFF"));
 
-        if (!isOwnUser && !hasAdminPermission) {
+        if (!isOwnUser && !hasStaffPermission) {
             throw new AccessDeniedException("You have no permission to perform this action.");
         }
+    }
+
+    //Normalizes search-inputs
+    private String normalize(String value) {
+        return value == null || value.isBlank() ? null : value;
     }
 }

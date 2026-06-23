@@ -4,16 +4,16 @@ import at.ac.tuwien.sepr.groupphase.backend.datagenerator.DataInitializer;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.CustomerCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.StaffCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.detail.UserDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.search.CustomerSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.CustomerSearchResponseDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.StaffSearchResponseDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.UserSearchResponseDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.CustomerUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.PasswordChangeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.StaffUpdateDto;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Role;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.Customer;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.Staff;
-import at.ac.tuwien.sepr.groupphase.backend.repository.RoleRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.StaffRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.UserRepository;
@@ -30,14 +30,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
+import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 //TODO: use generated data in tests, need to work on cleanup and setup
-//Umgeschrieben, sodass customer der gelöscht/geupdatet wird vorher noch angelegt wird
+//Customer which are updated or deleted are created beforehand and do not use generated data
 @ActiveProfiles({"test", "datagenerator"})
 @SpringBootTest
 public class UserServiceTest {
@@ -63,12 +74,8 @@ public class UserServiceTest {
     @Autowired
     private DataInitializer dataInitializer;
 
-    @Autowired
-    RoleRepository roleRepository;
-
     private final List<Long> createdUserIds = new ArrayList<>();
 
-    //workaround für security, richtiger admin wird noch gebraucht
     @BeforeEach
     public void setupSecurityContext() {
 
@@ -79,6 +86,7 @@ public class UserServiceTest {
 
         List<SimpleGrantedAuthority> authorities = List.of(
             new SimpleGrantedAuthority("USER_ADMIN"),
+            new SimpleGrantedAuthority("STAFF"),
 
             new SimpleGrantedAuthority("STAFF_READ"),
             new SimpleGrantedAuthority("STAFF_UPDATE"),
@@ -240,12 +248,13 @@ public class UserServiceTest {
         Customer savedCustomer = customerRepository
             .findById(created.getId())
             .orElseThrow();
+        final Long createdId = created.getId();
 
         assertAll(
             "Verify that the customer was updated correctly",
 
             () -> assertThat(updated).isNotNull(),
-            () -> assertThat(updated.getId()).isEqualTo(created.getId()),
+            () -> assertThat(updated).extracting(UserDetailDto::getId).isEqualTo(createdId),
             () -> assertThat(updated.getUserName()).isEqualTo(dto.getUserName()),
             () -> assertThat(updated.getEmail()).isEqualTo(dto.getEmail()),
 
@@ -284,12 +293,13 @@ public class UserServiceTest {
         Staff savedStaff = staffRepository
             .findById(created.getId())
             .orElseThrow();
+        final Long createdId = created.getId();
 
         assertAll(
             "Verify that the staff user was updated correctly",
 
             () -> assertThat(updated).isNotNull(),
-            () -> assertThat(updated.getId()).isEqualTo(created.getId()),
+            () -> assertThat(updated).extracting(UserDetailDto::getId).isEqualTo(createdId),
             () -> assertThat(updated.getUserName()).isEqualTo(dto.getUserName()),
             () -> assertThat(updated.getEmail()).isEqualTo(dto.getEmail()),
 
@@ -301,6 +311,66 @@ public class UserServiceTest {
                 savedApplicationUser.getPassword()
             )).isTrue()
         );
+    }
+
+    @Test
+    public void changePassword_withValidDto_updatesPasswordAndReturnsUserDetail() {
+        CustomerCreationDto creationDto = validCustomerDto(uniqueEmail("customer.password"));
+        UserDetailDto created = userService.createUser(creationDto);
+        rememberCreatedUser(created);
+
+        PasswordChangeDto dto = new PasswordChangeDto();
+        dto.setOldPassword(creationDto.getPassword());
+        dto.setNewPassword("NewPassword123!");
+
+        UserDetailDto updated = userService.changePassword(created.getId(), dto);
+
+        ApplicationUser saved = userRepository.findById(created.getId()).orElseThrow();
+        final Long createdId = created.getId();
+
+        assertAll(
+            "Verify that the password was changed successfully",
+            () -> assertThat(updated).isNotNull(),
+            () -> assertThat(updated).extracting(UserDetailDto::getId).isEqualTo(createdId),
+            () -> assertThat(passwordEncoder.matches(dto.getNewPassword(), saved.getPassword())).isTrue(),
+            () -> assertThat(passwordEncoder.matches(dto.getOldPassword(), saved.getPassword())).isFalse()
+        );
+    }
+
+    @Test
+    public void changePassword_withWrongOldPassword_throwsValidationException() {
+        CustomerCreationDto creationDto = validCustomerDto(uniqueEmail("customer.password.wrongold"));
+        UserDetailDto created = userService.createUser(creationDto);
+        rememberCreatedUser(created);
+
+        PasswordChangeDto dto = new PasswordChangeDto();
+        dto.setOldPassword("DefinitelyWrongOldPassword123!");
+        dto.setNewPassword("NewPassword123!");
+
+        ValidationException exception = assertThrows(
+            ValidationException.class,
+            () -> userService.changePassword(created.getId(), dto)
+        );
+
+        assertThat(exception.getMessage()).contains("Old password is incorrect");
+    }
+
+    @Test
+    public void changePassword_withSameNewPassword_throwsValidationException() {
+        StaffCreationDto creationDto = validStaffDto(uniqueEmail("staff.password.same"));
+        UserDetailDto created = userService.createUser(creationDto);
+        rememberCreatedUser(created);
+
+        PasswordChangeDto dto = new PasswordChangeDto();
+        dto.setOldPassword(creationDto.getPassword());
+        dto.setNewPassword(creationDto.getPassword());
+
+        ValidationException exception = assertThrows(
+            ValidationException.class,
+            () -> userService.changePassword(created.getId(), dto)
+        );
+
+        assertThat(exception.getMessage()).contains("newPassword must differ from the current password.");
     }
 
     @Test
@@ -354,10 +424,10 @@ public class UserServiceTest {
             () -> assertThat(result).isNotNull(),
             () -> assertThat(result).isInstanceOf(CustomerSearchResponseDto.class),
 
-            () -> assertThat(result.getUserName())
+            () -> assertThat(result).extracting(UserSearchResponseDto::getUserName)
                 .isEqualTo(existingCustomer.getUserName()),
 
-            () -> assertThat(result.getEmail())
+            () -> assertThat(result).extracting(UserSearchResponseDto::getEmail)
                 .isEqualTo(existingCustomer.getEmail()),
 
             () -> {
@@ -393,11 +463,169 @@ public class UserServiceTest {
             () -> assertThat(result).isNotNull(),
             () -> assertThat(result).isInstanceOf(StaffSearchResponseDto.class),
 
-            () -> assertThat(result.getUserName())
+            () -> assertThat(result).extracting(UserSearchResponseDto::getUserName)
                 .isEqualTo(existingStaff.getUserName()),
 
-            () -> assertThat(result.getEmail())
+            () -> assertThat(result).extracting(UserSearchResponseDto::getEmail)
                 .isEqualTo(existingStaff.getEmail())
         );
+    }
+
+    @Test
+    public void findApplicationUserByEmail_withExistingEmail_returnsUser() {
+        CustomerCreationDto dto = validCustomerDto(uniqueEmail("customer.find"));
+        UserDetailDto created = userService.createUser(dto);
+        rememberCreatedUser(created);
+
+        ApplicationUser result = userService.findApplicationUserByEmail(dto.getEmail());
+
+        assertAll(
+            "Verify that user can be found by email",
+            () -> assertThat(result).isNotNull(),
+            () -> assertThat(result).extracting(ApplicationUser::getId).isEqualTo(created.getId()),
+            () -> assertThat(result).extracting(ApplicationUser::getEmail).isEqualTo(dto.getEmail()),
+            () -> assertThat(result).extracting(ApplicationUser::getUserName).isEqualTo(dto.getUserName())
+        );
+    }
+
+    @Test
+    public void findApplicationUserByEmail_withUnknownEmail_throwsNotFoundException() {
+        String unknownEmail = uniqueEmail("unknown.find");
+
+        assertThrows(
+            NotFoundException.class,
+            () -> userService.findApplicationUserByEmail(unknownEmail)
+        );
+    }
+
+    @Test
+    public void loadUserByUsername_withExistingUser_returnsUserDetailsWithAuthorities() {
+        StaffCreationDto dto = validStaffDto(uniqueEmail("staff.load"));
+        UserDetailDto created = userService.createUser(dto);
+        rememberCreatedUser(created);
+
+        UserDetails result = userService.loadUserByUsername(dto.getEmail());
+
+        assertAll(
+            "Verify that Spring Security UserDetails are loaded correctly",
+            () -> assertThat(result).isNotNull(),
+            () -> assertThat(result.getUsername()).isEqualTo(dto.getEmail()),
+            () -> assertThat(passwordEncoder.matches(dto.getPassword(), result.getPassword())).isTrue(),
+            () -> assertThat(result.getAuthorities()).isNotEmpty()
+        );
+    }
+
+    @Test
+    public void loadUserByUsername_withUnknownEmail_throwsUsernameNotFoundException() {
+        String unknownEmail = uniqueEmail("unknown.load");
+
+        assertThrows(
+            UsernameNotFoundException.class,
+            () -> userService.loadUserByUsername(unknownEmail)
+        );
+    }
+
+    @Test
+    public void login_withValidCredentials_returnsJwtToken() {
+        StaffCreationDto dto = validStaffDto(uniqueEmail("staff.login"));
+        UserDetailDto created = userService.createUser(dto);
+        rememberCreatedUser(created);
+
+        UserLoginDto loginDto = new UserLoginDto();
+        loginDto.setEmail(dto.getEmail());
+        loginDto.setPassword(dto.getPassword());
+
+        String token = userService.login(loginDto);
+
+        assertAll(
+            "Verify that login returns a valid token",
+            () -> assertThat(token).isNotNull(),
+            () -> assertThat(token).isNotBlank()
+        );
+    }
+
+    @Test
+    public void login_withWrongPassword_throwsBadCredentialsException() {
+        CustomerCreationDto dto = validCustomerDto(uniqueEmail("customer.login.wrong"));
+        UserDetailDto created = userService.createUser(dto);
+        rememberCreatedUser(created);
+
+        UserLoginDto loginDto = new UserLoginDto();
+        loginDto.setEmail(dto.getEmail());
+        loginDto.setPassword("DefinitelyWrongPassword123!");
+
+        assertThrows(
+            BadCredentialsException.class,
+            () -> userService.login(loginDto)
+        );
+    }
+
+    @Test
+    public void login_withUnknownEmail_throwsUsernameNotFoundException() {
+        UserLoginDto loginDto = new UserLoginDto();
+        loginDto.setEmail(uniqueEmail("unknown.login"));
+        loginDto.setPassword("Password123!");
+
+        assertThrows(
+            UsernameNotFoundException.class,
+            () -> userService.login(loginDto)
+        );
+    }
+
+    @Test
+    public void deleteUserById_withUnknownId_throwsNotFoundException() {
+        long unknownId = 99999999L;
+
+        assertThrows(
+            NotFoundException.class,
+            () -> userService.deleteUserById(unknownId)
+        );
+    }
+
+    @Test
+    public void getUserById_withUnknownId_throwsNotFoundException() {
+        long unknownId = 99999999L;
+
+        assertThrows(
+            NotFoundException.class,
+            () -> userService.getUserById(unknownId)
+        );
+    }
+
+    @Test
+    public void searchCustomers_withFirstNameFilter_returnsMatchingCustomers() {
+        CustomerCreationDto dto = validCustomerDto(uniqueEmail("customer.search"));
+        dto.setFirstName("Searchlight");
+        UserDetailDto created = userService.createUser(dto);
+        rememberCreatedUser(created);
+
+        CustomerSearchDto searchDto = new CustomerSearchDto();
+        searchDto.setFirstName("Searchlight");
+
+        List<UserSearchResponseDto> result = userService.searchCustomers(searchDto);
+
+        assertAll(
+            "Verify that the customer is found by first name filter",
+            () -> assertThat(result).isNotEmpty(),
+            () -> assertThat(result)
+                .allSatisfy(r -> assertThat(r).isInstanceOf(CustomerSearchResponseDto.class)),
+            () -> assertThat(result)
+                .anySatisfy(r -> assertThat(r.getEmail()).isEqualTo(dto.getEmail()))
+        );
+    }
+
+    @Test
+    public void searchCustomers_withBlankFilters_doesNotThrowAndReturnsCustomers() {
+        CustomerSearchDto searchDto = new CustomerSearchDto();
+        searchDto.setEmail("");
+        searchDto.setUserName("   ");
+        searchDto.setFirstName(null);
+        searchDto.setLastName(null);
+
+        List<UserSearchResponseDto> result = assertDoesNotThrow(
+            () -> userService.searchCustomers(searchDto)
+        );
+
+        assertThat(result).isNotNull();
     }
 }

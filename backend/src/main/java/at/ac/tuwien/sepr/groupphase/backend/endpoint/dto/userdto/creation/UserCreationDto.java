@@ -4,10 +4,10 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.enums.UserType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.ApplicationUser;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 /**
  * Represents a Dto for creating users.
@@ -18,10 +18,9 @@ import jakarta.validation.constraints.Email;
     include = JsonTypeInfo.As.PROPERTY,
     property = "type"
 )
-
 @JsonSubTypes({
     @JsonSubTypes.Type(value = CustomerCreationDto.class, name = "CUSTOMER"),
-    @JsonSubTypes.Type(value = StaffCreationDto.class, name = "STAFF"),
+    @JsonSubTypes.Type(value = StaffCreationDto.class, name = "STAFF")
 })
 
 public abstract class UserCreationDto {

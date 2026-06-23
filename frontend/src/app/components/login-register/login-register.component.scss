@@ -10,13 +10,17 @@
 
 .auth-switch {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
+  gap: 0.25rem;
   margin: 12px 0;
 }
 
-.auth-switch a {
+a {
   text-decoration: underline;
+  &:hover {
+    text-decoration: none;
+  }
 }
 
 .btn-success {

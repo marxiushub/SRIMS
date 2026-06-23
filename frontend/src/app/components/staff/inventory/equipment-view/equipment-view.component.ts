@@ -9,7 +9,7 @@ import {ReservationService} from '../../../../services/reservation.service';
 import {ReservationDetail} from '../../../../dtos/reservation-detail';
 import JsBarcode from 'jsbarcode';
 import { forkJoin } from 'rxjs';
-import {ReservationStatus} from "../../../../dtos/ReservationStatus";
+import {ReservationStatus} from "../../../../dtos/reservationstatus";
 
 @Component({
   selector: 'app-equipment-detail',
@@ -144,6 +144,13 @@ export class EquipmentViewComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/staff/inventory']);
+  }
+
+  /**
+   * Navigates to the reservation detail view.
+   */
+  viewReservationDetails(reservationId: number): void {
+    this.router.navigate(['/staff/reservation/view', reservationId]);
   }
 
   //Helper-method to give RentalStatus-Enum-Values nice background coloring in HTML

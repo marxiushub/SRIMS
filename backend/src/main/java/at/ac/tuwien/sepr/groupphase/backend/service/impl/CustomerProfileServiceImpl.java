@@ -85,6 +85,42 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
     }
 
     @Override
+    public List<CustomerProfileDetailDto> getCustomerProfiles(Long customerId) {
+        LOGGER.trace("Get customer profiles for customer with id {}", customerId);
+
+        if (customerId == null) {
+            throw new IllegalArgumentException("Customer ID cannot be null.");
+        }
+
+        if (!customerRepository.existsById(customerId)) {
+            throw new NotFoundException("Customer with ID " + customerId + " was not found.");
+        }
+
+        return customerProfileRepository.findByCustomerId(customerId).stream().map(customerProfileMapper::entityToDetailDto).toList();
+    }
+
+    @Override
+    public CustomerProfileDetailDto getCustomerProfileById(Long profileId) {
+        LOGGER.trace("Get customer profile with id {}", profileId);
+
+        CustomerProfile profile = customerProfileRepository.findById(profileId)
+            .orElseThrow(() ->
+                new NotFoundException(
+                    "CustomerProfile with ID " + profileId + " was not found."
+                ));
+
+        Long currentUserId = currentUserService.getUserId();
+
+        boolean isStaff = currentUserService.hasAuthority("STAFF");
+
+        if (!isStaff && !profile.getCustomer().getId().equals(currentUserId)) {
+            throw new AccessDeniedException("You have no permission to access this profile.");
+        }
+
+        return customerProfileMapper.entityToDetailDto(profile);
+    }
+
+    @Override
     public CustomerProfileDetailDto updateCustomerProfile(Long customerProfileId, CustomerProfileUpdateDto dto) {
         LOGGER.trace("Updating customer profile for customer with id {}", customerProfileId);
 
@@ -116,16 +152,6 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
         return customerProfileMapper.entityToDetailDto(
             customerProfileRepository.save(profile)
         );
-    }
-
-    @Override
-    public CustomerProfileDetailDto getCustomerProfileById(Long customerProfileId) {
-        LOGGER.trace("Get customer profile by id {}", customerProfileId);
-
-        Long currentUserId = currentUserService.getUserId();
-        CustomerProfile profile = checkUserAccessPermission(customerProfileId, currentUserId);
-
-        return customerProfileMapper.entityToDetailDto(profile);
     }
 
     @Override

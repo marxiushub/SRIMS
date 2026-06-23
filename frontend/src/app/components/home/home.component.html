@@ -1,34 +1,157 @@
 <div class="jumbotron mt-5">
-  <h1 class="display-4">Welcome to the SE PR group phase!</h1>
-  <hr class="my-4">
-  @if (!authService.isLoggedIn()) {
-    <a class="btn btn-primary btn-lg" routerLink="/login" role="button">Login</a>
-  }
-  @if (authService.isLoggedIn()) {
-    <div>
-      <p>Check out the latest message from the SE PR group phase.</p>
-      <p class="lead">
-        <a class="btn btn-primary btn-lg" routerLink="/message" role="button">Message</a>
-      </p>
-    </div>
-  }
-</div>
+  <h1 class="display-4">Welcome to SRIMS!</h1>
+  <hr class="my-2">
+  <div class="container-fluid pt-4">
 
-<!Temporary Navigation Help until proper Navigation from Home is established, so navigation to components is possible without manual URL-changes; generated with Google Gemini>
-<div class="card bg-light mt-5 border-warning shadow-sm">
-  <div class="card-body py-3">
-    <div class="d-flex align-items-center flex-wrap gap-3">
-      <a class="btn btn-sm btn-outline-secondary" routerLink="/staff">
-        Temp Link to StaffComponent (First Page Staff will see after login is implemented)
-      </a>
-
-      <a class="btn btn-sm btn-outline-secondary" routerLink="/customer">
-        Temporary direct link to CustomerComponent (First Page Customer will see after login is implemented)
-      </a>
+    <div class="d-flex align-items-center mb-3">
+      <h2 class="mb-0">{{ 'INVENTORY.TITLE' | translate }}</h2>
+      <span style="flex: 1"></span>
+      <button class="btn btn-primary" type="button" (click)="clearFilters()">
+        {{ 'INVENTORY.CLEAR' | translate }}
+      </button>
     </div>
-    <small class="text-muted d-block mt-2">
-      Note: These links are temporary and their only purpose is to quickly jump to these components without manually
-      having to change the URL
-    </small>
+
+    <form class="d-flex flex-row w-auto mb-3 align-items-end" (ngSubmit)="searchEquipment()">
+      <div class="me-2">
+        <label for="searchEquipmentModel" class="col-form-label">{{ 'INVENTORY.EQUIPMENT_MODEL' | translate }}</label>
+        <input type="text" id="searchEquipmentModel" name="searchEquipmentModel" [(ngModel)]="modelFilter"
+               [ngModelOptions]="{ standalone: true }" [ngbTypeahead]="searchModel" (ngModelChange)="searchEquipment()"
+               class="form-control">
+      </div>
+
+      <div class="me-2">
+        <label for="searchEquipmentType" class="col-form-label">{{ 'INVENTORY.EQUIPMENT_TYP' | translate }}</label>
+        <select id="searchEquipmentType" name="searchEquipmentType" [(ngModel)]="typeFilter"
+                [ngModelOptions]="{ standalone: true }" (ngModelChange)="searchEquipment()" class="form-select">
+          <option [ngValue]="null">{{ 'INVENTORY.EQUIPMENT_ALL' | translate }}</option>
+          @for (type of equipmentTypes; track type) {
+            <option [value]="type">{{ 'EQUIPMENT_TYPE.' + type | translate }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="me-2">
+        <label for="searchEquipmentStatus" class="col-form-label">{{ 'INVENTORY.EQUIPMENT_STATUS' | translate }}</label>
+        <select id="searchEquipmentStatus" name="searchEquipmentStatus" [(ngModel)]="statusFilter"
+                [ngModelOptions]="{ standalone: true }" (ngModelChange)="searchEquipment()" class="form-select">
+          <option [ngValue]="null">{{ 'INVENTORY.EQUIPMENT_ALL' | translate }}</option>
+          @for (status of rentalStatuses; track status) {
+            <option [value]="status">{{ 'RENTAL_STATUS.' + status | translate }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="me-2">
+        <label for="searchEquipmentSkill" class="col-form-label">{{ 'INVENTORY.EQUIPMENT_SKILL' | translate }}</label>
+        <select id="searchEquipmentSkill" name="searchEquipmentSkill" [(ngModel)]="skillFilter"
+                [ngModelOptions]="{ standalone: true }" (ngModelChange)="searchEquipment()" class="form-select">
+          <option [ngValue]="null">{{ 'INVENTORY.EQUIPMENT_ALL' | translate }}</option>
+          @for (skillLevel of skillLevels; track skillLevel) {
+            <option [value]="skillLevel">{{ 'SKILL_LEVEL.' + skillLevel | translate }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="me-2">
+        <label for="searchEquipmentStart" class="col-form-label">{{ 'INVENTORY.START_DATE' | translate }}</label>
+        <input
+          type="date"
+          id="searchEquipmentStart"
+          name="searchEquipmentStart"
+          [(ngModel)]="startFilter"
+          [ngModelOptions]="{ standalone: true }"
+          (ngModelChange)="onStartDateChange()"
+          class="form-control">
+      </div>
+
+      <div class="me-2">
+        <label for="searchEquipmentEnd" class="col-form-label">{{ 'INVENTORY.END_DATE' | translate }}</label>
+        <input
+          type="date"
+          id="searchEquipmentEnd"
+          name="searchEquipmentEnd"
+          [(ngModel)]="endFilter"
+          [min]="startFilter"
+          [ngModelOptions]="{ standalone: true }"
+          (ngModelChange)="onEndDateChange()"
+          class="form-control">
+      </div>
+
+      <div class="me-2">
+        <label for="searchEquipmentPriceSort" class="col-form-label">{{ 'INVENTORY.EQUIPMENT_PRICE' | translate }}</label>
+        <select id="searchEquipmentPriceSort" name="searchEquipmentPriceSort" [(ngModel)]="priceSortDirection"
+                [ngModelOptions]="{ standalone: true }" (ngModelChange)="onPriceSortChange()" class="form-select">
+          <option value="asc">{{ 'INVENTORY.LOWEST_FIRST' | translate }}</option>
+          <option value="desc">{{ 'INVENTORY.HIGHEST_FIRST' | translate }}</option>
+        </select>
+      </div>
+    </form>
+
+    @if (loading) {
+      <div class="alert alert-info">{{ 'INVENTORY.LOADING' | translate }}</div>
+    }
+    @if (!loading && equipment.length === 0) {
+      <div class="alert alert-warning">{{ 'INVENTORY.NO_EQUIPMENT' | translate }}</div>
+    }
+
+    @if (!loading && equipment.length > 0) {
+      <table class="table table-hover table-striped align-middle">
+        <thead>
+        <tr>
+          <th>{{ 'INVENTORY.EQUIPMENT_MODEL' | translate }}</th>
+          <th>{{ 'INVENTORY.EQUIPMENT_TYP' | translate }}</th>
+          <th>{{ 'INVENTORY.EQUIPMENT_STATUS' | translate }}</th>
+          <th>{{ 'INVENTORY.EQUIPMENT_SKILL' | translate }}</th>
+          <th>{{ 'INVENTORY.EQUIPMENT_PRICE' | translate }}</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (item of equipment | slice:startIndex - 1:endIndex; track item.id) {
+            <tr (click)="openDetailPage(item)" class="clickable-row">
+              <td>{{ item.model }}</td>
+              <td>{{ 'EQUIPMENT_TYPE.' + item.equipmentType | translate }}</td>
+              <td>
+              <span class="badge" [ngClass]="getStatusClass(item.status)">
+                {{ 'RENTAL_STATUS.' + item.status | translate }}
+              </span>
+              </td>
+              <td>{{ 'SKILL_LEVEL.' + item.targetSkillLevel | translate }}</td>
+              <td>{{ item.price | currency:'EUR':'symbol':'1.2-2':(translateService.currentLang || 'de') }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      @if (equipment.length > 5) {
+        <div class="d-flex align-items-center">
+          <label for="itemLimit" class="me-2 mb-0">{{ 'INVENTORY.ROWS_PER_PAGE' | translate }}</label>
+          <select id="itemLimit" name="itemLimit" class="form-select w-auto" [(ngModel)]="itemLimit"
+                  (ngModelChange)="onItemLimitChange()" [ngModelOptions]="{ standalone: true }">
+            <option [value]="5">5</option>
+            <option [value]="10">10</option>
+            <option [value]="20">20</option>
+            <option [value]="50">50</option>
+          </select>
+          <span
+            class="ms-3 text-muted">{{ startIndex + '-' + endIndex }} {{ 'INVENTORY.OF' | translate }} {{ equipment.length }}</span>
+
+          <div class="btn-group ms-3">
+            <button class="btn btn-sm btn-primary me-2" [disabled]="currentPage === 1" (click)="goToFirstPage()"><span
+              class="fs-5 lh-1">&laquo;</span></button>
+            <button class="btn btn-sm btn-primary me-4" [disabled]="currentPage === 1" (click)="previousPage()"><span
+              class="fs-5 lh-1">&lsaquo;</span></button>
+            <button class="btn btn-sm btn-primary me-2" [disabled]="endIndex >= equipment.length" (click)="nextPage()"><span
+              class="fs-5 lh-1">&rsaquo;</span></button>
+            <button class="btn btn-sm btn-primary me-2" [disabled]="endIndex >= equipment.length" (click)="goToLastPage()">
+              <span class="fs-5 lh-1">&raquo;</span></button>
+          </div>
+
+          <button type="button" class="btn btn-success align-self-end ms-auto" (click)="openCreateReservation()">
+          Create Reservation
+          </button>
+        </div>
+      }
+    }
   </div>
+
 </div>

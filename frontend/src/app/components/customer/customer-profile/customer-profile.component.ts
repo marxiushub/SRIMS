@@ -4,6 +4,7 @@ import {CustomerProfileService} from '../../../services/customer-profile.service
 import {CustomerProfile} from '../../../dtos/customer-profile';
 import {TranslateService} from '@ngx-translate/core';
 import {ToastrService} from 'ngx-toastr';
+import {NavbarService} from "../../../services/navbar.service";
 
 @Component({
   selector: 'app-customer-profile',
@@ -19,7 +20,7 @@ export class CustomerProfileComponent {
   deleteLoading = false;
   deleteError?: string;
 
-  constructor(private customerProfileService: CustomerProfileService, public translateService: TranslateService, private router: Router, private notification: ToastrService) {
+  constructor(private customerProfileService: CustomerProfileService, public translateService: TranslateService, private navbarService: NavbarService, private router: Router, private notification: ToastrService) {
   }
 
   ngOnInit(): void {
@@ -46,6 +47,7 @@ export class CustomerProfileComponent {
   }
 
   openEditPage(item: CustomerProfile): void {
+    this.navbarService.close();
     this.router.navigate(['/customer/profiles/edit', item.id])
   }
 
@@ -54,6 +56,7 @@ export class CustomerProfileComponent {
   }
 
   openDeleteDialog(item: CustomerProfile): void {
+    this.navbarService.close();
     this.profileToDelete = item;
     this.deleteError = undefined;
   }

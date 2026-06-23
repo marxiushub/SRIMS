@@ -3,6 +3,7 @@ import {mapToCanActivate, RouterModule, Routes} from '@angular/router';
 import {HomeComponent} from './components/home/home.component';
 import {LoginRegisterComponent, LoginRegisterMode} from './components/login-register/login-register.component';
 import {AuthGuard} from './guards/auth.guard';
+import { homeGuard } from './guards/home.guard';
 import {MessageComponent} from './components/message/message.component';
 import {StaffComponent} from './components/staff/staff.component';
 import {InventoryComponent} from './components/staff/inventory/inventory.component';
@@ -31,23 +32,39 @@ import {
 } from "./components/customer/customer-inventory/equipment-view/equipment-view.component";
 import {ReservationComponent} from "./components/customer/reservation/reservation.component";
 
+import { StatisticsComponent } from './components/staff/statistics/statistics.component';
+
+import {ReservationViewComponent} from "./components/customer/reservation/reservation-view/reservation-view.component";
+import {StaffReservationComponent} from "./components/staff/reservation/staff-reservation.component";
+import {
+  StaffReservationViewComponent
+} from "./components/staff/reservation/reservation-view/staff-reservation-view.component";
+import {
+  StaffReservationEditComponent
+} from "./components/staff/reservation/reservation-edit/staff-reservation-edit.component";
+
+
 const routes: Routes = [
-  {path: '', component: HomeComponent},
+  {path: '', component: HomeComponent, canActivate: [homeGuard]},
   {path: 'login', component: LoginRegisterComponent, data: {mode: LoginRegisterMode.login}},
   {path: 'register', component: LoginRegisterComponent, data: {mode: LoginRegisterMode.register}},
   {path: 'message', canActivate: mapToCanActivate([AuthGuard]), component: MessageComponent},
 
   {
-    path: 'staff', component: StaffComponent, children: [
+    path: 'staff', component: StaffComponent, canActivate: [AuthGuard], children: [
       {path: 'inventory', component: InventoryComponent},
       {path: 'inventory/create', component: EquipmentCreateEditComponent, data: {mode: EquipmentCreateEditMode.create}},
       {path: 'inventory/edit/:id', component: EquipmentCreateEditComponent, data: {mode: EquipmentCreateEditMode.edit}},
       {path: 'inventory/view/:id', component: EquipmentViewComponent},
+      {path: 'reservation', component: StaffReservationComponent},
+      {path: 'reservation/edit/:id', component: StaffReservationEditComponent},
+      {path: 'reservation/view/:id', component: StaffReservationViewComponent},
       {path: 'barcode-scanner', component: BarcodeScannerComponent},
+      {path: 'statistics', component: StatisticsComponent},
     ]
   },
   {
-    path: 'customer', component: CustomerComponent, children: [
+    path: 'customer', component: CustomerComponent, canActivate: [AuthGuard], children: [
       {path: 'reservation', component: ReservationComponent},
       {
         path: 'reservation/create',
@@ -59,6 +76,7 @@ const routes: Routes = [
         component: ReservationCreateEditComponent,
         data: {mode: ReservationCreateEditMode.edit}
       },
+      {path: 'reservation/view/:id', component: ReservationViewComponent},
       {path: 'inventory', component: CustomerInventoryComponent},
       {path: 'inventory/view/:id', component: CustomerEquipmentViewComponent}
     ]

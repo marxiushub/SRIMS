@@ -2,14 +2,16 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.StaffCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.detail.UserDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.search.CustomerSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.UserSearchResponseDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.StaffUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.PasswordChangeDto;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.CustomUserDetailService;
-import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,9 +21,12 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.PatchMapping;
 
 
 import java.lang.invoke.MethodHandles;
+import java.util.List;
 
 /**
  * Represents the REST API endpoint for managing customer-related operations.
@@ -66,6 +71,20 @@ public class StaffEndpoint {
     }
 
     /**
+     * Endpoint to change the password of an existing staff account.
+     *
+     * @param id the ID of the staff user whose password should be changed
+     * @param dto the DTO containing the old and the new password
+     * @return the updated staff user
+     */
+    @PreAuthorize("hasAuthority('STAFF_UPDATE')")
+    @PatchMapping("/password/{id}")
+    public UserDetailDto changePassword(@PathVariable("id") Long id, @Valid @RequestBody PasswordChangeDto dto) {
+        LOGGER.info("PATCH /api/v1/staff/password/{} - {}", id, dto);
+        return userService.changePassword(id, dto);
+    }
+
+    /**
      * Endpoint to delete an existing Staff account.
      *
      * @param id the ID of the staff user to delete
@@ -88,5 +107,20 @@ public class StaffEndpoint {
     public UserSearchResponseDto getUserById(@PathVariable("id") Long id) {
         LOGGER.info("GET /api/v1/staff/{}", id);
         return userService.getUserById(id);
+    }
+
+    /**
+     * Searches for customers based on optional query parameters.
+     * The parameters are passed in the URL.
+     *
+     * @param searchDto dynamically mapped from URL query parameters
+     * @return a list of customers matching the criteria
+     */
+    @PreAuthorize("hasAuthority('CUSTOMER_READ') and hasAuthority('STAFF')")
+    @GetMapping("/customers/search")
+    @ResponseStatus(HttpStatus.OK)
+    public List<UserSearchResponseDto> searchCustomers(CustomerSearchDto searchDto) {
+        LOGGER.info("GET /api/v1/staff/customers/search");
+        return userService.searchCustomers(searchDto);
     }
 }

@@ -17,10 +17,14 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.EquipmentRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ReservationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerProfileRepository;
+import at.ac.tuwien.sepr.groupphase.backend.security.CurrentUserService;
+import at.ac.tuwien.sepr.groupphase.backend.service.EmailService;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,18 +41,24 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
     private final ReservationRepository reservationRepository;
     private final EquipmentRepository equipmentRepository;
     private final CustomerProfileRepository customerProfileRepository;
+    private final EmailService emailService;
+    private final CurrentUserService currentUserService;
 
     @Autowired
     public ReservationServiceImpl(ReservationMapper reservationMapper,
                                   ReservationRepository reservationRepository,
                                   EquipmentRepository equipmentRepository,
                                   CustomerProfileRepository customerProfileRepository,
-                                  ReservationValidator validator) {
+                                  ReservationValidator validator,
+                                  EmailService emailService,
+                                  CurrentUserService currentUserService) {
         this.reservationMapper = reservationMapper;
         this.reservationRepository = reservationRepository;
         this.equipmentRepository = equipmentRepository;
         this.customerProfileRepository = customerProfileRepository;
         this.validator = validator;
+        this.emailService = emailService;
+        this.currentUserService = currentUserService;
     }
 
 
@@ -56,8 +66,23 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
     @Transactional
     public ReservationDetailDto reservationById(Long id) {
         LOGGER.trace("Get reservation by id: {}", id);
+
         Reservation reservation = reservationRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Reservation with ID " + id + " was not found."));
+
+        boolean isStaff = currentUserService.hasAuthority("STAFF");
+        Long currentUserId = currentUserService.getUserId();
+
+        if (!isStaff) {
+            Long ownerId = reservation.getCustomerProfile()
+                .getCustomer()
+                .getId();
+
+            if (!ownerId.equals(currentUserId)) {
+                throw new AccessDeniedException("You are not allowed to access this reservation.");
+            }
+        }
+
         return reservationMapper.entityToDetailDto(reservation);
     }
 
@@ -85,20 +110,30 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
         }
         calculateAndSetTotalPrice(reservation);
         Reservation savedReservation = reservationRepository.save(reservation);
-        //bestätigungs-email senden
+        emailService.sendReservationConfirmation(equipmentList, savedReservation);
+        reservation.setConfirmationEmailSent();
         return reservationMapper.entityToDetailDto(savedReservation);
     }
 
     @Override
     @Transactional
-    public void deleteReservation(Long id) {
+    public void deleteReservation(Long id, boolean isStaff) {
         LOGGER.trace("Deleting reservation with id {}", id);
 
         Reservation reservation = reservationRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Reservation with ID " + id + " was not found."));
 
+        if (!isStaff) {
+            currentUserService.getUserId();
+            if (!reservation.getCustomerProfile().getCustomer().getId().equals(currentUserService.getUserId())) {
+                throw new AccessDeniedException("You are not allowed to perform this action.");
+            }
+            if (reservation.getStartDate().isBefore(LocalDate.now().plusDays(2))) {
+                throw new ValidationException("Reservations can only be deleted at least two days before the start date.");
+            }
+        }
+
         deleteTimePeriodsForEquipment(reservation.getItems().stream().map(ReservationRelation::getEquipment).toList(), reservation);
-        //bestätigungs-mail senden
 
         reservationRepository.delete(reservation);
 
@@ -107,17 +142,49 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
     @Override
     @Transactional
     public ReservationDetailDto updateReservation(ReservationUpdateDto dto) {
-        LOGGER.trace("update reservation {}", dto.getId());
+        LOGGER.trace("update reservation {} with customer permissions", dto.getId());
 
-        validator.validateUpdateDto(dto);
+        Long userId = currentUserService.getUserId();
+
+        validator.validateUpdateDto(dto, userId);
 
         Reservation reservation = reservationRepository.getReferenceById(dto.getId());
 
+        applyUpdateCommon(reservation, dto, false);
+
+        calculateAndSetTotalPrice(reservation);
+        Reservation saved = reservationRepository.save(reservation);
+        return reservationMapper.entityToDetailDto(saved);
+    }
+
+    @Transactional
+    @Override
+    public ReservationDetailDto updateReservationStaff(ReservationUpdateDto dto) {
+        LOGGER.trace("update reservation {} with staff permissions", dto.getId());
+
+
+        validator.validateUpdateDto(dto, null);
+
+        Reservation reservation = reservationRepository.getReferenceById(dto.getId());
+
+        applyUpdateCommon(reservation, dto, true);
+
+        calculateAndSetTotalPrice(reservation);
+        Reservation saved = reservationRepository.save(reservation);
+        return reservationMapper.entityToDetailDto(saved);
+    }
+
+    /**
+     * Shared update logic between customer and staff update methods.
+     * If {@code isStaff} is true, staff-specific behavior (setting reservationStatus and
+     * removing time periods when changed to RETURNED/CANCELLED) is applied.
+     */
+    private void applyUpdateCommon(Reservation reservation, ReservationUpdateDto dto, boolean isStaff) {
         boolean datesChanged = (dto.getStartDate() != null && !dto.getStartDate().equals(reservation.getStartDate()))
             || (dto.getEndDate() != null && !dto.getEndDate().equals(reservation.getEndDate()));
         boolean equipmentChanged = dto.getEquipmentIds() != null;
 
-        //If the startDate and/or endDate of the Reservation changes, or if the included Equipments is changed,
+        // If the startDate and/or endDate of the Reservation changes, or if the included Equipments is changed,
         // delete corresponding old timePeriods of the Equipments included in the Reservation
         if (datesChanged || equipmentChanged) {
             List<Equipment> currentEquipments = reservation.getItems().stream()
@@ -134,7 +201,8 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
         if (dto.getEndDate() != null) {
             reservation.setEndDate(dto.getEndDate());
         }
-        if (dto.getReservationStatus() != null) {
+
+        if (isStaff && dto.getReservationStatus() != null) {
             reservation.setReservationStatus(dto.getReservationStatus());
         }
 
@@ -154,7 +222,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
                 .map(ReservationRelation::getEquipment).toList();
         }
 
-        //If the startDate or endDate of the Reservation were changed, or if the included Equipments were changed,
+        // If the startDate or endDate of the Reservation were changed, or if the included Equipments were changed,
         // add new timePeriods for the Equipments included in the Reservation (as the old ones were deleted above)
         if (datesChanged || equipmentChanged) {
             LocalDate newStart = reservation.getStartDate();
@@ -165,9 +233,9 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
             }
         }
 
-        //If the ReservationStatus is changed to RETURNED or CANCELLED, delete all corresponding timePeriods
-        // of the included Equipment to free the Equipment up again and reduce the size of the Equipment-table in the databse
-        if (dto.getReservationStatus() != null) {
+        // Staff-only: If the ReservationStatus is changed to RETURNED or CANCELLED, delete all corresponding timePeriods
+        // of the included Equipment to free the Equipment up again and reduce the size of the Equipment-table in the database
+        if (isStaff && dto.getReservationStatus() != null) {
             if (dto.getReservationStatus() == ReservationStatus.RETURNED
                 || dto.getReservationStatus() == ReservationStatus.CANCELLED) {
 
@@ -177,31 +245,41 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
             }
         }
 
-        calculateAndSetTotalPrice(reservation);
-        Reservation saved = reservationRepository.save(reservation);
-        return reservationMapper.entityToDetailDto(saved);
     }
 
     @Transactional
     @Override
     public List<ReservationDetailDto> searchReservations(ReservationSearchDto searchDto) {
+        LOGGER.trace("Search reservations with filter {}", searchDto);
+
         if (searchDto == null) {
             searchDto = new ReservationSearchDto();
         }
 
         final ReservationSearchDto finalSearchDto = searchDto;
 
-        Specification<Reservation> spec = (root, query, cb) -> cb.conjunction();
+        boolean isStaff = currentUserService.hasAuthority("STAFF");
 
-        if (finalSearchDto.getCustomerProfileId() != null) {
-            spec = spec.and((root, query, cb) ->
-                cb.equal(root.get("customerProfile").get("id"), finalSearchDto.getCustomerProfileId())
-            );
+        Long effectiveAccountId = searchDto.getAccountId();
+
+        if (!isStaff) {
+            Long currentUserId = currentUserService.getUserId();
+
+            if (effectiveAccountId != null && !effectiveAccountId.equals(currentUserId)) {
+                throw new AccessDeniedException("Cannot search reservations of another customer.");
+            }
+
+            // Customer darf nur sich selbst sehen
+            effectiveAccountId = currentUserId;
         }
 
-        if (finalSearchDto.getAccountId() != null) {
+        Specification<Reservation> spec = (root, query, cb) -> cb.conjunction();
+
+        final Long accountId = effectiveAccountId;
+
+        if (accountId != null) {
             spec = spec.and((root, query, cb) ->
-                cb.equal(root.get("customerProfile").get("customer").get("id"), finalSearchDto.getAccountId())
+                cb.equal(root.get("customerProfile").get("customer").get("id"), accountId)
             );
         }
 
@@ -292,6 +370,78 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
         return reservationMapper.entityToDetailDto(savedReservation);
     }
 
+    @Transactional(readOnly = false)
+    @Override
+    public void processOverdueReservations(LocalDate boundaryDate) {
+
+        List<Reservation> overdueReservations = reservationRepository
+            .findByEndDateBeforeAndReservationStatusAndOverdueReminderSentFalse(
+                boundaryDate, ReservationStatus.PICKED_UP);
+
+        if (overdueReservations.isEmpty()) {
+            LOGGER.info("No overdue reservations found for boundary date: {}", boundaryDate);
+            return;
+        }
+
+        LOGGER.info("Found {} overdue reservations! Starting reminder process...", overdueReservations.size());
+
+        for (Reservation res : overdueReservations) {
+            try {
+
+                List<Equipment> currentEquipment = res.getItems().stream()
+                    .map(ReservationRelation::getEquipment).toList();
+
+                emailService.sendOverdueReminder(currentEquipment, res);
+
+                res.setOverdueReminderSent(true);
+                reservationRepository.save(res);
+
+                LOGGER.info("Overdue reminder successfully sent to {} (Reservation ID: {}).",
+                    res.getCustomerProfile().getCustomer().getEmail(), res.getId());
+
+            } catch (Exception e) {
+                LOGGER.error("Failed to process overdue reminder for Reservation ID {}: {}", res.getId(), e.getMessage());
+            }
+        }
+    }
+
+    @Transactional(readOnly = false)
+    @Override
+    public void processPickUpReminders() {
+        LocalDate today = LocalDate.now();
+        LocalDate boundaryDate = today.plusDays(2);
+
+        List<Reservation> upcomingReservations = reservationRepository
+            .findByStartDateBetweenAndReservationStatusAndPickUpReminderSentFalse(
+                today, boundaryDate, ReservationStatus.CREATED);
+
+        if (upcomingReservations.isEmpty()) {
+            LOGGER.info("No upcoming reservations found needing a pick-up reminder.");
+            return;
+        }
+
+        LOGGER.info("Found {} upcoming reservations. Starting pick-up reminder process...", upcomingReservations.size());
+
+        for (Reservation res : upcomingReservations) {
+            try {
+
+                List<Equipment> currentEquipment = res.getItems().stream()
+                    .map(ReservationRelation::getEquipment).toList();
+
+                emailService.sendPickUpReminderEmail(currentEquipment, res);
+
+                res.setPickUpReminderSent(true);
+                reservationRepository.save(res);
+
+                LOGGER.info("Pick-up reminder successfully sent to {} (Reservation ID: {}).",
+                    res.getCustomerProfile().getCustomer().getEmail(), res.getId());
+
+            } catch (Exception e) {
+                LOGGER.error("Failed to send pick-up reminder for Reservation ID {}: {}", res.getId(), e.getMessage());
+            }
+        }
+    }
+
     private void deleteTimePeriodsForEquipment(List<Equipment> equipmentList, Reservation reservation) {
         for (Equipment equipment : equipmentList) {
             equipment.getTimePeriodsList().removeIf(tp ->
@@ -308,10 +458,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
             return;
         }
 
-        long days = ChronoUnit.DAYS.between(reservation.getStartDate(), reservation.getEndDate());
-        if (days == 0) {
-            days = 1;
-        }
+        long days = ChronoUnit.DAYS.between(reservation.getStartDate(), reservation.getEndDate()) + 1;
 
         double equipmentSum = reservation.getItems().stream()
             .filter(item -> item.getEquipment() != null)

@@ -7,6 +7,9 @@ import {ReservationService} from '../../../services/reservation.service';
 import {CustomerProfileService} from '../../../services/customer-profile.service';
 import {TranslateService} from '@ngx-translate/core';
 import {ToastrService} from 'ngx-toastr';
+import {NavbarService} from "../../../services/navbar.service";
+import {forkJoin} from 'rxjs';
+import {ReservationStatus} from "../../../dtos/reservationstatus";
 
 @Component({
   selector: 'app-reservation',
@@ -27,6 +30,9 @@ export class ReservationComponent implements OnInit {
   profileFilter: number | null = null;
   dateFilter: string = '';
   timeFilter: string = '';
+  filtersExpanded = false;
+
+  showPastReservations: boolean = false;
 
   itemLimit: number = 10;
   currentPage: number = 1;
@@ -38,6 +44,7 @@ export class ReservationComponent implements OnInit {
     private reservationService: ReservationService,
     private customerProfileService: CustomerProfileService,
     public translateService: TranslateService,
+    private navbarService: NavbarService,
     private router: Router,
     private notification: ToastrService
   ) {
@@ -66,23 +73,7 @@ export class ReservationComponent implements OnInit {
    * Loads all reservations for own accountId.
    */
   loadReservations(): void {
-    this.loading = true;
-
-    const searchRequest: ReservationSearch = {
-      accountId: this.hardcodedAccountId
-    };
-
-    this.reservationService.search(searchRequest).subscribe({
-      next: (data) => {
-        this.reservations = data;
-        this.currentPage = 1;
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Failed to load reservations', err);
-        this.loading = false;
-      }
-    });
+    this.searchReservations();
   }
 
   /**
@@ -98,24 +89,64 @@ export class ReservationComponent implements OnInit {
       pickUpTime: this.timeFilter ? this.timeFilter + ':00' : undefined
     };
 
-    this.reservationService.search(searchRequest).subscribe({
-      next: (data) => {
-        this.currentPage = 1;
-        this.reservations = data;
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Failed to search reservations', err);
-        this.loading = false;
-      }
-    });
+    //Case 1: Only show Reservations that are not in the past, i.e. only show ones that have ReservationStatus CREATED or PICKED_UP
+    if (!this.showPastReservations) {
+      const requestCreated = this.reservationService.search({
+        ...searchRequest,
+        reservationStatus: ReservationStatus.CREATED
+      });
+
+      const requestPickedUp = this.reservationService.search({
+        ...searchRequest,
+        reservationStatus: ReservationStatus.PICKED_UP
+      });
+
+      forkJoin([requestCreated, requestPickedUp]).subscribe({
+        next: ([createdData, pickedUpData]) => {
+          this.reservations = [...createdData, ...pickedUpData];
+          this.currentPage = 1;
+          this.loading = false;
+        },
+        error: (err) => {
+          console.error('Failed to search reservations via forkJoin', err);
+          this.loading = false;
+        }
+      });
+    } else {
+      //Case 2: Show all Reservations
+      this.reservationService.search(searchRequest).subscribe({
+        next: (data) => {
+          this.currentPage = 1;
+          this.reservations = data;
+          this.loading = false;
+        },
+        error: (err) => {
+          console.error('Failed to search reservations', err);
+          this.loading = false;
+        }
+      });
+    }
   }
 
   clearFilters(): void {
     this.profileFilter = null;
     this.dateFilter = '';
     this.timeFilter = '';
+    this.showPastReservations = false;
     this.loadReservations();
+  }
+
+  toggleFilters(): void {
+    this.filtersExpanded = !this.filtersExpanded;
+  }
+
+  get activeFilterCount(): number {
+    let count = 0;
+    if (this.profileFilter) count++;
+    if (this.dateFilter) count++;
+    if (this.timeFilter) count++;
+    if (this.showPastReservations) count++;
+    return count;
   }
 
   openCreatePage(): void {
@@ -127,10 +158,12 @@ export class ReservationComponent implements OnInit {
   }
 
   openEditPage(item: ReservationDetail): void {
+    this.navbarService.close();
     this.router.navigate(['/customer/reservation/edit', item.id]);
   }
 
   openDeleteDialog(item: ReservationDetail): void {
+    this.navbarService.close();
     this.reservationToDelete = item;
     this.deleteError = undefined;
   }
@@ -148,7 +181,6 @@ export class ReservationComponent implements OnInit {
 
     this.deleteLoading = true;
     this.deleteError = undefined;
-    const deletedReservationId = this.reservationToDelete.id;
 
     this.reservationService.delete(this.reservationToDelete.id).subscribe({
       next: () => {
@@ -162,10 +194,7 @@ export class ReservationComponent implements OnInit {
 
         this.reservationToDelete = undefined;
         this.deleteLoading = false;
-        const translatedMessage = this.translateService.instant('RESERVATION.DELETE_SUCCESS', {
-          id: deletedReservationId
-        });
-        this.notification.success(translatedMessage);
+        this.notification.success(this.translateService.instant('RESERVATION.DELETE_SUCCESS'));
       },
       error: (err) => {
         console.error('Failed to delete reservation', err);

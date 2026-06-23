@@ -7,7 +7,7 @@ import {Equipment} from '../../../dtos/equipment';
 import {ReservationSearch} from '../../../dtos/reservation-search';
 import {ReservationDetail} from "../../../dtos/reservation-detail";
 import {ReservationUpdate} from "../../../dtos/reservation-update";
-import {ReservationStatus} from "../../../dtos/ReservationStatus";
+import {ReservationStatus} from "../../../dtos/reservationstatus";
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {CustomerProfileService} from '../../../services/customer-profile.service';
 import {CustomerProfile} from "../../../dtos/customer-profile";
@@ -279,8 +279,7 @@ export class BarcodeScannerComponent implements OnInit {
 
     //Filter out Reservations that have no more matching Equipment
     this.matchedReservations = this.matchedReservations.filter(res => {
-      const hasRemainingEquipment = res.items?.some((equipment: any) => this.scannedEquipmentIds.includes(equipment.id));
-      return hasRemainingEquipment;
+      return res.items?.some((equipment: any) => this.scannedEquipmentIds.includes(equipment.id));
     })
 
     this.updateScanScenario();
@@ -416,7 +415,6 @@ export class BarcodeScannerComponent implements OnInit {
   //Loads all customerAccounts for the dropdown
   private loadAllSystemUsers(): void {
     // TODO: Replace with real API-call from UserService when ready
-    // TODO: Replace this with a call for the searchMethod for CustomerAccounts, also make it a search with input
     this.allUsers = [
       {id: 1, username: 'Hans'},
       {id: 2, username: 'Not Actually An User'}
@@ -425,7 +423,7 @@ export class BarcodeScannerComponent implements OnInit {
 
   //Loads the customerProfiles for the selected customerAccount
   private loadProfilesForUser(userId: number): void {
-    this.customerProfileService.getCustomerProfiles().subscribe({
+    this.customerProfileService.getCustomerProfilesByCustomerId(userId).subscribe({
       next: (profiles) => {
         this.filteredProfiles = profiles;
         this.walkInForm.get('customerProfileId')?.enable();
@@ -522,6 +520,59 @@ export class BarcodeScannerComponent implements OnInit {
       this.submitExistingReservation();
 
     }
+  }
+
+  /**
+   * Live total price calculation for the Walk-In / Spontaneous Rental form.
+   */
+  get walkInTotalPrice(): number {
+    if (!this.walkInForm) return 0;
+
+    const start = this.walkInForm.get('startDate')?.value;
+    const end = this.walkInForm.get('endDate')?.value;
+
+    if (!start || !end || this.isWalkInDateRangeInvalid || this.scannedEquipments.length === 0) {
+      return 0;
+    }
+
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+
+    const diffTime = endDate.getTime() - startDate.getTime();
+    const totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+    const pricePerDay = this.scannedEquipments.reduce((sum, item) => sum + (item.price || 0), 0);
+
+    return pricePerDay * totalDays;
+  }
+
+  /**
+   * Live total price for the scanned equipment block at the bottom.
+   * Calculates the price dynamically based on today's date and the Walk-In end date if set.
+   */
+  get scannedItemsTotalPrice(): number {
+    if (this.scannedEquipments.length === 0) return 0;
+
+    let totalDays = 1; // Default fallback
+
+    if (this.scanScenario === 'NO_RESERVATION' && this.walkInForm) {
+      const start = this.walkInForm.get('startDate')?.value;
+      const end = this.walkInForm.get('endDate')?.value;
+      if (start && end && !this.isWalkInDateRangeInvalid) {
+        const diffTime = new Date(end).getTime() - new Date(start).getTime();
+        totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+      }
+    } else if (this.matchedReservations.length === 1) {
+      // If matching an existing reservation, use its runtime
+      const res = this.matchedReservations[0];
+      if (res.startDate && res.endDate) {
+        const diffTime = new Date(res.endDate).getTime() - new Date(res.startDate).getTime();
+        totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+      }
+    }
+
+    const pricePerDay = this.scannedEquipments.reduce((sum, item) => sum + (item.price || 0), 0);
+    return pricePerDay * totalDays;
   }
 
   //Helper-method to give RentalStatus-Enum-Values nice background coloring in HTML

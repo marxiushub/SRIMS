@@ -5,6 +5,10 @@
   margin: 0 auto;
   font-family: 'Segoe UI', Roboto, sans-serif;
 
+  @media (max-width: 400px) {
+    padding: 1rem;
+  }
+
   .dashboard-header {
     margin-bottom: 2.5rem;
 

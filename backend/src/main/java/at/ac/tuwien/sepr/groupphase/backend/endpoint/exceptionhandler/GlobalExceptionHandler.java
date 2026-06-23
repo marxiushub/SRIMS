@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -18,9 +19,7 @@ import java.lang.invoke.MethodHandles;
 import java.nio.file.AccessDeniedException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Register all your Java exceptions here to map them into meaningful HTTP exceptions.
@@ -81,7 +80,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         LOGGER.warn(ex.getMessage());
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("message", ex.getMessage());
-        body.put("errors", ex.getErrors());
+        String combinedErrors = String.join(", ", ex.getErrors());
+        body.put("errors", combinedErrors);
 
         return new ResponseEntity<>(
             body, new HttpHeaders(), HttpStatus.BAD_REQUEST
@@ -92,6 +92,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
         LOGGER.warn(ex.getMessage());
         return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.FORBIDDEN, request);
+    }
+
+    /**
+     * Handle BadCredentialsException, which is thrown when the user provides wrong credentials during authentication.
+     */
+    @ExceptionHandler(value = {BadCredentialsException.class})
+    protected ResponseEntity<Object> handleBadCredentials(RuntimeException ex, WebRequest request) {
+        LOGGER.warn(ex.getMessage());
+        return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.UNAUTHORIZED, request);
     }
 
 }

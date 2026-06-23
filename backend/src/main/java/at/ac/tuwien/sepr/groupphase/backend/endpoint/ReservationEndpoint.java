@@ -1,13 +1,11 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.detail.EquipmentDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationAddDeleteEquipmentDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.ReservationServiceImpl;
-import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,17 +55,33 @@ public class ReservationEndpoint {
     /**
      * Delete reservation.
      *
-     * @param deleteDto the DTO containing the fields to update
+     * @param id the id of the reservation to delete
      */
     @PreAuthorize("hasAuthority('RESERVATION_DELETE')")
     @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     public void deleteReservation(
-        @Valid @RequestBody ReservationAddDeleteEquipmentDto deleteDto
+        @PathVariable("id") Long id
     ) {
-        LOGGER.info("DELETE /api/v1/reservation - Body: {}", deleteDto);
+        LOGGER.info("DELETE /api/v1/reservation/{}", id);
 
-        service.deleteReservation(deleteDto.getId());
+        service.deleteReservation(id, false);
+    }
+
+    /**
+     * Deletes a reservation with the privileges of a Staff member.
+     *
+     * @param id the id of the reservation to delete
+     */
+    @PreAuthorize("hasAuthority('RESERVATION_DELETE') and hasAuthority('STAFF')")
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping("/staff/{id}")
+    public void deleteReservationStaff(
+        @PathVariable("id") Long id
+    ) {
+        LOGGER.info("DELETE /api/v1/reservation/staff/{}", id);
+
+        service.deleteReservation(id, true);
     }
 
     /**
@@ -84,6 +98,22 @@ public class ReservationEndpoint {
     ) {
         LOGGER.info("PATCH /api/v1/reservation/{} - Body: {}", updateDto.getId(), updateDto);
         return service.updateReservation(updateDto);
+    }
+
+    /**
+     * Partially updates an existing reservation with the privileges of a Staff member.
+     *
+     * @param updateDto the DTO containing the fields to update
+     * @return the updated equipment as a detail DTO
+     */
+    @PreAuthorize("hasAuthority('RESERVATION_UPDATE') and hasAuthority('STAFF')")
+    @ResponseStatus(HttpStatus.OK)
+    @PatchMapping("/staff/{id}")
+    public ReservationDetailDto updateReservationStaff(
+        @Valid @RequestBody ReservationUpdateDto updateDto
+    ) {
+        LOGGER.info("PATCH /api/v1/reservation/staff/{} - Body: {}", updateDto.getId(), updateDto);
+        return service.updateReservationStaff(updateDto);
     }
 
     /**

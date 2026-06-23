@@ -1,6 +1,7 @@
 {
   "COMMON": {
     "APP_NAME": "SRIMS - Ski Verleih & Inventory Management System",
+    "WELCOME": "Willkommen zu SRIMS!",
     "LOGIN": "Einloggen",
     "LOGOUT": "Ausloggen",
     "REGISTER": "Registrieren",
@@ -12,19 +13,26 @@
     "EMAIL": "E-Mail",
     "DATE_OF_BIRTH": "Geburtsdatum",
 
-    "HAVE_ACCOUNT": "Du hast bereits einen Account?",
-    "NO_ACCOUNT": "Du hast noch keinen Account?",
+    "HAVE_ACCOUNT": "Sie haben bereits einen Account?",
+    "NO_ACCOUNT": "Sie haben noch keinen Account?",
     "CREATE_ACCOUNT": "Account erstellen",
     "USERNAME_REQUIRED": "Benutzer ist erforderlich!",
     "PASSWORD_REQUIRED": "Passwort ist erforderlich!",
-    "PASSWORD_MIN_LENGTH": "Das Passwort muss mindestens 8 Zeichen lang sein.",
+    "PASSWORD_MIN_LENGTH": "Das Passwort muss mindestens 10 Zeichen lang sein.",
+    "PASSWORD_PATTERN": "Das Passwort muss mindestens eine Zahl und ein Sonderzeichen enthalten.",
     "PASSWORD_MISMATCH": "Die Passwörter stimmen nicht überein.",
+    "REPEAT_PASSWORD_REQUIRED": "Bitte wiederholen Sie das Passwort.",
     "FIRST_NAME_REQUIRED": "Vorname ist erforderlich!",
     "LAST_NAME_REQUIRED": "Nachname ist erforderlich!",
     "EMAIL_REQUIRED": "E-Mail ist erforderlich!",
     "EMAIL_INVALID": "Bitte geben Sie eine gültige E-Mail-Adresse ein!",
-    "DATE_OF_BIRTH_REQUIRED": "Geburtsdatum ist erforderlich!"
+    "DATE_OF_BIRTH_REQUIRED": "Geburtsdatum ist erforderlich!",
+    "DATE_OF_BIRTH_FUTURE": "Das Geburtsdatum darf nicht in der Zukunft liegen!",
+    "ALREADY_LOGGED_IN": "Sie sind bereits eingeloggt.",
 
+    "LOGIN_SUCCESS": "Erfolgreich angemeldet.",
+    "REGISTER_SUCCESS": "Erfolgreich registriert. Bitte loggen Sie sich ein.",
+    "LOGOUT_SUCCESS": "Erfolgreich ausgeloggt."
   },
   "INVENTORY": {
     "TITLE": "Skiausrüstung Inventar",
@@ -51,7 +59,8 @@
     "AVAILABLE": "Verfügbar",
     "RENTED": "Verliehen",
     "EQUIPMENT_ALL": "Alle",
-    "CLEAR": "Zurücksetzen",
+    "FILTERS": "Filter",
+    "CLEAR": "Filter zurücksetzen",
     "START_DATE": "Verfügbar ab",
     "END_DATE": "Bis",
     "LOWEST_FIRST": "Preis aufsteigend",
@@ -126,6 +135,8 @@
     "DASHBOARD_TITLE": "Mitarbeiter Dashboard",
     "DASHBOARD_SUBTITLE": "Verwaltung & Verleih-Infrastruktur",
     "COMING_SOON": "Demnächst verfügbar",
+    "RESERVATION_MANAGEMENT": "Reservierungsverwaltung (Personal)",
+    "UNKNOWN_CUSTOMER": "Unbekannter Kunde",
     "INVENTORY": {
       "TITLE": "Inventar & Equipment",
       "DESC": "Skier, Snowboards, etc. anlegen, bearbeiten oder einsehen."
@@ -138,14 +149,54 @@
       "TITLE": "Barcode-Scanner",
       "DESC": "Equipment kontaktlos ausgeben oder zurücknehmen."
     },
-    "STATISTICS": {
-      "TITLE": "Statistiken & Analytics",
-      "DESC": "Auslastung und beliebte Verleih-Artikel analysieren."
-    },
     "OVERVIEW": {
       "TITLE": "Grafische Übersicht",
       "DESC": "Visuelle Darstellung des gesamten Bestands-Status."
+    },
+    "STATISTICS": {
+      "TITLE": "Statistiken",
+      "SUBTITLE": "Analysiere die Auslastung und Mietdauer deines Equipments.",
+      "FILTER": {
+        "START": "Von",
+        "END": "Bis",
+        "TYPE": "Typ (Optional)",
+        "ALL_TYPES": "Alle Typen",
+        "VIEW_MODE": "Ansichts-Modus",
+        "GROUP_BY_MODEL": "Nach Modell gruppieren",
+        "SHOW_IDS": "Einzelne IDs anzeigen",
+        "GENERATE": "Statistik generieren",
+        "LOADING": "Lädt..."
+      },
+      "TABLE": {
+        "MODEL_NAME": "Modellname",
+        "EQUIPMENT_ID": "Equipment ID",
+        "DAYS_RENTED": "Geliehene Tage gesamt",
+        "FILTER_HIGH_TO_LOW": "Absteigend sortieren",
+        "FILTER_LOW_TO_HIGH": "Aufsteigend sortieren"
+      },
+      "MESSAGES": {
+        "NO_DATA": "Keine Daten für den gewählten Zeitraum vorhanden. Passe die Filter an und klicke auf 'Generieren'.",
+        "ERROR": "Statistiken konnten nicht geladen werden. Bitte überprüfe die Eingaben."
+      },
+      "EQUIPMENT_TYPES": {
+        "SKI": "Ski",
+        "SNOWBOARD": "Snowboard",
+        "HELMET": "Helm",
+        "POLE": "Stöcke",
+        "SKIBOOT": "Skischuhe",
+        "SNOWBOARDBOOT": "Snowboardschuhe"
+      }
     }
+  },
+  "CUSTOMER_SEARCH": {
+    "FILTER_BY_CUSTOMER": "Nach Kunden-Account filtern",
+    "FIRST_NAME": "Kunden-Vorname",
+    "LAST_NAME": "Kunden-Nachname",
+    "USERNAME": "Kunden-Benutzername",
+    "EMAIL": "Kunden-E-Mail",
+    "SELECT_ACCOUNT": "Konto auswählen",
+    "CUSTOMERS_FOUND": "passende Kunden gefunden",
+    "ALL_CUSTOMERS": "-- Alle Kunden-Accounts anzeigen --"
   },
   "BARCODE_SCANNER": {
     "TITLE": "Prototyp Barcode Scanner",
@@ -187,19 +238,19 @@
     "BTN_BLOCKED_CONFLICT": "Blockiert (Reservierungs-Konflikt)",
     "SUCCESS_PROCESS_COMPLETED": "Vorgang erfolgreich im System verbucht!",
     "MODAL_TITLE": "Vorgang bestätigen",
-    "MODAL_QUESTION": "Möchtest du den Scan-Vorgang für {{name}} jetzt abschließen?",
+    "MODAL_QUESTION": "Möchten Sie den Scan-Vorgang für {{name}} jetzt abschließen?",
     "MODAL_SUBTEXT": "Die Statusänderungen der Ausrüstung werden direkt im System verbucht.",
     "MODAL_BTN_CANCEL": "Abbrechen",
     "MODAL_BTN_CONFIRM": "Ja, abschließen",
     "WALK_IN_TITLE": "Direkt-Ausleihe anlegen (Walk-In)",
-    "WALK_IN_SUBTITLE": "Für dieses eingescannte Equipment liegt heute keine Reservierung vor. Du kannst die Ausrüstung hier direkt einem Kunden zuweisen.",
+    "WALK_IN_SUBTITLE": "Für dieses eingescannte Equipment liegt heute keine Reservierung vor. Sie können die Ausrüstung hier direkt einem Kunden zuweisen.",
     "WALK_IN_SELECT_USER": "1. Mitarbeiter / Kunden-Account wählen",
     "CHOOSE_USER_PLACEHOLDER": "Bitte Benutzer auswählen",
     "CHOOSE_PROFILE_PLACEHOLDER": "Zuerst Benutzer auswählen",
     "FIXED": "fixiert",
     "ERROR_INVALID_RETURN_DATE": "Das Rückgabedatum darf nicht vor dem Ausleihtag liegen!",
     "BTN_SUBMIT_WALK_IN": "Sofort-Ausleihe abschließen & ausgeben",
-    "WALK_IN_CONFIRM_PROMPT": "Möchtest du diese Direkt-Ausleihe jetzt verbindlich erstellen?",
+    "WALK_IN_CONFIRM_PROMPT": "Möchten Sie diese Direkt-Ausleihe jetzt verbindlich erstellen?",
     "WALK_IN_SUCCESS_TOAST": "Spontan-Ausleihe erfolgreich verbucht!",
     "WALK_IN_INFO_TEXT": "Hinweis: Bei dieser Ausleihe wird eine neue Reservierung mit dem Equipment aus deiner gescannten Liste unten erstellt.",
     "CAMERA_SCANNER": "Kamera Scanner",
@@ -213,6 +264,7 @@
     "PICKUP_TIME": "Abholzeit",
     "RETURN_DATE": "Rückgabedatum",
     "RESERVATION_STATUS": "Reservierungs-Status",
+    "TOTAL_PRICE": "Gesamtpreis",
     "ITEMS": "Gegenstände",
     "DURATION": "Dauer",
     "DAYS": "Tag(e)",
@@ -240,18 +292,21 @@
     "ID": "Reservierungs-ID",
     "DELETE_TITLE": "Reservierung stornieren",
     "DELETE_CONFIRMATION": "Sind Sie sicher, dass Sie diese Reservierung stornieren möchten?",
-    "DELETE_SUCCESS": "Reservierung #{{id}} erfolgreich storniert.",
+    "DELETE_SUCCESS": "Reservierung erfolgreich storniert.",
     "TITLE_EDIT": "Reservierung bearbeiten",
     "UPDATE": "Änderungen speichern",
-    "EDIT_SUCCESS": "Reservierung #{{id}} erfolgreich aktualisiert.",
+    "EDIT_SUCCESS": "Reservierung erfolgreich aktualisiert.",
     "LOADING_FAILED": "Die Reservierungsdetails konnten nicht geladen werden.",
     "NOT_FOUND": "Die angeforderte Reservierung wurde nicht gefunden.",
     "TITLE_OVERVIEW": "Zugehörige Reservierungen",
     "EQUIPMENT_COUNT": "Anzahl Ausrüstung",
     "NO_RESERVATIONS_FOUND": "Keine aktiven Reservierungen für die gescannten Gegenstände am heutigen Tag gefunden.",
+    "NO_RESERVATIONS_FOUND_STAFF": "Keine Reservierungen gefunden",
     "CONFIRM_TITLE": "Reservierung bestätigen",
-    "CONFIRM_PROMPT": "Möchtest du diese Reservierung wirklich abschicken?",
-    "CONFIRM_SUBTEXT": "Bitte überprüfe noch einmal alle ausgewählten Ausrüstungsstücke und Daten, bevor du fortfährst."
+    "CONFIRM_PROMPT": "Möchten Sie diese Reservierung wirklich abschicken?",
+    "CONFIRM_SUBTEXT": "Bitte überprüfe noch einmal alle ausgewählten Ausrüstungsstücke und Daten, bevor Sie fortfahren.",
+    "TITLE_DETAIL": "Reservierung ansehen",
+    "SHOW_PAST": "Vergangene Reservierungen anzeigen"
   },
   "RESERVATION_STATUS": {
     "CREATED": "Erstellt",

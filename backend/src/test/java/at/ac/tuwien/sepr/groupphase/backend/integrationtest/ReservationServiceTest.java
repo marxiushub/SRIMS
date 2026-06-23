@@ -5,6 +5,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.Reservat
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Reservation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.PeriodType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.ReservationStatus;
@@ -19,21 +20,29 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.TimePeriodsRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.HelmetRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerProfileRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
+import at.ac.tuwien.sepr.groupphase.backend.security.CurrentUserService;
+import at.ac.tuwien.sepr.groupphase.backend.service.EmailService;
 import at.ac.tuwien.sepr.groupphase.backend.service.ReservationService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.*;
 
 @ActiveProfiles({"test", "datagenerator", "generateData"})
 @SpringBootTest
@@ -57,6 +66,12 @@ public class ReservationServiceTest {
     @Autowired
     private TimePeriodsRepository timePeriodsRepository;
 
+    @MockitoBean
+    private EmailService emailService;
+
+    @MockitoBean
+    private CurrentUserService currentUserService;
+
     private Customer testCustomer;
     private CustomerProfile testCustomerProfile;
     private CustomerProfile testCustomerProfile2;
@@ -66,16 +81,16 @@ public class ReservationServiceTest {
     @BeforeEach
     public void setUp() {
         testCustomer = customerRepository
-            .findByEmail("hans.hansinger@email.com")
-            .orElseThrow(() -> new IllegalStateException("Test-Customer nicht im DataInitializer gefunden!"));
+            .findByEmail("benjamin.marius.widmer@gmail.com")
+            .orElseThrow(() -> new IllegalStateException("Test customer not found in DataInitializer!"));
 
         testCustomerProfile = customerProfileRepository
             .findByCustomerAndProfileName(testCustomer, "Hans")
-            .orElseThrow(() -> new IllegalStateException("Profil 'Hans' nicht gefunden!"));
+            .orElseThrow(() -> new IllegalStateException("Profile 'Hans' not found!"));
 
         testCustomerProfile2 = customerProfileRepository
             .findByCustomerAndProfileName(testCustomer, "Hansine")
-            .orElseThrow(() -> new IllegalStateException("Profil 'Hansine' nicht gefunden!"));
+            .orElseThrow(() -> new IllegalStateException("Profile 'Hansine' not found!"));
 
         List<Helmet> testEquipmentList = helmetRepository.findAll();
         if (testEquipmentList.size() < 2) {
@@ -84,12 +99,15 @@ public class ReservationServiceTest {
 
         testEquipment = testEquipmentList.get(0);
         testEquipment2 = testEquipmentList.get(1);
+
+        when(currentUserService.getUserId()).thenReturn(testCustomer.getId());
+        when(currentUserService.hasAuthority("STAFF")).thenReturn(false);
     }
 
     @AfterEach
     public void cleanupCreatedReservationData() {
         reservationRepository.findAll().forEach(reservation ->
-            reservationService.deleteReservation(reservation.getId())
+            reservationService.deleteReservation(reservation.getId(), true)
         );
 
         timePeriodsRepository.deleteAllInBatch();
@@ -105,7 +123,7 @@ public class ReservationServiceTest {
             LocalTime.of(10, 0)
         );
 
-        double expectedTotalPrice = testEquipment.getPrice() * 3;
+        double expectedTotalPrice = testEquipment.getPrice() * (3 +1);
 
         ReservationDetailDto result = reservationService.createReservation(dto);
 
@@ -189,9 +207,9 @@ public class ReservationServiceTest {
         updateDto.setCustomerProfileId(testCustomerProfile2.getId());
         updateDto.setReservationStatus(ReservationStatus.PICKED_UP);
 
-        double expectedTotalPrice = testEquipment2.getPrice() * 7;
+        double expectedTotalPrice = testEquipment2.getPrice() * (7 +1);
 
-        ReservationDetailDto updatedReservation = reservationService.updateReservation(updateDto);
+        ReservationDetailDto updatedReservation = reservationService.updateReservationStaff(updateDto);
 
         assertAll(
             "Verify that the reservation was updated correctly",
@@ -221,7 +239,7 @@ public class ReservationServiceTest {
         assertThat(created.getId()).isNotNull();
         assertThat(created.getItems()).hasSize(1);
 
-        double expectedPriceAfterAdd = (testEquipment.getPrice() + testEquipment2.getPrice()) * 5;
+        double expectedPriceAfterAdd = (testEquipment.getPrice() + testEquipment2.getPrice()) * (5 +1);
 
         ReservationAddDeleteEquipmentDto addDto = new ReservationAddDeleteEquipmentDto();
         addDto.setId(created.getId());
@@ -275,7 +293,7 @@ public class ReservationServiceTest {
                     && tp.getEndDate().equals(expectedEnd)
             );
 
-        reservationService.deleteReservation(reservationId);
+        reservationService.deleteReservation(reservationId, true);
 
         assertThat(reservationRepository.existsById(reservationId)).isFalse();
 
@@ -290,7 +308,7 @@ public class ReservationServiceTest {
     @Test
     public void deleteReservation_withUnknownId_throwsNotFoundException() {
         assertThrows(NotFoundException.class, () ->
-            reservationService.deleteReservation(99999L)
+            reservationService.deleteReservation(99999L, true)
         );
     }
 
@@ -308,7 +326,7 @@ public class ReservationServiceTest {
 
         assertThat(created.getId()).isNotNull();
         assertThat(created.getItems()).hasSize(2);
-        assertThat(created.getTotalPrice()).isEqualTo((testEquipment.getPrice() + testEquipment2.getPrice()) * 3);
+        assertThat(created.getTotalPrice()).isEqualTo((testEquipment.getPrice() + testEquipment2.getPrice()) * (3 +1));
 
         LocalDate expectedStart = createDto.getStartDate();
         LocalDate expectedEnd = createDto.getEndDate();
@@ -391,7 +409,7 @@ public class ReservationServiceTest {
             () -> assertThat(found.getCustomerName()).isEqualTo("Hans"),
             () -> assertThat(found.getStartDate()).isEqualTo(searchDate),
             () -> assertThat(found.getReservationStatus()).isEqualTo(ReservationStatus.CREATED),
-            () -> assertThat(found.getTotalPrice()).isEqualTo(testEquipment.getPrice() * 3),
+            () -> assertThat(found.getTotalPrice()).isEqualTo(testEquipment.getPrice() * (3 +1)),
             () -> assertThat(found.getItems().stream()
                 .anyMatch(item -> item.getId().equals(testEquipment.getId()))).isTrue()
         );
@@ -423,6 +441,132 @@ public class ReservationServiceTest {
         );
     }
 
+    @Test
+    void searchReservations_asCustomer_returnsOnlyOwnReservations() {
+
+        ReservationCreationDto dto = createReservationCreationDto(
+            testCustomerProfile.getId(),
+            List.of(testEquipment.getId()),
+            LocalDate.now().plusDays(10),
+            LocalDate.now().plusDays(12),
+            LocalTime.of(10, 0)
+        );
+
+        ReservationDetailDto created = reservationService.createReservation(dto);
+
+        ReservationSearchDto searchDto = new ReservationSearchDto();
+
+        List<ReservationDetailDto> result = reservationService.searchReservations(searchDto);
+
+        assertThat(result)
+            .extracting(ReservationDetailDto::getId)
+            .contains(created.getId());
+    }
+
+    @Test
+    void searchReservations_asCustomer_withDifferentAccountId_throwsException() {
+
+        ReservationSearchDto searchDto = new ReservationSearchDto();
+        searchDto.setAccountId(999L);
+
+        assertThatThrownBy(() -> reservationService.searchReservations(searchDto))
+            .isInstanceOf(AccessDeniedException.class)
+            .hasMessageContaining("Cannot search reservations of another customer.");
+    }
+
+    @Test
+    void searchReservations_asCustomer_ignoresAccountIdAndReturnsOwnOnly() {
+
+        ReservationCreationDto dto = createReservationCreationDto(
+            testCustomerProfile.getId(),
+            List.of(testEquipment.getId()),
+            LocalDate.now().plusDays(20),
+            LocalDate.now().plusDays(22),
+            LocalTime.of(10, 0)
+        );
+
+        ReservationDetailDto created = reservationService.createReservation(dto);
+
+        ReservationSearchDto searchDto = new ReservationSearchDto();
+
+        List<ReservationDetailDto> result = reservationService.searchReservations(searchDto);
+
+        assertThat(result)
+            .extracting(ReservationDetailDto::getId)
+            .contains(created.getId());
+    }
+
+    @Test
+    void searchReservations_asStaff_returnsAllReservations() {
+        when(currentUserService.hasAuthority("STAFF")).thenReturn(true);
+
+        ReservationCreationDto dto = createReservationCreationDto(
+            testCustomerProfile.getId(),
+            List.of(testEquipment.getId()),
+            LocalDate.now().plusDays(30),
+            LocalDate.now().plusDays(32),
+            LocalTime.of(10, 0)
+        );
+
+        ReservationDetailDto created = reservationService.createReservation(dto);
+
+        ReservationSearchDto searchDto = new ReservationSearchDto();
+
+        List<ReservationDetailDto> result = reservationService.searchReservations(searchDto);
+
+        assertThat(result)
+            .extracting(ReservationDetailDto::getId)
+            .contains(created.getId());
+    }
+
+    @Test
+    void searchReservations_asStaff_withAccountIdFiltersCorrectly() {
+        when(currentUserService.hasAuthority("STAFF")).thenReturn(true);
+
+        ReservationCreationDto dto = createReservationCreationDto(
+            testCustomerProfile.getId(),
+            List.of(testEquipment.getId()),
+            LocalDate.now().plusDays(40),
+            LocalDate.now().plusDays(42),
+            LocalTime.of(10, 0)
+        );
+
+        ReservationDetailDto created = reservationService.createReservation(dto);
+
+        ReservationSearchDto searchDto = new ReservationSearchDto();
+        searchDto.setAccountId(testCustomer.getId());
+
+        List<ReservationDetailDto> result = reservationService.searchReservations(searchDto);
+
+        assertThat(result)
+            .extracting(ReservationDetailDto::getId)
+            .contains(created.getId());
+    }
+
+    @Test
+    void searchReservations_asCustomer_alwaysFiltersToOwnAccountEvenWithoutSettingIt() {
+        when(currentUserService.hasAuthority("STAFF")).thenReturn(false);
+        when(currentUserService.getUserId()).thenReturn(testCustomer.getId());
+
+        ReservationCreationDto dto = createReservationCreationDto(
+            testCustomerProfile.getId(),
+            List.of(testEquipment.getId()),
+            LocalDate.now().plusDays(50),
+            LocalDate.now().plusDays(52),
+            LocalTime.of(10, 0)
+        );
+
+        ReservationDetailDto created = reservationService.createReservation(dto);
+
+        ReservationSearchDto searchDto = new ReservationSearchDto(); // kein accountId gesetzt
+
+        List<ReservationDetailDto> result = reservationService.searchReservations(searchDto);
+
+        assertThat(result)
+            .extracting(ReservationDetailDto::getId)
+            .contains(created.getId());
+    }
+
     private ReservationCreationDto createReservationCreationDto(
         Long customerProfileId,
         List<Long> equipmentIds,
@@ -441,7 +585,10 @@ public class ReservationServiceTest {
     }
 
     @Test
-    public void reservationById_withValidId_returnsDto() {
+    public void reservationById_asCustomer_withOwnReservation_returnsDto() {
+        when(currentUserService.hasAuthority("STAFF")).thenReturn(false);
+        when(currentUserService.getUserId()).thenReturn(testCustomer.getId());
+
         ReservationCreationDto createDto = createReservationCreationDto(
             testCustomerProfile.getId(),
             List.of(testEquipment.getId()),
@@ -449,6 +596,7 @@ public class ReservationServiceTest {
             LocalDate.now().plusDays(5),
             LocalTime.of(10, 0)
         );
+
         ReservationDetailDto created = reservationService.createReservation(createDto);
 
         ReservationDetailDto found = reservationService.reservationById(created.getId());
@@ -461,7 +609,76 @@ public class ReservationServiceTest {
     }
 
     @Test
+    public void reservationById_asCustomer_withForeignReservation_throwsAccessDenied() {
+        when(currentUserService.hasAuthority("STAFF")).thenReturn(false);
+        when(currentUserService.getUserId()).thenReturn(1L);
+
+        ReservationCreationDto createDto = createReservationCreationDto(
+            testCustomerProfile.getId(),
+            List.of(testEquipment.getId()),
+            LocalDate.now().plusDays(2),
+            LocalDate.now().plusDays(5),
+            LocalTime.of(10, 0)
+        );
+
+        ReservationDetailDto created = reservationService.createReservation(createDto);
+
+        // anderer User
+        when(currentUserService.getUserId()).thenReturn(999L);
+
+        assertThatThrownBy(() ->
+            reservationService.reservationById(created.getId())
+        )
+            .isInstanceOf(AccessDeniedException.class)
+            .hasMessageContaining("not allowed");
+    }
+
+    @Test
+    public void reservationById_asStaff_returnsAnyReservation() {
+        when(currentUserService.hasAuthority("STAFF")).thenReturn(true);
+
+        ReservationCreationDto createDto = createReservationCreationDto(
+            testCustomerProfile.getId(),
+            List.of(testEquipment.getId()),
+            LocalDate.now().plusDays(2),
+            LocalDate.now().plusDays(5),
+            LocalTime.of(10, 0)
+        );
+
+        ReservationDetailDto created = reservationService.createReservation(createDto);
+
+        ReservationDetailDto found = reservationService.reservationById(created.getId());
+
+        assertAll(
+            () -> assertThat(found).isNotNull(),
+            () -> assertThat(found.getId()).isEqualTo(created.getId())
+        );
+    }
+
+    @Test
+    public void reservationById_withNullUserId_throwsAccessDenied() {
+        when(currentUserService.hasAuthority("STAFF")).thenReturn(false);
+        when(currentUserService.getUserId()).thenReturn(null);
+
+        ReservationCreationDto createDto = createReservationCreationDto(
+            testCustomerProfile.getId(),
+            List.of(testEquipment.getId()),
+            LocalDate.now().plusDays(2),
+            LocalDate.now().plusDays(5),
+            LocalTime.of(10, 0)
+        );
+
+        ReservationDetailDto created = reservationService.createReservation(createDto);
+
+        assertThatThrownBy(() ->
+            reservationService.reservationById(created.getId())
+        ).isInstanceOf(AccessDeniedException.class);
+    }
+
+    @Test
     public void reservationById_withUnknownId_throwsNotFoundException() {
+        when(currentUserService.hasAuthority("STAFF")).thenReturn(true);
+
         assertThrows(NotFoundException.class, () ->
             reservationService.reservationById(99999L)
         );
@@ -482,7 +699,7 @@ public class ReservationServiceTest {
         updateDto.setId(created.getId());
         updateDto.setReservationStatus(ReservationStatus.PICKED_UP);
 
-        ReservationDetailDto updated = reservationService.updateReservation(updateDto);
+        ReservationDetailDto updated = reservationService.updateReservationStaff(updateDto);
 
         assertAll(
             "Verify that null fields in DTO don't overwrite existing data",
@@ -495,7 +712,7 @@ public class ReservationServiceTest {
     }
 
     @Test
-    public void searchReservations_withNullDto_returnsAllReservations() {
+    public void searchReservations_withNullDto_asCustomer_returnsOnlyOwnReservations() {
         ReservationCreationDto createDto = createReservationCreationDto(
             testCustomerProfile.getId(),
             List.of(testEquipment.getId()),
@@ -503,11 +720,35 @@ public class ReservationServiceTest {
             LocalDate.now().plusDays(2),
             LocalTime.of(10, 0)
         );
-        reservationService.createReservation(createDto);
+
+        ReservationDetailDto created = reservationService.createReservation(createDto);
 
         List<ReservationDetailDto> result = reservationService.searchReservations(null);
 
-        assertThat(result).isNotEmpty();
+        assertThat(result)
+            .extracting(ReservationDetailDto::getId)
+            .contains(created.getId());
+    }
+
+    @Test
+    public void searchReservations_withNullDto_asStaff_returnsAllReservations() {
+        when(currentUserService.hasAuthority("STAFF")).thenReturn(true);
+
+        ReservationCreationDto dto1 = createReservationCreationDto(
+            testCustomerProfile.getId(),
+            List.of(testEquipment.getId()),
+            LocalDate.now().plusDays(1),
+            LocalDate.now().plusDays(2),
+            LocalTime.of(10, 0)
+        );
+
+        ReservationDetailDto created = reservationService.createReservation(dto1);
+
+        List<ReservationDetailDto> result = reservationService.searchReservations(null);
+
+        assertThat(result)
+            .extracting(ReservationDetailDto::getId)
+            .contains(created.getId());
     }
 
     @Test
@@ -643,7 +884,7 @@ public class ReservationServiceTest {
         );
         ReservationDetailDto created = reservationService.createReservation(createDto);
 
-        reservationService.deleteReservation(created.getId());
+        reservationService.deleteReservation(created.getId(), true);
 
         boolean maintenanceKept = timePeriodsRepository.findByEquipment(savedEquipment).stream()
             .anyMatch(tp -> tp.getPeriodType() == PeriodType.REPAIR);
@@ -673,5 +914,64 @@ public class ReservationServiceTest {
             () -> assertThat(result.getItems()).isEmpty(),
             () -> assertThat(result.getTotalPrice()).isEqualTo(0.0) // Dies testet Zeile 290
         );
+    }
+
+    @Test
+    public void processOverdueReservations_withOverdueItems_sendsEmailAndUpdatesFlag() {
+        ReservationCreationDto createDto = createReservationCreationDto(
+            testCustomerProfile.getId(),
+            List.of(testEquipment.getId()),
+            LocalDate.now().plusDays(2),
+            LocalDate.now().plusDays(5),
+            LocalTime.of(10, 0)
+        );
+        ReservationDetailDto created = reservationService.createReservation(createDto);
+
+        Reservation reservation = reservationRepository.findById(created.getId()).orElseThrow();
+        reservation.setStartDate(LocalDate.now().minusDays(10));
+        reservation.setEndDate(LocalDate.now().minusDays(2));
+        reservation.setReservationStatus(ReservationStatus.PICKED_UP);
+        reservation.setOverdueReminderSent(false);
+        reservationRepository.save(reservation);
+
+        LocalDate boundaryDate = LocalDate.now().minusDays(1);
+        reservationService.processOverdueReservations(boundaryDate);
+
+        Reservation updated = reservationRepository.findById(created.getId()).orElseThrow();
+
+        assertAll(
+            "Verify that the overdue job correctly updates the flag and calls the email service",
+            () -> assertThat(updated.isOverdueReminderSent()).isTrue()
+        );
+
+        verify(emailService, times(1)).sendOverdueReminder(anyList(),any(Reservation.class));
+    }
+
+    @Test
+    public void processPickUpReminders_withUpcomingItems_sendsEmailAndUpdatesFlag() {
+        ReservationCreationDto createDto = createReservationCreationDto(
+            testCustomerProfile.getId(),
+            List.of(testEquipment.getId()),
+            LocalDate.now().plusDays(2),
+            LocalDate.now().plusDays(5),
+            LocalTime.of(10, 0)
+        );
+        ReservationDetailDto created = reservationService.createReservation(createDto);
+
+        Reservation reservation = reservationRepository.findById(created.getId()).orElseThrow();
+        reservation.setReservationStatus(ReservationStatus.CREATED);
+        reservation.setPickUpReminderSent(false);
+        reservationRepository.save(reservation);
+
+        reservationService.processPickUpReminders();
+
+        Reservation updated = reservationRepository.findById(created.getId()).orElseThrow();
+
+        assertAll(
+            "Verify that the pick-up job correctly updates the flag and calls the email service",
+            () -> assertThat(updated.isPickUpReminderSent()).isTrue()
+        );
+
+        verify(emailService, times(1)).sendPickUpReminderEmail(anyList(), any(Reservation.class));
     }
 }

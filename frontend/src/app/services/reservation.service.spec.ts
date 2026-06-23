@@ -8,7 +8,7 @@ import {ReservationSearch} from '../dtos/reservation-search';
 import {ReservationDetail} from '../dtos/reservation-detail';
 import {ReservationCreation} from '../dtos/reservation-creation';
 import {ReservationUpdate} from '../dtos/reservation-update';
-import {ReservationStatus} from "../dtos/ReservationStatus";
+import {ReservationStatus} from "../dtos/reservationstatus";
 
 describe('ReservationService', () => {
   let service: ReservationService;
@@ -62,6 +62,7 @@ describe('ReservationService', () => {
         startDate: '2026-03-01',
         endDate: '2026-03-02',
         confirmationEmailSent: false,
+        totalPrice: 0,
         items: [],
         reservationStatus: ReservationStatus.CREATED
       };
@@ -113,6 +114,7 @@ describe('ReservationService', () => {
         startDate: '2026-03-01',
         endDate: '2026-03-02',
         confirmationEmailSent: true,
+        totalPrice: 0,
         items: [],
         reservationStatus: ReservationStatus.CREATED
       };
@@ -162,6 +164,7 @@ describe('ReservationService', () => {
         startDate: '2026-05-01',
         endDate: '2026-05-02',
         confirmationEmailSent: false,
+        totalPrice: 0,
         items: [],
         reservationStatus: ReservationStatus.CREATED
       };
@@ -272,6 +275,7 @@ describe('ReservationService', () => {
           startDate: '2026-02-15',
           endDate: '2026-02-20',
           confirmationEmailSent: true,
+          totalPrice: 0,
           items: [],
           reservationStatus: ReservationStatus.CREATED
         }
@@ -290,7 +294,7 @@ describe('ReservationService', () => {
   });
 
   describe('delete', () => {
-    it('should make a DELETE request with the reservation ID in the body', () => {
+    it('should make a DELETE request with the reservation ID in the URL path', () => {
       const targetReservationId = 42;
 
       service.delete(targetReservationId).subscribe({
@@ -302,13 +306,9 @@ describe('ReservationService', () => {
         }
       });
 
-      const req = httpMock.expectOne(`${globals.backendUri}/reservation`);
+      const req = httpMock.expectOne(`${globals.backendUri}/reservation/${targetReservationId}`);
       expect(req.request.method).toBe('DELETE');
-
-      expect(req.request.body).toEqual({
-        id: targetReservationId,
-        equipmentIds: []
-      });
+      expect(req.request.body).toBeNull();
 
       req.flush(null);
     });
@@ -326,10 +326,62 @@ describe('ReservationService', () => {
         }
       });
 
-      const req = httpMock.expectOne(`${globals.backendUri}/reservation`);
+      const req = httpMock.expectOne(`${globals.backendUri}/reservation/${targetReservationId}`);
       expect(req.request.method).toBe('DELETE');
 
       req.flush('Reservation not found', { status: 404, statusText: 'Not Found' });
+    });
+  });
+
+  describe('updateForStaff', () => {
+    it('should make a PATCH request to the staff URI with the payload', () => {
+      const reservationId = 77;
+      const mockUpdate: ReservationUpdate = {
+        id: 77,
+        pickUpTime: '16:00'
+      };
+
+      const mockResponse: ReservationDetail = {
+        id: 77,
+        customerProfileId: 10,
+        accountId: 2,
+        customerName: 'Staff Modified',
+        pickUpTime: '16:00',
+        startDate: '2026-06-01',
+        endDate: '2026-06-05',
+        confirmationEmailSent: true,
+        totalPrice: 20,
+        items: [],
+        reservationStatus: ReservationStatus.CREATED
+      };
+
+      service.updateForStaff(reservationId, mockUpdate).subscribe((data) => {
+        expect(data).toBeTruthy();
+        expect(data.pickUpTime).toBe('16:00');
+      });
+
+      const req = httpMock.expectOne(`${globals.backendUri}/reservation/staff/${reservationId}`);
+      expect(req.request.method).toBe('PATCH');
+      expect(req.request.body).toEqual(mockUpdate);
+
+      req.flush(mockResponse);
+    });
+  });
+
+  describe('deleteForStaff', () => {
+    it('should make a DELETE request to the staff URI with the reservation ID in the URL path', () => {
+      const targetReservationId = 101;
+
+      service.deleteForStaff(targetReservationId).subscribe({
+        next: () => expect(true).toBeTrue(),
+        error: () => fail('Should not have failed')
+      });
+
+      const req = httpMock.expectOne(`${globals.backendUri}/reservation/staff/${targetReservationId}`);
+      expect(req.request.method).toBe('DELETE');
+      expect(req.request.body).toBeNull();
+
+      req.flush(null);
     });
   });
 });

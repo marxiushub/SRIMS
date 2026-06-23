@@ -12,6 +12,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.enums.EquipmentType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.PeriodType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
+import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Helmet;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.EquipmentRepository;
@@ -21,6 +22,8 @@ import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
@@ -304,7 +307,6 @@ public class EquipmentServiceTest {
 
         helmetRepository.save(blockedHelmet);
 
-        // Search Zeitraum überschneidet blockedHelmet
         EquipmentSearchDto searchDto = new EquipmentSearchDto();
         searchDto.setStart(LocalDate.now());
         searchDto.setEnd(LocalDate.now().plusDays(3));
@@ -319,6 +321,205 @@ public class EquipmentServiceTest {
             () -> assertThat(result).extracting(EquipmentDetailDto::getModel)
                 .doesNotContain("Blocked Helmet")
         );
+    }
+
+
+    @Test
+    void updateEquipmentStatuses_toRented_fromFree_updatesSuccessfully() {
+        Helmet helmet = helmetRepository.save(
+            new Helmet("Status Helmet", 100.0, 55.0, RentalStatus.FREE, SkillLevel.BEGINNER));
+
+        equipmentService.updateEquipmentStatuses(List.of(helmet.getId()), RentalStatus.RENTED);
+
+        Equipment updated = equipmentRepository.findById(helmet.getId()).orElseThrow();
+        assertThat(updated.getStatus()).isEqualTo(RentalStatus.RENTED);
+    }
+
+    @Test
+    void updateEquipmentStatuses_toMaintenance_fromFree_updatesSuccessfully() {
+        Helmet helmet = helmetRepository.save(
+            new Helmet("Maint Helmet", 100.0, 55.0, RentalStatus.FREE, SkillLevel.BEGINNER));
+
+        equipmentService.updateEquipmentStatuses(List.of(helmet.getId()), RentalStatus.MAINTENANCE);
+
+        Equipment updated = equipmentRepository.findById(helmet.getId()).orElseThrow();
+        assertThat(updated.getStatus()).isEqualTo(RentalStatus.MAINTENANCE);
+    }
+
+    @Test
+    void updateEquipmentStatuses_toFree_fromRented_updatesSuccessfully() {
+        Helmet helmet = helmetRepository.save(
+            new Helmet("FreeAgain Helmet", 100.0, 55.0, RentalStatus.RENTED, SkillLevel.BEGINNER));
+
+        equipmentService.updateEquipmentStatuses(List.of(helmet.getId()), RentalStatus.FREE);
+
+        Equipment updated = equipmentRepository.findById(helmet.getId()).orElseThrow();
+        assertThat(updated.getStatus()).isEqualTo(RentalStatus.FREE);
+    }
+
+    @Test
+    void updateEquipmentStatuses_toFree_whenAlreadyFree_throwsIllegalArgument() {
+        Helmet helmet = helmetRepository.save(
+            new Helmet("AlreadyFree Helmet", 100.0, 55.0, RentalStatus.FREE, SkillLevel.BEGINNER));
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+            equipmentService.updateEquipmentStatuses(List.of(helmet.getId()), RentalStatus.FREE));
+
+        assertThat(ex.getMessage()).contains("cannot be updated");
+    }
+
+    @Test
+    void updateEquipmentStatuses_toRented_whenNotFree_throwsIllegalArgument() {
+        Helmet helmet = helmetRepository.save(
+            new Helmet("Busy Helmet", 100.0, 55.0, RentalStatus.MAINTENANCE, SkillLevel.BEGINNER));
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+            equipmentService.updateEquipmentStatuses(List.of(helmet.getId()), RentalStatus.RENTED));
+
+        assertThat(ex.getMessage()).contains("cannot be updated");
+    }
+
+    @Test
+    void updateEquipmentStatuses_withNullOrEmptyIds_throwsIllegalArgument() {
+        assertAll(
+            () -> assertThrows(IllegalArgumentException.class, () ->
+                equipmentService.updateEquipmentStatuses(null, RentalStatus.FREE)),
+            () -> assertThrows(IllegalArgumentException.class, () ->
+                equipmentService.updateEquipmentStatuses(List.of(), RentalStatus.FREE))
+        );
+    }
+
+    @Test
+    void updateEquipmentStatuses_withNullStatus_throwsIllegalArgument() {
+        Helmet helmet = helmetRepository.save(
+            new Helmet("NullStatus Helmet", 100.0, 55.0, RentalStatus.FREE, SkillLevel.BEGINNER));
+
+        assertThrows(IllegalArgumentException.class, () ->
+            equipmentService.updateEquipmentStatuses(List.of(helmet.getId()), null));
+    }
+
+    @Test
+    void updateEquipmentStatuses_withUnknownId_throwsNotFound() {
+        assertThrows(NotFoundException.class, () ->
+            equipmentService.updateEquipmentStatuses(List.of(99999L), RentalStatus.RENTED));
+    }
+
+
+    @Test
+    void getEquipmentById_withNegativeId_throwsIllegalArgument() {
+        assertThrows(IllegalArgumentException.class, () ->
+            equipmentService.equipmentById(-1L));
+    }
+
+    @Test
+    void getEquipmentById_withNullId_throwsIllegalArgument() {
+        assertThrows(IllegalArgumentException.class, () ->
+            equipmentService.equipmentById(null));
+    }
+
+
+    @Test
+    void updateEquipment_withNegativeId_throwsIllegalArgument() {
+        HelmetUpdateDto dto = new HelmetUpdateDto();
+        ReflectionTestUtils.setField(dto, EquipmentUpdateDto.class, "type", EquipmentType.HELMET, EquipmentType.class);
+        assertThrows(IllegalArgumentException.class, () ->
+            equipmentService.updateEquipment(-1L, dto));
+    }
+
+    @Test
+    void updateEquipment_withUnknownId_throwsNotFound() {
+        HelmetUpdateDto dto = new HelmetUpdateDto();
+        ReflectionTestUtils.setField(dto, EquipmentUpdateDto.class, "type", EquipmentType.HELMET, EquipmentType.class);
+        assertThrows(NotFoundException.class, () ->
+            equipmentService.updateEquipment(99999L, dto));
+    }
+
+
+    @Test
+    void searchEquipment_withStatusFilter_returnsOnlyMatchingStatus() {
+        helmetRepository.save(new Helmet("Free One", 80.0, 54.0, RentalStatus.FREE, SkillLevel.BEGINNER));
+        helmetRepository.save(new Helmet("Rented One", 80.0, 54.0, RentalStatus.RENTED, SkillLevel.BEGINNER));
+
+        EquipmentSearchDto dto = new EquipmentSearchDto();
+        dto.setStatus(RentalStatus.RENTED);
+
+        List<EquipmentDetailDto> result = equipmentService.searchEquipment(dto);
+
+        assertAll(
+            () -> assertThat(result).extracting(EquipmentDetailDto::getModel).contains("Rented One"),
+            () -> assertThat(result).extracting(EquipmentDetailDto::getModel).doesNotContain("Free One")
+        );
+    }
+
+    @Test
+    void searchEquipment_withSkillLevelFilter_returnsOnlyMatching() {
+        helmetRepository.save(new Helmet("Beginner Gear", 80.0, 54.0, RentalStatus.FREE, SkillLevel.BEGINNER));
+        helmetRepository.save(new Helmet("Advanced Gear", 80.0, 54.0, RentalStatus.FREE, SkillLevel.ADVANCED));
+
+        EquipmentSearchDto dto = new EquipmentSearchDto();
+        dto.setTargetSkillLevel(SkillLevel.ADVANCED);
+
+        List<EquipmentDetailDto> result = equipmentService.searchEquipment(dto);
+
+        assertAll(
+            () -> assertThat(result).extracting(EquipmentDetailDto::getModel).contains("Advanced Gear"),
+            () -> assertThat(result).extracting(EquipmentDetailDto::getModel).doesNotContain("Beginner Gear")
+        );
+    }
+
+    @ParameterizedTest
+    @EnumSource(EquipmentType.class)
+    void searchEquipment_withEachType_filtersCorrectly(EquipmentType type) {
+        EquipmentSearchDto dto = new EquipmentSearchDto();
+        dto.setType(type);
+
+        List<EquipmentDetailDto> result = equipmentService.searchEquipment(dto);
+
+        assertThat(result).isNotNull();
+    }
+
+    @Test
+    void searchEquipment_withOnlyStartDate_ignoresDateFilter() {
+        helmetRepository.save(new Helmet("Date Helmet", 80.0, 54.0, RentalStatus.FREE, SkillLevel.BEGINNER));
+
+        EquipmentSearchDto dto = new EquipmentSearchDto();
+        dto.setStart(LocalDate.now());
+
+        List<EquipmentDetailDto> result = equipmentService.searchEquipment(dto);
+
+        assertThat(result).isNotNull();
+    }
+
+    @Test
+    void searchEquipment_withTimePeriodOutsideSearchRange_equipmentStaysAvailable() {
+        Helmet helmet = new Helmet("Past Booking Helmet", 80.0, 54.0, RentalStatus.FREE, SkillLevel.BEGINNER);
+        helmet.addTimePeriod(
+            LocalDate.now().minusDays(30),
+            LocalDate.now().minusDays(25),
+            PeriodType.RENTED,
+            null
+        );
+        helmetRepository.save(helmet);
+
+        EquipmentSearchDto dto = new EquipmentSearchDto();
+        dto.setStart(LocalDate.now());
+        dto.setEnd(LocalDate.now().plusDays(3));
+
+        List<EquipmentDetailDto> result = equipmentService.searchEquipment(dto);
+
+        assertThat(result).extracting(EquipmentDetailDto::getModel).contains("Past Booking Helmet");
+    }
+
+    @Test
+    void searchEquipment_withBlankModel_ignoresModelFilter() {
+        helmetRepository.save(new Helmet("Some Helmet", 80.0, 54.0, RentalStatus.FREE, SkillLevel.BEGINNER));
+
+        EquipmentSearchDto dto = new EquipmentSearchDto();
+        dto.setModel("   ");
+
+        List<EquipmentDetailDto> result = equipmentService.searchEquipment(dto);
+
+        assertThat(result).isNotNull();
     }
 
 }
