@@ -162,7 +162,6 @@ describe('ReservationComponent', () => {
     component.searchReservations();
 
     expect(reservationServiceMock.search).toHaveBeenCalledWith({
-      accountId: 1,
       customerProfileId: 10,
       pickUpTime: '10:00:00',
       startDate: '2026-12-24',
@@ -170,7 +169,6 @@ describe('ReservationComponent', () => {
     });
 
     expect(reservationServiceMock.search).toHaveBeenCalledWith({
-      accountId: 1,
       customerProfileId: 10,
       pickUpTime: '10:00:00',
       startDate: '2026-12-24',
@@ -193,7 +191,6 @@ describe('ReservationComponent', () => {
     component.searchReservations();
 
     expect(reservationServiceMock.search).toHaveBeenCalledOnceWith({
-      accountId: 1,
       customerProfileId: 10,
       pickUpTime: '10:00:00',
       startDate: '2026-12-24'
@@ -213,7 +210,6 @@ describe('ReservationComponent', () => {
     component.searchReservations();
 
     expect(reservationServiceMock.search).toHaveBeenCalledWith({
-      accountId: 1,
       customerProfileId: 10,
       pickUpTime: '10:00:00',
       startDate: '2026-12-24',
@@ -221,7 +217,6 @@ describe('ReservationComponent', () => {
     });
 
     expect(reservationServiceMock.search).toHaveBeenCalledWith({
-      accountId: 1,
       customerProfileId: 10,
       pickUpTime: '10:00:00',
       startDate: '2026-12-24',
@@ -242,7 +237,6 @@ describe('ReservationComponent', () => {
     component.searchReservations();
 
     expect(reservationServiceMock.search).toHaveBeenCalledOnceWith({
-      accountId: 1,
       customerProfileId: 10,
       pickUpTime: '10:00:00',
       startDate: '2026-12-24'
@@ -250,7 +244,7 @@ describe('ReservationComponent', () => {
     expect(component.loading).toBeFalse();
   });
 
-  it('should pass undefined for empty filters except hardcoded accountId', () => {
+  it('should pass undefined for empty filters', () => {
     component.profileFilter = null;
     component.dateFilter = '';
     component.timeFilter = '';
@@ -261,14 +255,12 @@ describe('ReservationComponent', () => {
     component.searchReservations();
 
     expect(reservationServiceMock.search).toHaveBeenCalledWith({
-      accountId: 1,
       customerProfileId: undefined,
       pickUpTime: undefined,
       startDate: undefined,
       reservationStatus: ReservationStatus.CREATED
     });
     expect(reservationServiceMock.search).toHaveBeenCalledWith({
-      accountId: 1,
       customerProfileId: undefined,
       pickUpTime: undefined,
       startDate: undefined,
@@ -293,14 +285,12 @@ describe('ReservationComponent', () => {
     expect(component.showPastReservations).toBeFalse();
 
     expect(reservationServiceMock.search).toHaveBeenCalledWith({
-      accountId: 1,
       customerProfileId: undefined,
       pickUpTime: undefined,
       startDate: undefined,
       reservationStatus: ReservationStatus.CREATED
     });
     expect(reservationServiceMock.search).toHaveBeenCalledWith({
-      accountId: 1,
       customerProfileId: undefined,
       pickUpTime: undefined,
       startDate: undefined,

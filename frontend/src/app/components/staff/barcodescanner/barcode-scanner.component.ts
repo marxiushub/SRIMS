@@ -16,8 +16,6 @@ import {ToastrService} from "ngx-toastr";
 import {ReservationCreation} from "../../../dtos/reservation-creation";
 import {BarcodeFormat} from '@zxing/library';
 
-//TODO: Import Service for Accounts/Users
-
 @Component({
   selector: 'app-barcode-scanner',
   templateUrl: './barcode-scanner.component.html',
