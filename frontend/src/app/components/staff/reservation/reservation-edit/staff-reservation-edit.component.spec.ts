@@ -53,7 +53,7 @@ describe('StaffReservationEditComponent', () => {
   };
 
   beforeEach(async () => {
-    reservationServiceMock = jasmine.createSpyObj('ReservationService', ['getById', 'update']);
+    reservationServiceMock = jasmine.createSpyObj('ReservationService', ['getById', 'updateForStaff']);
     equipmentServiceMock = jasmine.createSpyObj('EquipmentService', ['search']);
     toastrServiceMock = jasmine.createSpyObj('ToastrService', ['success', 'error', 'warning']);
     routerMock = jasmine.createSpyObj('Router', ['navigate']);
@@ -294,14 +294,14 @@ describe('StaffReservationEditComponent', () => {
     it('should abort submission if the reactive form is invalid', () => {
       component.reservationForm.patchValue({ startDate: null });
       component.submitReservation();
-      expect(reservationServiceMock.update).not.toHaveBeenCalled();
+      expect(reservationServiceMock.updateForStaff).not.toHaveBeenCalled();
     });
 
     it('should stop submission and issue warning if no items are selected', () => {
       component.selectedEquipment = [];
       component.submitReservation();
       expect(toastrServiceMock.warning).toHaveBeenCalledWith('Please choose at least 1 piece of equipment');
-      expect(reservationServiceMock.update).not.toHaveBeenCalled();
+      expect(reservationServiceMock.updateForStaff).not.toHaveBeenCalled();
     });
 
     it('should stop submission and show error toast if date bounds are mismatched', () => {
@@ -311,7 +311,7 @@ describe('StaffReservationEditComponent', () => {
       component.submitReservation();
 
       expect(toastrServiceMock.error).toHaveBeenCalledWith('The return date cannot be before the pick-up date');
-      expect(reservationServiceMock.update).not.toHaveBeenCalled();
+      expect(reservationServiceMock.updateForStaff).not.toHaveBeenCalled();
     });
 
     it('should send well-formatted payload on valid submission and navigate to list', () => {
@@ -321,14 +321,14 @@ describe('StaffReservationEditComponent', () => {
         endDate: '2026-04-05',
         pickUpTime: '08:30'
       });
-      reservationServiceMock.update.and.returnValue(of(mockReservationData));
+      reservationServiceMock.updateForStaff.and.returnValue(of(mockReservationData));
 
       const translateService = TestBed.inject(TranslateService);
       spyOn(translateService, 'instant').and.returnValue('Successfully updated');
 
       component.submitReservation();
 
-      expect(reservationServiceMock.update).toHaveBeenCalledWith(42, {
+      expect(reservationServiceMock.updateForStaff).toHaveBeenCalledWith(42, {
         id: 42,
         customerProfileId: 101,
         equipmentIds: [201, 202],
@@ -343,7 +343,7 @@ describe('StaffReservationEditComponent', () => {
     it('should map exception message payload into state error property on submission failure', () => {
       spyOn(console, 'error');
       component.selectedEquipment = [mockEquipment[0]];
-      reservationServiceMock.update.and.returnValue(throwError(() => ({ error: { message: 'Overlapping reservation constraint' } })));
+      reservationServiceMock.updateForStaff.and.returnValue(throwError(() => ({ error: { message: 'Overlapping reservation constraint' } })));
 
       component.submitReservation();
 
@@ -354,7 +354,7 @@ describe('StaffReservationEditComponent', () => {
     it('should fall back to standard error message text if exception body contains no descriptive text', () => {
       spyOn(console, 'error');
       component.selectedEquipment = [mockEquipment[0]];
-      reservationServiceMock.update.and.returnValue(throwError(() => ({ error: {} })));
+      reservationServiceMock.updateForStaff.and.returnValue(throwError(() => ({ error: {} })));
 
       component.submitReservation();
 

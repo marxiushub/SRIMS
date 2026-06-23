@@ -38,7 +38,7 @@ public interface ReservationService {
      *
      * @param id the unique identifier of the reservation to delete
      */
-    void deleteReservation(Long id);
+    void deleteReservation(Long id, boolean isStaff);
 
     /**
      * Partially updates an existing reservation.
@@ -46,11 +46,23 @@ public interface ReservationService {
      *
      * @param updateDto the data transfer object containing the new values
      * @return an {@link ReservationDetailDto} representing the updated equipment
-     * @throws at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException if no reservation with the given ID exists in the database
-     * @throws IllegalArgumentException                                         if any provided field value is invalid
-     *
+     * @throws at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException   if no reservation with the given ID exists in the database
+     * @throws IllegalArgumentException                                           if any provided field value is invalid
+     * @throws at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException if the provided data fails validation checks
      */
     ReservationDetailDto updateReservation(ReservationUpdateDto updateDto);
+
+    /**
+     * Performs a reservation update with the privileges of staff members.
+     *
+     * @param dto the data transfer object containing values to update on the reservation
+     * @return an updated {@link ReservationDetailDto} reflecting the persisted changes
+     * @throws NotFoundException                                                  if no reservation with the given identifier exists
+     * @throws IllegalArgumentException                                           if any provided field value is invalid
+     * @throws at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException if the provided data fails validation checks
+     */
+    @Transactional
+    ReservationDetailDto updateReservationStaff(ReservationUpdateDto dto);
 
     /**
      * Searches for reservations based on dynamic criteria
@@ -90,6 +102,14 @@ public interface ReservationService {
      */
     void processOverdueReservations(LocalDate boundaryDate);
 
+    /**
+     * Processes and dispatches pickup reminder notifications to customers. This is a
+     * mutating operation (hence {@code readOnly = false}) and may update reminder
+     * state on reservations (for example marking reminders as sent). Implementations
+     * are expected to run this method periodically (e.g. via a scheduled job) and
+     * to ensure notifications are delivered for reservations approaching their pickup
+     * date.
+     */
     @Transactional(readOnly = false)
     void processPickUpReminders();
 }

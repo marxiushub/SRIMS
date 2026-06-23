@@ -26,6 +26,7 @@ public interface TestData {
             add("EQUIPMENT_UPDATE");
             add("EQUIPMENT_DELETE");
             add("RESERVATION_READ");
+            add("RESERVATION_UPDATE");
             add("STAFF_CREATE");
             add("STAFF_READ");
             add("STAFF_UPDATE");

@@ -26,7 +26,6 @@ import at.ac.tuwien.sepr.groupphase.backend.service.ReservationService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.access.AccessDeniedException;
@@ -43,7 +42,6 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ActiveProfiles({"test", "datagenerator", "generateData"})
@@ -109,7 +107,7 @@ public class ReservationServiceTest {
     @AfterEach
     public void cleanupCreatedReservationData() {
         reservationRepository.findAll().forEach(reservation ->
-            reservationService.deleteReservation(reservation.getId())
+            reservationService.deleteReservation(reservation.getId(), true)
         );
 
         timePeriodsRepository.deleteAllInBatch();
@@ -125,7 +123,7 @@ public class ReservationServiceTest {
             LocalTime.of(10, 0)
         );
 
-        double expectedTotalPrice = testEquipment.getPrice() * 3;
+        double expectedTotalPrice = testEquipment.getPrice() * (3 +1);
 
         ReservationDetailDto result = reservationService.createReservation(dto);
 
@@ -209,9 +207,9 @@ public class ReservationServiceTest {
         updateDto.setCustomerProfileId(testCustomerProfile2.getId());
         updateDto.setReservationStatus(ReservationStatus.PICKED_UP);
 
-        double expectedTotalPrice = testEquipment2.getPrice() * 7;
+        double expectedTotalPrice = testEquipment2.getPrice() * (7 +1);
 
-        ReservationDetailDto updatedReservation = reservationService.updateReservation(updateDto);
+        ReservationDetailDto updatedReservation = reservationService.updateReservationStaff(updateDto);
 
         assertAll(
             "Verify that the reservation was updated correctly",
@@ -241,7 +239,7 @@ public class ReservationServiceTest {
         assertThat(created.getId()).isNotNull();
         assertThat(created.getItems()).hasSize(1);
 
-        double expectedPriceAfterAdd = (testEquipment.getPrice() + testEquipment2.getPrice()) * 5;
+        double expectedPriceAfterAdd = (testEquipment.getPrice() + testEquipment2.getPrice()) * (5 +1);
 
         ReservationAddDeleteEquipmentDto addDto = new ReservationAddDeleteEquipmentDto();
         addDto.setId(created.getId());
@@ -295,7 +293,7 @@ public class ReservationServiceTest {
                     && tp.getEndDate().equals(expectedEnd)
             );
 
-        reservationService.deleteReservation(reservationId);
+        reservationService.deleteReservation(reservationId, true);
 
         assertThat(reservationRepository.existsById(reservationId)).isFalse();
 
@@ -310,7 +308,7 @@ public class ReservationServiceTest {
     @Test
     public void deleteReservation_withUnknownId_throwsNotFoundException() {
         assertThrows(NotFoundException.class, () ->
-            reservationService.deleteReservation(99999L)
+            reservationService.deleteReservation(99999L, true)
         );
     }
 
@@ -328,7 +326,7 @@ public class ReservationServiceTest {
 
         assertThat(created.getId()).isNotNull();
         assertThat(created.getItems()).hasSize(2);
-        assertThat(created.getTotalPrice()).isEqualTo((testEquipment.getPrice() + testEquipment2.getPrice()) * 3);
+        assertThat(created.getTotalPrice()).isEqualTo((testEquipment.getPrice() + testEquipment2.getPrice()) * (3 +1));
 
         LocalDate expectedStart = createDto.getStartDate();
         LocalDate expectedEnd = createDto.getEndDate();
@@ -411,7 +409,7 @@ public class ReservationServiceTest {
             () -> assertThat(found.getCustomerName()).isEqualTo("Hans"),
             () -> assertThat(found.getStartDate()).isEqualTo(searchDate),
             () -> assertThat(found.getReservationStatus()).isEqualTo(ReservationStatus.CREATED),
-            () -> assertThat(found.getTotalPrice()).isEqualTo(testEquipment.getPrice() * 3),
+            () -> assertThat(found.getTotalPrice()).isEqualTo(testEquipment.getPrice() * (3 +1)),
             () -> assertThat(found.getItems().stream()
                 .anyMatch(item -> item.getId().equals(testEquipment.getId()))).isTrue()
         );
@@ -701,7 +699,7 @@ public class ReservationServiceTest {
         updateDto.setId(created.getId());
         updateDto.setReservationStatus(ReservationStatus.PICKED_UP);
 
-        ReservationDetailDto updated = reservationService.updateReservation(updateDto);
+        ReservationDetailDto updated = reservationService.updateReservationStaff(updateDto);
 
         assertAll(
             "Verify that null fields in DTO don't overwrite existing data",
@@ -886,7 +884,7 @@ public class ReservationServiceTest {
         );
         ReservationDetailDto created = reservationService.createReservation(createDto);
 
-        reservationService.deleteReservation(created.getId());
+        reservationService.deleteReservation(created.getId(), true);
 
         boolean maintenanceKept = timePeriodsRepository.findByEquipment(savedEquipment).stream()
             .anyMatch(tp -> tp.getPeriodType() == PeriodType.REPAIR);

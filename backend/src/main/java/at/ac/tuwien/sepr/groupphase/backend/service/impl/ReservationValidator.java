@@ -23,6 +23,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @Component
@@ -77,7 +78,7 @@ public class ReservationValidator {
         }
     }
 
-    public void validateUpdateDto(ReservationUpdateDto dto) {
+    public void validateUpdateDto(ReservationUpdateDto dto, Long userId) {
         if (dto == null) {
             throw new ValidationException("Reservation update dto must not be null", List.of("dto is null"));
         }
@@ -88,6 +89,23 @@ public class ReservationValidator {
         if (reservation == null) {
             validationErrors.add("No such reservation with id " + dto.getId());
             throw new ValidationException("Validation failed", validationErrors);
+        }
+
+        if (userId != null) {
+            if (!Objects.equals(reservation.getCustomerProfile().getCustomer().getId(), userId)) {
+                validationErrors.add("User is not the owner of this reservation");
+            } else {
+                LocalDate nowPlusTwoDays = LocalDate.now().plusDays(2);
+                if (reservation.getStartDate().isBefore(nowPlusTwoDays)) {
+                    validationErrors.add("Reservation can no longer be changed within two days of its start date");
+                }
+                if (dto.getCustomerProfileId() != null && reservation.getCustomerProfile().getCustomer().getProfiles().stream().noneMatch(profile -> profile.getId().equals(dto.getCustomerProfileId()))) {
+                    validationErrors.add("Customer profile does not belong to the customer");
+                }
+            }
+            if (dto.getReservationStatus() != null) {
+                validationErrors.add("Reservation status must not be changed by the customer");
+            }
         }
 
         LocalDate pickUpDate = dto.getStartDate() != null ? dto.getStartDate() : reservation.getStartDate();

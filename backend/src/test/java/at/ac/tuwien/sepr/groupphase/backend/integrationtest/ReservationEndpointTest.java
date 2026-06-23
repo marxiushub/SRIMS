@@ -8,6 +8,8 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.Reservat
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.ReservationStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Permission;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Role;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Helmet;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Ski;
@@ -60,10 +62,10 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
     private SecurityProperties securityProperties;
 
     private Customer testCustomer;
+    private Staff testStaff;
     private CustomerProfile testProfile;
     private Equipment testEquipment1;
     private Equipment testEquipment2;
-    private Staff testStaff;
 
     private String userToken() {
         return jwtTokenizer.getAuthToken(
@@ -73,10 +75,10 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
         );
     }
 
-    private String staffToken(Staff staff) {
+    private String staffToken() {
         return jwtTokenizer.getAuthToken(
-            staff.getEmail(),
-            staff.getId(),
+            testStaff.getEmail(),
+            testStaff.getId(),
             ADMIN_PERMISSIONS
         );
     }
@@ -84,6 +86,15 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
     @BeforeEach
     public void setup() {
         String uniqueSuffix = UUID.randomUUID().toString();
+
+        testStaff = new Staff(
+            "reservation_test_staff_" + uniqueSuffix,
+            "hashedPassword",
+            "reservation.test.staff." + uniqueSuffix + "@example.com",
+            Set.<Role>of(),
+            Set.<Permission>of()
+        );
+        testStaff = staffRepository.save(testStaff);
 
         testCustomer = new Customer(
             "reservation_test_user_" + uniqueSuffix,
@@ -124,14 +135,6 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
             SkillLevel.ADVANCED
         );
         testEquipment2 = equipmentRepository.save(testEquipment2);
-
-        testStaff = new Staff(
-            "reservation_test_staff_" + uniqueSuffix,
-            "hashedPassword",
-            "reservation.test.user." + uniqueSuffix + "@admin.com",
-            Set.of(),
-            Set.of()
-        );
     }
 
     @Test
@@ -181,7 +184,7 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
               "equipmentIds": [%d],
               "startDate": "%s",
               "endDate": "%s",
-              "pickUpTime": "10:00:00",
+              "pickUpTime": "10:00",
               "reservationStatus": "PICKED_UP"
             }
             """.formatted(
@@ -192,10 +195,10 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
             updatedEndDate
         );
 
-        assertDoesNotThrow(() -> mockMvc.perform(patch("/api/v1/reservation/{id}", created.getId())
+        assertDoesNotThrow(() -> mockMvc.perform(patch("/api/v1/reservation/staff/{id}", created.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(patchJson)
-                .header(securityProperties.getAuthHeader(), userToken())
+                .header(securityProperties.getAuthHeader(), staffToken())
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(created.getId()))
@@ -396,7 +399,7 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
     @Test
     public void searchReservations_asStaff_returnsAllReservations() {
 
-        String staffToken = staffToken(testStaff);
+        String staffToken = staffToken();
 
         ReservationDetailDto created = createTestReservation(
             List.of(testEquipment1.getId()),
@@ -415,7 +418,7 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
     @Test
     public void searchReservations_asStaff_withAccountId_filtersCorrectly() {
 
-        String staffToken = staffToken(testStaff);
+        String staffToken = staffToken();
 
         ReservationDetailDto created = createTestReservation(
             List.of(testEquipment1.getId()),
@@ -498,7 +501,7 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
     @Test
     public void getReservationById_asStaff_returns200() {
 
-        String staffToken = staffToken(testStaff);
+        String staffToken = staffToken();
 
         ReservationDetailDto created = createTestReservation(
             List.of(testEquipment1.getId()),
@@ -517,7 +520,7 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
     @Test
     public void getReservationById_withUnknownId_returns404() {
 
-        String staffToken = staffToken(testStaff);
+        String staffToken = staffToken();
 
         assertDoesNotThrow(() -> mockMvc.perform(get("/api/v1/reservation/{id}", 99999L)
                 .header(securityProperties.getAuthHeader(), staffToken)

@@ -90,7 +90,7 @@ export class StaffReservationViewComponent implements OnInit {
     this.deleteLoading = true;
     this.deleteError = undefined;
 
-    this.reservationService.delete(this.reservationId).subscribe({
+    this.reservationService.deleteForStaff(this.reservationId).subscribe({
       next: () => {
         this.showDeleteModal = false;
         this.deleteLoading = false;
