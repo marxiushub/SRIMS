@@ -41,7 +41,7 @@ describe('StaffReservationViewComponent', () => {
   };
 
   beforeEach(async () => {
-    reservationServiceMock = jasmine.createSpyObj('ReservationService', ['getById', 'delete']);
+    reservationServiceMock = jasmine.createSpyObj('ReservationService', ['getById', 'deleteForStaff']);
     toastrServiceMock = jasmine.createSpyObj('ToastrService', ['success', 'error']);
     routerMock = jasmine.createSpyObj('Router', ['navigate']);
 
@@ -150,11 +150,11 @@ describe('StaffReservationViewComponent', () => {
       component.reservation = undefined;
       component.confirmDelete();
 
-      expect(reservationServiceMock.delete).not.toHaveBeenCalled();
+      expect(reservationServiceMock.deleteForStaff).not.toHaveBeenCalled();
     });
 
     it('should successfully delete reservation, close modal, show success toast, and navigate back to list', () => {
-      reservationServiceMock.delete.and.returnValue(of(void 0));
+      reservationServiceMock.deleteForStaff.and.returnValue(of(void 0));
       spyOn(component, 'backToList');
 
       const translateService = TestBed.inject(TranslateService);
@@ -162,7 +162,7 @@ describe('StaffReservationViewComponent', () => {
 
       component.confirmDelete();
 
-      expect(reservationServiceMock.delete).toHaveBeenCalledWith(42);
+      expect(reservationServiceMock.deleteForStaff).toHaveBeenCalledWith(42);
       expect(component.showDeleteModal).toBeFalse();
       expect(component.deleteLoading).toBeFalse();
       expect(toastrServiceMock.success).toHaveBeenCalledWith('Successfully deleted');
@@ -172,7 +172,7 @@ describe('StaffReservationViewComponent', () => {
     it('should handle backend error on delete and set deleteError message', () => {
       spyOn(console, 'error');
       component.showDeleteModal = true;
-      reservationServiceMock.delete.and.returnValue(throwError(() => ({ error: { message: 'Cannot delete' } })));
+      reservationServiceMock.deleteForStaff.and.returnValue(throwError(() => ({ error: { message: 'Cannot delete' } })));
 
       component.confirmDelete();
 
@@ -184,7 +184,7 @@ describe('StaffReservationViewComponent', () => {
     it('should fallback to default error message if error payload contains no message text', () => {
       spyOn(console, 'error');
       component.showDeleteModal = true;
-      reservationServiceMock.delete.and.returnValue(throwError(() => ({ error: {} })));
+      reservationServiceMock.deleteForStaff.and.returnValue(throwError(() => ({ error: {} })));
 
       component.confirmDelete();
 

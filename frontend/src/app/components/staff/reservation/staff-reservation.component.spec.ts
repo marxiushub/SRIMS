@@ -38,7 +38,7 @@ describe('StaffReservationComponent', () => {
   };
 
   beforeEach(async () => {
-    reservationServiceMock = jasmine.createSpyObj('ReservationService', ['search', 'delete']);
+    reservationServiceMock = jasmine.createSpyObj('ReservationService', ['search', 'deleteForStaff']);
     staffServiceMock = jasmine.createSpyObj('StaffService', ['searchCustomers']);
     toastrServiceMock = jasmine.createSpyObj('ToastrService', ['success', 'error']);
     routerMock = jasmine.createSpyObj('Router', ['navigate']);
@@ -252,20 +252,20 @@ describe('StaffReservationComponent', () => {
     it('should do nothing on confirmDelete if no reservation to delete is selected', () => {
       component.reservationToDelete = undefined;
       component.confirmDelete();
-      expect(reservationServiceMock.delete).not.toHaveBeenCalled();
+      expect(reservationServiceMock.deleteForStaff).not.toHaveBeenCalled();
     });
 
     it('should successfully delete reservation, splice it from array and show success toast', () => {
       component.reservations = [...mockReservations];
       component.reservationToDelete = mockReservations[0];
-      reservationServiceMock.delete.and.returnValue(of(void 0));
+      reservationServiceMock.deleteForStaff.and.returnValue(of(void 0));
 
       const translateService = TestBed.inject(TranslateService);
       spyOn(translateService, 'instant').and.returnValue('Deleted Success');
 
       component.confirmDelete();
 
-      expect(reservationServiceMock.delete).toHaveBeenCalledWith(1);
+      expect(reservationServiceMock.deleteForStaff).toHaveBeenCalledWith(1);
       expect(component.reservations.length).toBe(2);
       expect(component.reservations.find(r => r.id === 1)).toBeUndefined();
       expect(toastrServiceMock.success).toHaveBeenCalledWith('Deleted Success');
@@ -274,7 +274,7 @@ describe('StaffReservationComponent', () => {
     it('should handle server error on delete and set deleteError message', () => {
       spyOn(console, 'error');
       component.reservationToDelete = mockReservations[0];
-      reservationServiceMock.delete.and.returnValue(throwError(() => ({ error: { message: 'Cannot delete active item' } })));
+      reservationServiceMock.deleteForStaff.and.returnValue(throwError(() => ({ error: { message: 'Cannot delete active item' } })));
 
       component.confirmDelete();
 
@@ -372,7 +372,7 @@ describe('StaffReservationComponent', () => {
     it('should auto-decrement currentPage if items on the last page are completely deleted', () => {
       component.currentPage = 3;
       component.reservationToDelete = component.reservations[11];
-      reservationServiceMock.delete.and.returnValue(of(void 0));
+      reservationServiceMock.deleteForStaff.and.returnValue(of(void 0));
 
       component.confirmDelete();
       expect(component.currentPage).toBe(3);

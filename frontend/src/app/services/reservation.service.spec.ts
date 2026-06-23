@@ -350,6 +350,7 @@ describe('ReservationService', () => {
         startDate: '2026-06-01',
         endDate: '2026-06-05',
         confirmationEmailSent: true,
+        totalPrice: 20,
         items: [],
         reservationStatus: ReservationStatus.CREATED
       };
