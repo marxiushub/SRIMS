@@ -24,7 +24,6 @@ import java.util.Set;
 @Configuration
 public class DataInitializer {
 
-
     private final UserRepository userRepository;
     private final PasswordEncoder encoder;
     private final CustomerRepository customerRepository;
@@ -196,9 +195,15 @@ public class DataInitializer {
                 r.getPermissions().add(deleteEquipment);
                 r.getPermissions().add(searchEquipment);
 
-                // Reservation -> only Read and Search
+                // Reservation -> full Rights
+                r.getPermissions().add(createReservation);
                 r.getPermissions().add(readReservation);
+                r.getPermissions().add(updateReservation);
+                r.getPermissions().add(deleteReservation);
                 r.getPermissions().add(searchReservation);
+
+                // Customer -> only READ
+                r.getPermissions().add(readCustomer);
 
                 // CustomerProfile - only READ
                 r.getPermissions().add(readCustomerProfile);
@@ -218,6 +223,7 @@ public class DataInitializer {
 
         //TESTUSER
         //Customer
+        //test
         Set<Role> rolesCustomer = Set.of(roleRepository.findByName("ROLE_CUSTOMER").orElseThrow());
 
         if (userRepository.findUserByEmail("benjamin.marius.widmer@gmail.com").isEmpty()) {
@@ -290,4 +296,5 @@ public class DataInitializer {
         }
 
     }
+
 }

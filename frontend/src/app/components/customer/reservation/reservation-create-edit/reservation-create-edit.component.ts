@@ -15,7 +15,7 @@ import {debounceTime, distinctUntilChanged} from "rxjs";
 import {CustomerProfileService} from "../../../../services/customer-profile.service";
 import {ReservationUpdate} from "../../../../dtos/reservation-update";
 import {ToastrService} from 'ngx-toastr';
-import {ReservationStatus} from "../../../../dtos/ReservationStatus";
+import {ReservationStatus} from "../../../../dtos/reservationstatus";
 
 export enum ReservationCreateEditMode {
   create,
@@ -47,6 +47,9 @@ export class ReservationCreateEditComponent implements OnInit {
   statusFilter: RentalStatus | null = null;
   skillFilter: SkillLevel | null = null;
   priceSortDirection: 'asc' | 'desc' | '' = 'asc';
+
+  filtersExpanded: boolean = false;
+  equipmentListExpanded: boolean = true;
 
   loading: boolean = false;
   submitLoading: boolean = false;
@@ -232,10 +235,38 @@ export class ReservationCreateEditComponent implements OnInit {
   }
 
   /**
+   * Calculates the current live total price based on selected equipment and days.
+   */
+  get currentTotalPrice(): number {
+    const start = this.reservationForm.get('startDate')?.value;
+    const end = this.reservationForm.get('endDate')?.value;
+
+    if (!start || !end || this.isDateRangeInvalid || this.selectedEquipment.length === 0) {
+      return 0;
+    }
+
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+
+    //Calculate difference in milliseconds, then transform back to dates to get the difference in days
+    const diffTime = endDate.getTime() - startDate.getTime();
+    const totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+    const pricePerDay = this.selectedEquipment.reduce((sum, item) => sum + (item.price || 0), 0);
+
+    return pricePerDay * totalDays;
+  }
+
+  /**
    * Starts the search within a specific equipment-type, using the search.function of equipment.service.ts.
    */
   openEquipmentSelection(type: EquipmentType | string): void {
+    if (this.currentActiveType === type) {
+      this.currentActiveType = null;
+      return;
+    }
     this.currentActiveType = type as EquipmentType;
+    this.equipmentListExpanded = true;
     this.searchEquipment();
   }
 
@@ -299,6 +330,41 @@ export class ReservationCreateEditComponent implements OnInit {
     this.skillFilter = null;
     this.priceSortDirection = 'asc';
     this.availableEquipmentList = [];
+    this.filtersExpanded = false;
+  }
+
+  /**
+   * Toggles the visibility of the filter section in the UI.
+   */
+  toggleFilters(): void {
+    this.filtersExpanded = !this.filtersExpanded;
+  }
+
+  /**
+   * Counts the number of active filters for display in the UI.
+   */
+  get activeFilterCount(): number {
+    let count = 0;
+    if (this.modelFilter?.trim()) count++;
+    if (this.skillFilter) count++;
+    if (this.priceSortDirection && this.priceSortDirection !== 'asc') count++;
+    return count;
+  }
+
+  /**
+   * Checks if a specific piece of equipment is already selected for the reservation.
+   * @param itemId ID of the equipment to check
+   * @returns true if the equipment is already selected, false otherwise
+   */
+  isAlreadySelected(itemId: number): boolean {
+    return this.selectedEquipment.some(e => e.id === itemId);
+  }
+
+  /**
+   * Toggles the visibility of the available equipment list in the UI.
+   */
+  toggleEquipmentList(): void {
+    this.equipmentListExpanded = !this.equipmentListExpanded;
   }
 
   /**
@@ -306,7 +372,7 @@ export class ReservationCreateEditComponent implements OnInit {
    */
   addEquipment(item: Equipment): void {
     if (!this.selectedEquipment.some(e => e.id === item.id)) {
-      this.selectedEquipment.push(item);
+      this.selectedEquipment.unshift(item);
     }
   }
 
@@ -411,10 +477,7 @@ export class ReservationCreateEditComponent implements OnInit {
           console.log('Reservation updated successfully', response);
           this.submitLoading = false;
           this.router.navigate(['/customer/reservation']);
-          const translatedMessage = this.translateService.instant('RESERVATION.EDIT_SUCCESS', {
-            id: this.reservationId
-          });
-          this.notification.success(translatedMessage);
+          this.notification.success(this.translateService.instant('RESERVATION.EDIT_SUCCESS'));
         },
         error: (err) => {
           console.error('Error during update of reservation', err);

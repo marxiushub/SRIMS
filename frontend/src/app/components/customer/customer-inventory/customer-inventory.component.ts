@@ -28,6 +28,7 @@ export class CustomerInventoryComponent implements OnInit {
   startFilter: string | null = null;
   endFilter: string | null = null;
   priceSortDirection: 'asc' | 'desc' = 'asc';
+  filtersExpanded = false;
 
   itemLimit: number = 10;
   currentPage: number = 1;
@@ -162,6 +163,21 @@ export class CustomerInventoryComponent implements OnInit {
     this.endFilter = null;
     this.priceSortDirection = 'asc';
     this.loadEquipment();
+  }
+
+  toggleFilters(): void {
+    this.filtersExpanded = !this.filtersExpanded;
+  }
+
+  get activeFilterCount(): number {
+    let count = 0;
+    if (this.modelFilter) count++;
+    if (this.typeFilter) count++;
+    if (this.statusFilter) count++;
+    if (this.skillFilter) count++;
+    if (this.startFilter) count++;
+    if (this.endFilter) count++;
+    return count;
   }
 
   get startIndex(): number {
