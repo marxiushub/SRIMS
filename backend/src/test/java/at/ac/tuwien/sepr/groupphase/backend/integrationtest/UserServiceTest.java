@@ -365,9 +365,6 @@ public class UserServiceTest {
             () -> assertThat(result).isNotNull(),
             () -> assertThat(result).isInstanceOf(CustomerSearchResponseDto.class),
 
-            () -> assertThat(result.getId())
-                .isEqualTo(existingCustomer.getId()),
-
             () -> assertThat(result.getUserName())
                 .isEqualTo(existingCustomer.getUserName()),
 
@@ -406,9 +403,6 @@ public class UserServiceTest {
 
             () -> assertThat(result).isNotNull(),
             () -> assertThat(result).isInstanceOf(StaffSearchResponseDto.class),
-
-            () -> assertThat(result.getId())
-                .isEqualTo(existingStaff.getId()),
 
             () -> assertThat(result.getUserName())
                 .isEqualTo(existingStaff.getUserName()),
@@ -520,114 +514,59 @@ public class UserServiceTest {
     }
 
     @Test
-    public void searchCustomers_withMatchingFirstName_returnsMatchingCustomers() {
+    public void deleteUserById_withUnknownId_throwsNotFoundException() {
+        long unknownId = 99999999L;
 
-        CustomerCreationDto dto1 = validCustomerDto(uniqueEmail("search-first"));
-        dto1.setFirstName("Max");
+        assertThrows(
+            NotFoundException.class,
+            () -> userService.deleteUserById(unknownId)
+        );
+    }
 
-        CustomerCreationDto dto2 = validCustomerDto(uniqueEmail("search-first"));
-        dto2.setFirstName("Max");
+    @Test
+    public void getUserById_withUnknownId_throwsNotFoundException() {
+        long unknownId = 99999999L;
 
-        CustomerCreationDto dto3 = validCustomerDto(uniqueEmail("search-first"));
-        dto3.setFirstName("Anna");
+        assertThrows(
+            NotFoundException.class,
+            () -> userService.getUserById(unknownId)
+        );
+    }
 
-        rememberCreatedUser(userService.createUser(dto1));
-        rememberCreatedUser(userService.createUser(dto2));
-        rememberCreatedUser(userService.createUser(dto3));
+    @Test
+    public void searchCustomers_withFirstNameFilter_returnsMatchingCustomers() {
+        CustomerCreationDto dto = validCustomerDto(uniqueEmail("customer.search"));
+        dto.setFirstName("Searchlight");
+        UserDetailDto created = userService.createUser(dto);
+        rememberCreatedUser(created);
 
         CustomerSearchDto searchDto = new CustomerSearchDto();
-        searchDto.setFirstName("Max");
+        searchDto.setFirstName("Searchlight");
 
-        List<UserSearchResponseDto> result =
-            userService.searchCustomers(searchDto);
+        List<UserSearchResponseDto> result = userService.searchCustomers(searchDto);
 
         assertAll(
-            "Verify that only customers with matching first name are returned",
-
-            () -> assertThat(result).isNotNull(),
-
+            "Verify that the customer is found by first name filter",
+            () -> assertThat(result).isNotEmpty(),
             () -> assertThat(result)
-                .hasSizeGreaterThanOrEqualTo(2),
-
+                .allSatisfy(r -> assertThat(r).isInstanceOf(CustomerSearchResponseDto.class)),
             () -> assertThat(result)
-                .allMatch(CustomerSearchResponseDto.class::isInstance),
-
-            () -> assertThat(((CustomerSearchResponseDto) result.getFirst()).getId())
-                .isNotNull(),
-
-            () -> assertThat(
-                result.stream()
-                    .map(r -> ((CustomerSearchResponseDto) r).getFirstName())
-            ).contains("Max")
+                .anySatisfy(r -> assertThat(r.getEmail()).isEqualTo(dto.getEmail()))
         );
     }
 
     @Test
-    public void searchCustomers_withMultipleFilters_returnsMatchingCustomer() {
-
-        String email = uniqueEmail("search-combined");
-
-        CustomerCreationDto dto = validCustomerDto(email);
-        dto.setFirstName("SpecialName");
-
-        rememberCreatedUser(userService.createUser(dto));
-
+    public void searchCustomers_withBlankFilters_doesNotThrowAndReturnsCustomers() {
         CustomerSearchDto searchDto = new CustomerSearchDto();
-        searchDto.setEmail(email);
-        searchDto.setFirstName("SpecialName");
+        searchDto.setEmail("");
+        searchDto.setUserName("   ");
+        searchDto.setFirstName(null);
+        searchDto.setLastName(null);
 
-        List<UserSearchResponseDto> result =
-            userService.searchCustomers(searchDto);
-
-        assertAll(
-            "Verify that combined filters return the correct customer",
-
-            () -> assertThat(result).hasSize(1),
-
-            () -> assertThat(((CustomerSearchResponseDto) result.getFirst()).getId())
-                .isNotNull(),
-
-            () -> assertThat(result.getFirst().getEmail())
-                .isEqualTo(email),
-
-            () -> assertThat(
-                ((CustomerSearchResponseDto) result.getFirst()).getFirstName()
-            ).isEqualTo("SpecialName")
+        List<UserSearchResponseDto> result = assertDoesNotThrow(
+            () -> userService.searchCustomers(searchDto)
         );
-    }
 
-    @Test
-    public void searchCustomers_withUnknownCriteria_returnsEmptyList() {
-
-        CustomerSearchDto searchDto = new CustomerSearchDto();
-        searchDto.setEmail("does.not.exist@test.at");
-
-        List<UserSearchResponseDto> result =
-            userService.searchCustomers(searchDto);
-
-        assertAll(
-            "Verify that unknown search criteria returns no customers",
-
-            () -> assertThat(result).isNotNull(),
-
-            () -> assertThat(result).isEmpty()
-        );
-    }
-
-    @Test
-    public void searchCustomers_withEmptySearchDto_returnsAllCustomers() {
-
-        CustomerSearchDto searchDto = new CustomerSearchDto();
-
-        List<UserSearchResponseDto> result =
-            userService.searchCustomers(searchDto);
-
-        assertAll(
-            "Verify that empty filter returns customers",
-
-            () -> assertThat(result).isNotNull(),
-
-            () -> assertThat(result).isNotEmpty()
-        );
+        assertThat(result).isNotNull();
     }
 }

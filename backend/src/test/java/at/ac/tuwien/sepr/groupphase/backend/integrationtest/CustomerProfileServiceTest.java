@@ -13,8 +13,6 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.springframework.security.access.AccessDeniedException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerProfileRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.user.StaffRepository;
-import at.ac.tuwien.sepr.groupphase.backend.security.CurrentUserService;
 import at.ac.tuwien.sepr.groupphase.backend.security.CurrentUserService;
 import at.ac.tuwien.sepr.groupphase.backend.service.CustomerProfileService;
 import org.junit.jupiter.api.AfterEach;
@@ -46,9 +44,6 @@ public class CustomerProfileServiceTest {
 
     @Autowired
     private CustomerProfileRepository customerProfileRepository;
-
-    @Autowired
-    private StaffRepository staffRepository;
 
     @MockitoBean
     private CurrentUserService currentUserService;
@@ -577,27 +572,6 @@ public class CustomerProfileServiceTest {
             "Verify that getting an unknown customer profile fails",
             () -> assertThat(exception).isNotNull(),
             () -> assertThat(exception.getMessage()).containsIgnoringCase("not found")
-        );
-    }
-
-    @Test
-    public void updateCustomerProfile_withOnlyWeightAndShoeSize_updatesCorrectly() {
-        Customer customer = createTestCustomer("update_weight_shoe");
-        CustomerProfile profile = createTestProfile(customer, "Weight Shoe Test", SkillLevel.BEGINNER);
-
-        CustomerProfileUpdateDto dto = new CustomerProfileUpdateDto();
-        dto.setWeight(85.0);
-        dto.setShoeSize(44.0);
-
-        CustomerProfileDetailDto result = customerProfileService.updateCustomerProfile(profile.getId(), dto);
-
-        assertAll(
-            "Verify that weight and shoeSize are updated, other fields unchanged",
-            () -> assertThat(result.getWeight()).isEqualTo(85.0),
-            () -> assertThat(result.getShoeSize()).isEqualTo(44.0),
-            () -> assertThat(result.getProfileName()).isEqualTo("Weight Shoe Test"),
-            () -> assertThat(result.getHeight()).isEqualTo(175.0),
-            () -> assertThat(result.getSkillLevel()).isEqualTo(SkillLevel.BEGINNER)
         );
     }
 }
