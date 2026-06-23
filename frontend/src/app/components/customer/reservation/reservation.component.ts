@@ -145,6 +145,7 @@ export class ReservationComponent implements OnInit {
     if (this.profileFilter) count++;
     if (this.dateFilter) count++;
     if (this.timeFilter) count++;
+    if (this.showPastReservations) count++;
     return count;
   }
 

@@ -3,8 +3,13 @@
   @media (max-width: 575.98px) {
     .form-control,
     .form-select {
-      width: 90%;
-      margin-left: auto;
+      width: 100%;
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .col-xl-auto {
+      min-width: 200px;
     }
   }
 }
@@ -48,27 +53,27 @@
   }
 
   .inv-col-type {
-    flex: 2;
+    flex: 4;
     min-width: 0;
     font-size: 0.875rem;
     color: var(--bs-secondary-color);
   }
 
   .inv-col-skill {
-    flex: 1;
+    flex: 1.5;
     min-width: 0;
     font-size: 0.875rem;
     color: var(--bs-secondary-color);
   }
 
   .inv-col-price {
-    flex: 0 0 auto;
+    flex: 2;
     font-weight: 500;
     font-size: 0.875rem;
   }
 
   .inv-col-badge {
-    flex: 0 0 auto;
+    flex: 3;
   }
 
   .inv-col-actions {
