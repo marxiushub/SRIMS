@@ -250,7 +250,7 @@ describe('ReservationComponent', () => {
     expect(component.loading).toBeFalse();
   });
 
-  it('should pass undefined for empty filters except hardcoded accountId', () => {
+  it('should pass undefined for empty filters', () => {
     component.profileFilter = null;
     component.dateFilter = '';
     component.timeFilter = '';
@@ -261,14 +261,12 @@ describe('ReservationComponent', () => {
     component.searchReservations();
 
     expect(reservationServiceMock.search).toHaveBeenCalledWith({
-      accountId: 1,
       customerProfileId: undefined,
       pickUpTime: undefined,
       startDate: undefined,
       reservationStatus: ReservationStatus.CREATED
     });
     expect(reservationServiceMock.search).toHaveBeenCalledWith({
-      accountId: 1,
       customerProfileId: undefined,
       pickUpTime: undefined,
       startDate: undefined,

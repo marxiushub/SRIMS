@@ -37,9 +37,6 @@ export class ReservationComponent implements OnInit {
   itemLimit: number = 10;
   currentPage: number = 1;
 
-  //TODO: Remove hard-coded AccuntId once proper Account-system exists
-  private readonly hardcodedAccountId = 1;
-
   constructor(
     private reservationService: ReservationService,
     private customerProfileService: CustomerProfileService,
@@ -83,7 +80,6 @@ export class ReservationComponent implements OnInit {
     this.loading = true;
 
     const searchRequest: ReservationSearch = {
-      accountId: this.hardcodedAccountId,
       customerProfileId: this.profileFilter ?? undefined,
       startDate: this.dateFilter || undefined,
       pickUpTime: this.timeFilter ? this.timeFilter + ':00' : undefined
