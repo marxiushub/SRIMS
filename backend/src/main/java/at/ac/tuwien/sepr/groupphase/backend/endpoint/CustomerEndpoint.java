@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.Custom
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.detail.UserDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.UserSearchResponseDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.CustomerUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.PasswordChangeDto;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.CustomUserDetailService;
 import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 
 import java.lang.invoke.MethodHandles;
 
@@ -62,6 +64,20 @@ public class CustomerEndpoint {
     public UserDetailDto updateCustomer(@PathVariable("id") Long id, @Valid @RequestBody CustomerUpdateDto dto) {
         LOGGER.info("PUT /api/v1/customer/update/{} - {}", id, dto);
         return userService.updateUser(id, dto);
+    }
+
+    /**
+     * Endpoint to change the password of an existing customer account.
+     *
+     * @param id the ID of the customer user whose password should be changed
+     * @param dto the DTO containing the old and the new password
+     * @return the updated customer user
+     */
+    @PreAuthorize("hasAnyAuthority('CUSTOMER_UPDATE')")
+    @PatchMapping("/password/{id}")
+    public UserDetailDto changePassword(@PathVariable("id") Long id, @Valid @RequestBody PasswordChangeDto dto) {
+        LOGGER.info("PATCH /api/v1/customer/password/{} - {}", id, dto);
+        return userService.changePassword(id, dto);
     }
 
     /**

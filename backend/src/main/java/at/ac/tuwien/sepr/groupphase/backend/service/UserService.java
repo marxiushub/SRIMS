@@ -5,6 +5,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.UserCr
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.detail.UserDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.search.CustomerSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.UserSearchResponseDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.PasswordChangeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.UserUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.UserMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.ApplicationUser;
@@ -112,4 +113,14 @@ public interface UserService extends UserDetailsService {
      * @throws jakarta.persistence.EntityNotFoundException if no user with the given id exists
      */
     List<UserSearchResponseDto> searchCustomers(CustomerSearchDto searchDto);
+
+    /**
+     * Changes the password of an application user.
+     * The password is securely encoded before being persisted.
+     *
+     * @param passwordChangeDto the DTO containing the password change data
+     * @param id the ID of the user whose password is to be changed
+     * @return the updated user as a {@link UserDetailDto}
+     */
+    UserDetailDto changePassword(Long id, PasswordChangeDto passwordChangeDto);
 }

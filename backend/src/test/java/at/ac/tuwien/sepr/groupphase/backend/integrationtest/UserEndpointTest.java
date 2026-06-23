@@ -15,6 +15,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -23,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -40,6 +42,8 @@ public class UserEndpointTest extends IntegrationTestBase implements TestData {
     private SecurityProperties securityProperties;
     @Autowired
     private RoleRepository roleRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     // --- Helpers ---
 
@@ -47,7 +51,7 @@ public class UserEndpointTest extends IntegrationTestBase implements TestData {
         Role customerRole = roleRepository.findByName("ROLE_CUSTOMER").orElseThrow();
         Customer customer = new Customer(
             "customer_" + suffix,
-            "hashedPassword",
+            passwordEncoder.encode("Password123!"),
             "customer." + suffix + "@example.com",
             Set.of(customerRole),
             Set.of(),
@@ -62,7 +66,7 @@ public class UserEndpointTest extends IntegrationTestBase implements TestData {
         Role staffRole = roleRepository.findByName("ROLE_STAFF").orElseThrow();
         Staff staff = new Staff(
             "staff_" + suffix,
-            "hashedPassword",
+            passwordEncoder.encode("Password123!"),
             "staff." + suffix + "@example.com",
             Set.of(staffRole),
             Set.of()
@@ -202,7 +206,6 @@ public class UserEndpointTest extends IntegrationTestBase implements TestData {
 
     @Test
     public void updateCustomer_unknownId_returns404() {
-        Customer customer = createTestCustomer("update_unknown");
         // Token carries the existing customer's id, but we target a non-existent id.
         // checkUserAccessPermission compares currentId == requestedId, so to reach the
         // NotFound branch we authorize with a matching-but-nonexistent id is impossible;
@@ -239,6 +242,66 @@ public class UserEndpointTest extends IntegrationTestBase implements TestData {
 
         // attacker's token (their id) tries to update owner's account
         assertDoesNotThrow(() -> mockMvc.perform(put("/api/v1/customer/update/{id}", owner.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json)
+                .header(securityProperties.getAuthHeader(), customerToken(attacker))
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isForbidden()));
+    }
+
+    @Test
+    public void changeCustomerPassword_ownAccount_returns200AndUpdatesPassword() {
+        Customer customer = createTestCustomer("password_change");
+
+        String json = """
+            {
+              "oldPassword": "Password123!",
+              "newPassword": "NewPassword123!"
+            }
+            """;
+
+        assertDoesNotThrow(() -> mockMvc.perform(patch("/api/v1/customer/password/{id}", customer.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json)
+                .header(securityProperties.getAuthHeader(), customerToken(customer))
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(customer.getId().intValue()))
+            .andExpect(jsonPath("$.email").value(customer.getEmail())));
+    }
+
+    @Test
+    public void changeCustomerPassword_withWrongOldPassword_returns400() {
+        Customer customer = createTestCustomer("password_wrong_old");
+
+        String json = """
+            {
+              "oldPassword": "wrong-old-password",
+              "newPassword": "NewPassword123!"
+            }
+            """;
+
+        assertDoesNotThrow(() -> mockMvc.perform(patch("/api/v1/customer/password/{id}", customer.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json)
+                .header(securityProperties.getAuthHeader(), customerToken(customer))
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest()));
+    }
+
+    @Test
+    public void changeCustomerPassword_foreignAccount_returns403() {
+        Customer owner = createTestCustomer("password_owner");
+        Customer attacker = createTestCustomer("password_attacker");
+
+        String json = """
+            {
+              "oldPassword": "Password123!",
+              "newPassword": "NewPassword123!"
+            }
+            """;
+
+        assertDoesNotThrow(() -> mockMvc.perform(patch("/api/v1/customer/password/{id}", owner.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json)
                 .header(securityProperties.getAuthHeader(), customerToken(attacker))
@@ -290,5 +353,45 @@ public class UserEndpointTest extends IntegrationTestBase implements TestData {
         assertDoesNotThrow(() -> mockMvc.perform(delete("/api/v1/staff/delete/{id}", staff.getId())
                 .header(securityProperties.getAuthHeader(), staffToken(staff)))
             .andExpect(status().isOk()));
+    }
+
+    @Test
+    public void changeStaffPassword_ownAccount_returns200AndUpdatesPassword() {
+        Staff staff = createTestStaff("password_change");
+
+        String json = """
+            {
+              "oldPassword": "Password123!",
+              "newPassword": "NewPassword123!"
+            }
+            """;
+
+        assertDoesNotThrow(() -> mockMvc.perform(patch("/api/v1/staff/password/{id}", staff.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json)
+                .header(securityProperties.getAuthHeader(), staffToken(staff))
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(staff.getId().intValue()))
+            .andExpect(jsonPath("$.email").value(staff.getEmail())));
+    }
+
+    @Test
+    public void changeStaffPassword_withMalformedDto_returns400() {
+        Staff staff = createTestStaff("password_bad_dto");
+
+        String json = """
+            {
+              "oldPassword": "",
+              "newPassword": "short"
+            }
+            """;
+
+        assertDoesNotThrow(() -> mockMvc.perform(patch("/api/v1/staff/password/{id}", staff.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json)
+                .header(securityProperties.getAuthHeader(), staffToken(staff))
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest()));
     }
 }

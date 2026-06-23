@@ -6,6 +6,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.UserCr
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.detail.UserDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.search.CustomerSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.UserSearchResponseDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.PasswordChangeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.UserUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.UserMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Role;
@@ -240,6 +241,45 @@ public class CustomUserDetailService implements UserService {
             .toList();
     }
 
+    @Override
+    public UserDetailDto changePassword(Long id, PasswordChangeDto passwordChangeDto) {
+        LOGGER.info("Changing password for user with id {}", id);
+
+        validator.idTester(id);
+        checkUserAccessPermission(id);
+
+        if (passwordChangeDto == null) {
+            throw new ValidationException("Validation of the dto for changing passwords failed", List.of("passwordChangeDto is null"));
+        }
+
+        if (passwordChangeDto.getOldPassword() == null || passwordChangeDto.getOldPassword().isBlank()) {
+            throw new ValidationException("Validation of the dto for changing passwords failed", List.of("oldPassword is blank"));
+        }
+
+        if (passwordChangeDto.getNewPassword() == null || passwordChangeDto.getNewPassword().isBlank()) {
+            throw new ValidationException("Validation of the dto for changing passwords failed", List.of("newPassword is blank"));
+        }
+
+        ApplicationUser existingUser = userRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException("User with ID " + id + " was not found."));
+
+        if (!passwordEncoder.matches(passwordChangeDto.getOldPassword(), existingUser.getPassword())) {
+            throw new ValidationException("Old password is incorrect");
+        }
+
+        if (passwordEncoder.matches(passwordChangeDto.getNewPassword(), existingUser.getPassword())) {
+            throw new ValidationException(
+                "Validation of the dto for changing passwords failed",
+                List.of("newPassword must differ from the current password.")
+            );
+        }
+
+        existingUser.setPassword(passwordEncoder.encode(passwordChangeDto.getNewPassword()));
+
+        ApplicationUser savedUser = userRepository.save(existingUser);
+
+        return mapper.entityToDetailDto(savedUser);
+    }
 
     //Helper Methods:
     //Checks if the given id (requestedUserID) is the same ID as the ID of the user who wants to perform the CRUD action

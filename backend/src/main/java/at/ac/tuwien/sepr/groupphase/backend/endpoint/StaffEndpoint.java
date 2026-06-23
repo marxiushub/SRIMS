@@ -5,6 +5,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.detail.UserDeta
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.search.CustomerSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.UserSearchResponseDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.StaffUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.PasswordChangeDto;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.CustomUserDetailService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.PatchMapping;
 
 
 import java.lang.invoke.MethodHandles;
@@ -66,6 +68,20 @@ public class StaffEndpoint {
     public UserDetailDto updateStaff(@PathVariable("id") Long id, @Valid @RequestBody StaffUpdateDto dto) {
         LOGGER.info("PUT /api/v1/staff/update/{} - {}", id, dto);
         return userService.updateUser(id, dto);
+    }
+
+    /**
+     * Endpoint to change the password of an existing staff account.
+     *
+     * @param id the ID of the staff user whose password should be changed
+     * @param dto the DTO containing the old and the new password
+     * @return the updated staff user
+     */
+    @PreAuthorize("hasAuthority('STAFF_UPDATE')")
+    @PatchMapping("/password/{id}")
+    public UserDetailDto changePassword(@PathVariable("id") Long id, @Valid @RequestBody PasswordChangeDto dto) {
+        LOGGER.info("PATCH /api/v1/staff/password/{} - {}", id, dto);
+        return userService.changePassword(id, dto);
     }
 
     /**
