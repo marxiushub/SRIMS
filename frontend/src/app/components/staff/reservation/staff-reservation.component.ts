@@ -222,7 +222,6 @@ export class StaffReservationComponent implements OnInit {
 
     this.deleteLoading = true;
     this.deleteError = undefined;
-    const deletedReservationId = this.reservationToDelete.id;
 
     this.reservationService.delete(this.reservationToDelete.id).subscribe({
       next: () => {
@@ -236,10 +235,7 @@ export class StaffReservationComponent implements OnInit {
 
         this.reservationToDelete = undefined;
         this.deleteLoading = false;
-        const translatedMessage = this.translateService.instant('RESERVATION.DELETE_SUCCESS', {
-          id: deletedReservationId
-        });
-        this.notification.success(translatedMessage);
+        this.notification.success(this.translateService.instant('RESERVATION.DELETE_SUCCESS'));
       },
       error: (err) => {
         console.error('Failed to delete reservation', err);

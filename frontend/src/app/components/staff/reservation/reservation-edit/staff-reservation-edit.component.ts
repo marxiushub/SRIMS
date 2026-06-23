@@ -350,7 +350,7 @@ export class StaffReservationEditComponent implements OnInit {
         console.log('Reservation updated successfully', response);
         this.submitLoading = false;
         this.router.navigate(['/staff/reservation']);
-        this.notification.success(this.translateService.instant('RESERVATION.EDIT_SUCCESS', { id: this.reservationId }));
+        this.notification.success(this.translateService.instant('RESERVATION.EDIT_SUCCESS'));
       },
       error: (err) => {
         console.error('Error during update of reservation', err);

@@ -7,6 +7,7 @@ import {ReservationService} from '../../../services/reservation.service';
 import {CustomerProfileService} from '../../../services/customer-profile.service';
 import {TranslateService} from '@ngx-translate/core';
 import {ToastrService} from 'ngx-toastr';
+import {NavbarService} from "../../../services/navbar.service";
 import {forkJoin} from 'rxjs';
 import {ReservationStatus} from "../../../dtos/reservationstatus";
 
@@ -29,6 +30,7 @@ export class ReservationComponent implements OnInit {
   profileFilter: number | null = null;
   dateFilter: string = '';
   timeFilter: string = '';
+  filtersExpanded = false;
 
   showPastReservations: boolean = false;
 
@@ -42,6 +44,7 @@ export class ReservationComponent implements OnInit {
     private reservationService: ReservationService,
     private customerProfileService: CustomerProfileService,
     public translateService: TranslateService,
+    private navbarService: NavbarService,
     private router: Router,
     private notification: ToastrService
   ) {
@@ -133,6 +136,19 @@ export class ReservationComponent implements OnInit {
     this.loadReservations();
   }
 
+  toggleFilters(): void {
+    this.filtersExpanded = !this.filtersExpanded;
+  }
+
+  get activeFilterCount(): number {
+    let count = 0;
+    if (this.profileFilter) count++;
+    if (this.dateFilter) count++;
+    if (this.timeFilter) count++;
+    if (this.showPastReservations) count++;
+    return count;
+  }
+
   openCreatePage(): void {
     this.router.navigate(['/customer/reservation/create']);
   }
@@ -142,10 +158,12 @@ export class ReservationComponent implements OnInit {
   }
 
   openEditPage(item: ReservationDetail): void {
+    this.navbarService.close();
     this.router.navigate(['/customer/reservation/edit', item.id]);
   }
 
   openDeleteDialog(item: ReservationDetail): void {
+    this.navbarService.close();
     this.reservationToDelete = item;
     this.deleteError = undefined;
   }
@@ -163,7 +181,6 @@ export class ReservationComponent implements OnInit {
 
     this.deleteLoading = true;
     this.deleteError = undefined;
-    const deletedReservationId = this.reservationToDelete.id;
 
     this.reservationService.delete(this.reservationToDelete.id).subscribe({
       next: () => {
@@ -177,10 +194,7 @@ export class ReservationComponent implements OnInit {
 
         this.reservationToDelete = undefined;
         this.deleteLoading = false;
-        const translatedMessage = this.translateService.instant('RESERVATION.DELETE_SUCCESS', {
-          id: deletedReservationId
-        });
-        this.notification.success(translatedMessage);
+        this.notification.success(this.translateService.instant('RESERVATION.DELETE_SUCCESS'));
       },
       error: (err) => {
         console.error('Failed to delete reservation', err);

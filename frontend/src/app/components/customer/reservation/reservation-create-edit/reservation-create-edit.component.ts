@@ -48,6 +48,9 @@ export class ReservationCreateEditComponent implements OnInit {
   skillFilter: SkillLevel | null = null;
   priceSortDirection: 'asc' | 'desc' | '' = 'asc';
 
+  filtersExpanded: boolean = false;
+  equipmentListExpanded: boolean = true;
+
   loading: boolean = false;
   submitLoading: boolean = false;
   submitError: string | undefined = undefined;
@@ -258,7 +261,12 @@ export class ReservationCreateEditComponent implements OnInit {
    * Starts the search within a specific equipment-type, using the search.function of equipment.service.ts.
    */
   openEquipmentSelection(type: EquipmentType | string): void {
+    if (this.currentActiveType === type) {
+      this.currentActiveType = null;
+      return;
+    }
     this.currentActiveType = type as EquipmentType;
+    this.equipmentListExpanded = true;
     this.searchEquipment();
   }
 
@@ -322,6 +330,41 @@ export class ReservationCreateEditComponent implements OnInit {
     this.skillFilter = null;
     this.priceSortDirection = 'asc';
     this.availableEquipmentList = [];
+    this.filtersExpanded = false;
+  }
+
+  /**
+   * Toggles the visibility of the filter section in the UI.
+   */
+  toggleFilters(): void {
+    this.filtersExpanded = !this.filtersExpanded;
+  }
+
+  /**
+   * Counts the number of active filters for display in the UI.
+   */
+  get activeFilterCount(): number {
+    let count = 0;
+    if (this.modelFilter?.trim()) count++;
+    if (this.skillFilter) count++;
+    if (this.priceSortDirection && this.priceSortDirection !== 'asc') count++;
+    return count;
+  }
+
+  /**
+   * Checks if a specific piece of equipment is already selected for the reservation.
+   * @param itemId ID of the equipment to check
+   * @returns true if the equipment is already selected, false otherwise
+   */
+  isAlreadySelected(itemId: number): boolean {
+    return this.selectedEquipment.some(e => e.id === itemId);
+  }
+
+  /**
+   * Toggles the visibility of the available equipment list in the UI.
+   */
+  toggleEquipmentList(): void {
+    this.equipmentListExpanded = !this.equipmentListExpanded;
   }
 
   /**
@@ -329,7 +372,7 @@ export class ReservationCreateEditComponent implements OnInit {
    */
   addEquipment(item: Equipment): void {
     if (!this.selectedEquipment.some(e => e.id === item.id)) {
-      this.selectedEquipment.push(item);
+      this.selectedEquipment.unshift(item);
     }
   }
 
@@ -434,10 +477,7 @@ export class ReservationCreateEditComponent implements OnInit {
           console.log('Reservation updated successfully', response);
           this.submitLoading = false;
           this.router.navigate(['/customer/reservation']);
-          const translatedMessage = this.translateService.instant('RESERVATION.EDIT_SUCCESS', {
-            id: this.reservationId
-          });
-          this.notification.success(translatedMessage);
+          this.notification.success(this.translateService.instant('RESERVATION.EDIT_SUCCESS'));
         },
         error: (err) => {
           console.error('Error during update of reservation', err);
