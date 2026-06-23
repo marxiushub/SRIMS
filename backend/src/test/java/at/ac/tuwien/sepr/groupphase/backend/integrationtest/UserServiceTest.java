@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.datagenerator.DataInitializer;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.CustomerCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.StaffCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.detail.UserDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.search.CustomerSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.CustomerSearchResponseDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.StaffSearchResponseDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.searchresponse.UserSearchResponseDto;
@@ -510,5 +511,62 @@ public class UserServiceTest {
             UsernameNotFoundException.class,
             () -> userService.login(loginDto)
         );
+    }
+
+    @Test
+    public void deleteUserById_withUnknownId_throwsNotFoundException() {
+        long unknownId = 99999999L;
+
+        assertThrows(
+            NotFoundException.class,
+            () -> userService.deleteUserById(unknownId)
+        );
+    }
+
+    @Test
+    public void getUserById_withUnknownId_throwsNotFoundException() {
+        long unknownId = 99999999L;
+
+        assertThrows(
+            NotFoundException.class,
+            () -> userService.getUserById(unknownId)
+        );
+    }
+
+    @Test
+    public void searchCustomers_withFirstNameFilter_returnsMatchingCustomers() {
+        CustomerCreationDto dto = validCustomerDto(uniqueEmail("customer.search"));
+        dto.setFirstName("Searchlight");
+        UserDetailDto created = userService.createUser(dto);
+        rememberCreatedUser(created);
+
+        CustomerSearchDto searchDto = new CustomerSearchDto();
+        searchDto.setFirstName("Searchlight");
+
+        List<UserSearchResponseDto> result = userService.searchCustomers(searchDto);
+
+        assertAll(
+            "Verify that the customer is found by first name filter",
+            () -> assertThat(result).isNotEmpty(),
+            () -> assertThat(result)
+                .allSatisfy(r -> assertThat(r).isInstanceOf(CustomerSearchResponseDto.class)),
+            () -> assertThat(result)
+                .anySatisfy(r -> assertThat(r.getEmail()).isEqualTo(dto.getEmail()))
+        );
+    }
+
+    @Test
+    public void searchCustomers_withBlankFilters_doesNotThrowAndReturnsCustomers() {
+        CustomerSearchDto searchDto = new CustomerSearchDto();
+        searchDto.setEmail("");
+        searchDto.setUserName("   ");
+        searchDto.setFirstName(null);
+        searchDto.setLastName(null);
+
+        List<UserSearchResponseDto> result = assertDoesNotThrow(
+            () -> userService.searchCustomers(searchDto)
+        );
+
+        assertThat(result).isNotNull();
     }
 }
