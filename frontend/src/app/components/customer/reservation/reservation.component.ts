@@ -181,7 +181,6 @@ export class ReservationComponent implements OnInit {
 
     this.deleteLoading = true;
     this.deleteError = undefined;
-    const deletedReservationId = this.reservationToDelete.id;
 
     this.reservationService.delete(this.reservationToDelete.id).subscribe({
       next: () => {
