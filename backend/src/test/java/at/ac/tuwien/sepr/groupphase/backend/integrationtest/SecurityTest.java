@@ -93,53 +93,53 @@ public class SecurityTest implements TestData {
     }
 
     @Test
-    public void givenCustomerLoggedIn_whenGetCustomer_then200() throws Exception {
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/customer/{id}", ID)
+    public void givenCustomerLoggedIn_whenGetCustomer_then200() {
+        MvcResult mvcResult = assertDoesNotThrow(() -> this.mockMvc.perform(get("/api/v1/customer/{id}", ID)
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(DEFAULT_USER, ID, USER_PERMISSIONS)))
             .andDo(print())
-            .andReturn();
+            .andReturn());
         MockHttpServletResponse response = mvcResult.getResponse();
 
         assertEquals(HttpStatus.OK.value(), response.getStatus());
     }
 
     @Test
-    public void givenNoOneLoggedIn_whenGetCustomer_then403() throws Exception {
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/customer/{id}", ID))
+    public void givenNoOneLoggedIn_whenGetCustomer_then403() {
+        MvcResult mvcResult = assertDoesNotThrow(() -> this.mockMvc.perform(get("/api/v1/customer/{id}", ID))
             .andDo(print())
-            .andReturn();
+            .andReturn());
         MockHttpServletResponse response = mvcResult.getResponse();
 
         assertEquals(HttpStatus.FORBIDDEN.value(), response.getStatus());
     }
 
     @Test
-    public void givenStaffLoggedIn_whenGetStaff_then200() throws Exception {
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/staff/{id}", ID)
+    public void givenStaffLoggedIn_whenGetStaff_then200() {
+        MvcResult mvcResult = assertDoesNotThrow(() -> this.mockMvc.perform(get("/api/v1/staff/{id}", ID)
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ID, ADMIN_PERMISSIONS)))
             .andDo(print())
-            .andReturn();
+            .andReturn());
         MockHttpServletResponse response = mvcResult.getResponse();
 
         assertEquals(HttpStatus.OK.value(), response.getStatus());
     }
 
     @Test
-    public void givenNoOneLoggedIn_whenGetStaff_then403() throws Exception {
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/staff/{id}", ID))
+    public void givenNoOneLoggedIn_whenGetStaff_then403() {
+        MvcResult mvcResult = assertDoesNotThrow(() -> this.mockMvc.perform(get("/api/v1/staff/{id}", ID))
             .andDo(print())
-            .andReturn();
+            .andReturn());
         MockHttpServletResponse response = mvcResult.getResponse();
 
         assertEquals(HttpStatus.FORBIDDEN.value(), response.getStatus());
     }
 
     @Test
-    public void givenCustomerLoggedIn_whenGetStaff_then403() throws Exception {
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/staff/{id}", ID)
+    public void givenCustomerLoggedIn_whenGetStaff_then403() {
+        MvcResult mvcResult = assertDoesNotThrow(() -> this.mockMvc.perform(get("/api/v1/staff/{id}", ID)
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(DEFAULT_USER, ID, USER_PERMISSIONS)))
             .andDo(print())
-            .andReturn();
+            .andReturn());
         MockHttpServletResponse response = mvcResult.getResponse();
 
         assertEquals(HttpStatus.FORBIDDEN.value(), response.getStatus());
