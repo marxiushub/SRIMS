@@ -32,6 +32,9 @@ import {EquipmentViewComponent} from "./components/staff/inventory/equipment-vie
 import {
   CustomerAccountComponent
 } from "./components/customer/customer-account/customer-account.component";
+import {
+  StaffAccountComponent
+} from "./components/staff/staff-account/staff-account.component";
 
 import {
   ReservationCreateEditComponent
@@ -89,6 +92,7 @@ export function HttpLoaderFactory(http: HttpClient): TranslateLoader {
     StaffReservationEditComponent,
     StaffReservationViewComponent,
     BarcodeScannerComponent,
+    StaffAccountComponent,
     ReservationComponent,
     ReservationCreateEditComponent,
     ReservationViewComponent,

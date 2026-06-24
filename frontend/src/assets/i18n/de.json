@@ -152,6 +152,18 @@
       "TITLE": "Barcode-Scanner",
       "DESC": "Equipment kontaktlos ausgeben oder zurücknehmen."
     },
+    "ACCOUNT": {
+      "TITLE": "Mein Konto",
+      "DESC": "Kontodaten ansehen und Passwort ändern",
+      "BACK": "Zurück",
+      "LOADING": "Kontodaten werden geladen...",
+      "LOADING_ERROR": "Kontodaten konnten nicht geladen werden. Bitte versuchen Sie es später erneut.",
+      "ROLE": "Rolle",
+      "CHANGE_PASSWORD": "Passwort ändern",
+      "OLD_PASSWORD": "Aktuelles Passwort",
+      "NEW_PASSWORD": "Neues Passwort",
+      "PASSWORD_CHANGE_SUCCESS": "Ihr Passwort wurde erfolgreich geändert."
+    },
     "OVERVIEW": {
       "TITLE": "Grafische Übersicht",
       "DESC": "Visuelle Darstellung des gesamten Bestands-Status."
@@ -422,5 +434,9 @@
     "BACK": "Zurück",
     "EDIT": "Bearbeiten",
     "DELETE": "Löschen"
+  },
+  "USER_TYPE": {
+    "CUSTOMER": "Kunde",
+    "STAFF": "Mitarbeiter"
   }
 }

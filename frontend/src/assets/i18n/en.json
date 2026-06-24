@@ -152,6 +152,18 @@
       "TITLE": "Barcode Scanner",
       "DESC": "Check-out or check-in equipment contactlessly."
     },
+    "ACCOUNT": {
+      "TITLE": "My Account",
+      "DESC": "View your account details and change your password",
+      "BACK": "Back",
+      "LOADING": "Loading account data...",
+      "LOADING_ERROR": "Failed to load account data. Please try again later.",
+      "ROLE": "Role",
+      "CHANGE_PASSWORD": "Change Password",
+      "OLD_PASSWORD": "Current Password",
+      "NEW_PASSWORD": "New Password",
+      "PASSWORD_CHANGE_SUCCESS": "Your password has been changed successfully."
+    },
     "STATISTICS": {
       "TITLE": "Statistics",
       "SUBTITLE": "Analyze the utilization and rental duration of your equipment.",
@@ -422,5 +434,9 @@
     "BACK": "Back to Profiles",
     "EDIT": "Edit",
     "DELETE": "Delete"
+  },
+  "USER_TYPE": {
+    "CUSTOMER": "Customer",
+    "STAFF": "Staff"
   }
 }

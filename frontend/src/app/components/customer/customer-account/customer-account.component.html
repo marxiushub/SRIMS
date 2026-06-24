@@ -24,23 +24,29 @@
       <h3 class="card-header bg-light mb-0 fw-bold">{{ account.userName }}</h3>
 
       <div class="card-body">
-        <div class="row g-3">
-          <div class="col-sm-6 col-lg-3">
+        <div class="d-flex flex-column gap-3">
+          <div>
             <span class="text-muted d-block">{{ 'COMMON.EMAIL' | translate }}</span>
             <span class="fs-5 fw-semibold">{{ account.email }}</span>
           </div>
 
-          <div class="col-sm-6 col-lg-3">
+          <hr class="my-0">
+
+          <div>
             <span class="text-muted d-block">{{ 'COMMON.FIRST_NAME' | translate }}</span>
             <span class="fs-5 fw-semibold">{{ account.firstName }}</span>
           </div>
 
-          <div class="col-sm-6 col-lg-3">
+          <hr class="my-0">
+
+          <div>
             <span class="text-muted d-block">{{ 'COMMON.LAST_NAME' | translate }}</span>
             <span class="fs-5 fw-semibold">{{ account.lastName }}</span>
           </div>
 
-          <div class="col-sm-6 col-lg-3">
+          <hr class="my-0">
+
+          <div>
             <span class="text-muted d-block">{{ 'COMMON.DATE_OF_BIRTH' | translate }}</span>
             <span class="fs-5 fw-semibold">{{ account.dateOfBirth }}</span>
           </div>

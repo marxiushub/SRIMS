@@ -34,6 +34,9 @@ import {ReservationComponent} from "./components/customer/reservation/reservatio
 import {
   CustomerAccountComponent
 } from './components/customer/customer-account/customer-account.component';
+import {
+  StaffAccountComponent
+} from './components/staff/staff-account/staff-account.component';
 
 import { StatisticsComponent } from './components/staff/statistics/statistics.component';
 
@@ -65,6 +68,7 @@ const routes: Routes = [
       {path: 'reservation/view/:id', component: StaffReservationViewComponent},
       {path: 'barcode-scanner', component: BarcodeScannerComponent},
       {path: 'statistics', component: StatisticsComponent},
+      {path: 'account', component: StaffAccountComponent},
     ]
   },
   {
