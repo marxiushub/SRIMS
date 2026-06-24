@@ -65,6 +65,7 @@
     "HIGHEST_FIRST": "Highest first",
     "ROWS_PER_PAGE": "Rows per page",
     "OF": "of",
+    "CREATE_RESERVATION": "Create Reservation",
     "RESERVATIONS_TITLE": "Upcoming Reservations",
     "RESERVATIONS_LOADING": "Loading reservations...",
     "RESERVATIONS_ERROR": "Error loading reservations for this equipment.",
