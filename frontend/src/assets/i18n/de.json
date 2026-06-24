@@ -335,6 +335,17 @@
   "CUSTOMER": {
     "DASHBOARD_TITLE": "Kundenportal",
     "DASHBOARD_SUBTITLE": "Willkommen im SRIMS Verleih-System. Wählen Sie eine Option:",
+    "ACCOUNT": {
+      "TITLE": "Mein Konto",
+      "DESC": "Kontodaten ansehen und Passwort ändern",
+      "BACK": "Zurück",
+      "LOADING": "Kontodaten werden geladen...",
+      "LOADING_ERROR": "Kontodaten konnten nicht geladen werden. Bitte versuchen Sie es später erneut.",
+      "CHANGE_PASSWORD": "Passwort ändern",
+      "OLD_PASSWORD": "Aktuelles Passwort",
+      "NEW_PASSWORD": "Neues Passwort",
+      "PASSWORD_CHANGE_SUCCESS": "Ihr Passwort wurde erfolgreich geändert."
+    },
     "RESERVATIONS": {
       "TITLE": "Meine Reservierungen",
       "DESC": "Bestehende Buchungen einsehen oder neue Ausrüstung reservieren"

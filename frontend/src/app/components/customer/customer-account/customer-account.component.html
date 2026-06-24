@@ -1,0 +1,118 @@
+<div class="container pt-4">
+
+  <div class="d-flex flex-wrap align-items-center gap-2 mb-4">
+    <button class="btn btn-outline-secondary me-3 text-nowrap" (click)="back()">
+      ← {{ 'CUSTOMER.ACCOUNT.BACK' | translate }}
+    </button>
+    <h1 class="display-4 mb-0">{{ 'CUSTOMER.ACCOUNT.TITLE' | translate }}</h1>
+  </div>
+
+  @if (loading) {
+    <div class="alert alert-info">
+      {{ 'CUSTOMER.ACCOUNT.LOADING' | translate }}
+    </div>
+  }
+
+  @if (loadError) {
+    <div class="alert alert-danger">
+      {{ 'CUSTOMER.ACCOUNT.LOADING_ERROR' | translate }}
+    </div>
+  }
+
+  @if (!loading && !loadError && account) {
+    <div class="card shadow-sm mb-4">
+      <h3 class="card-header bg-light mb-0 fw-bold">{{ account.userName }}</h3>
+
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-sm-6 col-lg-3">
+            <span class="text-muted d-block">{{ 'COMMON.EMAIL' | translate }}</span>
+            <span class="fs-5 fw-semibold">{{ account.email }}</span>
+          </div>
+
+          <div class="col-sm-6 col-lg-3">
+            <span class="text-muted d-block">{{ 'COMMON.FIRST_NAME' | translate }}</span>
+            <span class="fs-5 fw-semibold">{{ account.firstName }}</span>
+          </div>
+
+          <div class="col-sm-6 col-lg-3">
+            <span class="text-muted d-block">{{ 'COMMON.LAST_NAME' | translate }}</span>
+            <span class="fs-5 fw-semibold">{{ account.lastName }}</span>
+          </div>
+
+          <div class="col-sm-6 col-lg-3">
+            <span class="text-muted d-block">{{ 'COMMON.DATE_OF_BIRTH' | translate }}</span>
+            <span class="fs-5 fw-semibold">{{ account.dateOfBirth }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow-sm">
+      <h3 class="card-header bg-light mb-0 fw-bold">{{ 'CUSTOMER.ACCOUNT.CHANGE_PASSWORD' | translate }}</h3>
+
+      <div class="card-body">
+        <form class="form" [formGroup]="passwordForm" (ngSubmit)="onSubmitPasswordChange()">
+
+          <div class="form-group">
+            <label for="oldPassword">{{ 'CUSTOMER.ACCOUNT.OLD_PASSWORD' | translate }}</label>
+
+            <div class="input-group">
+              <input [type]="showOldPassword ? 'text' : 'password'" name="oldPassword" formControlName="oldPassword"
+                     class="form-control" id="oldPassword"
+                     placeholder="{{ 'CUSTOMER.ACCOUNT.OLD_PASSWORD' | translate }}">
+
+              <button class="btn btn-sm btn-outline-secondary d-flex align-items-center py-0" type="button"
+                      (click)="showOldPassword = !showOldPassword">
+                <i class="bi fs-4" [ngClass]="showOldPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
+              </button>
+            </div>
+
+            @if (passwordSubmitted && passwordForm.controls.oldPassword.errors) {
+              <div class="error">
+                @if (passwordForm.controls.oldPassword.errors.required) {
+                  <small class="form-text text-danger">{{ 'COMMON.PASSWORD_REQUIRED' | translate }}</small>
+                }
+              </div>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="newPassword">{{ 'CUSTOMER.ACCOUNT.NEW_PASSWORD' | translate }}</label>
+
+            <div class="input-group">
+              <input [type]="showNewPassword ? 'text' : 'password'" name="newPassword" formControlName="newPassword"
+                     class="form-control" id="newPassword"
+                     placeholder="{{ 'CUSTOMER.ACCOUNT.NEW_PASSWORD' | translate }}">
+
+              <button class="btn btn-sm btn-outline-secondary d-flex align-items-center py-0" type="button"
+                      (click)="showNewPassword = !showNewPassword">
+                <i class="bi fs-4" [ngClass]="showNewPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
+              </button>
+            </div>
+
+            @if (passwordSubmitted && passwordForm.controls.newPassword.errors) {
+              <div class="error">
+                @if (passwordForm.controls.newPassword.errors.required) {
+                  <small class="form-text text-danger">{{ 'COMMON.PASSWORD_REQUIRED' | translate }}</small>
+                } @else if (passwordForm.controls.newPassword.errors.minlength) {
+                  <small class="form-text text-danger">{{ 'COMMON.PASSWORD_MIN_LENGTH' | translate }}</small>
+                } @else if (passwordForm.controls.newPassword.errors.pattern) {
+                  <small class="form-text text-danger">{{ 'COMMON.PASSWORD_PATTERN' | translate }}</small>
+                }
+              </div>
+            }
+          </div>
+
+          <div class="mt-3">
+            <button type="submit" class="btn btn-success">
+              {{ 'CUSTOMER.ACCOUNT.CHANGE_PASSWORD' | translate }}
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  }
+
+</div>

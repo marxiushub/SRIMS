@@ -335,6 +335,17 @@
   "CUSTOMER": {
     "DASHBOARD_TITLE": "Customer Portal",
     "DASHBOARD_SUBTITLE": "Welcome to the SRIMS rental system. Please select an option:",
+    "ACCOUNT": {
+      "TITLE": "My Account",
+      "DESC": "View your account details and change your password",
+      "BACK": "Back",
+      "LOADING": "Loading account data...",
+      "LOADING_ERROR": "Failed to load account data. Please try again later.",
+      "CHANGE_PASSWORD": "Change Password",
+      "OLD_PASSWORD": "Current Password",
+      "NEW_PASSWORD": "New Password",
+      "PASSWORD_CHANGE_SUCCESS": "Your password has been changed successfully."
+    },
     "RESERVATIONS": {
       "TITLE": "My Reservations",
       "DESC": "View your current bookings or reserve new equipment"

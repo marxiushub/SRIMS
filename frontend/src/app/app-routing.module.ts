@@ -31,6 +31,9 @@ import {
   CustomerEquipmentViewComponent
 } from "./components/customer/customer-inventory/equipment-view/equipment-view.component";
 import {ReservationComponent} from "./components/customer/reservation/reservation.component";
+import {
+  CustomerAccountComponent
+} from './components/customer/customer-account/customer-account.component';
 
 import { StatisticsComponent } from './components/staff/statistics/statistics.component';
 
@@ -79,7 +82,8 @@ const routes: Routes = [
       },
       {path: 'reservation/view/:id', component: ReservationViewComponent},
       {path: 'inventory', component: CustomerInventoryComponent},
-      {path: 'inventory/view/:id', component: CustomerEquipmentViewComponent}
+      {path: 'inventory/view/:id', component: CustomerEquipmentViewComponent},
+      {path: 'account', component: CustomerAccountComponent}
     ]
   },
   {path: 'customer/profiles', component: CustomerProfileComponent},

@@ -90,6 +90,19 @@ export class AuthService {
     return 'UNDEFINED';
   }
 
+  /**
+   * Returns the id of the currently logged-in user, decoded from the JWT's 'uid' claim,
+   * or null if no token is present.
+   */
+  getUserId(): number | null {
+    const token = this.getToken();
+    if (token != null) {
+      const decoded: any = jwtDecode(token);
+      return decoded.uid ?? null;
+    }
+    return null;
+  }
+
   private setToken(authResponse: string) {
     localStorage.setItem('authToken', authResponse);
   }

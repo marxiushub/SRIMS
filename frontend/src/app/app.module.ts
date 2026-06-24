@@ -29,6 +29,9 @@ import {
   CustomerProfileDetailsComponent
 } from "./components/customer/customer-profile/customer-profile-details/customer-profile-details.component";
 import {EquipmentViewComponent} from "./components/staff/inventory/equipment-view/equipment-view.component";
+import {
+  CustomerAccountComponent
+} from "./components/customer/customer-account/customer-account.component";
 
 import {
   ReservationCreateEditComponent
@@ -95,6 +98,7 @@ export function HttpLoaderFactory(http: HttpClient): TranslateLoader {
     CustomerProfileComponent,
     CustomerProfileCreateEditComponent,
     CustomerProfileDetailsComponent,
+    CustomerAccountComponent,
     StatisticsComponent,
   ],
   bootstrap: [AppComponent],
