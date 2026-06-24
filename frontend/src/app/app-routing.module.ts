@@ -48,6 +48,7 @@ const routes: Routes = [
   {path: '', component: HomeComponent, canActivate: [homeGuard]},
   {path: 'login', component: LoginRegisterComponent, data: {mode: LoginRegisterMode.login}},
   {path: 'register', component: LoginRegisterComponent, data: {mode: LoginRegisterMode.register}},
+  {path: 'forgot-password', component: LoginRegisterComponent, data: {mode: LoginRegisterMode.resetPassword}},
   {path: 'message', canActivate: mapToCanActivate([AuthGuard]), component: MessageComponent},
 
   {

@@ -12,7 +12,6 @@
     "LAST_NAME": "Last Name",
     "EMAIL": "Email",
     "DATE_OF_BIRTH": "Date of Birth",
-
     "HAVE_ACCOUNT": "Already have an account?",
     "NO_ACCOUNT": "Don't have an account?",
     "CREATE_ACCOUNT": "Create account",
@@ -21,6 +20,11 @@
     "PASSWORD_MIN_LENGTH": "Password must be at least 10 characters long!",
     "PASSWORD_PATTERN": "Password must contain at least one number, and one special character.",
     "PASSWORD_MISMATCH": "Passwords do not match!",
+    "FORGOT_PASSWORD": "Forgot your password?",
+    "RESET_PASSWORD": "Reset Password",
+    "SEND_RESET_EMAIL": "Request new password",
+    "PASSWORD_RESET_SUCCESS": "A new password has been sent to your email address.",
+    "BACK_TO_LOGIN": "Back to login",
     "REPEAT_PASSWORD_REQUIRED": "Please repeat your password!",
     "FIRST_NAME_REQUIRED": "First name is required!",
     "LAST_NAME_REQUIRED": "Last name is required!",
@@ -29,7 +33,6 @@
     "DATE_OF_BIRTH_REQUIRED": "Date of birth is required!",
     "DATE_OF_BIRTH_FUTURE": "Date of birth cannot be in the future!",
     "ALREADY_LOGGED_IN": "You are already logged in.",
-
     "LOGIN_SUCCESS": "Login successful.",
     "REGISTER_SUCCESS": "Registration successful. You can now log in.",
     "LOGOUT_SUCCESS": "Logout successful."
