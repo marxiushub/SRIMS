@@ -89,7 +89,6 @@ export class BarcodeScannerComponent implements OnInit {
     }
     this.isScanningPaused = true;
     this.inputBarcodeId = result;
-    this.notification.success(this.translateService.instant('BARCODE_SCANNER.SUCCESS_ADDED', {model: result}) || "Scanned successfully.");
     console.log('Successfully scanned code:', result);
     this.searchEquipment();
 
@@ -158,7 +157,7 @@ export class BarcodeScannerComponent implements OnInit {
           const alreadyExists = this.scannedEquipmentIds.includes(equipmentData.id);
 
           if (alreadyExists) {
-            this.errorMessage = this.translateService.instant('BARCODE_SCANNER.ERROR_ALREADY_SCANNED', {model: equipmentData.model});
+            this.notification.error(this.translateService.instant('BARCODE_SCANNER.ERROR_ALREADY_SCANNED', {model: equipmentData.model}));
             this.loading = false;
             this.updateScanScenario();
             return;
@@ -166,6 +165,7 @@ export class BarcodeScannerComponent implements OnInit {
           this.scannedEquipments.push(equipmentData);
           this.scannedEquipmentIds.push(equipmentData.id);
 
+          this.notification.success(this.translateService.instant('BARCODE_SCANNER.SUCCESS_ADDED', {model: equipmentData.model}) || "Scanned successfully.");
           this.successMessage = this.translateService.instant('BARCODE_SCANNER.SUCCESS_ADDED', {model: equipmentData.model});
           this.inputBarcodeId = '';
 

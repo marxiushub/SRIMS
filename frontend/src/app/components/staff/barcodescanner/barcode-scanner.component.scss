@@ -96,3 +96,12 @@
     align-items: center;
   }
 }
+
+.inv-card--no-hover {
+  cursor: default;
+
+  &:hover {
+    background: var(--bs-body-bg);
+    border-color: rgba(0, 0, 0, 0.12);
+  }
+}
