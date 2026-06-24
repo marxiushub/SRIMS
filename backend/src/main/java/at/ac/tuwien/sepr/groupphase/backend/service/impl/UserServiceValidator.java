@@ -14,6 +14,7 @@ import java.util.List;
 public class UserServiceValidator {
 
     private final UserRepository userRepository;
+    private static final String EMAIL_REGEX = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
 
     public UserServiceValidator(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -27,6 +28,8 @@ public class UserServiceValidator {
         } else {
             if (userCreationDto.getEmail() == null || userCreationDto.getEmail().isBlank()) {
                 validationErrors.add("email is blank");
+            } else if (!userCreationDto.getEmail().matches(EMAIL_REGEX)) {
+                validationErrors.add("Invalid email format");
             } else if (userRepository.existsByEmail(userCreationDto.getEmail())) {
                 validationErrors.add("This email address is already registered to another account.");
             }
@@ -72,5 +75,13 @@ public class UserServiceValidator {
             throw new IllegalArgumentException("id is negative");
         }
 
+    }
+
+    public void validateEmailFormat(String email, List<String> validationErrors) {
+        if (email != null && !email.isBlank()) {
+            if (!email.matches(EMAIL_REGEX)) {
+                throw new ValidationException("Invalid email format", validationErrors);
+            }
+        }
     }
 }

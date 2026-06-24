@@ -18,7 +18,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
-import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -156,7 +155,7 @@ public class UserEndpointTest extends IntegrationTestBase implements TestData {
                 .content(json)
                 .header(securityProperties.getAuthHeader(), staffToken(authStaff))
                 .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
+            .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.email").value("staff@test.at"))
             .andExpect(jsonPath("$.userName").value("staff_user"))
@@ -396,5 +395,15 @@ public class UserEndpointTest extends IntegrationTestBase implements TestData {
                 .header(securityProperties.getAuthHeader(), staffToken(staff))
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isBadRequest()));
+    }
+
+    @Test
+    public void resetPassword_unauthenticated_withValidEmail_returns200() {
+        Customer targetCustomer = createTestCustomer("forgot_pw_target");
+
+        assertDoesNotThrow(() -> mockMvc.perform(patch("/api/v1/customer/password-resets/{email}", targetCustomer.getEmail())
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.email").value(targetCustomer.getEmail())));
     }
 }
