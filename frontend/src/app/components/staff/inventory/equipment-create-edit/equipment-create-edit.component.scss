@@ -1,0 +1,5 @@
+//Removes the Dropdown-Arrow for the disabled Equipment-Type- and Status-Fields in Edit-Mode
+select.form-select:disabled {
+  background-image: none !important;
+  padding-right: 0.75rem;
+}

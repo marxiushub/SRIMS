@@ -92,6 +92,7 @@
                   name="equipmentStatus"
                   class="form-select"
                   required
+                  [disabled]="true"
                   [(ngModel)]="equipment.status">
                   @for (status of rentalStatuses; track status) {
                     <option [value]="status">
