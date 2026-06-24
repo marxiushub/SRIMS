@@ -217,9 +217,7 @@ class BarcodeScannerServiceTest {
     }
 
     @Test
-    void checkOutWithoutExistingReservation_modeMaintenanceWithReturnedStatus_stillSetsMaintenanceNotFree() {
-        //Even if reservationStatus is RETURNED, mode=MAINTENANCE should win - the helper
-        //method (which would map RETURNED -> FREE) must not be consulted in this branch.
+    void checkOutWithoutExistingReservation_modeMaintenanceWithReturnedStatus_setsFreeNotMaintenance() {
         ReservationCreationWithModeDto createDto = new ReservationCreationWithModeDto();
         createDto.setEquipmentIds(List.of(93L));
         createDto.setReservationStatus(ReservationStatus.RETURNED);
@@ -229,6 +227,6 @@ class BarcodeScannerServiceTest {
 
         barcodeScannerService.checkOutWithoutExistingReservation(createDto);
 
-        verify(equipmentService, times(1)).updateEquipmentStatuses(List.of(93L), RentalStatus.MAINTENANCE);
+        verify(equipmentService, times(1)).updateEquipmentStatuses(List.of(93L), RentalStatus.FREE);
     }
 }
