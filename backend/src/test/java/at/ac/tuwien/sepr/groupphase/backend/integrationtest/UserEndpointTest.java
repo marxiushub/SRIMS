@@ -16,7 +16,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -137,7 +139,7 @@ public class UserEndpointTest extends IntegrationTestBase implements TestData {
     // ===== Staff create (needs STAFF_CREATE) =====
 
     @Test
-    public void createStaff_withValidDto_returns200AndSavedStaff() {
+    public void createStaff_withValidDto_returns200AndSavedStaff() throws Exception {
         Staff authStaff = createTestStaff("creator");
 
         String json = """
@@ -154,6 +156,7 @@ public class UserEndpointTest extends IntegrationTestBase implements TestData {
                 .content(json)
                 .header(securityProperties.getAuthHeader(), staffToken(authStaff))
                 .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.email").value("staff@test.at"))
             .andExpect(jsonPath("$.userName").value("staff_user"))
