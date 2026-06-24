@@ -1,16 +1,16 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ReservationService } from '../../../../services/reservation.service';
-import { EquipmentService } from '../../../../services/equipment.service';
-import { TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
-import { Equipment } from '../../../../dtos/equipment';
-import { EquipmentSearch } from '../../../../dtos/equipment-search';
-import { EquipmentType } from '../../../../dtos/equipmenttype';
-import { SkillLevel } from '../../../../dtos/skilllevel';
-import { ReservationUpdate } from '../../../../dtos/reservation-update';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
+import {Component, OnInit} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {ReservationService} from '../../../../services/reservation.service';
+import {EquipmentService} from '../../../../services/equipment.service';
+import {TranslateService} from '@ngx-translate/core';
+import {ToastrService} from 'ngx-toastr';
+import {Equipment} from '../../../../dtos/equipment';
+import {EquipmentSearch} from '../../../../dtos/equipment-search';
+import {EquipmentType} from '../../../../dtos/equipmenttype';
+import {SkillLevel} from '../../../../dtos/skilllevel';
+import {ReservationUpdate} from '../../../../dtos/reservation-update';
+import {debounceTime, distinctUntilChanged} from 'rxjs';
 
 @Component({
   selector: 'app-staff-reservation-edit',
@@ -34,6 +34,9 @@ export class StaffReservationEditComponent implements OnInit {
   skillFilter: SkillLevel | null = null;
   priceSortDirection: 'asc' | 'desc' | '' = 'asc';
 
+  filtersExpanded: boolean = false;
+  equipmentListExpanded: boolean = true;
+
   loading = false;
   submitLoading = false;
   submitError?: string;
@@ -51,7 +54,8 @@ export class StaffReservationEditComponent implements OnInit {
     private equipmentService: EquipmentService,
     private notification: ToastrService,
     public translateService: TranslateService
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.initForm();
@@ -275,9 +279,45 @@ export class StaffReservationEditComponent implements OnInit {
    */
   clearFilters(): void {
     this.modelFilter = '';
+    this.currentActiveType = null;
     this.skillFilter = null;
     this.priceSortDirection = 'asc';
-    this.searchEquipment();
+    this.availableEquipmentList = [];
+    this.filtersExpanded = false;
+  }
+
+  /**
+   * Toggles the visibility of the filter section in the UI.
+   */
+  toggleFilters(): void {
+    this.filtersExpanded = !this.filtersExpanded;
+  }
+
+  /**
+   * Counts the number of active filters for display in the UI.
+   */
+  get activeFilterCount(): number {
+    let count = 0;
+    if (this.modelFilter?.trim()) count++;
+    if (this.skillFilter) count++;
+    if (this.priceSortDirection && this.priceSortDirection !== 'asc') count++;
+    return count;
+  }
+
+  /**
+   * Checks if a specific piece of equipment is already selected for the reservation.
+   * @param itemId ID of the equipment to check
+   * @returns true if the equipment is already selected, false otherwise
+   */
+  isAlreadySelected(itemId: number): boolean {
+    return this.selectedEquipment.some(e => e.id === itemId);
+  }
+
+  /**
+   * Toggles the visibility of the available equipment list in the UI.
+   */
+  toggleEquipmentList(): void {
+    this.equipmentListExpanded = !this.equipmentListExpanded;
   }
 
   /**
