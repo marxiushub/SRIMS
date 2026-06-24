@@ -152,6 +152,10 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
             }
         }
 
+        if (reservation.getReservationStatus() == ReservationStatus.PICKED_UP) {
+            throw new ValidationException("Reservations can only be deleted if they have not been picked up.");
+        }
+
         deleteTimePeriodsForEquipment(reservation.getItems().stream().map(ReservationRelation::getEquipment).toList(), reservation);
 
         reservationRepository.delete(reservation);
@@ -199,6 +203,11 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
      * removing time periods when changed to RETURNED/CANCELLED) is applied.
      */
     private void applyUpdateCommon(Reservation reservation, ReservationUpdateDto dto, boolean isStaff) {
+
+        if (reservation.getReservationStatus() == ReservationStatus.PICKED_UP) {
+            throw new ValidationException("Reservations can only be deleted if they have not been picked up.");
+        }
+
         boolean datesChanged = (dto.getStartDate() != null && !dto.getStartDate().equals(reservation.getStartDate()))
             || (dto.getEndDate() != null && !dto.getEndDate().equals(reservation.getEndDate()));
         boolean equipmentChanged = dto.getEquipmentIds() != null;

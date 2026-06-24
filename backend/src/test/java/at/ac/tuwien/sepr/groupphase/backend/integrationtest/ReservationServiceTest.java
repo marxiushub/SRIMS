@@ -106,11 +106,9 @@ public class ReservationServiceTest {
 
     @AfterEach
     public void cleanupCreatedReservationData() {
-        reservationRepository.findAll().forEach(reservation ->
-            reservationService.deleteReservation(reservation.getId(), true)
-        );
+        timePeriodsRepository.deleteAll();
 
-        timePeriodsRepository.deleteAllInBatch();
+        reservationRepository.deleteAll();
     }
 
     @Test
