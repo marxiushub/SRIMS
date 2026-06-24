@@ -5,9 +5,8 @@
     <h2 class="mb-0">{{ 'BARCODE_SCANNER.TITLE' | translate }}</h2>
   </div>
 
-  <!--NEW PART-->
   <div class="card mb-4 shadow-sm">
-    <div class="card-body">
+    <div class="card-body flex-wrap d-flex align-items-center">
       <label class="form-label small fw-bold">{{ 'BARCODE_SCANNER.MODE_LABEL' | translate }}</label>
       <div class="btn-group w-100" role="group">
         <button type="button" class="btn"
@@ -15,14 +14,16 @@
                 [class.btn-outline-primary]="checkoutMode !== 'RENTAL'"
                 (click)="requestCheckoutModeSwitch('RENTAL', modeSwitchDialog)">
           <i class="bi bi-lightning-fill me-1"></i>
-          {{ 'BARCODE_SCANNER.MODE_RENTAL' | translate }}
+          <span class="d-none d-sm-inline">{{ 'BARCODE_SCANNER.MODE_RENTAL' | translate }}</span>
+          <span class="d-sm-none">{{ 'BARCODE_SCANNER.MODE_RENTAL_SHORT' | translate }}</span>
         </button>
         <button type="button" class="btn"
                 [class.btn-secondary]="checkoutMode === 'MAINTENANCE'"
                 [class.btn-outline-secondary]="checkoutMode !== 'MAINTENANCE'"
                 (click)="requestCheckoutModeSwitch('MAINTENANCE', modeSwitchDialog)">
           <i class="bi bi-tools me-1"></i>
-          {{ 'BARCODE_SCANNER.MODE_MAINTENANCE' | translate }}
+          <span class="d-none d-sm-inline">{{ 'BARCODE_SCANNER.MODE_MAINTENANCE' | translate }}</span>
+          <span class="d-sm-none">{{ 'BARCODE_SCANNER.MODE_MAINTENANCE_SHORT' | translate }}</span>
         </button>
       </div>
 
@@ -118,7 +119,8 @@
         @if (scanScenario === 'NO_RESERVATION' && scannedEquipments.length > 0) {
           <div class="p-4 bg-light border-bottom animate-fade-in">
             <h5 class="text-secondary mb-3 fw-bold">
-              <i class="bi me-2" [ngClass]="checkoutMode === 'MAINTENANCE' ? 'bi-tools text-secondary' : 'bi-lightning-charge-fill text-warning'"></i>
+              <i class="bi me-2"
+                 [ngClass]="checkoutMode === 'MAINTENANCE' ? 'bi-tools text-secondary' : 'bi-lightning-charge-fill text-warning'"></i>
               {{ (checkoutMode === 'MAINTENANCE' ? 'BARCODE_SCANNER.MAINTENANCE_TITLE' : 'BARCODE_SCANNER.WALK_IN_TITLE') | translate }}
             </h5>
             <p class="text-muted small mb-4">
@@ -152,7 +154,8 @@
                     <label for="walkInProfile"
                            class="form-label small fw-bold">{{ 'RESERVATION.SELECT_PROFILE' | translate }} *</label>
                     <select id="walkInProfile" formControlName="customerProfileId" class="form-select">
-                      <option [ngValue]="null" disabled>-- {{ 'BARCODE_SCANNER.CHOOSE_PROFILE_PLACEHOLDER' | translate }}
+                      <option [ngValue]="null" disabled>
+                        -- {{ 'BARCODE_SCANNER.CHOOSE_PROFILE_PLACEHOLDER' | translate }}
                         --
                       </option>
                       @for (profile of filteredProfiles; track profile.id) {
@@ -573,7 +576,8 @@
         <button type="button" class="btn btn-outline-secondary px-4" (click)="modeSwitchDialog.close()">
           {{ 'BARCODE_SCANNER.MODAL_BTN_CANCEL' | translate }}
         </button>
-        <button type="button" class="btn btn-warning px-4 fw-bold" (click)="confirmCheckoutModeSwitch(modeSwitchDialog)">
+        <button type="button" class="btn btn-warning px-4 fw-bold"
+                (click)="confirmCheckoutModeSwitch(modeSwitchDialog)">
           {{ 'BARCODE_SCANNER.MODAL_BTN_CONFIRM' | translate }}
         </button>
       </div>

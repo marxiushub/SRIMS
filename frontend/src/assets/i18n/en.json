@@ -12,7 +12,6 @@
     "LAST_NAME": "Last Name",
     "EMAIL": "Email",
     "DATE_OF_BIRTH": "Date of Birth",
-
     "HAVE_ACCOUNT": "Already have an account?",
     "NO_ACCOUNT": "Don't have an account?",
     "CREATE_ACCOUNT": "Create account",
@@ -29,7 +28,6 @@
     "DATE_OF_BIRTH_REQUIRED": "Date of birth is required!",
     "DATE_OF_BIRTH_FUTURE": "Date of birth cannot be in the future!",
     "ALREADY_LOGGED_IN": "You are already logged in.",
-
     "LOGIN_SUCCESS": "Login successful.",
     "REGISTER_SUCCESS": "Registration successful. You can now log in.",
     "LOGOUT_SUCCESS": "Logout successful."
@@ -202,7 +200,9 @@
     "TITLE": "Prototype Barcode Scanner",
     "MODE_LABEL": "Select Scanner Mode:",
     "MODE_RENTAL": "Mode 1: Rental / Return (FREE ↔ RENTED)",
+    "MODE_RENTAL_SHORT": "Mode 1: Rental / Return",
     "MODE_MAINTENANCE": "Mode 2: Send to Repair (FREE ↔ MAINTENANCE)",
+    "MODE_MAINTENANCE_SHORT": "Mode 2: Repair",
     "INPUT_PLACEHOLDER": "Scan or enter barcode...",
     "BTN_CHECK": "Check Barcode",
     "ERROR_EMPTY": "Please enter a barcode ID.",

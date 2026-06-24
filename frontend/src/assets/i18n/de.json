@@ -12,7 +12,6 @@
     "LAST_NAME": "Nachname",
     "EMAIL": "E-Mail",
     "DATE_OF_BIRTH": "Geburtsdatum",
-
     "HAVE_ACCOUNT": "Sie haben bereits einen Account?",
     "NO_ACCOUNT": "Sie haben noch keinen Account?",
     "CREATE_ACCOUNT": "Account erstellen",
@@ -29,7 +28,6 @@
     "DATE_OF_BIRTH_REQUIRED": "Geburtsdatum ist erforderlich!",
     "DATE_OF_BIRTH_FUTURE": "Das Geburtsdatum darf nicht in der Zukunft liegen!",
     "ALREADY_LOGGED_IN": "Sie sind bereits eingeloggt.",
-
     "LOGIN_SUCCESS": "Erfolgreich angemeldet.",
     "REGISTER_SUCCESS": "Erfolgreich registriert. Bitte loggen Sie sich ein.",
     "LOGOUT_SUCCESS": "Erfolgreich ausgeloggt."
@@ -202,7 +200,9 @@
     "TITLE": "Prototyp Barcode Scanner",
     "MODE_LABEL": "Scanner-Modus auswählen:",
     "MODE_RENTAL": "Modus 1: Ausleihen / Zurückgeben (FREE ↔ RENTED)",
+    "MODE_RENTAL_SHORT": "Mode 2: Ausleihen / Zurückgeben",
     "MODE_MAINTENANCE": "Modus 2: In Reparatur (FREE ↔ MAINTENANCE)",
+    "MODE_MAINTENANCE_SHORT": "Mode 2: Reparatur",
     "INPUT_PLACEHOLDER": "Barcode einscannen oder eingeben...",
     "BTN_CHECK": "Barcode prüfen",
     "ERROR_EMPTY": "Bitte gib eine Barcode-ID ein.",
