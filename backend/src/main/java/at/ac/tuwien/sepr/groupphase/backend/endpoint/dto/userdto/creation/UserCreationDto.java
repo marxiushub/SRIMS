@@ -14,13 +14,11 @@ import jakarta.validation.constraints.Size;
  */
 
 @JsonTypeInfo(
-    use = JsonTypeInfo.Id.NAME,
-    include = JsonTypeInfo.As.PROPERTY,
-    property = "type"
+    use = JsonTypeInfo.Id.DEDUCTION
 )
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = CustomerCreationDto.class, name = "CUSTOMER"),
-    @JsonSubTypes.Type(value = StaffCreationDto.class, name = "STAFF")
+    @JsonSubTypes.Type(value = CustomerCreationDto.class),
+    @JsonSubTypes.Type(value = StaffCreationDto.class)
 })
 
 public abstract class UserCreationDto {
