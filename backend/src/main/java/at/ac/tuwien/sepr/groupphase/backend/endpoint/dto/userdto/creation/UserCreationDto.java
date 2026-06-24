@@ -13,7 +13,6 @@ import jakarta.validation.constraints.Size;
  * Represents a Dto for creating users.
  */
 
-
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.PROPERTY,
