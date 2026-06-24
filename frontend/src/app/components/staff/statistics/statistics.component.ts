@@ -8,6 +8,7 @@ import { StatisticsResponseDto } from '../../../dtos/statistics-response';
 import { EquipmentType } from '../../../dtos/equipmenttype';
 import {Equipment} from "../../../dtos/equipment";
 import {Router} from "@angular/router";
+import { StatisticsStateService } from '../../../services/statistics-state.service';
 
 interface RenderedRow {
   label: string;
@@ -34,22 +35,34 @@ export class StatisticsComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private statisticsService: StatisticsService,
-    private router: Router
+    private router: Router,
+    private stateService: StatisticsStateService
   ) {}
 
   ngOnInit(): void {
-    const endDate = new Date();
-    const startDate = new Date();
-    startDate.setDate(endDate.getDate() - 30);
-
-    this.filterForm = this.fb.group({
-      searchStart: [startDate.toISOString().split('T')[0], Validators.required],
-      searchEnd: [endDate.toISOString().split('T')[0], Validators.required],
-      type: [''],
-      detailDegree: [false]
-    });
+    if (this.stateService.lastFilterValues) {
+      this.filterForm = this.fb.group(this.stateService.lastFilterValues);
+      this.tableRows = this.stateService.lastTableRows;
+      this.maxDaysRented = this.stateService.lastMaxDaysRented;
+      this.sortDescending = this.stateService.lastSortDescending;
+      this.calculateYAxis();
+    } else {
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(endDate.getDate() - 30);
+      this.filterForm = this.fb.group({
+        searchStart: [startDate.toISOString().split('T')[0], Validators.required],
+        searchEnd: [endDate.toISOString().split('T')[0], Validators.required],
+        type: [''],
+        detailDegree: [false]
+      });
+    }
   }
   openDetailPage(row: RenderedRow): void {
+    this.stateService.lastFilterValues = this.filterForm.value;
+    this.stateService.lastTableRows = this.tableRows;
+    this.stateService.lastMaxDaysRented = this.maxDaysRented;
+    this.stateService.lastSortDescending = this.sortDescending;
     this.router.navigate(['/staff/inventory/view', row.id]);
   }
 
