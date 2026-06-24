@@ -150,7 +150,13 @@
     },
     "OVERVIEW": {
       "TITLE": "Grafische Übersicht",
-      "DESC": "Visuelle Darstellung des gesamten Bestands-Status."
+      "DESC": "Visuelle Darstellung des gesamten Bestands-Status.",
+      "TOTAL": "Gesamt",
+      "MESSAGES": {
+        "LOADING": "Lädt...",
+        "NO_DATA": "Keine Daten verfügbar.",
+        "ERROR": "Übersicht konnte nicht geladen werden. Bitte versuche es erneut."
+      }
     },
     "STATISTICS": {
       "TITLE": "Statistiken",

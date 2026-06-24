@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.creation.EquipmentCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.detail.EquipmentDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.overview.EquipmentStatusOverviewDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.search.EquipmentSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.update.EquipmentUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
@@ -89,5 +90,14 @@ public interface EquipmentService {
      * @param newRentalStatus the new RentalStatus the equipment's should be updated to
      */
     public void updateEquipmentStatuses(List<Long> equipmentIds, RentalStatus newRentalStatus);
+
+    /**
+     * Retrieves an aggregated overview of all equipment items, grouped by equipment type
+     * and rental status.
+     *
+     * @return an {@link EquipmentStatusOverviewDto} containing counts per type and status,
+     *         including zero-counts for combinations with no matching equipment
+     */
+    EquipmentStatusOverviewDto getStatusOverview();
 
 }

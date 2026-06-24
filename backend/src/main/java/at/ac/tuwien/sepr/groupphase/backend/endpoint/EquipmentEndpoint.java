@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.creation.EquipmentCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.detail.EquipmentDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.overview.EquipmentStatusOverviewDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.search.EquipmentSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.update.EquipmentUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.service.EquipmentService;
@@ -52,6 +53,20 @@ public class EquipmentEndpoint {
     public List<EquipmentDetailDto> createEquipment(@Valid @RequestBody EquipmentCreationDto dto) {
         LOGGER.info("POST /api/v1/equipment - {}", dto);
         return equipmentService.createEquipment(dto);
+    }
+
+    /**
+     * Endpoint to retrieve an aggregated overview of all equipment, grouped by
+     * equipment type and rental status. Used for the graphical inventory status
+     * overview.
+     *
+     * @return an {@link EquipmentStatusOverviewDto} containing counts per type and status
+     */
+    @PreAuthorize("hasAuthority('EQUIPMENT_READ')")
+    @GetMapping("/overview")
+    public EquipmentStatusOverviewDto getEquipmentStatusOverview() {
+        LOGGER.info("GET /api/v1/equipment/overview");
+        return equipmentService.getStatusOverview();
     }
 
     /**
