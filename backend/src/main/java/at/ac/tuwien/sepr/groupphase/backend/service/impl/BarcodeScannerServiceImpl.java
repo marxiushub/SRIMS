@@ -57,6 +57,13 @@ public class BarcodeScannerServiceImpl implements BarcodeScannerService {
     public ReservationDetailDto checkOutWithoutExistingReservation(ReservationCreationWithModeDto reservationCreationWithModeDto) {
         LOGGER.info("Checkout without Existing Reservation, mode={}", reservationCreationWithModeDto.getMode());
 
+        if ("MAINTENANCE".equalsIgnoreCase(reservationCreationWithModeDto.getMode())
+            && reservationCreationWithModeDto.getEquipmentIds() != null && reservationCreationWithModeDto.getEquipmentIds().size() > 1) {
+            throw new IllegalArgumentException(
+                "Maintenance checkout only allows a single equipment item, but "
+                    + reservationCreationWithModeDto.getEquipmentIds().size() + " were given.");
+        }
+
         ReservationDetailDto returnDto = reservationService.createReservation(reservationCreationWithModeDto.toReservationCreationDto());
         List<Long> equipmentIds = reservationCreationWithModeDto.getEquipmentIds();
 

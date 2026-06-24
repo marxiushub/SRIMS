@@ -164,7 +164,7 @@ class BarcodeScannerServiceTest {
     @Test
     void checkOutWithoutExistingReservation_modeMaintenance_setsEquipmentMaintenanceRegardlessOfReservationStatus() {
         ReservationCreationWithModeDto createDto = new ReservationCreationWithModeDto();
-        createDto.setEquipmentIds(List.of(90L, 91L));
+        createDto.setEquipmentIds(List.of(90L));
         createDto.setReservationStatus(ReservationStatus.PICKED_UP);
         createDto.setMode("MAINTENANCE");
 
@@ -178,7 +178,27 @@ class BarcodeScannerServiceTest {
         assertAll(
             () -> assertThat(result).isEqualTo(mockReturnDto),
             () -> verify(reservationService, times(1)).createReservation(any()),
-            () -> verify(equipmentService, times(1)).updateEquipmentStatuses(List.of(90L, 91L), RentalStatus.MAINTENANCE)
+            () -> verify(equipmentService, times(1)).updateEquipmentStatuses(List.of(90L), RentalStatus.MAINTENANCE)
+        );
+    }
+
+    @Test
+    void checkOutWithoutExistingReservation_modeMaintenanceWithMultipleItems_throwsAndNeverCallsCreateReservation() {
+        //Maintenance checkouts are restricted to exactly one equipment item (see method Javadoc).
+        //The rejection must happen BEFORE createReservation() runs, so no orphaned data is created.
+        ReservationCreationWithModeDto createDto = new ReservationCreationWithModeDto();
+        createDto.setEquipmentIds(List.of(94L, 95L));
+        createDto.setReservationStatus(ReservationStatus.PICKED_UP);
+        createDto.setMode("MAINTENANCE");
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+            barcodeScannerService.checkOutWithoutExistingReservation(createDto)
+        );
+
+        assertAll(
+            () -> assertThat(exception.getMessage()).contains("single equipment item"),
+            () -> verify(reservationService, times(0)).createReservation(any()),
+            () -> verify(equipmentService, times(0)).updateEquipmentStatuses(any(), any())
         );
     }
 

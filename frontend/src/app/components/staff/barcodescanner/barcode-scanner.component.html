@@ -443,12 +443,26 @@
         </h5>
       </div>
       <div class="card-body p-4">
-        @if (scanScenario === 'NO_RESERVATION') {
+        @if (scanScenario === 'NO_RESERVATION' && checkoutMode === 'RENTAL') {
           <p class="fs-5 mb-1">
             {{ 'BARCODE_SCANNER.WALK_IN_CONFIRM_PROMPT' | translate }}
           </p>
           <small class="text-muted">
             {{ 'BARCODE_SCANNER.WALK_IN_INFO_TEXT' | translate:{count: scannedEquipments.length} }}
+          </small>
+        } @else if (scanScenario === 'NO_RESERVATION' && checkoutMode === 'MAINTENANCE') {
+          <p class="fs-5 mb-1">
+            {{ 'BARCODE_SCANNER.MAINTENANCE_CONFIRM_PROMPT' | translate }}
+          </p>
+          <small class="text-muted">
+            {{ 'BARCODE_SCANNER.MODAL_SUBTEXT' | translate }}
+          </small>
+        } @else if (isMaintenanceReactivation) {
+          <p class="fs-5 mb-1">
+            {{ 'BARCODE_SCANNER.MAINTENANCE_REACTIVATE_CONFIRM_PROMPT' | translate }}
+          </p>
+          <small class="text-muted">
+            {{ 'BARCODE_SCANNER.MODAL_SUBTEXT' | translate }}
           </small>
         } @else {
           <p class="fs-5 mb-1"

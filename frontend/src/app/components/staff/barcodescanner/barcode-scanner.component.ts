@@ -174,6 +174,19 @@ export class BarcodeScannerComponent implements OnInit {
             this.updateScanScenario();
             return;
           }
+
+          //Maintenance mode only ever allows exactly one equipment item at a time: maintenance
+          //reservations bundle into a single Reservation, and reactivation can only return that
+          //whole Reservation at once (no partial multi-item return support). A second item would
+          //either get force-bundled into the same maintenance batch, or block reactivation of an
+          //already-fixed item until ALL items in the batch are ready - neither is acceptable.
+          if (this.checkoutMode === 'MAINTENANCE' && this.scannedEquipmentIds.length >= 1) {
+            this.errorMessage = 'BARCODE_SCANNER.MAINTENANCE_ERROR_ONLY_ONE_ITEM';
+            this.loading = false;
+            this.updateScanScenario();
+            return;
+          }
+
           this.scannedEquipments.push(equipmentData);
           this.scannedEquipmentIds.push(equipmentData.id);
 

@@ -265,6 +265,9 @@
     "MAINTENANCE_SUBTITLE": "Für dieses eingescannte Equipment liegt heute keine Reservierung vor. Sie können es hier zur Wartung/Reparatur anmelden.",
     "MAINTENANCE_PANEL_TITLE": "Wartung",
     "BTN_REACTIVATE": "Equipment aus Wartung zurückholen (Status auf Verfügbar setzen)",
+    "MAINTENANCE_ERROR_ONLY_ONE_ITEM": "Im Wartungs-Modus kann nur ein Equipment-Stück gleichzeitig bearbeitet werden. Bitte zuerst senden/zurückholen, bevor Sie das nächste scannen.",
+    "MAINTENANCE_CONFIRM_PROMPT": "Möchten Sie dieses Equipment jetzt verbindlich zur Wartung anmelden?",
+    "MAINTENANCE_REACTIVATE_CONFIRM_PROMPT": "Möchten Sie dieses Equipment jetzt aus der Wartung zurückholen und als verfügbar markieren?",
     "CAMERA_SCANNER": "Kamera Scanner",
     "CLOSE_CAMERA": "Kamera schließen",
     "OPEN_CAMERA": "Kamera öffnen"

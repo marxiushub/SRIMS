@@ -265,6 +265,9 @@
     "MAINTENANCE_SUBTITLE": "No reservation was found for this equipment today. You can send it to maintenance/repair here.",
     "MAINTENANCE_PANEL_TITLE": "Maintenance",
     "BTN_REACTIVATE": "Bring Equipment Back from Maintenance (Set Status to Available)",
+    "MAINTENANCE_ERROR_ONLY_ONE_ITEM": "Only one equipment item can be processed at a time in maintenance mode. Please send/reactivate it first before scanning the next one.",
+    "MAINTENANCE_CONFIRM_PROMPT": "Do you want to send this equipment to maintenance now?",
+    "MAINTENANCE_REACTIVATE_CONFIRM_PROMPT": "Do you want to bring this equipment back from maintenance and mark it as available?",
     "CAMERA_SCANNER": "Camera Scanner",
     "CLOSE_CAMERA": "Close Camera",
     "OPEN_CAMERA": "Open Camera"
