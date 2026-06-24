@@ -7,6 +7,34 @@
 
   <div class="card mb-4 shadow-sm">
     <div class="card-body">
+      <label class="form-label small fw-bold">{{ 'BARCODE_SCANNER.MODE_LABEL' | translate }}</label>
+      <div class="btn-group w-100" role="group">
+        <button type="button" class="btn"
+                [class.btn-primary]="checkoutMode === 'RENTAL'"
+                [class.btn-outline-primary]="checkoutMode !== 'RENTAL'"
+                (click)="requestCheckoutModeSwitch('RENTAL', modeSwitchDialog)">
+          <i class="bi bi-lightning-fill me-1"></i>
+          {{ 'BARCODE_SCANNER.MODE_RENTAL' | translate }}
+        </button>
+        <button type="button" class="btn"
+                [class.btn-secondary]="checkoutMode === 'MAINTENANCE'"
+                [class.btn-outline-secondary]="checkoutMode !== 'MAINTENANCE'"
+                (click)="requestCheckoutModeSwitch('MAINTENANCE', modeSwitchDialog)">
+          <i class="bi bi-tools me-1"></i>
+          {{ 'BARCODE_SCANNER.MODE_MAINTENANCE' | translate }}
+        </button>
+      </div>
+
+      @if (checkoutMode === 'MAINTENANCE' && maintenanceLookupError) {
+        <div class="alert alert-danger py-2 small mt-3 mb-0">
+          {{ maintenanceLookupError }}
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="card mb-4 shadow-sm">
+    <div class="card-body">
       @if (isCameraOpen) {
         <div class="camera-container mb-4">
           <div class="d-flex justify-content-between align-items-center mb-2">
@@ -77,7 +105,11 @@
 
   <div class="card shadow-sm mb-4">
     <div class="card-header bg-light fw-bold text-primary">
-      {{ 'RESERVATION.TITLE_OVERVIEW' | translate }} ({{ matchedReservations.length }})
+      @if (checkoutMode === 'MAINTENANCE') {
+        {{ 'BARCODE_SCANNER.MAINTENANCE_PANEL_TITLE' | translate }}
+      } @else {
+        {{ 'RESERVATION.TITLE_OVERVIEW' | translate }} ({{ matchedReservations.length }})
+      }
     </div>
     <div class="card-body p-0">
 
@@ -85,42 +117,52 @@
         @if (scanScenario === 'NO_RESERVATION' && scannedEquipments.length > 0) {
           <div class="p-4 bg-light border-bottom animate-fade-in">
             <h5 class="text-secondary mb-3 fw-bold">
-              <i class="bi bi-lightning-charge-fill me-2 text-warning"></i>
-              {{ 'BARCODE_SCANNER.WALK_IN_TITLE' | translate }}
+              <i class="bi me-2" [ngClass]="checkoutMode === 'MAINTENANCE' ? 'bi-tools text-secondary' : 'bi-lightning-charge-fill text-warning'"></i>
+              {{ (checkoutMode === 'MAINTENANCE' ? 'BARCODE_SCANNER.MAINTENANCE_TITLE' : 'BARCODE_SCANNER.WALK_IN_TITLE') | translate }}
             </h5>
-            <p class="text-muted small mb-4">{{ 'BARCODE_SCANNER.WALK_IN_SUBTITLE' | translate }}</p>
+            <p class="text-muted small mb-4">
+              {{ (checkoutMode === 'MAINTENANCE' ? 'BARCODE_SCANNER.MAINTENANCE_SUBTITLE' : 'BARCODE_SCANNER.WALK_IN_SUBTITLE') | translate }}
+            </p>
+
+            @if (checkoutMode === 'MAINTENANCE' && maintenanceLookupError) {
+              <div class="alert alert-danger py-2 small mb-3">
+                {{ maintenanceLookupError }}
+              </div>
+            }
 
             <form [formGroup]="walkInForm" (ngSubmit)="openConfirmationModal(confirmDialog)">
-              <div class="row g-3 mb-3">
-                <div class="col-md-6">
-                  <label for="walkInUser"
-                         class="form-label small fw-bold">{{ 'BARCODE_SCANNER.WALK_IN_SELECT_USER' | translate }}
-                    *</label>
-                  <select id="walkInUser" formControlName="userId" class="form-select">
-                    <option [ngValue]="null" disabled>-- {{ 'BARCODE_SCANNER.CHOOSE_USER_PLACEHOLDER' | translate }}
-                      --
-                    </option>
-                    @for (user of allUsers; track user.id) {
-                      <option [ngValue]="user.id">{{ user.username }}</option>
-                    }
-                  </select>
-                </div>
-
-                <div class="col-md-6">
-                  <label for="walkInProfile"
-                         class="form-label small fw-bold">{{ 'RESERVATION.SELECT_PROFILE' | translate }} *</label>
-                  <select id="walkInProfile" formControlName="customerProfileId" class="form-select">
-                    <option [ngValue]="null" disabled>-- {{ 'BARCODE_SCANNER.CHOOSE_PROFILE_PLACEHOLDER' | translate }}
-                      --
-                    </option>
-                    @for (profile of filteredProfiles; track profile.id) {
-                      <option [ngValue]="profile.id">
-                        {{ profile.profileName }} ({{ 'SKILL_LEVEL.' + profile.skillLevel | translate }})
+              @if (checkoutMode === 'RENTAL') {
+                <div class="row g-3 mb-3">
+                  <div class="col-md-6">
+                    <label for="walkInUser"
+                           class="form-label small fw-bold">{{ 'BARCODE_SCANNER.WALK_IN_SELECT_USER' | translate }}
+                      *</label>
+                    <select id="walkInUser" formControlName="userId" class="form-select">
+                      <option [ngValue]="null" disabled>-- {{ 'BARCODE_SCANNER.CHOOSE_USER_PLACEHOLDER' | translate }}
+                        --
                       </option>
-                    }
-                  </select>
+                      @for (user of allUsers; track user.id) {
+                        <option [ngValue]="user.id">{{ user.username }}</option>
+                      }
+                    </select>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="walkInProfile"
+                           class="form-label small fw-bold">{{ 'RESERVATION.SELECT_PROFILE' | translate }} *</label>
+                    <select id="walkInProfile" formControlName="customerProfileId" class="form-select">
+                      <option [ngValue]="null" disabled>-- {{ 'BARCODE_SCANNER.CHOOSE_PROFILE_PLACEHOLDER' | translate }}
+                        --
+                      </option>
+                      @for (profile of filteredProfiles; track profile.id) {
+                        <option [ngValue]="profile.id">
+                          {{ profile.profileName }} ({{ 'SKILL_LEVEL.' + profile.skillLevel | translate }})
+                        </option>
+                      }
+                    </select>
+                  </div>
                 </div>
-              </div>
+              }
 
               <div class="row g-3 mb-3">
                 <div class="col-md-4">
@@ -135,19 +177,22 @@
                 </div>
                 <div class="col-md-4">
                   <label for="walkInEndDate"
-                         class="form-label small fw-bold text-primary">{{ 'RESERVATION.RETURN_DATE' | translate }}
+                         class="form-label small fw-bold text-primary">
+                    {{ (checkoutMode === 'MAINTENANCE' ? 'BARCODE_SCANNER.MAINTENANCE_END_DATE_LABEL' : 'RESERVATION.RETURN_DATE') | translate }}
                     *</label>
                   <input type="date" id="walkInEndDate" formControlName="endDate" class="form-control border-primary">
                 </div>
               </div>
 
-              <div
-                class="alert alert-info py-2 px-3 small d-flex align-items-center gap-2 mb-3 shadow-sm border-0 bg-opacity-10 text-primary"
-                style="background-color: rgba(13, 202, 240, 0.08);">
-                <i class="bi bi-info-circle-fill"></i>
-                <span
-                  [innerHTML]="'BARCODE_SCANNER.WALK_IN_INFO_TEXT' | translate:{ count: scannedEquipments.length }"></span>
-              </div>
+              @if (checkoutMode === 'RENTAL') {
+                <div
+                  class="alert alert-info py-2 px-3 small d-flex align-items-center gap-2 mb-3 shadow-sm border-0 bg-opacity-10 text-primary"
+                  style="background-color: rgba(13, 202, 240, 0.08);">
+                  <i class="bi bi-info-circle-fill"></i>
+                  <span
+                    [innerHTML]="'BARCODE_SCANNER.WALK_IN_INFO_TEXT' | translate:{ count: scannedEquipments.length }"></span>
+                </div>
+              }
 
               @if (isWalkInDateRangeInvalid) {
                 <div class="alert alert-danger py-1 small mb-3">
@@ -311,16 +356,16 @@
             }
           </tbody>
 
-          @if (scannedItemsTotalPrice > 0) {
+          @if (scannedItemsTotalPrice > 0 && checkoutMode !== 'MAINTENANCE') {
             <tfoot>
-              <tr class="table-group-divider bg-light">
-                <td colspan="4" class="text-end fw-bold fs-5 py-3">
-                  {{ 'RESERVATION.TOTAL_PRICE' | translate }} ({{ scanScenario === 'NO_RESERVATION' ? ('BARCODE_SCANNER.WALK_IN_TITLE' | translate) : ('RESERVATION.TITLE_OVERVIEW' | translate) }}):
-                </td>
-                <td colspan="2" class="fw-bold text-primary fs-5 py-3 font-monospace">
-                  {{ scannedItemsTotalPrice | currency:'EUR':'symbol':'1.2-2':'de-AT' }}
-                </td>
-              </tr>
+            <tr class="table-group-divider bg-light">
+              <td colspan="4" class="text-end fw-bold fs-5 py-3">
+                {{ 'RESERVATION.TOTAL_PRICE' | translate }} ({{ scanScenario === 'NO_RESERVATION' ? ('BARCODE_SCANNER.WALK_IN_TITLE' | translate) : ('RESERVATION.TITLE_OVERVIEW' | translate) }}):
+              </td>
+              <td colspan="2" class="fw-bold text-primary fs-5 py-3 font-monospace">
+                {{ scannedItemsTotalPrice | currency:'EUR':'symbol':'1.2-2':'de-AT' }}
+              </td>
+            </tr>
             </tfoot>
           }
 
@@ -333,14 +378,17 @@
 
     @if (scanScenario === 'NO_RESERVATION' && scannedEquipments.length > 0) {
       <button class="btn btn-success btn-lg" type="button"
-              [disabled]="walkInForm?.invalid || isWalkInDateRangeInvalid || scannedEquipmentIds.length === 0 || submitLoading"
+              [disabled]="(checkoutMode === 'MAINTENANCE'
+                            ? (maintenanceCustomerProfileId === null || isWalkInDateRangeInvalid || !walkInForm.get('endDate')?.value)
+                            : (walkInForm?.invalid || isWalkInDateRangeInvalid))
+                          || scannedEquipmentIds.length === 0 || submitLoading"
               (click)="openConfirmationModal(confirmDialog)">
-        <i class="bi bi-lightning-fill me-2"></i>
-        {{ 'BARCODE_SCANNER.BTN_SUBMIT_WALK_IN' | translate }}
+        <i class="bi" [ngClass]="checkoutMode === 'MAINTENANCE' ? 'bi-tools' : 'bi-lightning-fill'"></i>&nbsp;
+        {{ (checkoutMode === 'MAINTENANCE' ? 'BARCODE_SCANNER.BTN_SUBMIT_MAINTENANCE' : 'BARCODE_SCANNER.BTN_SUBMIT_WALK_IN') | translate }}
       </button>
     }
 
-    @if (scanScenario === 'SINGLE_RESERVATION' && equipmentScenario === 'ALL_RESERVED_EQUIPMENT_SCANNED') {
+    @if ((checkoutMode === 'RENTAL' || isMaintenanceReactivation) && scanScenario === 'SINGLE_RESERVATION' && equipmentScenario === 'ALL_RESERVED_EQUIPMENT_SCANNED') {
       @if (matchedReservations[0].reservationStatus === ReservationStatus.CREATED) {
         <button class="btn btn-success btn-lg" type="button" [disabled]="loading"
                 (click)="openConfirmationModal(confirmDialog)">
@@ -351,30 +399,37 @@
       @if (matchedReservations[0].reservationStatus === ReservationStatus.PICKED_UP) {
         <button class="btn btn-info text-white btn-lg" type="button" [disabled]="loading"
                 (click)="openConfirmationModal(confirmDialog)">
-          <i class="bi bi-box-arrow-in-down me-2"></i>
-          {{ 'BARCODE_SCANNER.BTN_CHECKIN_FOR' | translate:{name: matchedReservations[0].customerName} }}
+          <i class="bi" [ngClass]="isMaintenanceReactivation ? 'bi-check-circle-fill' : 'bi-box-arrow-in-down'"></i>&nbsp;
+          {{ (isMaintenanceReactivation ? 'BARCODE_SCANNER.BTN_REACTIVATE' : 'BARCODE_SCANNER.BTN_CHECKIN_FOR') | translate:{name: matchedReservations[0].customerName} }}
         </button>
       }
     }
 
-    @if (scanScenario === 'SINGLE_RESERVATION' && equipmentScenario === 'SOME_RESERVED_EQUIPMENT_SCANNED') {
+    @if (checkoutMode === 'RENTAL' && scanScenario === 'SINGLE_RESERVATION' && equipmentScenario === 'SOME_RESERVED_EQUIPMENT_SCANNED') {
       <button class="btn btn-secondary btn-lg" type="button" disabled>
         <i class="bi bi-hourglass-split me-2"></i>
         {{ 'BARCODE_SCANNER.BTN_BLOCKED_INCOMPLETE' | translate }}
       </button>
     }
 
-    @if (equipmentScenario === 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED') {
+    @if (checkoutMode === 'RENTAL' && equipmentScenario === 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED') {
       <button class="btn btn-danger btn-lg" type="button" disabled>
         <i class="bi bi-exclamation-octagon-fill me-2"></i>
         {{ 'BARCODE_SCANNER.BTN_BLOCKED_UNRESERVED' | translate }}
       </button>
     }
 
-    @if (scanScenario === 'CONFLICT_RESERVATION' && equipmentScenario !== 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED') {
+    @if (checkoutMode === 'RENTAL' && scanScenario === 'CONFLICT_RESERVATION' && equipmentScenario !== 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED') {
       <button class="btn btn-danger btn-lg" type="button" disabled>
         <i class="bi bi-lock-fill me-2"></i>
         {{ 'BARCODE_SCANNER.BTN_BLOCKED_CONFLICT' | translate }}
+      </button>
+    }
+
+    @if (hasGenuineMaintenanceConflict) {
+      <button class="btn btn-danger btn-lg" type="button" disabled>
+        <i class="bi bi-lock-fill me-2"></i>
+        {{ 'BARCODE_SCANNER.BTN_BLOCKED_MAINTENANCE_HAS_RESERVATION' | translate }}
       </button>
     }
   </div>
@@ -408,6 +463,30 @@
           {{ 'BARCODE_SCANNER.MODAL_BTN_CANCEL' | translate }}
         </button>
         <button type="button" class="btn btn-primary px-4 fw-bold" (click)="confirmAndSubmit(confirmDialog)">
+          {{ 'BARCODE_SCANNER.MODAL_BTN_CONFIRM' | translate }}
+        </button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog #modeSwitchDialog class="border-0 rounded shadow-lg p-0 backend-modal" style="max-width: 500px; width: 100%;">
+    <div class="card border-0">
+      <div class="card-header bg-warning text-dark py-3">
+        <h5 class="card-title mb-0 d-flex align-items-center">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          {{ 'BARCODE_SCANNER.MODAL_TITLE' | translate }}
+        </h5>
+      </div>
+      <div class="card-body p-4">
+        <p class="fs-5 mb-0">
+          {{ 'BARCODE_SCANNER.MAINTENANCE_MODE_SWITCH_WARNING' | translate }}
+        </p>
+      </div>
+      <div class="card-footer bg-light d-flex justify-content-end gap-2 py-3">
+        <button type="button" class="btn btn-outline-secondary px-4" (click)="modeSwitchDialog.close()">
+          {{ 'BARCODE_SCANNER.MODAL_BTN_CANCEL' | translate }}
+        </button>
+        <button type="button" class="btn btn-warning px-4 fw-bold" (click)="confirmCheckoutModeSwitch(modeSwitchDialog)">
           {{ 'BARCODE_SCANNER.MODAL_BTN_CONFIRM' | translate }}
         </button>
       </div>
