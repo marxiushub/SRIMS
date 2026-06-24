@@ -295,6 +295,37 @@ public class DataInitializer {
             ));
         }
 
+        //Maintenance (fixed system account used for maintenance "reservations")
+        Set<Role> rolesMaintenance = Set.of(roleRepository.findByName("ROLE_CUSTOMER").orElseThrow());
+
+        if (userRepository.findUserByEmail("maintenance@system.internal").isEmpty()) {
+            userRepository.save(new Customer(
+                "Maintenance",
+                encoder.encode(java.util.UUID.randomUUID().toString()),
+                "maintenance@system.internal",
+                rolesMaintenance,
+                new HashSet<>(),
+                "Maintenance",
+                "Repair",
+                LocalDate.of(2000, 1, 1)
+            ));
+        }
+
+        Customer maintenanceCustomer = customerRepository.findByEmail("maintenance@system.internal").orElseThrow();
+
+        if (profileRepository.findByCustomerAndProfileName(maintenanceCustomer, "Maintenance").isEmpty()) {
+            CustomerProfile maintenanceProfile = new CustomerProfile(
+                "Maintenance",
+                0.0,
+                0.0,
+                0,
+                SkillLevel.BEGINNER,
+                maintenanceCustomer
+            );
+
+            profileRepository.save(maintenanceProfile);
+        }
+
     }
 
 }

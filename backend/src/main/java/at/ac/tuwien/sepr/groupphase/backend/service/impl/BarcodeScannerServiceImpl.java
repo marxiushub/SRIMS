@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationCreationDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationCreationWithModeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
@@ -53,12 +54,16 @@ public class BarcodeScannerServiceImpl implements BarcodeScannerService {
 
     @Override
     @Transactional
-    public ReservationDetailDto checkOutWithoutExistingReservation(ReservationCreationDto reservationCreationDto) {
-        LOGGER.info("Checkout without Existing Reservation");
+    public ReservationDetailDto checkOutWithoutExistingReservation(ReservationCreationWithModeDto reservationCreationWithModeDto) {
+        LOGGER.info("Checkout without Existing Reservation, mode={}", reservationCreationWithModeDto.getMode());
 
-        ReservationDetailDto returnDto = reservationService.createReservation(reservationCreationDto);
-        List<Long> equipmentIds = reservationCreationDto.getEquipmentIds();
-        RentalStatus newRentalStatus = getNewRentalStatusForNewReservationStatus(reservationCreationDto.getReservationStatus());
+        ReservationDetailDto returnDto = reservationService.createReservation(reservationCreationWithModeDto.toReservationCreationDto());
+        List<Long> equipmentIds = reservationCreationWithModeDto.getEquipmentIds();
+
+        RentalStatus newRentalStatus = "MAINTENANCE".equalsIgnoreCase(reservationCreationWithModeDto.getMode())
+            ? RentalStatus.MAINTENANCE
+            : getNewRentalStatusForNewReservationStatus(reservationCreationWithModeDto.getReservationStatus());
+
         equipmentService.updateEquipmentStatuses(equipmentIds, newRentalStatus);
         return returnDto;
     }
