@@ -33,6 +33,7 @@ import {
 import {ReservationComponent} from "./components/customer/reservation/reservation.component";
 
 import { StatisticsComponent } from './components/staff/statistics/statistics.component';
+import {OverviewComponent} from './components/staff/overview/overview.component';
 
 import {ReservationViewComponent} from "./components/customer/reservation/reservation-view/reservation-view.component";
 import {StaffReservationComponent} from "./components/staff/reservation/staff-reservation.component";
@@ -61,6 +62,7 @@ const routes: Routes = [
       {path: 'reservation/view/:id', component: StaffReservationViewComponent},
       {path: 'barcode-scanner', component: BarcodeScannerComponent},
       {path: 'statistics', component: StatisticsComponent},
+      {path: 'overview', component: OverviewComponent},
     ]
   },
   {

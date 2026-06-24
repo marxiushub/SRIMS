@@ -9,6 +9,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.EquipmentService;
+import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -277,6 +278,8 @@ public class EquipmentEndpointTest implements TestData {
             .andExpect(status().isNotFound()));
     }
 
+
+
     private EquipmentDetailDto createTestSki(String model) {
         SkiCreationDto dto = new SkiCreationDto();
         dto.setPrice(67);
@@ -299,5 +302,53 @@ public class EquipmentEndpointTest implements TestData {
 
         List<EquipmentDetailDto> savedEquip = equipmentService.createEquipment(dto);
         return savedEquip.get(0);
+    }
+
+    @Test
+    public void getEquipmentStatusOverview_withEquipmentReadPermission_returns200AndAllTypeKeys() {
+        assertDoesNotThrow(() -> mockMvc.perform(get("/api/v1/equipment/overview")
+                .header(securityProperties.getAuthHeader(), adminToken())
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            // all 6 types must be present as keys
+            .andExpect(jsonPath("$.counts.SKI").exists())
+            .andExpect(jsonPath("$.counts.HELMET").exists())
+            .andExpect(jsonPath("$.counts.POLE").exists())
+            .andExpect(jsonPath("$.counts.SKIBOOT").exists())
+            .andExpect(jsonPath("$.counts.SNOWBOARD").exists())
+            .andExpect(jsonPath("$.counts.SNOWBOARDBOOT").exists())
+            // per type all 3 states must be present as keys
+            .andExpect(jsonPath("$.counts.SKI.FREE").exists())
+            .andExpect(jsonPath("$.counts.SKI.RENTED").exists())
+            .andExpect(jsonPath("$.counts.SKI.MAINTENANCE").exists()));
+    }
+
+    @Test
+    public void getEquipmentStatusOverview_afterCreatingTwoFreeSkis_increasesSkiFreeCountByTwo() throws Exception {
+        // State before
+        String beforeJson = mockMvc.perform(get("/api/v1/equipment/overview")
+                .header(securityProperties.getAuthHeader(), adminToken())
+                .accept(MediaType.APPLICATION_JSON))
+            .andReturn().getResponse().getContentAsString();
+        long freeSkiCountBefore = JsonPath.parse(beforeJson).read("$.counts.SKI.FREE", Long.class);
+
+        // add 2 Skis with status FREE
+        createTestSki("Overview Test Ski A");
+        createTestSki("Overview Test Ski B");
+
+        // State after --> measure difference
+        assertDoesNotThrow(() -> mockMvc.perform(get("/api/v1/equipment/overview")
+                .header(securityProperties.getAuthHeader(), adminToken())
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.counts.SKI.FREE").value(freeSkiCountBefore + 2)));
+    }
+
+    @Test
+    public void getEquipmentStatusOverview_pathDoesNotCollideWithIdMapping() {
+        assertDoesNotThrow(() -> mockMvc.perform(get("/api/v1/equipment/overview")
+                .header(securityProperties.getAuthHeader(), adminToken())
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk()));
     }
 }

@@ -12,7 +12,6 @@
     "LAST_NAME": "Last Name",
     "EMAIL": "Email",
     "DATE_OF_BIRTH": "Date of Birth",
-
     "HAVE_ACCOUNT": "Already have an account?",
     "NO_ACCOUNT": "Don't have an account?",
     "CREATE_ACCOUNT": "Create account",
@@ -29,7 +28,6 @@
     "DATE_OF_BIRTH_REQUIRED": "Date of birth is required!",
     "DATE_OF_BIRTH_FUTURE": "Date of birth cannot be in the future!",
     "ALREADY_LOGGED_IN": "You are already logged in.",
-
     "LOGIN_SUCCESS": "Login successful.",
     "REGISTER_SUCCESS": "Registration successful. You can now log in.",
     "LOGOUT_SUCCESS": "Logout successful."
@@ -185,7 +183,13 @@
     },
     "OVERVIEW": {
       "TITLE": "Graphical Overview",
-      "DESC": "Visual representation of the entire inventory status."
+      "DESC": "Visual representation of the entire inventory status.",
+      "TOTAL": "Total",
+      "MESSAGES": {
+        "LOADING": "Loading...",
+        "NO_DATA": "No data available.",
+        "ERROR": "Could not load the overview. Please try again."
+      }
     }
   },
   "CUSTOMER_SEARCH": {
