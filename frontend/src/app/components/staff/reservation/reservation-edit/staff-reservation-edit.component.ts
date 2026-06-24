@@ -284,6 +284,7 @@ export class StaffReservationEditComponent implements OnInit {
     this.priceSortDirection = 'asc';
     this.availableEquipmentList = [];
     this.filtersExpanded = false;
+    this.searchEquipment();
   }
 
   /**
