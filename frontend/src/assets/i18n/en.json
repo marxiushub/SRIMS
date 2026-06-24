@@ -185,7 +185,17 @@
     },
     "OVERVIEW": {
       "TITLE": "Graphical Overview",
-      "DESC": "Visual representation of the entire inventory status."
+      "DESC": "Visual representation of the entire inventory status.",
+      "TOTAL": "Total",
+      "VARIANTS": {
+        "BAR_CHART": "Bar Chart",
+        "TILES": "Tile Overview"
+      },
+      "MESSAGES": {
+        "LOADING": "Loading...",
+        "NO_DATA": "No data available.",
+        "ERROR": "Could not load the overview. Please try again."
+      }
     }
   },
   "CUSTOMER_SEARCH": {
