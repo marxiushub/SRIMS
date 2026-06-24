@@ -17,16 +17,76 @@
   }
 
   @if (!loading && !errorMessageKey && overview) {
-    <div class="comparison-grid">
-      <section class="comparison-panel">
-        <h3>{{ 'STAFF.OVERVIEW.VARIANTS.BAR_CHART' | translate }}</h3>
-        <app-overview-bar-chart [counts]="overview.counts"></app-overview-bar-chart>
-      </section>
+    <div class="summary-tiles">
+      <div class="summary-tile tile-free">
+        <span class="summary-count">{{ totalFree }}</span>
+        <span class="summary-label">{{ 'RENTAL_STATUS.FREE' | translate }}</span>
+      </div>
+      <div class="summary-tile tile-rented">
+        <span class="summary-count">{{ totalRented }}</span>
+        <span class="summary-label">{{ 'RENTAL_STATUS.RENTED' | translate }}</span>
+      </div>
+      <div class="summary-tile tile-maintenance">
+        <span class="summary-count">{{ totalMaintenance }}</span>
+        <span class="summary-label">{{ 'RENTAL_STATUS.MAINTENANCE' | translate }}</span>
+      </div>
+    </div>
 
-      <section class="comparison-panel">
-        <h3>{{ 'STAFF.OVERVIEW.VARIANTS.TILES' | translate }}</h3>
-        <app-overview-tiles [counts]="overview.counts"></app-overview-tiles>
-      </section>
+    @if (typeDonuts.length === 0) {
+      <p class="text-muted">{{ 'STAFF.OVERVIEW.MESSAGES.NO_DATA' | translate }}</p>
+    }
+
+    <div class="donut-grid">
+      @for (donut of typeDonuts; track donut.type) {
+        <div class="donut-card">
+          <svg viewBox="0 0 120 120" class="donut-svg">
+            <circle class="donut-track" cx="60" cy="60" r="48"></circle>
+            @if (donut.total === 0) {
+              <circle class="donut-empty" cx="60" cy="60" r="48"></circle>
+            } @else {
+              @if (donut.freeCount > 0) {
+                <circle
+                  class="donut-segment donut-free"
+                  cx="60" cy="60" r="48"
+                  transform="rotate(-90 60 60)"
+                  [style.stroke-dasharray]="donut.freeDashArray"
+                  [style.stroke-dashoffset]="donut.freeDashOffset">
+                  <title>{{ ('RENTAL_STATUS.FREE' | translate) + ': ' + donut.freeCount }}</title>
+                </circle>
+              }
+              @if (donut.rentedCount > 0) {
+                <circle
+                  class="donut-segment donut-rented"
+                  cx="60" cy="60" r="48"
+                  transform="rotate(-90 60 60)"
+                  [style.stroke-dasharray]="donut.rentedDashArray"
+                  [style.stroke-dashoffset]="donut.rentedDashOffset">
+                  <title>{{ ('RENTAL_STATUS.RENTED' | translate) + ': ' + donut.rentedCount }}</title>
+                </circle>
+              }
+              @if (donut.maintenanceCount > 0) {
+                <circle
+                  class="donut-segment donut-maintenance"
+                  cx="60" cy="60" r="48"
+                  transform="rotate(-90 60 60)"
+                  [style.stroke-dasharray]="donut.maintenanceDashArray"
+                  [style.stroke-dashoffset]="donut.maintenanceDashOffset">
+                  <title>{{ ('RENTAL_STATUS.MAINTENANCE' | translate) + ': ' + donut.maintenanceCount }}</title>
+                </circle>
+              }
+            }
+            <text x="60" y="56" text-anchor="middle" class="donut-total">{{ donut.total }}</text>
+            <text x="60" y="72" text-anchor="middle" class="donut-total-label">{{ 'STAFF.OVERVIEW.TOTAL' | translate }}</text>
+          </svg>
+          <h4>{{ 'EQUIPMENT_TYPE.' + donut.type | translate }}</h4>
+        </div>
+      }
+    </div>
+
+    <div class="bar-legend">
+      <span class="legend-item"><span class="legend-swatch tile-free"></span>{{ 'RENTAL_STATUS.FREE' | translate }}</span>
+      <span class="legend-item"><span class="legend-swatch tile-rented"></span>{{ 'RENTAL_STATUS.RENTED' | translate }}</span>
+      <span class="legend-item"><span class="legend-swatch tile-maintenance"></span>{{ 'RENTAL_STATUS.MAINTENANCE' | translate }}</span>
     </div>
   }
 </div>

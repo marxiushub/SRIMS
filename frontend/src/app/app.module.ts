@@ -30,10 +30,6 @@ import {
 } from "./components/customer/customer-profile/customer-profile-details/customer-profile-details.component";
 import {EquipmentViewComponent} from "./components/staff/inventory/equipment-view/equipment-view.component";
 import {OverviewComponent} from "./components/staff/overview/overview.component";
-import {
-  OverviewBarChartComponent
-} from "./components/staff/overview/overview-bar-chart/overview-bar-chart.component";
-import {OverviewTilesComponent} from "./components/staff/overview/overview-tiles/overview-tiles.component";
 
 import {
   ReservationCreateEditComponent
@@ -102,8 +98,6 @@ export function HttpLoaderFactory(http: HttpClient): TranslateLoader {
     CustomerProfileDetailsComponent,
     StatisticsComponent,
     OverviewComponent,
-    OverviewBarChartComponent,
-    OverviewTilesComponent,
   ],
   bootstrap: [AppComponent],
   imports: [BrowserModule,
