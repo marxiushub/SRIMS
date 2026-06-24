@@ -1,0 +1,34 @@
+<div class="tiles-view">
+  <div class="summary-tiles">
+    <div class="summary-tile tile-free">
+      <span class="summary-count">{{ totalFree }}</span>
+      <span class="summary-label">{{ 'RENTAL_STATUS.FREE' | translate }}</span>
+    </div>
+    <div class="summary-tile tile-rented">
+      <span class="summary-count">{{ totalRented }}</span>
+      <span class="summary-label">{{ 'RENTAL_STATUS.RENTED' | translate }}</span>
+    </div>
+    <div class="summary-tile tile-maintenance">
+      <span class="summary-count">{{ totalMaintenance }}</span>
+      <span class="summary-label">{{ 'RENTAL_STATUS.MAINTENANCE' | translate }}</span>
+    </div>
+  </div>
+
+  @if (typeTiles.length === 0) {
+    <p class="text-muted">{{ 'STAFF.OVERVIEW.MESSAGES.NO_DATA' | translate }}</p>
+  }
+
+  <div class="type-tile-grid">
+    @for (tile of typeTiles; track tile.type) {
+      <div class="type-tile">
+        <h4>{{ 'EQUIPMENT_TYPE.' + tile.type | translate }}</h4>
+        <ul class="type-tile-breakdown">
+          <li><span class="dot tile-free"></span>{{ 'RENTAL_STATUS.FREE' | translate }}: {{ tile.freeCount }}</li>
+          <li><span class="dot tile-rented"></span>{{ 'RENTAL_STATUS.RENTED' | translate }}: {{ tile.rentedCount }}</li>
+          <li><span class="dot tile-maintenance"></span>{{ 'RENTAL_STATUS.MAINTENANCE' | translate }}: {{ tile.maintenanceCount }}</li>
+        </ul>
+        <div class="type-tile-total">{{ 'STAFF.OVERVIEW.TOTAL' | translate }}: {{ tile.total }}</div>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,32 @@
+<div class="overview-container">
+  <header class="page-header">
+    <h2>🗺️ {{ 'STAFF.OVERVIEW.TITLE' | translate }}</h2>
+    <p>{{ 'STAFF.OVERVIEW.DESC' | translate }}</p>
+  </header>
+
+  @if (loading) {
+    <div class="alert alert-info">
+      {{ 'STAFF.OVERVIEW.MESSAGES.LOADING' | translate }}
+    </div>
+  }
+
+  @if (errorMessageKey) {
+    <div class="alert alert-danger">
+      {{ errorMessageKey | translate }}
+    </div>
+  }
+
+  @if (!loading && !errorMessageKey && overview) {
+    <div class="comparison-grid">
+      <section class="comparison-panel">
+        <h3>{{ 'STAFF.OVERVIEW.VARIANTS.BAR_CHART' | translate }}</h3>
+        <app-overview-bar-chart [counts]="overview.counts"></app-overview-bar-chart>
+      </section>
+
+      <section class="comparison-panel">
+        <h3>{{ 'STAFF.OVERVIEW.VARIANTS.TILES' | translate }}</h3>
+        <app-overview-tiles [counts]="overview.counts"></app-overview-tiles>
+      </section>
+    </div>
+  }
+</div>
