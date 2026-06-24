@@ -200,7 +200,7 @@
     "TITLE": "Prototyp Barcode Scanner",
     "MODE_LABEL": "Scanner-Modus auswählen:",
     "MODE_RENTAL": "Modus 1: Ausleihen / Zurückgeben (FREE ↔ RENTED)",
-    "MODE_RENTAL_SHORT": "Mode 2: Ausleihen / Zurückgeben",
+    "MODE_RENTAL_SHORT": "Mode 1: Ausleihen / Zurückgeben",
     "MODE_MAINTENANCE": "Modus 2: In Reparatur (FREE ↔ MAINTENANCE)",
     "MODE_MAINTENANCE_SHORT": "Mode 2: Reparatur",
     "INPUT_PLACEHOLDER": "Barcode einscannen oder eingeben...",

@@ -9,6 +9,7 @@ import {RentalStatus} from "../../../dtos/rentalstatus";
 import {SkillLevel} from "../../../dtos/skilllevel";
 import {EquipmentSearch} from '../../../dtos/equipment-search';
 import {ToastrService} from 'ngx-toastr';
+import {NavbarService} from "../../../services/navbar.service";
 
 @Component({
   selector: 'app-inventory',
@@ -60,7 +61,7 @@ export class InventoryComponent implements OnInit {
     SkillLevel.ADVANCED
   ];
 
-  constructor(private equipmentService: EquipmentService, public translateService: TranslateService, private router: Router, private notification: ToastrService) {
+  constructor(private equipmentService: EquipmentService, public translateService: TranslateService, private navbarService: NavbarService, private router: Router, private notification: ToastrService) {
   }
 
   ngOnInit(): void {
@@ -93,10 +94,12 @@ export class InventoryComponent implements OnInit {
   }
 
   openEditPage(item: Equipment): void {
+    this.navbarService.close();
     this.router.navigate(['/staff/inventory/edit', item.id])
   }
 
   openDeleteDialog(item: Equipment): void {
+    this.navbarService.close();
     this.equipmentToDelete = item;
     this.deleteError = undefined;
   }

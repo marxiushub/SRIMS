@@ -10,6 +10,7 @@ import {StaffService} from '../../../services/staff.service';
 import {TranslateService} from '@ngx-translate/core';
 import {ToastrService} from 'ngx-toastr';
 import {debounceTime, forkJoin, Subject} from 'rxjs';
+import {NavbarService} from "../../../services/navbar.service";
 
 @Component({
   selector: 'app-staff-reservation',
@@ -53,6 +54,7 @@ export class StaffReservationComponent implements OnInit {
     private reservationService: ReservationService,
     private staffService: StaffService,
     public translateService: TranslateService,
+    private navbarService: NavbarService,
     private router: Router,
     private notification: ToastrService
   ) {
@@ -226,10 +228,12 @@ export class StaffReservationComponent implements OnInit {
   }
 
   openEditPage(item: ReservationDetail): void {
+    this.navbarService.close();
     this.router.navigate(['/staff/reservation/edit', item.id]);
   }
 
   openDeleteDialog(item: ReservationDetail): void {
+    this.navbarService.close();
     this.reservationToDelete = item;
     this.deleteError = undefined;
   }

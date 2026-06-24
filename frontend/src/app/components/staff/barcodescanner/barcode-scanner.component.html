@@ -74,7 +74,6 @@
             [placeholder]="'BARCODE_SCANNER.INPUT_PLACEHOLDER' | translate"
             class="form-control form-control-lg"
             [disabled]="loading || scanScenario === 'CONFLICT_RESERVATION' || equipmentScenario === 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED'"
-            autofocus
           />
         </div>
         <button class="btn btn-primary btn-lg text-nowrap"
@@ -449,65 +448,72 @@
     </div>
   </div>
 
-  <div class="d-flex justify-content-end gap-3 mt-4 p-3 bg-light border rounded shadow-sm">
+  @if ((scanScenario === 'NO_RESERVATION' && scannedEquipments.length > 0) ||
+  ((checkoutMode === 'RENTAL' || isMaintenanceReactivation) && scanScenario === 'SINGLE_RESERVATION' && equipmentScenario === 'ALL_RESERVED_EQUIPMENT_SCANNED') ||
+  (checkoutMode === 'RENTAL' && scanScenario === 'SINGLE_RESERVATION' && equipmentScenario === 'SOME_RESERVED_EQUIPMENT_SCANNED') ||
+  (checkoutMode === 'RENTAL' && equipmentScenario === 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED') ||
+  (checkoutMode === 'RENTAL' && scanScenario === 'CONFLICT_RESERVATION' && equipmentScenario !== 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED') ||
+  hasGenuineMaintenanceConflict) {
+    <div class="d-flex justify-content-end gap-3 mt-4 p-3 bg-light border rounded shadow-sm">
 
-    @if (scanScenario === 'NO_RESERVATION' && scannedEquipments.length > 0) {
-      <button class="btn btn-success btn-lg" type="button"
-              [disabled]="(checkoutMode === 'MAINTENANCE'
+      @if (scanScenario === 'NO_RESERVATION' && scannedEquipments.length > 0) {
+        <button class="btn btn-success btn-lg" type="button"
+                [disabled]="(checkoutMode === 'MAINTENANCE'
                             ? (maintenanceCustomerProfileId === null || isWalkInDateRangeInvalid || !walkInForm.get('endDate')?.value)
                             : (walkInForm?.invalid || isWalkInDateRangeInvalid))
                           || scannedEquipmentIds.length === 0 || submitLoading"
-              (click)="openConfirmationModal(confirmDialog)">
-        <i class="bi" [ngClass]="checkoutMode === 'MAINTENANCE' ? 'bi-tools' : 'bi-lightning-fill'"></i>&nbsp;
-        {{ (checkoutMode === 'MAINTENANCE' ? 'BARCODE_SCANNER.BTN_SUBMIT_MAINTENANCE' : 'BARCODE_SCANNER.BTN_SUBMIT_WALK_IN') | translate }}
-      </button>
-    }
-
-    @if ((checkoutMode === 'RENTAL' || isMaintenanceReactivation) && scanScenario === 'SINGLE_RESERVATION' && equipmentScenario === 'ALL_RESERVED_EQUIPMENT_SCANNED') {
-      @if (matchedReservations[0].reservationStatus === ReservationStatus.CREATED) {
-        <button class="btn btn-success btn-lg" type="button" [disabled]="loading"
                 (click)="openConfirmationModal(confirmDialog)">
-          <i class="bi bi-box-arrow-up me-2"></i>
-          {{ 'BARCODE_SCANNER.BTN_CHECKOUT_FOR' | translate:{name: matchedReservations[0].customerName} }}
+          <i class="bi" [ngClass]="checkoutMode === 'MAINTENANCE' ? 'bi-tools' : 'bi-lightning-fill'"></i>&nbsp;
+          {{ (checkoutMode === 'MAINTENANCE' ? 'BARCODE_SCANNER.BTN_SUBMIT_MAINTENANCE' : 'BARCODE_SCANNER.BTN_SUBMIT_WALK_IN') | translate }}
         </button>
       }
-      @if (matchedReservations[0].reservationStatus === ReservationStatus.PICKED_UP) {
-        <button class="btn btn-info text-white btn-lg" type="button" [disabled]="loading"
-                (click)="openConfirmationModal(confirmDialog)">
-          <i class="bi" [ngClass]="isMaintenanceReactivation ? 'bi-check-circle-fill' : 'bi-box-arrow-in-down'"></i>&nbsp;
-          {{ (isMaintenanceReactivation ? 'BARCODE_SCANNER.BTN_REACTIVATE' : 'BARCODE_SCANNER.BTN_CHECKIN_FOR') | translate:{name: matchedReservations[0].customerName} }}
+
+      @if ((checkoutMode === 'RENTAL' || isMaintenanceReactivation) && scanScenario === 'SINGLE_RESERVATION' && equipmentScenario === 'ALL_RESERVED_EQUIPMENT_SCANNED') {
+        @if (matchedReservations[0].reservationStatus === ReservationStatus.CREATED) {
+          <button class="btn btn-success btn-lg" type="button" [disabled]="loading"
+                  (click)="openConfirmationModal(confirmDialog)">
+            <i class="bi bi-box-arrow-up me-2"></i>
+            {{ 'BARCODE_SCANNER.BTN_CHECKOUT_FOR' | translate:{name: matchedReservations[0].customerName} }}
+          </button>
+        }
+        @if (matchedReservations[0].reservationStatus === ReservationStatus.PICKED_UP) {
+          <button class="btn btn-info text-white btn-lg" type="button" [disabled]="loading"
+                  (click)="openConfirmationModal(confirmDialog)">
+            <i class="bi" [ngClass]="isMaintenanceReactivation ? 'bi-check-circle-fill' : 'bi-box-arrow-in-down'"></i>&nbsp;
+            {{ (isMaintenanceReactivation ? 'BARCODE_SCANNER.BTN_REACTIVATE' : 'BARCODE_SCANNER.BTN_CHECKIN_FOR') | translate:{name: matchedReservations[0].customerName} }}
+          </button>
+        }
+      }
+
+      @if (checkoutMode === 'RENTAL' && scanScenario === 'SINGLE_RESERVATION' && equipmentScenario === 'SOME_RESERVED_EQUIPMENT_SCANNED') {
+        <button class="btn btn-secondary btn-lg" type="button" disabled>
+          <i class="bi bi-hourglass-split me-2"></i>
+          {{ 'BARCODE_SCANNER.BTN_BLOCKED_INCOMPLETE' | translate }}
         </button>
       }
-    }
 
-    @if (checkoutMode === 'RENTAL' && scanScenario === 'SINGLE_RESERVATION' && equipmentScenario === 'SOME_RESERVED_EQUIPMENT_SCANNED') {
-      <button class="btn btn-secondary btn-lg" type="button" disabled>
-        <i class="bi bi-hourglass-split me-2"></i>
-        {{ 'BARCODE_SCANNER.BTN_BLOCKED_INCOMPLETE' | translate }}
-      </button>
-    }
+      @if (checkoutMode === 'RENTAL' && equipmentScenario === 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED') {
+        <button class="btn btn-danger btn-lg" type="button" disabled>
+          <i class="bi bi-exclamation-octagon-fill me-2"></i>
+          {{ 'BARCODE_SCANNER.BTN_BLOCKED_UNRESERVED' | translate }}
+        </button>
+      }
 
-    @if (checkoutMode === 'RENTAL' && equipmentScenario === 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED') {
-      <button class="btn btn-danger btn-lg" type="button" disabled>
-        <i class="bi bi-exclamation-octagon-fill me-2"></i>
-        {{ 'BARCODE_SCANNER.BTN_BLOCKED_UNRESERVED' | translate }}
-      </button>
-    }
+      @if (checkoutMode === 'RENTAL' && scanScenario === 'CONFLICT_RESERVATION' && equipmentScenario !== 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED') {
+        <button class="btn btn-danger btn-lg" type="button" disabled>
+          <i class="bi bi-lock-fill me-2"></i>
+          {{ 'BARCODE_SCANNER.BTN_BLOCKED_CONFLICT' | translate }}
+        </button>
+      }
 
-    @if (checkoutMode === 'RENTAL' && scanScenario === 'CONFLICT_RESERVATION' && equipmentScenario !== 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED') {
-      <button class="btn btn-danger btn-lg" type="button" disabled>
-        <i class="bi bi-lock-fill me-2"></i>
-        {{ 'BARCODE_SCANNER.BTN_BLOCKED_CONFLICT' | translate }}
-      </button>
-    }
-
-    @if (hasGenuineMaintenanceConflict) {
-      <button class="btn btn-danger btn-lg" type="button" disabled>
-        <i class="bi bi-lock-fill me-2"></i>
-        {{ 'BARCODE_SCANNER.BTN_BLOCKED_MAINTENANCE_HAS_RESERVATION' | translate }}
-      </button>
-    }
-  </div>
+      @if (hasGenuineMaintenanceConflict) {
+        <button class="btn btn-danger btn-lg" type="button" disabled>
+          <i class="bi bi-lock-fill me-2"></i>
+          {{ 'BARCODE_SCANNER.BTN_BLOCKED_MAINTENANCE_HAS_RESERVATION' | translate }}
+        </button>
+      }
+    </div>
+  }
 
   <dialog #confirmDialog class="border-0 rounded shadow-lg p-0 backend-modal"
           style="max-width: 500px; width: calc(100% - 2rem);">
@@ -559,7 +565,8 @@
     </div>
   </dialog>
 
-  <dialog #modeSwitchDialog class="border-0 rounded shadow-lg p-0 backend-modal" style="max-width: 500px; width: 100%;">
+  <dialog #modeSwitchDialog class="border-0 rounded shadow-lg p-0 backend-modal"
+          style="max-width: 500px; width: calc(100% - 2rem);">
     <div class="card border-0">
       <div class="card-header bg-warning text-dark py-3">
         <h5 class="card-title mb-0 d-flex align-items-center">

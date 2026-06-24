@@ -75,6 +75,7 @@ export class BarcodeScannerComponent implements OnInit {
   }
 
   async ngOnInit() {
+    window.scrollTo(0, 0);
     this.initWalkInForm();
     this.loadAllSystemUsers();
     navigator.mediaDevices?.addEventListener(
