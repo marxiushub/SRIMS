@@ -13,7 +13,9 @@ import {CustomerProfileService} from '../../../services/customer-profile.service
 import {CustomerProfile} from "../../../dtos/customer-profile";
 import {EquipmentType} from "../../../dtos/equipmenttype";
 import {ToastrService} from "ngx-toastr";
-import {ReservationCreation} from "../../../dtos/reservation-creation";
+import {ReservationCreationWithMode} from "../../../dtos/reservation-creation-with-mode";
+import {StaffService} from '../../../services/staff.service';
+import {CustomerSearch} from '../../../dtos/customer-search';
 import {BarcodeFormat} from '@zxing/library';
 
 @Component({
@@ -46,6 +48,14 @@ export class BarcodeScannerComponent implements OnInit {
   submitLoading = false;
   submitError: string | null = null;
 
+  //Mode for the walk-in checkout: RENTAL (default) or MAINTENANCE. Only relevant when
+  //scanScenario === 'NO_RESERVATION', since that's the only scenario where a walk-in
+  //(and therefore a maintenance send-off) makes sense.
+  checkoutMode: 'RENTAL' | 'MAINTENANCE' = 'RENTAL';
+  maintenanceCustomerProfileId: number | null = null;
+  maintenanceLookupError: string | null = null;
+  pendingCheckoutModeTarget: 'RENTAL' | 'MAINTENANCE' | null = null;
+
   isCameraOpen = true;
   isScanningPaused = false;
   allowedFormats = [BarcodeFormat.CODE_128];
@@ -58,6 +68,7 @@ export class BarcodeScannerComponent implements OnInit {
     private barcodeScannerService: BarcodeScannerService,
     public translateService: TranslateService,
     private customerProfileService: CustomerProfileService,
+    private staffService: StaffService,
     private fb: FormBuilder,
     private notification: ToastrService
   ) {
@@ -163,6 +174,19 @@ export class BarcodeScannerComponent implements OnInit {
             this.updateScanScenario();
             return;
           }
+
+          //Maintenance mode only ever allows exactly one equipment item at a time: maintenance
+          //reservations bundle into a single Reservation, and reactivation can only return that
+          //whole Reservation at once (no partial multi-item return support). A second item would
+          //either get force-bundled into the same maintenance batch, or block reactivation of an
+          //already-fixed item until ALL items in the batch are ready - neither is acceptable.
+          if (this.checkoutMode === 'MAINTENANCE' && this.scannedEquipmentIds.length >= 1) {
+            this.errorMessage = 'BARCODE_SCANNER.MAINTENANCE_ERROR_ONLY_ONE_ITEM';
+            this.loading = false;
+            this.updateScanScenario();
+            return;
+          }
+
           this.scannedEquipments.push(equipmentData);
           this.scannedEquipmentIds.push(equipmentData.id);
 
@@ -297,7 +321,7 @@ export class BarcodeScannerComponent implements OnInit {
     //Part 1: Resolve mode from conflicts with Reservations
     if (count === 0) {
       this.scanScenario = 'NO_RESERVATION';
-      if (this.scannedEquipments.length > 0) {
+      if (this.scannedEquipments.length > 0 && this.checkoutMode === 'RENTAL') {
         this.activeErrors.push(
           this.translateService.instant('BARCODE_SCANNER.ERROR_NO_RESERVATION_TODAY', {
             model: this.scannedEquipments[this.scannedEquipments.length - 1].model
@@ -309,6 +333,20 @@ export class BarcodeScannerComponent implements OnInit {
     } else {
       this.scanScenario = 'CONFLICT_RESERVATION';
       this.activeErrors.push('BARCODE_SCANNER.SCENARIO_CONFLICT_WARN');
+    }
+
+    //Part 1b: Maintenance mode only makes sense for equipment that's either unreserved
+    //(NO_RESERVATION) or already in MAINTENANCE (reactivation - scanning it again to bring
+    //it back). A genuine conflict is when a REAL customer reservation exists, i.e. the
+    //equipment's own status is something other than MAINTENANCE (e.g. RENTED or FREE-but-
+    //booked-for-today) while we're in maintenance mode. We check the equipment's status
+    //rather than scanScenario alone, since our own maintenance "reservation" also shows up
+    //as an active reservation today, and that one must NOT be blocked.
+    if (this.checkoutMode === 'MAINTENANCE' && this.scanScenario !== 'NO_RESERVATION') {
+      const hasGenuineConflict = this.scannedEquipments.some(eq => eq.status !== 'MAINTENANCE');
+      if (hasGenuineConflict) {
+        this.activeErrors.push('BARCODE_SCANNER.MAINTENANCE_WARN_HAS_RESERVATION');
+      }
     }
 
     //Part 2: Resolve mode from conflicts with Equipment not belonging to Reservations
@@ -341,6 +379,9 @@ export class BarcodeScannerComponent implements OnInit {
 
   //Submits the updated Reservation and does the checkout when there is already a Reservation
   submitExistingReservation(): void {
+    if (this.hasGenuineMaintenanceConflict) {
+      return;
+    }
     if (this.scanScenario !== 'SINGLE_RESERVATION' || this.equipmentScenario !== 'ALL_RESERVED_EQUIPMENT_SCANNED') {
       return;
     }
@@ -410,6 +451,109 @@ export class BarcodeScannerComponent implements OnInit {
     });
   }
 
+  //True only when a REAL customer reservation conflicts with maintenance mode - i.e. at least
+  //one scanned item's status is something other than MAINTENANCE while a reservation exists
+  //for it today. Does NOT fire for our own maintenance "reservation" (status === MAINTENANCE),
+  //since scanning a maintenance item again is the legitimate reactivation flow.
+  get hasGenuineMaintenanceConflict(): boolean {
+    return this.checkoutMode === 'MAINTENANCE'
+      && this.scanScenario !== 'NO_RESERVATION'
+      && this.scannedEquipments.some(eq => eq.status !== 'MAINTENANCE');
+  }
+
+  //True when in maintenance mode and the scanned item is itself already in MAINTENANCE -
+  //i.e. we're looking at a reactivation case (bringing it back to FREE), not a conflict.
+  get isMaintenanceReactivation(): boolean {
+    return this.checkoutMode === 'MAINTENANCE'
+      && this.scanScenario === 'SINGLE_RESERVATION'
+      && this.scannedEquipments.length > 0
+      && this.scannedEquipments.every(eq => eq.status === 'MAINTENANCE');
+  }
+
+  //----------------------------------------------------------------------------------------------------------
+  //Maintenance-Mode-Toggle (only relevant within the walk-in / NO_RESERVATION scenario)
+
+  //Called by the toggle in the template. Shows a confirmation dialog if items are already
+  //scanned (since switching mode would clear them), otherwise switches immediately.
+  requestCheckoutModeSwitch(target: 'RENTAL' | 'MAINTENANCE', dialogElement: HTMLDialogElement): void {
+    if (target === this.checkoutMode) {
+      return;
+    }
+
+    if (this.scannedEquipmentIds.length > 0) {
+      this.pendingCheckoutModeTarget = target;
+      dialogElement.showModal();
+    } else {
+      this.applyCheckoutModeSwitch(target);
+    }
+  }
+
+  //Called when the user confirms the mode-switch warning dialog
+  confirmCheckoutModeSwitch(dialogElement: HTMLDialogElement): void {
+    dialogElement.close();
+    if (this.pendingCheckoutModeTarget) {
+      this.applyCheckoutModeSwitch(this.pendingCheckoutModeTarget);
+      this.pendingCheckoutModeTarget = null;
+    }
+  }
+
+  private applyCheckoutModeSwitch(target: 'RENTAL' | 'MAINTENANCE'): void {
+    //Clear scanned items and related state, since switching mode invalidates the current batch
+    this.scannedEquipments = [];
+    this.scannedEquipmentIds = [];
+    this.matchedReservations = [];
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.maintenanceLookupError = null;
+
+    this.checkoutMode = target;
+    this.updateScanScenario();
+
+    if (target === 'MAINTENANCE' && this.maintenanceCustomerProfileId === null) {
+      this.loadMaintenanceCustomerProfileId();
+    }
+  }
+
+  //Looks up the fixed "Maintenance" customer account by its known email, then its one
+  //CustomerProfile, so submitWalkInCheckout() has a customerProfileId to send when
+  //checkoutMode === 'MAINTENANCE'. Runs once and caches the result.
+  private loadMaintenanceCustomerProfileId(): void {
+    const search: CustomerSearch = {email: 'maintenance@system.internal'};
+
+    this.staffService.searchCustomers(search).subscribe({
+      next: (customers) => {
+        if (!customers || customers.length === 0) {
+          this.maintenanceLookupError = this.translateService.instant('BARCODE_SCANNER.MAINTENANCE_ERROR_NO_ACCOUNT');
+          return;
+        }
+
+        const maintenanceCustomerId = customers[0].id;
+        if (maintenanceCustomerId === undefined) {
+          this.maintenanceLookupError = this.translateService.instant('BARCODE_SCANNER.MAINTENANCE_ERROR_NO_ACCOUNT');
+          return;
+        }
+
+        this.customerProfileService.getCustomerProfilesByCustomerId(maintenanceCustomerId).subscribe({
+          next: (profiles) => {
+            if (!profiles || profiles.length === 0) {
+              this.maintenanceLookupError = this.translateService.instant('BARCODE_SCANNER.MAINTENANCE_ERROR_NO_PROFILE');
+              return;
+            }
+            this.maintenanceCustomerProfileId = profiles[0].id;
+          },
+          error: (err) => {
+            console.error('Failed to load maintenance customer profile', err);
+            this.maintenanceLookupError = this.translateService.instant('BARCODE_SCANNER.ERROR_UNEXPECTED');
+          }
+        });
+      },
+      error: (err) => {
+        console.error('Failed to load maintenance customer account', err);
+        this.maintenanceLookupError = this.translateService.instant('BARCODE_SCANNER.ERROR_UNEXPECTED');
+      }
+    });
+  }
+
   //Loads all customerAccounts for the dropdown
   private loadAllSystemUsers(): void {
     // TODO: Replace with real API-call from UserService when ready
@@ -444,10 +588,18 @@ export class BarcodeScannerComponent implements OnInit {
     return new Date(end) < new Date(today);
   }
 
-  //Submits the Reservation and checkout as part of the Walk-In-Construct when there is no Reservation
+  //Submits the Reservation and checkout as part of the Walk-In-Construct when there is no Reservation.
+  //Also handles the maintenance walk-in when checkoutMode === 'MAINTENANCE'.
   submitWalkInCheckout(): void {
-    if (this.walkInForm.invalid || !this.scannedEquipmentIds || this.scannedEquipmentIds.length === 0
-      || this.scannedEquipments.length === 0 || this.isWalkInDateRangeInvalid) {
+    if (!this.scannedEquipmentIds || this.scannedEquipmentIds.length === 0 || this.scannedEquipments.length === 0) {
+      return;
+    }
+
+    if (this.checkoutMode === 'MAINTENANCE') {
+      if (this.maintenanceCustomerProfileId === null || this.isWalkInDateRangeInvalid || !this.walkInForm.get('endDate')?.value) {
+        return;
+      }
+    } else if (this.walkInForm.invalid || this.isWalkInDateRangeInvalid) {
       return;
     }
 
@@ -456,20 +608,25 @@ export class BarcodeScannerComponent implements OnInit {
 
     const formValue = this.walkInForm.getRawValue();
 
-    const payload: ReservationCreation = {
-      customerProfileId: formValue.customerProfileId,
+    const payload: ReservationCreationWithMode = {
+      customerProfileId: this.checkoutMode === 'MAINTENANCE'
+        ? this.maintenanceCustomerProfileId!
+        : formValue.customerProfileId,
       equipmentIds: this.scannedEquipmentIds,
       pickUpTime: formValue.pickUpTime + ':00',
       startDate: formValue.startDate,
       endDate: formValue.endDate,
-      reservationStatus: ReservationStatus.PICKED_UP
+      reservationStatus: ReservationStatus.PICKED_UP,
+      mode: this.checkoutMode
     };
 
     this.barcodeScannerService.checkOutScanWithoutExistingReservation(payload).subscribe({
       next: (response) => {
         this.submitLoading = false;
-        const successMsg = this.translateService.instant('BARCODE_SCANNER.WALK_IN_SUCCESS_TOAST');
-        this.notification.success(successMsg);
+        const successMsgKey = this.checkoutMode === 'MAINTENANCE'
+          ? 'BARCODE_SCANNER.MAINTENANCE_SUCCESS_TOAST'
+          : 'BARCODE_SCANNER.WALK_IN_SUCCESS_TOAST';
+        this.notification.success(this.translateService.instant(successMsgKey));
 
         //UI-State-Reset
         this.scannedEquipments = [];
@@ -490,17 +647,29 @@ export class BarcodeScannerComponent implements OnInit {
 
   //Helper-Method for pop-up before submission
   openConfirmationModal(dialogElement: HTMLDialogElement): void {
-    //Case 1: Checkout without Reservation
+    //Case 1: Checkout without Reservation (normal walk-in or maintenance)
     if (this.scanScenario === 'NO_RESERVATION') {
-      if (this.walkInForm.invalid || !this.scannedEquipmentIds || this.scannedEquipmentIds.length === 0 || this.isWalkInDateRangeInvalid) {
+      if (!this.scannedEquipmentIds || this.scannedEquipmentIds.length === 0) {
         return;
       }
+
+      if (this.checkoutMode === 'MAINTENANCE') {
+        if (this.maintenanceCustomerProfileId === null || this.isWalkInDateRangeInvalid || !this.walkInForm.get('endDate')?.value) {
+          return;
+        }
+      } else if (this.walkInForm.invalid || this.isWalkInDateRangeInvalid) {
+        return;
+      }
+
       this.pendingCustomerName = '';
       dialogElement.showModal();
       return;
     }
 
     //Case 2: Checkout with existing Reservation
+    if (this.hasGenuineMaintenanceConflict) {
+      return;
+    }
     if (this.scanScenario !== 'SINGLE_RESERVATION' || this.equipmentScenario !== 'ALL_RESERVED_EQUIPMENT_SCANNED') {
       return;
     }

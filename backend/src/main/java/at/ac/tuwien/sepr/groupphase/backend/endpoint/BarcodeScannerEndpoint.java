@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationCreationDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationCreationWithModeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.service.BarcodeScannerService;
@@ -55,16 +56,16 @@ public class BarcodeScannerEndpoint {
     /**
      * Endpoint to check out equipment that's not already part of a Reservation by creating a new Reservation for it.
      *
-     * @param reservationCreationDto A DTO of the reservation that should be created for the check-out.
+     * @param reservationCreationWithModeDto A DTO of the reservation that should be created for the check-out, including the mode.
      * @return The details of the created Reservation we checked out with.
      */
     @PreAuthorize("hasAnyAuthority('CHECK_OUT_OR_IN_SCAN') and hasAuthority('STAFF')")
     @ResponseStatus(HttpStatus.OK)
     @PostMapping
     public ReservationDetailDto checkOutScanWithoutExistingReservation(
-        @Valid @RequestBody ReservationCreationDto reservationCreationDto
+        @Valid @RequestBody ReservationCreationWithModeDto reservationCreationWithModeDto
     ) {
-        LOGGER.info("POST /api/v1/scanner - Body: {}", reservationCreationDto);
-        return barcodeScannerService.checkOutWithoutExistingReservation(reservationCreationDto);
+        LOGGER.info("POST /api/v1/scanner - Body: {}", reservationCreationWithModeDto);
+        return barcodeScannerService.checkOutWithoutExistingReservation(reservationCreationWithModeDto);
     }
 }

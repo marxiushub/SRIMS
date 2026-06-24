@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationCreationDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationCreationWithModeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
@@ -46,29 +47,42 @@ public class BarcodeScannerServiceImpl implements BarcodeScannerService {
 
         ReservationDetailDto returnDto = reservationService.updateReservationStaff(reservationUpdateDto);
         List<Long> equipmentIds = reservationUpdateDto.getEquipmentIds();
-        RentalStatus newRentalStatus = getNewRentalStatusForNewReservationStatus(reservationUpdateDto.getReservationStatus());
+        RentalStatus newRentalStatus = getNewRentalStatusForNewReservationStatus(reservationUpdateDto.getReservationStatus(), "RENTED");
         equipmentService.updateEquipmentStatuses(equipmentIds, newRentalStatus);
         return returnDto;
     }
 
     @Override
     @Transactional
-    public ReservationDetailDto checkOutWithoutExistingReservation(ReservationCreationDto reservationCreationDto) {
-        LOGGER.info("Checkout without Existing Reservation");
+    public ReservationDetailDto checkOutWithoutExistingReservation(ReservationCreationWithModeDto reservationCreationWithModeDto) {
+        LOGGER.info("Checkout without Existing Reservation, mode={}", reservationCreationWithModeDto.getMode());
 
-        ReservationDetailDto returnDto = reservationService.createReservation(reservationCreationDto);
-        List<Long> equipmentIds = reservationCreationDto.getEquipmentIds();
-        RentalStatus newRentalStatus = getNewRentalStatusForNewReservationStatus(reservationCreationDto.getReservationStatus());
+        if ("MAINTENANCE".equalsIgnoreCase(reservationCreationWithModeDto.getMode())
+            && reservationCreationWithModeDto.getEquipmentIds() != null && reservationCreationWithModeDto.getEquipmentIds().size() > 1) {
+            throw new IllegalArgumentException(
+                "Maintenance checkout only allows a single equipment item, but "
+                    + reservationCreationWithModeDto.getEquipmentIds().size() + " were given.");
+        }
+
+        ReservationDetailDto returnDto = reservationService.createReservation(reservationCreationWithModeDto.toReservationCreationDto());
+        List<Long> equipmentIds = reservationCreationWithModeDto.getEquipmentIds();
+
+        RentalStatus newRentalStatus = getNewRentalStatusForNewReservationStatus(reservationCreationWithModeDto.getReservationStatus(), reservationCreationWithModeDto.getMode());
+
         equipmentService.updateEquipmentStatuses(equipmentIds, newRentalStatus);
         return returnDto;
     }
 
     //Helper-Method to determine the RentalStatus for Equipment corresponding to the ReservationStatus of the
     // Reservation
-    private RentalStatus getNewRentalStatusForNewReservationStatus(ReservationStatus newReservationStatus) {
+    private RentalStatus getNewRentalStatusForNewReservationStatus(ReservationStatus newReservationStatus, String mode) {
         RentalStatus newRentalStatus;
         if (newReservationStatus.equals(ReservationStatus.PICKED_UP)) {
-            newRentalStatus = RentalStatus.RENTED;
+            if ("MAINTENANCE".equalsIgnoreCase(mode)) {
+                newRentalStatus = RentalStatus.MAINTENANCE;
+            } else {
+                newRentalStatus = RentalStatus.RENTED;
+            }
         } else if (newReservationStatus.equals(ReservationStatus.RETURNED)) {
             newRentalStatus = RentalStatus.FREE;
         } else {
