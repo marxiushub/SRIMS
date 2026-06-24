@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationCreationWithModeDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.ReservationStatus;
 import at.ac.tuwien.sepr.groupphase.backend.service.BarcodeScannerService;
@@ -23,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 class BarcodeScannerServiceTest {
@@ -101,51 +103,54 @@ class BarcodeScannerServiceTest {
     }
 
     @Test
-    void checkOutWithoutExistingReservation_statusPickedUp_createsReservationAndSetsEquipmentRented() {
-        ReservationCreationDto createDto = new ReservationCreationDto();
+    void checkOutWithoutExistingReservation_modeRentalStatusPickedUp_createsReservationAndSetsEquipmentRented() {
+        ReservationCreationWithModeDto createDto = new ReservationCreationWithModeDto();
         createDto.setEquipmentIds(List.of(50L, 60L));
         createDto.setReservationStatus(ReservationStatus.PICKED_UP);
+        createDto.setMode("RENTAL");
 
         ReservationDetailDto mockReturnDto = new ReservationDetailDto();
         mockReturnDto.setId(5L);
 
-        when(reservationService.createReservation(createDto)).thenReturn(mockReturnDto);
+        when(reservationService.createReservation(any())).thenReturn(mockReturnDto);
 
         ReservationDetailDto result = barcodeScannerService.checkOutWithoutExistingReservation(createDto);
 
         assertAll(
             () -> assertThat(result).isEqualTo(mockReturnDto),
-            () -> verify(reservationService, times(1)).createReservation(createDto),
+            () -> verify(reservationService, times(1)).createReservation(any()),
             () -> verify(equipmentService, times(1)).updateEquipmentStatuses(List.of(50L, 60L), RentalStatus.RENTED)
         );
     }
 
     @Test
-    void checkOutWithoutExistingReservation_statusReturned_createsReservationAndSetsEquipmentFree() {
-        ReservationCreationDto createDto = new ReservationCreationDto();
+    void checkOutWithoutExistingReservation_modeRentalStatusReturned_createsReservationAndSetsEquipmentFree() {
+        ReservationCreationWithModeDto createDto = new ReservationCreationWithModeDto();
         createDto.setEquipmentIds(List.of(70L));
         createDto.setReservationStatus(ReservationStatus.RETURNED);
+        createDto.setMode("RENTAL");
 
         ReservationDetailDto mockReturnDto = new ReservationDetailDto();
 
-        when(reservationService.createReservation(createDto)).thenReturn(mockReturnDto);
+        when(reservationService.createReservation(any())).thenReturn(mockReturnDto);
 
         ReservationDetailDto result = barcodeScannerService.checkOutWithoutExistingReservation(createDto);
 
         assertAll(
             () -> assertThat(result).isEqualTo(mockReturnDto),
-            () -> verify(reservationService, times(1)).createReservation(createDto),
+            () -> verify(reservationService, times(1)).createReservation(any()),
             () -> verify(equipmentService, times(1)).updateEquipmentStatuses(List.of(70L), RentalStatus.FREE)
         );
     }
 
     @Test
-    void checkOutWithoutExistingReservation_invalidStatus_throwsIllegalArgumentException() {
-        ReservationCreationDto createDto = new ReservationCreationDto();
+    void checkOutWithoutExistingReservation_modeRentalInvalidStatus_throwsIllegalArgumentException() {
+        ReservationCreationWithModeDto createDto = new ReservationCreationWithModeDto();
         createDto.setEquipmentIds(List.of(80L));
         createDto.setReservationStatus(ReservationStatus.CANCELLED);
+        createDto.setMode("RENTAL");
 
-        when(reservationService.createReservation(createDto)).thenReturn(new ReservationDetailDto());
+        when(reservationService.createReservation(any())).thenReturn(new ReservationDetailDto());
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
             barcodeScannerService.checkOutWithoutExistingReservation(createDto)
@@ -154,5 +159,74 @@ class BarcodeScannerServiceTest {
         assertAll(
             () -> assertThat(exception.getMessage()).contains("Invalid reservation status", "CANCELLED")
         );
+    }
+
+    @Test
+    void checkOutWithoutExistingReservation_modeMaintenance_setsEquipmentMaintenanceRegardlessOfReservationStatus() {
+        ReservationCreationWithModeDto createDto = new ReservationCreationWithModeDto();
+        createDto.setEquipmentIds(List.of(90L));
+        createDto.setReservationStatus(ReservationStatus.PICKED_UP);
+        createDto.setMode("MAINTENANCE");
+
+        ReservationDetailDto mockReturnDto = new ReservationDetailDto();
+        mockReturnDto.setId(9L);
+
+        when(reservationService.createReservation(any())).thenReturn(mockReturnDto);
+
+        ReservationDetailDto result = barcodeScannerService.checkOutWithoutExistingReservation(createDto);
+
+        assertAll(
+            () -> assertThat(result).isEqualTo(mockReturnDto),
+            () -> verify(reservationService, times(1)).createReservation(any()),
+            () -> verify(equipmentService, times(1)).updateEquipmentStatuses(List.of(90L), RentalStatus.MAINTENANCE)
+        );
+    }
+
+    @Test
+    void checkOutWithoutExistingReservation_modeMaintenanceWithMultipleItems_throwsAndNeverCallsCreateReservation() {
+        //Maintenance checkouts are restricted to exactly one equipment item (see method Javadoc).
+        //The rejection must happen BEFORE createReservation() runs, so no orphaned data is created.
+        ReservationCreationWithModeDto createDto = new ReservationCreationWithModeDto();
+        createDto.setEquipmentIds(List.of(94L, 95L));
+        createDto.setReservationStatus(ReservationStatus.PICKED_UP);
+        createDto.setMode("MAINTENANCE");
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+            barcodeScannerService.checkOutWithoutExistingReservation(createDto)
+        );
+
+        assertAll(
+            () -> assertThat(exception.getMessage()).contains("single equipment item"),
+            () -> verify(reservationService, times(0)).createReservation(any()),
+            () -> verify(equipmentService, times(0)).updateEquipmentStatuses(any(), any())
+        );
+    }
+
+    @Test
+    void checkOutWithoutExistingReservation_modeMaintenanceLowercase_isCaseInsensitive() {
+        ReservationCreationWithModeDto createDto = new ReservationCreationWithModeDto();
+        createDto.setEquipmentIds(List.of(92L));
+        createDto.setReservationStatus(ReservationStatus.PICKED_UP);
+        createDto.setMode("maintenance");
+
+        when(reservationService.createReservation(any())).thenReturn(new ReservationDetailDto());
+
+        barcodeScannerService.checkOutWithoutExistingReservation(createDto);
+
+        verify(equipmentService, times(1)).updateEquipmentStatuses(List.of(92L), RentalStatus.MAINTENANCE);
+    }
+
+    @Test
+    void checkOutWithoutExistingReservation_modeMaintenanceWithReturnedStatus_setsFreeNotMaintenance() {
+        ReservationCreationWithModeDto createDto = new ReservationCreationWithModeDto();
+        createDto.setEquipmentIds(List.of(93L));
+        createDto.setReservationStatus(ReservationStatus.RETURNED);
+        createDto.setMode("MAINTENANCE");
+
+        when(reservationService.createReservation(any())).thenReturn(new ReservationDetailDto());
+
+        barcodeScannerService.checkOutWithoutExistingReservation(createDto);
+
+        verify(equipmentService, times(1)).updateEquipmentStatuses(List.of(93L), RentalStatus.FREE);
     }
 }

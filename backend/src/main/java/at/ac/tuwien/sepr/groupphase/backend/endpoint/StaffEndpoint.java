@@ -87,14 +87,14 @@ public class StaffEndpoint {
     /**
      * Endpoint to reset the password of an existing staff account.
      *
-     * @param id the ID of the staff user whose password should be reset
+     * @param email the email of the staff user whose password should be reset
      * @return the updated staff user
      */
     @PreAuthorize("hasAuthority('STAFF_UPDATE')")
-    @PatchMapping("/password-resets/{id}")
-    public UserDetailDto resetPassword(@PathVariable("id") Long id) {
-        LOGGER.info("PATCH /api/v1/staff/password-resets/{}", id);
-        return userService.resetPassword(id);
+    @PatchMapping("/password-resets/{email}")
+    public UserDetailDto resetPassword(@PathVariable("email") String email) {
+        LOGGER.info("PATCH /api/v1/staff/password-resets/{}", email);
+        return userService.resetPassword(email);
     }
 
     /**

@@ -110,7 +110,7 @@ describe('StatisticsComponent', () => {
 
       expect(component.isLoading).toBeFalse();
       expect(component.tableRows.length).toBe(3);
-      // Absteigend sortiert: 25 -> 12 -> 5
+      //25 -> 12 -> 5
       expect(component.tableRows[0]).toEqual({ label: 'Ski Super-G', daysRented: 25 });
       expect(component.tableRows[1]).toEqual({ label: 'Snowboard Freeride', daysRented: 12 });
       expect(component.tableRows[2]).toEqual({ label: 'Helmet Safety First', daysRented: 5 });

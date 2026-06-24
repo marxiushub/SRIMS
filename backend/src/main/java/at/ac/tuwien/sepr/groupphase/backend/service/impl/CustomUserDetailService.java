@@ -286,15 +286,15 @@ public class CustomUserDetailService implements UserService {
     }
 
     @Override
-    public UserDetailDto resetPassword(Long id) {
+    public UserDetailDto resetPassword(String email) {
 
-        LOGGER.info("Resetting password for user with id {}", id);
-        validator.idTester(id);
-        checkUserAccessPermission(id);
+        LOGGER.info("Resetting password for user with email {}", email);
+
+        validator.validateEmailFormat(email, new ArrayList<>());
 
         String newPassword = generateTempPassword();
-        ApplicationUser existingUser = userRepository.findById(id)
-            .orElseThrow(() -> new NotFoundException("User with ID " + id + " was not found."));
+        ApplicationUser existingUser = userRepository.findByEmail(email)
+            .orElseThrow(() -> new NotFoundException("User with email " + email + " was not found."));
 
         existingUser.setPassword(passwordEncoder.encode(newPassword));
 

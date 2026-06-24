@@ -83,14 +83,14 @@ public class CustomerEndpoint {
     /**
      * Endpoint to reset the password of an existing customer account.
      *
-     * @param id the ID of the customer whose password should be reset
+     * @param email the email of the customer whose password should be reset
      * @return the updated customer
      */
-    @PreAuthorize("hasAuthority('CUSTOMER_UPDATE')")
-    @PatchMapping("/password-resets/{id}")
-    public UserDetailDto resetPassword(@PathVariable("id") Long id) {
-        LOGGER.info("PATCH /api/v1/staff/password-resets/{}", id);
-        return userService.resetPassword(id);
+    @PermitAll
+    @PatchMapping("/password-resets/{email}")
+    public UserDetailDto resetPassword(@PathVariable("email") String email) {
+        LOGGER.info("PATCH /api/v1/staff/password-resets/{}", email);
+        return userService.resetPassword(email);
     }
 
     /**

@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationCreationDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationCreationWithModeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationUpdateDto;
 
@@ -28,9 +29,9 @@ public interface BarcodeScannerService {
      * if the ReservationStatus is PICKED_UP, the new RentalStatus should be RENTED,
      * if the new ReservationStatus is RETURNED, the new RentalStatus should be FREE).
      *
-     * @param reservationCreationDto A DTO for the Reservation that should be created.
+     * @param reservationCreationWithModeDto A DTO for the Reservation that should be created.
      * @return The details of the Reservation we created to check out for.
      */
-    public ReservationDetailDto checkOutWithoutExistingReservation(ReservationCreationDto reservationCreationDto);
+    public ReservationDetailDto checkOutWithoutExistingReservation(ReservationCreationWithModeDto reservationCreationWithModeDto);
 
 }
