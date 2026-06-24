@@ -25,11 +25,11 @@
 
         <div class="row">
           <div class="mb-2 col-lg-6">
-            <div class="row">
-              <label for="equipmentType" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+            <div class="d-flex flex-column flex-md-row">
+              <label for="equipmentType" class="col-form-label text-muted text-nowrap mb-0 me-md-2 flex-shrink-0 form-label-fixed">
                 {{ 'EQUIPMENT_CREATE.TYPE' | translate }}
               </label>
-              <div class="col-md-10 col-lg-8">
+              <div class="flex-grow-1">
                 <select
                   id="equipmentType"
                   name="equipmentType"
@@ -50,11 +50,11 @@
           </div>
 
           <div class="mb-2 col-lg-6">
-            <div class="row">
-              <label for="equipmentModel" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+            <div class="d-flex flex-column flex-md-row align-items-md-center">
+              <label for="equipmentModel" class="col-form-label text-muted text-nowrap mb-0 me-md-2 flex-shrink-0 form-label-fixed">
                 {{ 'EQUIPMENT_CREATE.MODEL' | translate }}
               </label>
-              <div class="col-md-10 col-lg-8">
+              <div class="flex-grow-1">
                 <input
                   id="equipmentModel"
                   name="equipmentModel"
@@ -82,11 +82,11 @@
 
         <div class="row">
           <div class="mb-2 col-lg-6">
-            <div class="row">
-              <label for="equipmentStatus" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+            <div class="d-flex flex-column flex-md-row">
+              <label for="equipmentStatus" class="col-form-label text-muted text-nowrap mb-0 me-md-2 flex-shrink-0 form-label-fixed">
                 {{ 'EQUIPMENT_CREATE.STATUS' | translate }}
               </label>
-              <div class="col-md-10 col-lg-8">
+              <div class="flex-grow-1">
                 <select
                   id="equipmentStatus"
                   name="equipmentStatus"
@@ -105,11 +105,11 @@
           </div>
 
           <div class="mb-2 col-lg-6">
-            <div class="row">
-              <label for="equipmentSkillLevel" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+            <div class="d-flex flex-column flex-md-row">
+              <label for="equipmentSkillLevel" class="col-form-label text-muted text-nowrap mb-0 me-md-2 flex-shrink-0 form-label-fixed">
                 {{ 'EQUIPMENT_CREATE.SKILL_LEVEL' | translate }}
               </label>
-              <div class="col-md-10 col-lg-8">
+              <div class="flex-grow-1">
                 <select
                   id="equipmentSkillLevel"
                   name="equipmentSkillLevel"
@@ -129,11 +129,11 @@
 
         <div class="row">
           <div class="mb-2 col-lg-6">
-            <div class="row">
-              <label for="equipmentPrice" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+            <div class="d-flex flex-column flex-md-row">
+              <label for="equipmentPrice" class="col-form-label text-muted text-nowrap mb-0 me-md-2 flex-shrink-0 form-label-fixed">
                 {{ 'EQUIPMENT_CREATE.PRICE' | translate }}
               </label>
-              <div class="col-md-10 col-lg-8">
+              <div class="flex-grow-1">
                 <div class="input-group">
                   <input
                     id="equipmentPrice"
@@ -166,11 +166,11 @@
 
           @if (equipment.type === 'SKI' || equipment.type === 'POLE' || equipment.type === 'SNOWBOARD') {
             <div class="mb-2 col-lg-6">
-              <div class="row">
-                <label for="equipmentLength" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+              <div class="d-flex flex-column flex-md-row">
+                <label for="equipmentLength" class="col-form-label text-muted text-nowrap mb-0 me-md-2 flex-shrink-0 form-label-fixed">
                   {{ 'EQUIPMENT_CREATE.LENGTH' | translate }}
                 </label>
-                <div class="col-md-10 col-lg-8">
+                <div class="flex-grow-1">
                   <input
                     id="equipmentLength"
                     name="equipmentLength"
@@ -208,11 +208,11 @@
 
           @if (equipment.type === 'HELMET') {
             <div class="mb-2 col-lg-6">
-              <div class="row">
-                <label for="equipmentSize" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+              <div class="d-flex flex-column flex-md-row">
+                <label for="equipmentSize" class="col-form-label text-muted text-nowrap mb-0 me-md-2 flex-shrink-0 form-label-fixed">
                   {{ 'EQUIPMENT_CREATE.SIZE' | translate }}
                 </label>
-                <div class="col-md-10 col-lg-8">
+                <div class="flex-grow-1">
                   <input
                     id="equipmentSize"
                     name="equipmentSize"
@@ -250,11 +250,11 @@
 
           @if (equipment.type === 'SKIBOOT') {
             <div class="mb-2 col-lg-6">
-              <div class="row">
-                <label for="equipmentSoleLength" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+              <div class="d-flex flex-column flex-md-row">
+                <label for="equipmentSoleLength" class="col-form-label text-muted text-nowrap mb-0 me-md-2 flex-shrink-0 form-label-fixed">
                   {{ 'EQUIPMENT_CREATE.SOLE_LENGTH_MM' | translate }}
                 </label>
-                <div class="col-md-10 col-lg-8">
+                <div class="flex-grow-1">
                   <input
                     id="equipmentSoleLength"
                     name="equipmentSoleLength"
@@ -291,11 +291,11 @@
 
           @if (equipment.type === 'SNOWBOARDBOOT') {
             <div class="mb-2 col-lg-6">
-              <div class="row">
-                <label for="equipmentLacingSystem" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+              <div class="d-flex flex-column flex-md-row">
+                <label for="equipmentLacingSystem" class="col-form-label text-muted text-nowrap mb-0 me-md-2 flex-shrink-0 form-label-fixed">
                   {{ 'EQUIPMENT_CREATE.LACING_SYSTEM' | translate }}
                 </label>
-                <div class="col-md-10 col-lg-8">
+                <div class="flex-grow-1">
                   <input
                     id="equipmentLacingSystem"
                     name="equipmentLacingSystem"
@@ -311,11 +311,11 @@
         @if (mode === EquipmentCreateEditMode.create) {
           <div class="row">
             <div class="mb-2 col-lg-6">
-              <div class="row">
-                <label for="equipmentCreationNumber" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+              <div class="d-flex flex-column flex-md-row">
+                <label for="equipmentCreationNumber" class="col-form-label text-muted text-nowrap mb-0 me-md-2 flex-shrink-0 form-label-fixed">
                   {{ 'EQUIPMENT_CREATE.QUANTITY' | translate }}
                 </label>
-                <div class="col-md-10 col-lg-8">
+                <div class="flex-grow-1">
                   <div class="input-group">
                     <input
                       id="equipmentCreationNumber"
@@ -346,7 +346,7 @@
           </div>
         }
 
-        <div class="mt-4 d-flex flex-row gap-2">
+        <div class="mt-4 d-flex flex-wrap gap-2 text-nowrap">
           <button
             class="btn btn-primary"
             [disabled]="loading"
