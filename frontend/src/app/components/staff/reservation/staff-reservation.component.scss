@@ -1,4 +1,89 @@
-//Larger Bootstrap-Switch for "Show Past Reservations"-Slider
+// Shared with customer reservation component — copy these if not already in a shared stylesheet.
+
+// On xl+ screens the collapse toggle is hidden, so always show the filter form
+// regardless of the ngbCollapse state (which sets display:none).
+@media (min-width: 1200px) {
+  .filter-form-collapsible {
+    display: flex !important;
+  }
+}
+
+.filter-form {
+  @media (max-width: 575.98px) {
+    .form-control,
+    .form-select {
+      width: 100%;
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .col-xl-auto {
+      min-width: 200px;
+    }
+  }
+}
+
+.inv-card {
+  background: var(--bs-body-bg);
+  border: 0.5px solid rgba(0, 0, 0, 0.12);
+  border-radius: 0.75rem;
+  padding: 0.6rem 0.9rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+
+  &:hover {
+    background: var(--bs-secondary-bg);
+    border-color: rgba(0, 0, 0, 0.22);
+  }
+}
+
+@media (min-width: 1200px) {
+  .inv-card {
+    padding: 0.65rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+
+    &:hover {
+      border-color: rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  .inv-model-name {
+    font-weight: 500;
+    font-size: 0.9375rem;
+    margin: 0 0 2px;
+  }
+
+  .inv-col-model {
+    flex: 2;
+    min-width: 0;
+  }
+
+  .inv-col-type {
+    flex: 4;
+    min-width: 0;
+    font-size: 0.875rem;
+    color: var(--bs-secondary-color);
+  }
+
+  .inv-col-price {
+    flex: 2;
+    font-weight: 500;
+    font-size: 0.875rem;
+  }
+
+  .inv-col-badge {
+    flex: 3;
+  }
+
+  .inv-col-actions {
+    flex: 0 0 auto;
+  }
+}
+
+// Larger Bootstrap switch for "Show Past Reservations" toggle
 .large-switch {
   .form-check-input {
     width: 3rem;

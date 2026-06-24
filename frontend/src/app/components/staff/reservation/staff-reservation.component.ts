@@ -1,15 +1,15 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { ReservationDetail } from '../../../dtos/reservation-detail';
-import { ReservationSearch } from '../../../dtos/reservation-search';
-import { CustomerSearch } from '../../../dtos/customer-search';
-import { CustomerSearchResponse } from '../../../dtos/customer-search-response';
-import { ReservationStatus } from '../../../dtos/reservationstatus';
-import { ReservationService } from '../../../services/reservation.service';
-import { StaffService } from '../../../services/staff.service';
-import { TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
-import { Subject, debounceTime, forkJoin } from 'rxjs';
+import {Component, OnInit} from '@angular/core';
+import {Router} from '@angular/router';
+import {ReservationDetail} from '../../../dtos/reservation-detail';
+import {ReservationSearch} from '../../../dtos/reservation-search';
+import {CustomerSearch} from '../../../dtos/customer-search';
+import {CustomerSearchResponse} from '../../../dtos/customer-search-response';
+import {ReservationStatus} from '../../../dtos/reservationstatus';
+import {ReservationService} from '../../../services/reservation.service';
+import {StaffService} from '../../../services/staff.service';
+import {TranslateService} from '@ngx-translate/core';
+import {ToastrService} from 'ngx-toastr';
+import {debounceTime, forkJoin, Subject} from 'rxjs';
 
 @Component({
   selector: 'app-staff-reservation',
@@ -28,11 +28,12 @@ export class StaffReservationComponent implements OnInit {
   dateFilter: string = '';
   timeFilter: string = '';
   statusFilter: ReservationStatus | null = null;
+  filtersExpanded = false;
 
   showPastReservations: boolean = false;
 
   // Customer filters for backend account lookups
-  customerSearchCriteria: CustomerSearch = { firstName: '', lastName: '', email: '', userName: '' };
+  customerSearchCriteria: CustomerSearch = {firstName: '', lastName: '', email: '', userName: ''};
   foundCustomers: CustomerSearchResponse[] = [];
   selectedCustomerAccount: CustomerSearchResponse | null = null;
   selectedCustomerId: number | null = null;
@@ -54,7 +55,8 @@ export class StaffReservationComponent implements OnInit {
     public translateService: TranslateService,
     private router: Router,
     private notification: ToastrService
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.loadReservations();
@@ -136,7 +138,7 @@ export class StaffReservationComponent implements OnInit {
 
     if (this.statusFilter) {
       //Case 1: User explicitly selected a ReservationStatus in Dropdown - ignore Slider, only use ReservationStatus from Dropdown
-      this.reservationService.search({ ...searchRequest, reservationStatus: this.statusFilter }).subscribe({
+      this.reservationService.search({...searchRequest, reservationStatus: this.statusFilter}).subscribe({
         next: (data) => {
           this.reservations = data;
           this.currentPage = 1;
@@ -149,8 +151,14 @@ export class StaffReservationComponent implements OnInit {
     } else if (!this.showPastReservations) {
       //Case 2: User didn't select a ReservationStatus in Dropdown, and Slider "ShowPastReservations" is off
       // -> only show Reservations with ReservationStatus CREATED and PICKED_UP in Dropdown
-      const requestCreated = this.reservationService.search({ ...searchRequest, reservationStatus: ReservationStatus.CREATED });
-      const requestPickedUp = this.reservationService.search({ ...searchRequest, reservationStatus: ReservationStatus.PICKED_UP });
+      const requestCreated = this.reservationService.search({
+        ...searchRequest,
+        reservationStatus: ReservationStatus.CREATED
+      });
+      const requestPickedUp = this.reservationService.search({
+        ...searchRequest,
+        reservationStatus: ReservationStatus.PICKED_UP
+      });
 
       forkJoin([requestCreated, requestPickedUp]).subscribe({
         next: ([createdData, pickedUpData]) => {
@@ -189,11 +197,28 @@ export class StaffReservationComponent implements OnInit {
     this.timeFilter = '';
     this.statusFilter = null;
     this.showPastReservations = false;
-    this.customerSearchCriteria = { firstName: '', lastName: '', email: '', userName: '' };
+    this.customerSearchCriteria = {firstName: '', lastName: '', email: '', userName: ''};
     this.foundCustomers = [];
     this.selectedCustomerAccount = null;
     this.selectedCustomerId = null;
     this.loadReservations();
+  }
+
+  toggleFilters(): void {
+    this.filtersExpanded = !this.filtersExpanded;
+  }
+
+  get activeFilterCount(): number {
+    let count = 0;
+    if (this.customerSearchCriteria.firstName) count++;
+    if (this.customerSearchCriteria.lastName) count++;
+    if (this.customerSearchCriteria.userName) count++;
+    if (this.customerSearchCriteria.email) count++;
+    if (this.dateFilter) count++;
+    if (this.timeFilter) count++;
+    if (this.statusFilter !== null) count++;
+    if (this.showPastReservations) count++;
+    return count;
   }
 
   openDetailPage(item: ReservationDetail): void {
