@@ -4,13 +4,7 @@
   border: 0.5px solid rgba(0, 0, 0, 0.12);
   border-radius: 0.75rem;
   padding: 0.6rem 0.9rem;
-  cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
-
-  &:hover {
-    background: var(--bs-secondary-bg);
-    border-color: rgba(0, 0, 0, 0.22);
-  }
 }
 
 @media (min-width: 1200px) {
@@ -19,10 +13,6 @@
     display: flex;
     align-items: center;
     gap: 1rem;
-
-    &:hover {
-      border-color: rgba(0, 0, 0, 0.2);
-    }
   }
 
   .inv-model-name {
