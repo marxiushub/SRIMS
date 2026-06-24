@@ -1,5 +1,12 @@
 import {Component, OnInit} from '@angular/core';
-import {AbstractControl, UntypedFormBuilder, UntypedFormGroup, ValidationErrors, Validators, ValidatorFn} from '@angular/forms';
+import {
+  AbstractControl,
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  ValidationErrors,
+  ValidatorFn,
+  Validators
+} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {AuthService} from '../../services/auth.service';
 import {AuthRequest} from '../../dtos/auth-request';
@@ -21,7 +28,7 @@ export function maxDateTodayValidator(): ValidatorFn {
     const inputDate = new Date(control.value);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    return inputDate > today ? { futureDate: true } : null;
+    return inputDate > today ? {futureDate: true} : null;
   };
 }
 
@@ -72,6 +79,7 @@ export class LoginRegisterComponent implements OnInit {
     if (this.loginForm.valid) {
       if (this.mode === LoginRegisterMode.register) {
         const customerDto: CustomerCreationDto = {
+          type: 'CUSTOMER',
           userName: this.loginForm.controls.username.value,
           password: this.loginForm.controls.password.value,
           email: this.loginForm.controls.email.value,
@@ -135,7 +143,7 @@ export class LoginRegisterComponent implements OnInit {
   private handleError(error: any) {
     console.log('Action failed due to:', error);
 
-    if(error.error && typeof error.error === 'object' ) {
+    if (error.error && typeof error.error === 'object') {
       if (error.error.errors) {
         this.errorMessage = error.error.errors;
       } else if (error.error.message) {
