@@ -123,4 +123,16 @@ public interface UserService extends UserDetailsService {
      * @return the updated user as a {@link UserDetailDto}
      */
     UserDetailDto changePassword(Long id, PasswordChangeDto passwordChangeDto);
+
+    /**
+     * Resets the password of the user with the given id to a newly generated password.
+     * The implementation is expected to generate a secure random password, encode it and
+     * persist the updated password for the user. After persisting the change the new
+     * password is sent to the user's registered email address so the account holder is
+     * informed about the new credentials.
+     *
+     * @param id the id of the user whose password will be reset
+     * @return the updated user as a {@link UserDetailDto}
+     */
+    UserDetailDto resetPassword(Long id);
 }

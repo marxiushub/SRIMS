@@ -39,9 +39,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class CustomUserDetailService implements UserService {
@@ -281,6 +285,26 @@ public class CustomUserDetailService implements UserService {
         return mapper.entityToDetailDto(savedUser);
     }
 
+    @Override
+    public UserDetailDto resetPassword(Long id) {
+
+        LOGGER.info("Resetting password for user with id {}", id);
+        validator.idTester(id);
+        checkUserAccessPermission(id);
+
+        String newPassword = generateTempPassword();
+        ApplicationUser existingUser = userRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException("User with ID " + id + " was not found."));
+
+        existingUser.setPassword(passwordEncoder.encode(newPassword));
+
+        ApplicationUser savedUser = userRepository.save(existingUser);
+
+        emailService.sendPasswordResetEmail(newPassword, existingUser);
+
+        return mapper.entityToDetailDto(savedUser);
+    }
+
     //Helper Methods:
     //Checks if the given id (requestedUserID) is the same ID as the ID of the user who wants to perform the CRUD action
     private void checkUserAccessPermission(Long requestedUserId) {
@@ -303,5 +327,26 @@ public class CustomUserDetailService implements UserService {
     //Normalizes search-inputs
     private String normalize(String value) {
         return value == null || value.isBlank() ? null : value;
+    }
+
+    private String generateTempPassword() {
+        SecureRandom rnd = new SecureRandom();
+        String chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*_-+=";
+        String specials = "!@#$%^&*_-+=";
+
+        List<Character> pwd = new ArrayList<>(List.of(
+            (char) (rnd.nextInt(26) + 'a'),
+            (char) (rnd.nextInt(10) + '0'),
+            specials.charAt(rnd.nextInt(specials.length()))
+        ));
+
+        int length = 10 + rnd.nextInt(6);
+        for (int i = 3; i < length; i++) {
+            pwd.add(chars.charAt(rnd.nextInt(chars.length())));
+        }
+
+        Collections.shuffle(pwd, rnd);
+
+        return pwd.stream().map(String::valueOf).collect(Collectors.joining());
     }
 }

@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.Reservation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
+import at.ac.tuwien.sepr.groupphase.backend.entity.user.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.service.EmailService;
 import jakarta.mail.internet.MimeMessage;
 import org.slf4j.Logger;
@@ -167,4 +168,38 @@ public class EmailServiceImpl implements EmailService {
             throw new RuntimeException("Error sending the pick-up reminder email", e);
         }
     }
+
+    @Override
+    public void sendPasswordResetEmail(String tempPassword, ApplicationUser user) {
+
+        String to = user.getEmail();
+
+        LOGGER.info("Preparing password reset email for {}", to);
+
+        try {
+
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setTo(to);
+            helper.setFrom("srims@widmer.wien");
+            helper.setSubject("Password reset");
+
+            Context context = new Context();
+            context.setVariable("userName", user.getUserName());
+            context.setVariable("tempPassword", tempPassword);
+
+            String htmlContent = templateEngine.process("password-reset-email", context);
+            helper.setText(htmlContent, true);
+
+            mailSender.send(message);
+            LOGGER.info("Password reset email successfully sent to {}", to);
+
+        } catch (Exception e) {
+            LOGGER.error("Failed to send password reset email to {}", to, e);
+            throw new RuntimeException("Error sending the password reset email", e);
+        }
+    }
+
 }
+

@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.Reservation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
+import at.ac.tuwien.sepr.groupphase.backend.entity.user.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.service.EmailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,5 +40,10 @@ public class FakeEmailService implements EmailService {
     @Override
     public void sendPickUpReminderEmail(List<Equipment> equipmentList, Reservation reservation) {
         LOGGER.info("Fake email sent to {} (Pick up reminder)", reservation.getCustomerProfile().getCustomer().getEmail());
+    }
+
+    @Override
+    public void sendPasswordResetEmail(String tempPassword, ApplicationUser user) {
+        LOGGER.info("Fake email sent to {} (Password reset)", user.getEmail());
     }
 }
