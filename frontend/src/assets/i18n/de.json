@@ -12,7 +12,6 @@
     "LAST_NAME": "Nachname",
     "EMAIL": "E-Mail",
     "DATE_OF_BIRTH": "Geburtsdatum",
-
     "HAVE_ACCOUNT": "Sie haben bereits einen Account?",
     "NO_ACCOUNT": "Sie haben noch keinen Account?",
     "CREATE_ACCOUNT": "Account erstellen",
@@ -29,7 +28,6 @@
     "DATE_OF_BIRTH_REQUIRED": "Geburtsdatum ist erforderlich!",
     "DATE_OF_BIRTH_FUTURE": "Das Geburtsdatum darf nicht in der Zukunft liegen!",
     "ALREADY_LOGGED_IN": "Sie sind bereits eingeloggt.",
-
     "LOGIN_SUCCESS": "Erfolgreich angemeldet.",
     "REGISTER_SUCCESS": "Erfolgreich registriert. Bitte loggen Sie sich ein.",
     "LOGOUT_SUCCESS": "Erfolgreich ausgeloggt."
@@ -153,10 +151,6 @@
       "TITLE": "Grafische Übersicht",
       "DESC": "Visuelle Darstellung des gesamten Bestands-Status.",
       "TOTAL": "Gesamt",
-      "VARIANTS": {
-        "BAR_CHART": "Balkendiagramm",
-        "TILES": "Kachel-Übersicht"
-      },
       "MESSAGES": {
         "LOADING": "Lädt...",
         "NO_DATA": "Keine Daten verfügbar.",
