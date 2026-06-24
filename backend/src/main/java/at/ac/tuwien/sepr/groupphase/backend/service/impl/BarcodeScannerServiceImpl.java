@@ -47,7 +47,7 @@ public class BarcodeScannerServiceImpl implements BarcodeScannerService {
 
         ReservationDetailDto returnDto = reservationService.updateReservationStaff(reservationUpdateDto);
         List<Long> equipmentIds = reservationUpdateDto.getEquipmentIds();
-        RentalStatus newRentalStatus = getNewRentalStatusForNewReservationStatus(reservationUpdateDto.getReservationStatus());
+        RentalStatus newRentalStatus = getNewRentalStatusForNewReservationStatus(reservationUpdateDto.getReservationStatus(), "RENTED");
         equipmentService.updateEquipmentStatuses(equipmentIds, newRentalStatus);
         return returnDto;
     }
@@ -67,9 +67,7 @@ public class BarcodeScannerServiceImpl implements BarcodeScannerService {
         ReservationDetailDto returnDto = reservationService.createReservation(reservationCreationWithModeDto.toReservationCreationDto());
         List<Long> equipmentIds = reservationCreationWithModeDto.getEquipmentIds();
 
-        RentalStatus newRentalStatus = "MAINTENANCE".equalsIgnoreCase(reservationCreationWithModeDto.getMode())
-            ? RentalStatus.MAINTENANCE
-            : getNewRentalStatusForNewReservationStatus(reservationCreationWithModeDto.getReservationStatus());
+        RentalStatus newRentalStatus = getNewRentalStatusForNewReservationStatus(reservationCreationWithModeDto.getReservationStatus(), reservationCreationWithModeDto.getMode());
 
         equipmentService.updateEquipmentStatuses(equipmentIds, newRentalStatus);
         return returnDto;
@@ -77,10 +75,14 @@ public class BarcodeScannerServiceImpl implements BarcodeScannerService {
 
     //Helper-Method to determine the RentalStatus for Equipment corresponding to the ReservationStatus of the
     // Reservation
-    private RentalStatus getNewRentalStatusForNewReservationStatus(ReservationStatus newReservationStatus) {
+    private RentalStatus getNewRentalStatusForNewReservationStatus(ReservationStatus newReservationStatus, String mode) {
         RentalStatus newRentalStatus;
         if (newReservationStatus.equals(ReservationStatus.PICKED_UP)) {
-            newRentalStatus = RentalStatus.RENTED;
+            if ("MAINTENANCE".equalsIgnoreCase(mode)) {
+                newRentalStatus = RentalStatus.MAINTENANCE;
+            } else {
+                newRentalStatus = RentalStatus.RENTED;
+            }
         } else if (newReservationStatus.equals(ReservationStatus.RETURNED)) {
             newRentalStatus = RentalStatus.FREE;
         } else {
