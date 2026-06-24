@@ -16,7 +16,9 @@ import {ToastrService} from "ngx-toastr";
 import {ReservationCreationWithMode} from "../../../dtos/reservation-creation-with-mode";
 import {StaffService} from '../../../services/staff.service';
 import {CustomerSearch} from '../../../dtos/customer-search';
+import {CustomerSearchResponse} from '../../../dtos/customer-search-response';
 import {BarcodeFormat} from '@zxing/library';
+import {UserType} from "../../../dtos/usertype";
 
 @Component({
   selector: 'app-barcode-scanner',
@@ -43,7 +45,7 @@ export class BarcodeScannerComponent implements OnInit {
   successMessage = '';
 
   walkInForm!: FormGroup;
-  allUsers: any[] = [];
+  allUsers: CustomerSearchResponse[] = [];
   filteredProfiles: CustomerProfile[] = [];
   submitLoading = false;
   submitError: string | null = null;
@@ -556,11 +558,22 @@ export class BarcodeScannerComponent implements OnInit {
 
   //Loads all customerAccounts for the dropdown
   private loadAllSystemUsers(): void {
-    // TODO: Replace with real API-call from UserService when ready
-    this.allUsers = [
-      {id: 1, username: 'Hans'},
-      {id: 2, username: 'Not Actually An User'}
-    ];
+    const search: CustomerSearch = {};
+
+    this.staffService.searchCustomers(search).subscribe({
+      next: (customers) => {
+        if (customers) {
+          this.allUsers = customers || [];
+        } else {
+          this.allUsers = [];
+        }
+      },
+      error: (err) => {
+        this.loading = false;
+        console.error('Failed to load all system users:', err);
+        this.errorMessage = this.translateService.instant('BARCODE_SCANNER.ERROR_UNEXPECTED');
+      }
+    });
   }
 
   //Loads the customerProfiles for the selected customerAccount
