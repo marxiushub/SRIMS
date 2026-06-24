@@ -658,7 +658,7 @@ public class ReservationServiceTest {
     @Test
     public void reservationById_withNullUserId_throwsAccessDenied() {
         when(currentUserService.hasAuthority("STAFF")).thenReturn(false);
-        when(currentUserService.getUserId()).thenReturn(null);
+        when(currentUserService.getUserId()).thenReturn(testCustomer.getId());
 
         ReservationCreationDto createDto = createReservationCreationDto(
             testCustomerProfile.getId(),
@@ -669,6 +669,8 @@ public class ReservationServiceTest {
         );
 
         ReservationDetailDto created = reservationService.createReservation(createDto);
+
+        when(currentUserService.getUserId()).thenReturn(null);
 
         assertThatThrownBy(() ->
             reservationService.reservationById(created.getId())

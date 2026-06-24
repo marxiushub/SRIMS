@@ -8,7 +8,6 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.Reservat
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.ReservationStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Permission;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Role;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Helmet;
@@ -16,6 +15,8 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Ski;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.Customer;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.Staff;
+import at.ac.tuwien.sepr.groupphase.backend.repository.RoleRepository;
+import at.ac.tuwien.sepr.groupphase.backend.security.CurrentUserService;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.ReservationService;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +26,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
@@ -36,6 +38,7 @@ import java.util.UUID;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -61,6 +64,12 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
     @Autowired
     private SecurityProperties securityProperties;
 
+    @Autowired
+    private RoleRepository roleRepository;
+
+    @MockitoBean
+    private CurrentUserService currentUserService;
+
     private Customer testCustomer;
     private Staff testStaff;
     private CustomerProfile testProfile;
@@ -85,14 +94,17 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
 
     @BeforeEach
     public void setup() {
+        Role staffRole = roleRepository.findByName("ROLE_STAFF").orElseThrow();
+        Role customerRole = roleRepository.findByName("ROLE_CUSTOMER").orElseThrow();
+
         String uniqueSuffix = UUID.randomUUID().toString();
 
         testStaff = new Staff(
             "reservation_test_staff_" + uniqueSuffix,
             "hashedPassword",
             "reservation.test.staff." + uniqueSuffix + "@example.com",
-            Set.<Role>of(),
-            Set.<Permission>of()
+            Set.of(staffRole),
+            Set.of()
         );
         testStaff = staffRepository.save(testStaff);
 
@@ -100,7 +112,7 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
             "reservation_test_user_" + uniqueSuffix,
             "hashedPassword",
             "reservation.test.user." + uniqueSuffix + "@example.com",
-            Set.of(),
+            Set.of(customerRole),
             Set.of(),
             "Test",
             "User",
@@ -135,6 +147,9 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
             SkillLevel.ADVANCED
         );
         testEquipment2 = equipmentRepository.save(testEquipment2);
+
+        when(currentUserService.getUserId()).thenReturn(testCustomer.getId());
+        when(currentUserService.hasAuthority("STAFF")).thenReturn(false);
     }
 
     @Test
@@ -491,6 +506,8 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
             99999L,
             USER_PERMISSIONS
         );
+
+        when(currentUserService.getUserId()).thenReturn(99999L);
 
         assertDoesNotThrow(() -> mockMvc.perform(get("/api/v1/reservation/{id}", created.getId())
                 .header(securityProperties.getAuthHeader(), differentToken)

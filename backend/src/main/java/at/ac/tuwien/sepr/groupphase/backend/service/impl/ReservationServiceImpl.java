@@ -93,7 +93,26 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
 
         validator.validateCreateDto(dto);
 
+        boolean isStaff = currentUserService.hasAuthority("STAFF");
+
         CustomerProfile profile = customerProfileRepository.getReferenceById(dto.getCustomerProfileId());
+
+
+        if (!isStaff) {
+
+            Long userId = currentUserService.getUserId();
+            Long customerId = profile.getCustomer().getId();
+
+            if (userId == null || !userId.equals(customerId)) {
+                throw new AccessDeniedException("You are not allowed to create a reservation "
+                    + "for a profile that does not belong to the you.");
+            }
+
+            if (dto.getReservationStatus() != ReservationStatus.CREATED) {
+                throw new ValidationException("Customers can only create reservations with status CREATED.");
+            }
+
+        }
 
         Reservation reservation = new Reservation(
             profile,
