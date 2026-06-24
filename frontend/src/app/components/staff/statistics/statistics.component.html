@@ -81,7 +81,9 @@
                 <div class="chart-column-wrapper">
                   <div class="chart-bar"
                        [style.height.%]="(row.daysRented / maxDaysRented) * 100"
-                       title="{{ row.daysRented }} Tage">
+                       title="{{ row.daysRented }} Tage"
+                       (click)="openDetailPage(row)"
+                  >
                   </div>
                 </div>
               }

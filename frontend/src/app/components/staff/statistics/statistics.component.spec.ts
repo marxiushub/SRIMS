@@ -124,9 +124,9 @@ describe('StatisticsComponent', () => {
 
       expect(component.tableRows.length).toBe(3);
 
-      expect(component.tableRows[0]).toEqual({ label: '#102', daysRented: 7 });
-      expect(component.tableRows[1]).toEqual({ label: '#101', daysRented: 3 });
-      expect(component.tableRows[2]).toEqual({ label: '#103', daysRented: 1 });
+      expect(component.tableRows[0]).toEqual({ label: '#102', daysRented: 7, id: '102' });
+      expect(component.tableRows[1]).toEqual({ label: '#101', daysRented: 3, id: '101' });
+      expect(component.tableRows[2]).toEqual({ label: '#103', daysRented: 1, id: '103' });
     });
 
     it('should handle API errors gracefully and set errorMessageKey', () => {

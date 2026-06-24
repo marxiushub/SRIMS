@@ -42,7 +42,7 @@ public class BarcodeScannerEndpoint {
      * @param reservationUpdateDto A DTO of the reservation that the check-in or check-out should happen for.
      * @return The updated details of the reservation we checked in or out for.
      */
-    @PreAuthorize("hasAnyAuthority('CHECK_OUT_OR_IN_SCAN')")
+    @PreAuthorize("hasAnyAuthority('CHECK_OUT_OR_IN_SCAN') and hasAuthority('STAFF')")
     @ResponseStatus(HttpStatus.OK)
     @PatchMapping("/{id}")
     public ReservationDetailDto checkOutOrInScanWithExistingReservation(
@@ -58,7 +58,7 @@ public class BarcodeScannerEndpoint {
      * @param reservationCreationDto A DTO of the reservation that should be created for the check-out.
      * @return The details of the created Reservation we checked out with.
      */
-    @PreAuthorize("hasAnyAuthority('CHECK_OUT_OR_IN_SCAN')")
+    @PreAuthorize("hasAnyAuthority('CHECK_OUT_OR_IN_SCAN') and hasAuthority('STAFF')")
     @ResponseStatus(HttpStatus.OK)
     @PostMapping
     public ReservationDetailDto checkOutScanWithoutExistingReservation(
