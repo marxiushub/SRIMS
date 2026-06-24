@@ -44,6 +44,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/customer/create").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/equipment").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
+                .requestMatchers(HttpMethod.PATCH, "/api/v1/customer/password-resets/**").permitAll()
                 .anyRequest().authenticated()
             )
             //End
