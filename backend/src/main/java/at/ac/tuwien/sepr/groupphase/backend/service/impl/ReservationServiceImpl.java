@@ -152,7 +152,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
             }
         }
 
-        if(reservation.getReservationStatus() == ReservationStatus.PICKED_UP) {
+        if (reservation.getReservationStatus() == ReservationStatus.PICKED_UP) {
             throw new ValidationException("Reservations can only be deleted if they have not been picked up.");
         }
 
@@ -204,7 +204,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
      */
     private void applyUpdateCommon(Reservation reservation, ReservationUpdateDto dto, boolean isStaff) {
 
-        if(reservation.getReservationStatus() == ReservationStatus.PICKED_UP) {
+        if (reservation.getReservationStatus() == ReservationStatus.PICKED_UP) {
             throw new ValidationException("Reservations can only be deleted if they have not been picked up.");
         }
 
