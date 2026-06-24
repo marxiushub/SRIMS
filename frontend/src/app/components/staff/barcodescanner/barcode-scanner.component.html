@@ -9,9 +9,9 @@
     <div class="card-body">
       @if (isCameraOpen) {
         <div class="camera-container mb-4">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h5 class="m-0 text-primary">Camera Scanner</h5>
-            <button class="btn btn-outline-danger btn-sm"
+          <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 gap-2">
+            <h5 class="m-0 text-primary text-nowrap">Camera Scanner</h5>
+            <button class="btn btn-outline-danger btn-sm text-nowrap"
                     (click)="closeCamera()">{{ 'BARCODE_SCANNER.CLOSE_CAMERA' | translate }}
             </button>
           </div>
@@ -35,7 +35,7 @@
         </div>
       }
 
-      <form class="d-flex gap-2" (ngSubmit)="searchEquipment()">
+      <form class="d-flex flex-wrap gap-2" (ngSubmit)="searchEquipment()">
         <div class="flex-grow-1">
           <input
             type="text"
@@ -47,14 +47,14 @@
             autofocus
           />
         </div>
-        <button type="button" class="btn btn-outline-secondary" (click)="openCamera()"
-                [disabled]="loading || isCameraOpen || scanScenario === 'CONFLICT_RESERVATION' || equipmentScenario === 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED'">
-          <i class="bi bi-camera-fill"></i> {{ 'BARCODE_SCANNER.OPEN_CAMERA' | translate }}
-        </button>
-        <button class="btn btn-primary btn-lg"
+        <button class="btn btn-primary btn-lg text-nowrap"
                 type="submit"
                 [disabled]="loading || scanScenario === 'CONFLICT_RESERVATION' || equipmentScenario === 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED'">
           {{ 'BARCODE_SCANNER.BTN_CHECK' | translate }}
+        </button>
+        <button type="button" class="btn btn-outline-secondary text-nowrap" (click)="openCamera()"
+                [disabled]="loading || isCameraOpen || scanScenario === 'CONFLICT_RESERVATION' || equipmentScenario === 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED'">
+          <i class="bi bi-camera-fill"></i> {{ 'BARCODE_SCANNER.OPEN_CAMERA' | translate }}
         </button>
       </form>
     </div>
@@ -269,62 +269,87 @@
     <div class="card-header bg-light fw-bold">
       {{ 'BARCODE_SCANNER.SCANNED_LIST_TITLE' | translate }} ({{ scannedEquipments.length }})
     </div>
-    <div class="card-body p-0">
 
+    <div class="card-body p-0">
       @if (scannedEquipments.length === 0) {
         <div class="p-4 text-center text-muted">
           {{ 'BARCODE_SCANNER.NO_EQUIPMENT_SCANNED' | translate }}
         </div>
       } @else {
-        <table class="table table-hover table-striped align-middle mb-0">
-          <thead>
-          <tr>
-            <th>{{ 'INVENTORY.EQUIPMENT_MODEL' | translate }}</th>
-            <th>{{ 'INVENTORY.EQUIPMENT_TYP' | translate }}</th>
-            <th>{{ 'INVENTORY.EQUIPMENT_STATUS' | translate }}</th>
-            <th>{{ 'INVENTORY.EQUIPMENT_SKILL' | translate }}</th>
-            <th>{{ 'INVENTORY.EQUIPMENT_PRICE' | translate }}</th>
-            <th>{{ 'INVENTORY.EQUIPMENT_ACTIONS' | translate }}</th>
-          </tr>
-          </thead>
-          <tbody>
-            @for (item of scannedEquipments; track item.id) {
-              <tr>
-                <td>{{ item.model }}</td>
-                <td>{{ 'EQUIPMENT_TYPE.' + item.equipmentType | translate }}</td>
-                <td>
-                  <span class="badge" [ngClass]="getStatusClass(item.status)">
-                    {{ 'RENTAL_STATUS.' + item.status | translate }}
-                  </span>
-                </td>
-                <td>{{ 'SKILL_LEVEL.' + item.targetSkillLevel | translate }}</td>
-                <td>{{ item.price | currency:'EUR':'symbol':'1.2-2':(translateService.currentLang || 'de') }}</td>
-                <td>
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-outline-danger"
-                    (click)="removeEquipmentFromList(item)">
-                    {{ 'BARCODE_SCANNER.REMOVE_FROM_LIST' | translate }}
-                  </button>
-                </td>
-              </tr>
-            }
-          </tbody>
 
-          @if (scannedItemsTotalPrice > 0) {
-            <tfoot>
-              <tr class="table-group-divider bg-light">
-                <td colspan="4" class="text-end fw-bold fs-5 py-3">
-                  {{ 'RESERVATION.TOTAL_PRICE' | translate }} ({{ scanScenario === 'NO_RESERVATION' ? ('BARCODE_SCANNER.WALK_IN_TITLE' | translate) : ('RESERVATION.TITLE_OVERVIEW' | translate) }}):
-                </td>
-                <td colspan="2" class="fw-bold text-primary fs-5 py-3 font-monospace">
-                  {{ scannedItemsTotalPrice | currency:'EUR':'symbol':'1.2-2':'de-AT' }}
-                </td>
-              </tr>
-            </tfoot>
+        <!-- Card list: small screens -->
+        <div class="d-xl-none d-flex flex-column gap-2 p-2" style="max-height: 350px; overflow-y: auto;">
+          @for (item of scannedEquipments; track item.id) {
+            <div class="inv-card">
+              <div class="d-flex align-items-center gap-2">
+                <p class="fw-medium mb-0 text-truncate flex-fill">{{ item.model }}</p>
+                <span class="badge ms-2 text-nowrap" [ngClass]="getStatusClass(item.status)">
+              {{ 'RENTAL_STATUS.' + item.status | translate }}
+            </span>
+              </div>
+              <p class="text-muted small mb-1">{{ 'EQUIPMENT_TYPE.' + item.equipmentType | translate }}</p>
+              <div class="d-flex align-items-center gap-2">
+            <span class="small text-muted flex-fill">
+              <i class="bi bi-person me-1"></i>{{ 'SKILL_LEVEL.' + item.targetSkillLevel | translate }}
+            </span>
+                <span class="small fw-medium fs-6 fw-bold">
+              {{ item.price | currency:'EUR':'symbol':'1.2-2':(translateService.currentLang || 'de') }}
+            </span>
+              </div>
+              <div class="mt-2 text-end">
+                <button type="button" class="btn btn-sm btn-outline-danger"
+                        (click)="removeEquipmentFromList(item)">
+                  {{ 'BARCODE_SCANNER.REMOVE_FROM_LIST' | translate }}
+                </button>
+              </div>
+            </div>
           }
+        </div>
 
-        </table>
+        <!-- Table-style card list: xl+ screens -->
+        <div class="d-none d-xl-flex flex-column p-2" style="max-height: 250px; overflow-y: auto;">
+          @for (item of scannedEquipments; track item.id) {
+            <div class="inv-card">
+              <div class="inv-col-model">
+                <p class="inv-model-name">{{ item.model }}</p>
+              </div>
+              <div class="inv-col-type">
+                {{ 'EQUIPMENT_TYPE.' + item.equipmentType | translate }}
+              </div>
+              <div class="inv-col-skill">
+                <i class="bi bi-person me-1"></i>{{ 'SKILL_LEVEL.' + item.targetSkillLevel | translate }}
+              </div>
+              <div class="inv-col-price fs-6 fw-bold">
+                {{ item.price | currency:'EUR':'symbol':'1.2-2':(translateService.currentLang || 'de') }}
+              </div>
+              <div class="inv-col-badge">
+            <span class="badge" [ngClass]="getStatusClass(item.status)">
+              {{ 'RENTAL_STATUS.' + item.status | translate }}
+            </span>
+              </div>
+              <div class="inv-col-actions">
+                <button type="button" class="btn btn-sm btn-outline-danger"
+                        (click)="removeEquipmentFromList(item)">
+                  {{ 'BARCODE_SCANNER.REMOVE_FROM_LIST' | translate }}
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Total price footer -->
+        @if (scannedItemsTotalPrice > 0) {
+          <div class="d-flex justify-content-end align-items-center gap-3 px-3 py-2 border-top bg-light">
+        <span class="fw-bold fs-5">
+          {{ 'RESERVATION.TOTAL_PRICE' | translate }}
+          ({{ scanScenario === 'NO_RESERVATION' ? ('BARCODE_SCANNER.WALK_IN_TITLE' | translate) : ('RESERVATION.TITLE_OVERVIEW' | translate) }}
+          ):
+        </span>
+            <span class="fw-bold text-primary fs-5 font-monospace">
+          {{ scannedItemsTotalPrice | currency:'EUR':'symbol':'1.2-2':'de-AT' }}
+        </span>
+          </div>
+        }
       }
     </div>
   </div>
