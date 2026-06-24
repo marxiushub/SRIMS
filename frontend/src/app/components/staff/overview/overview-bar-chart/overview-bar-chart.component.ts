@@ -23,11 +23,17 @@ export class OverviewBarChartComponent {
 
   private _counts: Record<EquipmentType, Record<RentalStatus, number>> | null = null;
   rows: BarRow[] = [];
+  totalFree = 0;
+  totalRented = 0;
+  totalMaintenance = 0;
 
   @Input()
   set counts(value: Record<EquipmentType, Record<RentalStatus, number>> | null) {
     this._counts = value;
     this.rows = this.buildRows(value);
+    this.totalFree = this.rows.reduce((sum, row) => sum + row.freeCount, 0);
+    this.totalRented = this.rows.reduce((sum, row) => sum + row.rentedCount, 0);
+    this.totalMaintenance = this.rows.reduce((sum, row) => sum + row.maintenanceCount, 0);
   }
 
   get counts(): Record<EquipmentType, Record<RentalStatus, number>> | null {
