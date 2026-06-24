@@ -50,6 +50,13 @@ export class AuthService {
     return !!expirationDate && (expirationDate.valueOf() > new Date().valueOf());
   }
 
+  /**
+   * Check if the user is a staff member based on the current token
+   */
+  isStaff(): boolean {
+    return this.getUserRole() === 'ADMIN';
+  }
+
   logoutUser() {
     console.log('Logout');
     localStorage.removeItem('authToken');
