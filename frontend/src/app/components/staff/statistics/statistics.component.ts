@@ -6,10 +6,13 @@ import { StatisticsService } from '../../../services/statistics.service';
 import { StatisticsRequestDto } from '../../../dtos/statistics-request';
 import { StatisticsResponseDto } from '../../../dtos/statistics-response';
 import { EquipmentType } from '../../../dtos/equipmenttype';
+import {Equipment} from "../../../dtos/equipment";
+import {Router} from "@angular/router";
 
 interface RenderedRow {
   label: string;
   daysRented: number;
+  id?: string;
 }
 
 @Component({
@@ -30,7 +33,8 @@ export class StatisticsComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private statisticsService: StatisticsService
+    private statisticsService: StatisticsService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -44,6 +48,9 @@ export class StatisticsComponent implements OnInit {
       type: [''],
       detailDegree: [false]
     });
+  }
+  openDetailPage(row: RenderedRow): void {
+    this.router.navigate(['/staff/inventory/view', row.id]);
   }
 
   onSubmit(): void {
@@ -66,7 +73,8 @@ export class StatisticsComponent implements OnInit {
         if (response.detailDegree && response.itemCounts) {
           this.tableRows = Object.entries(response.itemCounts).map(([id, days]) => ({
             label: `#${id}`,
-            daysRented: days
+            daysRented: days,
+            id: id
           }));
         } else if (!response.detailDegree && response.modelCounts) {
           this.tableRows = Object.entries(response.modelCounts).map(([modelName, days]) => ({
