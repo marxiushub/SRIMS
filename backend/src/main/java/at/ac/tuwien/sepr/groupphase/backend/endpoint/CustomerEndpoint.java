@@ -81,6 +81,19 @@ public class CustomerEndpoint {
     }
 
     /**
+     * Endpoint to reset the password of an existing customer account.
+     *
+     * @param id the ID of the customer whose password should be reset
+     * @return the updated customer
+     */
+    @PreAuthorize("hasAuthority('CUSTOMER_UPDATE')")
+    @PatchMapping("/password-resets/{id}")
+    public UserDetailDto resetPassword(@PathVariable("id") Long id) {
+        LOGGER.info("PATCH /api/v1/staff/password-resets/{}", id);
+        return userService.resetPassword(id);
+    }
+
+    /**
      * Endpoint to delete an existing Customer account.
      *
      * @param id the ID of the Costumer user to delete

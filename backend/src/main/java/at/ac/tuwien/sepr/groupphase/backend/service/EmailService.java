@@ -2,6 +2,8 @@ package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.Reservation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
+import at.ac.tuwien.sepr.groupphase.backend.entity.user.ApplicationUser;
+
 import java.util.List;
 
 /**
@@ -52,4 +54,12 @@ public interface EmailService {
      * @param reservation reservation details including customer information and dates
      */
     void sendPickUpReminderEmail(List<Equipment> equipmentList, Reservation reservation);
+
+    /**
+     * Sends a password reset email to the specified user with a temporary password.
+     *
+     * @param tempPassword temporary password for the user to reset their account
+     * @param user the user receiving the password reset email
+     */
+    void sendPasswordResetEmail(String tempPassword, ApplicationUser user);
 }
