@@ -260,12 +260,22 @@
                       <span class="text-dark">{{ eq.model }}</span>
                       <span class="text-muted">({{ 'EQUIPMENT_TYPE.' + eq.equipmentType | translate }})</span>
                     </div>
-                    @if (eq.barcodeId) {
-                      <span class="font-monospace bg-light border px-2 rounded text-dark ms-auto"
-                            style="font-size: 0.8rem;">
-                        <i class="bi bi-upc-scan me-1 text-muted"></i>{{ eq.barcodeId }}
-                      </span>
-                    }
+                    <div class="d-flex align-items-center gap-2 ms-auto">
+                      @if (eq.barcodeId) {
+                        <span class="font-monospace bg-light border px-2 rounded text-dark ms-auto"
+                              style="font-size: 0.8rem;">
+                          <i class="bi bi-upc-scan me-1 text-muted"></i>{{ eq.barcodeId }}
+                        </span>
+                      }
+                      <span class="small">{{ 'SKILL_LEVEL.' + eq.targetSkillLevel | translate }}</span>
+                      @if (scanScenario === 'SINGLE_RESERVATION' &&
+                      item.reservationStatus === ReservationStatus.CREATED) {
+                        <button type="button" class="btn btn-xs btn-danger py-0 px-2" style="font-size: 0.75rem;"
+                                (click)="removeEquipmentFromExistingReservation(eq.id)" [disabled]="loading">
+                          <i class="bi bi-trash"></i> Remove
+                        </button>
+                      }
+                    </div>
                   </div>
                 } @empty {
                   <div class="p-2 text-muted small text-center">
@@ -339,10 +349,17 @@
                     <div class="d-flex align-items-center gap-3 font-monospace text-end" style="font-size: 0.8rem;">
                       @if (eq.barcodeId) {
                         <span class="bg-light border px-2 py-0 rounded text-dark">
-                  <i class="bi bi-upc-scan me-1 text-muted"></i>{{ eq.barcodeId }}
-                </span>
+                          <i class="bi bi-upc-scan me-1 text-muted"></i>{{ eq.barcodeId }}
+                        </span>
                       }
                       <span class="small">{{ 'SKILL_LEVEL.' + eq.targetSkillLevel | translate }}</span>
+                      @if (scanScenario === 'SINGLE_RESERVATION' &&
+                      item.reservationStatus === ReservationStatus.CREATED) {
+                        <button type="button" class="btn btn-sm btn-danger py-0 px-2"
+                                (click)="removeEquipmentFromExistingReservation(eq.id)" [disabled]="loading">
+                          <i class="bi bi-trash me-1"></i> Remove From Reservation
+                        </button>
+                      }
                     </div>
                   </div>
                 } @empty {
@@ -378,20 +395,31 @@
               <div class="d-flex align-items-center gap-2">
                 <p class="fw-medium mb-0 text-truncate flex-fill">{{ item.model }}</p>
                 <span class="badge ms-2 text-nowrap" [ngClass]="getStatusClass(item.status)">
-              {{ 'RENTAL_STATUS.' + item.status | translate }}
-            </span>
+          {{ 'RENTAL_STATUS.' + item.status | translate }}
+        </span>
               </div>
               <p class="text-muted small mb-1">{{ 'EQUIPMENT_TYPE.' + item.equipmentType | translate }}</p>
               <div class="d-flex align-items-center gap-2">
-            <span class="small text-muted flex-fill">
-              <i class="bi bi-person me-1"></i>{{ 'SKILL_LEVEL.' + item.targetSkillLevel | translate }}
-            </span>
+        <span class="small text-muted flex-fill">
+          <i class="bi bi-person me-1"></i>{{ 'SKILL_LEVEL.' + item.targetSkillLevel | translate }}
+        </span>
                 <span class="small fw-medium fs-6 fw-bold">
-              {{ item.price | currency:'EUR':'symbol':'1.2-2':(translateService.currentLang || 'de') }}
-            </span>
+          {{ item.price | currency:'EUR':'symbol':'1.2-2':(translateService.currentLang || 'de') }}
+        </span>
               </div>
-              <div class="mt-2 text-end">
-                <button type="button" class="btn btn-sm btn-outline-danger"
+              <div class="mt-2 d-flex justify-content-between align-items-center gap-2">
+
+                @if (scanScenario === 'SINGLE_RESERVATION' &&
+                equipmentScenario === 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED' &&
+                matchedReservations[0]?.reservationStatus === ReservationStatus.CREATED &&
+                isEquipmentUnreserved(item.id)) {
+                  <button type="button" class="btn btn-sm btn-success"
+                          (click)="addEquipmentToExistingReservation(item.id)" [disabled]="loading">
+                    <i class="bi bi-plus-lg me-1"></i> Add to Reservation
+                  </button>
+                }
+
+                <button type="button" class="btn btn-sm btn-outline-danger ms-auto"
                         (click)="removeEquipmentFromList(item)">
                   {{ 'BARCODE_SCANNER.REMOVE_FROM_LIST' | translate }}
                 </button>
@@ -417,11 +445,22 @@
                 {{ item.price | currency:'EUR':'symbol':'1.2-2':(translateService.currentLang || 'de') }}
               </div>
               <div class="inv-col-badge">
-            <span class="badge" [ngClass]="getStatusClass(item.status)">
-              {{ 'RENTAL_STATUS.' + item.status | translate }}
-            </span>
+        <span class="badge" [ngClass]="getStatusClass(item.status)">
+          {{ 'RENTAL_STATUS.' + item.status | translate }}
+        </span>
               </div>
-              <div class="inv-col-actions">
+              <div class="inv-col-actions d-flex gap-2">
+
+                @if (scanScenario === 'SINGLE_RESERVATION' &&
+                equipmentScenario === 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED' &&
+                matchedReservations[0]?.reservationStatus === ReservationStatus.CREATED &&
+                isEquipmentUnreserved(item.id)) {
+                  <button type="button" class="btn btn-sm btn-success text-nowrap"
+                          (click)="addEquipmentToExistingReservation(item.id)" [disabled]="loading">
+                    <i class="bi bi-plus-lg me-1"></i> Add to Reservation
+                  </button>
+                }
+
                 <button type="button" class="btn btn-sm btn-outline-danger"
                         (click)="removeEquipmentFromList(item)">
                   {{ 'BARCODE_SCANNER.REMOVE_FROM_LIST' | translate }}
