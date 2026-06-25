@@ -695,7 +695,7 @@ public class CustomerProfileServiceTest {
 
         assertThrows(
             ValidationException.class,
-            () -> customerProfileService.updateCustomerProfile(profile.getId(), dto)
+            () -> customerProfileService.updateCustomerProfile(profile.getId(), dto));
 
     @Test
     public void deleteCustomerProfile_withExistingReservations_throwsValidationException() {
