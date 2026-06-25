@@ -173,7 +173,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
 
         Reservation reservation = reservationRepository.getReferenceById(dto.getId());
 
-        applyUpdateCommon(reservation, dto, false);
+        applyUpdateCommon(reservation, dto, false, false);
 
         calculateAndSetTotalPrice(reservation);
         Reservation saved = reservationRepository.save(reservation);
@@ -182,7 +182,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
 
     @Transactional
     @Override
-    public ReservationDetailDto updateReservationStaff(ReservationUpdateDto dto) {
+    public ReservationDetailDto updateReservationStaff(ReservationUpdateDto dto, boolean isScan) {
         LOGGER.trace("update reservation {} with staff permissions", dto.getId());
 
 
@@ -190,7 +190,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
 
         Reservation reservation = reservationRepository.getReferenceById(dto.getId());
 
-        applyUpdateCommon(reservation, dto, true);
+        applyUpdateCommon(reservation, dto, true, isScan);
 
         calculateAndSetTotalPrice(reservation);
         Reservation saved = reservationRepository.save(reservation);
@@ -202,10 +202,9 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
      * If {@code isStaff} is true, staff-specific behavior (setting reservationStatus and
      * removing time periods when changed to RETURNED/CANCELLED) is applied.
      */
-    private void applyUpdateCommon(Reservation reservation, ReservationUpdateDto dto, boolean isStaff) {
-
-        if (reservation.getReservationStatus() == ReservationStatus.PICKED_UP) {
-            throw new ValidationException("Reservations can only be deleted if they have not been picked up.");
+    private void applyUpdateCommon(Reservation reservation, ReservationUpdateDto dto, boolean isStaff, boolean isScan) {
+        if (reservation.getReservationStatus() == ReservationStatus.PICKED_UP && !isScan) {
+            throw new ValidationException("Reservations that are PICKED_UP can only be updated or deleted as part of a scan.");
         }
 
         boolean datesChanged = (dto.getStartDate() != null && !dto.getStartDate().equals(reservation.getStartDate()))

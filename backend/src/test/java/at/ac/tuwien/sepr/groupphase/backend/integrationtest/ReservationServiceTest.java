@@ -207,7 +207,7 @@ public class ReservationServiceTest {
 
         double expectedTotalPrice = testEquipment2.getPrice() * (7 +1);
 
-        ReservationDetailDto updatedReservation = reservationService.updateReservationStaff(updateDto);
+        ReservationDetailDto updatedReservation = reservationService.updateReservationStaff(updateDto, false);
 
         assertAll(
             "Verify that the reservation was updated correctly",
@@ -699,7 +699,7 @@ public class ReservationServiceTest {
         updateDto.setId(created.getId());
         updateDto.setReservationStatus(ReservationStatus.PICKED_UP);
 
-        ReservationDetailDto updated = reservationService.updateReservationStaff(updateDto);
+        ReservationDetailDto updated = reservationService.updateReservationStaff(updateDto, false);
 
         assertAll(
             "Verify that null fields in DTO don't overwrite existing data",
