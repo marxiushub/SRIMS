@@ -5,6 +5,8 @@ import { StaffService } from './staff.service';
 import { Globals } from '../global/globals';
 import { CustomerSearch } from '../dtos/customer-search';
 import { CustomerSearchResponse } from '../dtos/customer-search-response';
+import { StaffSearchResponse } from '../dtos/staff-search-response';
+import { PasswordChange } from '../dtos/password-change';
 import { UserType } from '../dtos/usertype';
 
 describe('StaffService', () => {
@@ -87,77 +89,78 @@ describe('StaffService', () => {
 
       req.flush([]);
     });
+  });
 
-    describe('getById', () => {
-      it('should call GET with the correct URL and return the staff account', () => {
-        const mockResponse: StaffSearchResponse = {
-          id: 1,
-          userName: 'admin',
-          email: 'admin@srims.at',
-          userType: UserType.STAFF
-        };
+  describe('getById', () => {
+    it('should call GET with the correct URL and return the staff account', () => {
+      const mockResponse: StaffSearchResponse = {
+        id: 1,
+        userName: 'admin',
+        email: 'admin@srims.at',
+        userType: UserType.STAFF
+      };
 
-        service.getById(1).subscribe((response) => {
-          expect(response).toEqual(mockResponse);
-        });
-
-        const req = httpMock.expectOne(`${globals.backendUri}/staff/1`);
-        expect(req.request.method).toBe('GET');
-
-        req.flush(mockResponse);
+      service.getById(1).subscribe((response) => {
+        expect(response).toEqual(mockResponse);
       });
+
+      const req = httpMock.expectOne(`${globals.backendUri}/staff/1`);
+      expect(req.request.method).toBe('GET');
+
+      req.flush(mockResponse);
+    });
+  });
+
+  describe('changePassword', () => {
+    it('should call PATCH with the correct URL and body', () => {
+      const passwordChange: PasswordChange = {
+        oldPassword: 'oldPass1!',
+        newPassword: 'NewPass1!'
+      };
+
+      const mockResponse: StaffSearchResponse = {
+        id: 1,
+        userName: 'admin',
+        email: 'admin@srims.at',
+        userType: UserType.STAFF
+      };
+
+      service.changePassword(1, passwordChange).subscribe((response) => {
+        expect(response).toEqual(mockResponse);
+      });
+
+      const req = httpMock.expectOne(`${globals.backendUri}/staff/password/1`);
+      expect(req.request.method).toBe('PATCH');
+      expect(req.request.body).toEqual(passwordChange);
+
+      req.flush(mockResponse);
+    });
+  });
+
+  describe('resetPasswordForStaff', () => {
+    it('should call PATCH with the correct URL and no request body', () => {
+      const email = 'staffmember@example.com';
+
+      service.resetPasswordForStaff(email).subscribe((response) => {
+        expect(response).toBeTruthy();
+      });
+
+      const req = httpMock.expectOne(`${globals.backendUri}/staff/password-resets/${encodeURIComponent(email)}`);
+      expect(req.request.method).toBe('PATCH');
+      expect(req.request.body).toBeNull();
+
+      req.flush({});
     });
 
-    describe('changePassword', () => {
-      it('should call PATCH with the correct URL and body', () => {
-        const passwordChange: PasswordChange = {
-          oldPassword: 'oldPass1!',
-          newPassword: 'NewPass1!'
-        };
+    it('should correctly encode special characters in the email', () => {
+      const email = 'staff+test@example.com';
 
-        const mockResponse: StaffSearchResponse = {
-          id: 1,
-          userName: 'admin',
-          email: 'admin@srims.at',
-          userType: UserType.STAFF
-        };
+      service.resetPasswordForStaff(email).subscribe();
 
-        service.changePassword(1, passwordChange).subscribe((response) => {
-          expect(response).toEqual(mockResponse);
-        });
+      const req = httpMock.expectOne(`${globals.backendUri}/staff/password-resets/${encodeURIComponent(email)}`);
+      expect(req.request.method).toBe('PATCH');
 
-        const req = httpMock.expectOne(`${globals.backendUri}/staff/password/1`);
-        expect(req.request.method).toBe('PATCH');
-        expect(req.request.body).toEqual(passwordChange);
-
-        req.flush(mockResponse);
-      });
+      req.flush({});
     });
-
-    describe('resetPasswordForStaff', () => {
-      it('should call PATCH with the correct URL and no request body', () => {
-        const email = 'staffmember@example.com';
-
-        service.resetPasswordForStaff(email).subscribe((response) => {
-          expect(response).toBeTruthy();
-        });
-
-        const req = httpMock.expectOne(`${globals.backendUri}/staff/password-resets/${encodeURIComponent(email)}`);
-        expect(req.request.method).toBe('PATCH');
-        expect(req.request.body).toBeNull();
-
-        req.flush({});
-      });
-
-      it('should correctly encode special characters in the email', () => {
-        const email = 'staff+test@example.com';
-
-        service.resetPasswordForStaff(email).subscribe();
-
-        const req = httpMock.expectOne(`${globals.backendUri}/staff/password-resets/${encodeURIComponent(email)}`);
-        expect(req.request.method).toBe('PATCH');
-
-        req.flush({});
-      });
   });
 });
