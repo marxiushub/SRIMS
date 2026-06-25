@@ -47,13 +47,13 @@ class BarcodeScannerServiceTest {
         mockReturnDto.setId(1L);
         mockReturnDto.setReservationStatus(ReservationStatus.PICKED_UP);
 
-        when(reservationService.updateReservationStaff(updateDto)).thenReturn(mockReturnDto);
+        when(reservationService.updateReservationStaff(updateDto, true)).thenReturn(mockReturnDto);
 
         ReservationDetailDto result = barcodeScannerService.checkOutOrInWithExistingReservation(updateDto);
 
         assertAll(
             () -> assertThat(result).isEqualTo(mockReturnDto),
-            () -> verify(reservationService, times(1)).updateReservationStaff(updateDto),
+            () -> verify(reservationService, times(1)).updateReservationStaff(updateDto, true),
             () -> verify(equipmentService, times(1)).updateEquipmentStatuses(List.of(10L, 20L), RentalStatus.RENTED)
         );
     }
@@ -68,13 +68,13 @@ class BarcodeScannerServiceTest {
         ReservationDetailDto mockReturnDto = new ReservationDetailDto();
         mockReturnDto.setId(2L);
 
-        when(reservationService.updateReservationStaff(updateDto)).thenReturn(mockReturnDto);
+        when(reservationService.updateReservationStaff(updateDto, true)).thenReturn(mockReturnDto);
 
         ReservationDetailDto result = barcodeScannerService.checkOutOrInWithExistingReservation(updateDto);
 
         assertAll(
             () -> assertThat(result).isEqualTo(mockReturnDto),
-            () -> verify(reservationService, times(1)).updateReservationStaff(updateDto),
+            () -> verify(reservationService, times(1)).updateReservationStaff(updateDto, true),
             () -> verify(equipmentService, times(1)).updateEquipmentStatuses(List.of(30L), RentalStatus.FREE)
         );
     }
@@ -87,7 +87,7 @@ class BarcodeScannerServiceTest {
         updateDto.setReservationStatus(ReservationStatus.CREATED); // CREATED is invalid for check-in/out
 
 
-        when(reservationService.updateReservationStaff(updateDto)).thenReturn(new ReservationDetailDto());
+        when(reservationService.updateReservationStaff(updateDto, true)).thenReturn(new ReservationDetailDto());
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
             barcodeScannerService.checkOutOrInWithExistingReservation(updateDto)

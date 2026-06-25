@@ -45,7 +45,7 @@ public class BarcodeScannerServiceImpl implements BarcodeScannerService {
     public ReservationDetailDto checkOutOrInWithExistingReservation(ReservationUpdateDto reservationUpdateDto) {
         LOGGER.info("CheckIn or Checkout with Existing Reservation with ReservationID " + reservationUpdateDto.getId());
 
-        ReservationDetailDto returnDto = reservationService.updateReservationStaff(reservationUpdateDto);
+        ReservationDetailDto returnDto = reservationService.updateReservationStaff(reservationUpdateDto, true);
         List<Long> equipmentIds = reservationUpdateDto.getEquipmentIds();
         RentalStatus newRentalStatus = getNewRentalStatusForNewReservationStatus(reservationUpdateDto.getReservationStatus(), "RENTED");
         equipmentService.updateEquipmentStatuses(equipmentIds, newRentalStatus);

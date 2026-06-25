@@ -113,7 +113,7 @@ public class ReservationEndpoint {
         @Valid @RequestBody ReservationUpdateDto updateDto
     ) {
         LOGGER.info("PATCH /api/v1/reservation/staff/{} - Body: {}", updateDto.getId(), updateDto);
-        return service.updateReservationStaff(updateDto);
+        return service.updateReservationStaff(updateDto, false);
     }
 
     /**
