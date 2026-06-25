@@ -45,6 +45,12 @@
       @if (isLoading) { <span>{{ 'STAFF.STATISTICS.FILTER.LOADING' | translate }}</span> }
       @else { <span>{{ 'STAFF.STATISTICS.FILTER.GENERATE' | translate }}</span> }
     </button>
+
+    @if (emptyReturnList) {
+      <div class="alert alert-danger mb-3" style="margin-top: 10px;">
+        {{ 'STAFF.STATISTICS.MESSAGES.ERROR' | translate }}
+      </div>
+    }
   </form>
 
 
