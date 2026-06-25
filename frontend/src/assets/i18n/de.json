@@ -34,7 +34,7 @@
     "DATE_OF_BIRTH_FUTURE": "Das Geburtsdatum darf nicht in der Zukunft liegen!",
     "ALREADY_LOGGED_IN": "Sie sind bereits eingeloggt.",
     "LOGIN_SUCCESS": "Erfolgreich angemeldet.",
-    "REGISTER_SUCCESS": "Erfolgreich registriert. Bitte loggen Sie sich ein.",
+    "REGISTER_SUCCESS": "Erfolgreich registriert.",
     "LOGOUT_SUCCESS": "Erfolgreich ausgeloggt."
   },
   "INVENTORY": {

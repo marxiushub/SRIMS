@@ -9,6 +9,7 @@ import {CustomerProfile} from "../../../../dtos/customer-profile";
 import {CustomerProfileService} from "../../../../services/customer-profile.service";
 import {SkillLevel} from "../../../../dtos/skilllevel";
 import {ToastrModule, ToastrService} from 'ngx-toastr';
+import {NgbCollapse} from '@ng-bootstrap/ng-bootstrap';
 
 describe('CustomerProfileCreateEditComponent', () => {
   let component: CustomerProfileCreateEditComponent;
@@ -48,7 +49,7 @@ describe('CustomerProfileCreateEditComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [CustomerProfileCreateEditComponent],
-      imports: [FormsModule, TranslateModule.forRoot(), ToastrModule.forRoot()],
+      imports: [FormsModule, NgbCollapse, TranslateModule.forRoot(), ToastrModule.forRoot()],
       providers: [
         {provide: CustomerProfileService, useValue: customerProfileServiceMock},
         {provide: Router, useValue: routerMock},
@@ -109,6 +110,7 @@ describe('CustomerProfileCreateEditComponent', () => {
   });
 
   it('should set error when create request fails', async () => {
+    spyOn(console, 'error');
     fixture.detectChanges();
     await fixture.whenStable();
 
@@ -133,6 +135,7 @@ describe('CustomerProfileCreateEditComponent', () => {
   });
 
   it('should set error when update request fails', async () => {
+    spyOn(console, 'error');
     activatedRouteMock.snapshot.paramMap = convertToParamMap({id: '1'});
     fixture.detectChanges();
     await fixture.whenStable();

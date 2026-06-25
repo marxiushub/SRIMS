@@ -1,19 +1,19 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
-import { ReservationViewComponent } from './reservation-view.component';
-import { ReservationService } from '../../../../services/reservation.service';
-import { ReservationDetail } from '../../../../dtos/reservation-detail';
-import { EquipmentType } from "../../../../dtos/equipmenttype";
-import { RentalStatus } from "../../../../dtos/rentalstatus";
-import { SkillLevel } from "../../../../dtos/skilllevel";
-import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { TranslateModule } from '@ngx-translate/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { of, throwError } from 'rxjs';
-import { ToastrService } from 'ngx-toastr';
-import { registerLocaleData } from '@angular/common';
+import {ComponentFixture, TestBed, waitForAsync} from '@angular/core/testing';
+import {RouterTestingModule} from '@angular/router/testing';
+import {ReservationViewComponent} from './reservation-view.component';
+import {ReservationService} from '../../../../services/reservation.service';
+import {EquipmentType} from "../../../../dtos/equipmenttype";
+import {RentalStatus} from "../../../../dtos/rentalstatus";
+import {SkillLevel} from "../../../../dtos/skilllevel";
+import {provideHttpClientTesting} from '@angular/common/http/testing';
+import {provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
+import {TranslateModule} from '@ngx-translate/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {of, throwError} from 'rxjs';
+import {ToastrService} from 'ngx-toastr';
+import {registerLocaleData} from '@angular/common';
 import localeDe from '@angular/common/locales/de';
+import {NgbCollapse, NgbModule} from '@ng-bootstrap/ng-bootstrap';
 
 registerLocaleData(localeDe, 'de');
 
@@ -37,7 +37,15 @@ describe('ReservationViewComponent', () => {
     reservationStatus: 'CREATED',
     confirmationEmailSent: true,
     items: [
-      { id: 101, model: 'Pro Ski 2026', equipmentType: EquipmentType.SKI, targetSkillLevel: SkillLevel.ADVANCED, price: 35.0, barcodeId: 'BC-101', status: RentalStatus.RESERVED }
+      {
+        id: 101,
+        model: 'Pro Ski 2026',
+        equipmentType: EquipmentType.SKI,
+        targetSkillLevel: SkillLevel.ADVANCED,
+        price: 35.0,
+        barcodeId: 'BC-101',
+        status: RentalStatus.RESERVED
+      }
     ]
   } as any;
 
@@ -49,13 +57,15 @@ describe('ReservationViewComponent', () => {
       declarations: [ReservationViewComponent],
       imports: [
         RouterTestingModule,
+        NgbModule,
+        NgbCollapse,
         TranslateModule.forRoot()
       ],
       providers: [
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
-        { provide: ReservationService, useValue: resSpy },
-        { provide: ToastrService, useValue: toastSpy },
+        {provide: ReservationService, useValue: resSpy},
+        {provide: ToastrService, useValue: toastSpy},
         {
           provide: ActivatedRoute,
           useValue: {
@@ -96,6 +106,7 @@ describe('ReservationViewComponent', () => {
   });
 
   it('should handle errors when backend call fails on init', () => {
+    spyOn(console, 'error');
     reservationServiceSpy.getById.and.returnValue(throwError(() => new Error('Backend failure')));
 
     component.reservation = undefined;
@@ -159,7 +170,8 @@ describe('ReservationViewComponent', () => {
   });
 
   it('should display error message if delete service call fails', () => {
-    const errorResponse = { error: { message: 'Cannot delete active reservation' } };
+    spyOn(console, 'error');
+    const errorResponse = {error: {message: 'Cannot delete active reservation'}};
     reservationServiceSpy.delete.and.returnValue(throwError(() => errorResponse));
     component.reservation = mockReservation;
 

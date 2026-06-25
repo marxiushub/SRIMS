@@ -1,17 +1,18 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
-import { of, throwError } from 'rxjs';
+import {ComponentFixture, fakeAsync, TestBed, tick} from '@angular/core/testing';
+import {Router} from '@angular/router';
+import {FormsModule} from '@angular/forms';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {ToastrModule, ToastrService} from 'ngx-toastr';
+import {of, throwError} from 'rxjs';
 
-import { StaffReservationComponent } from './staff-reservation.component';
-import { ReservationService } from '../../../services/reservation.service';
-import { StaffService } from '../../../services/staff.service';
-import { ReservationStatus } from '../../../dtos/reservationstatus';
-import { ReservationDetail } from '../../../dtos/reservation-detail';
-import { CustomerSearchResponse } from '../../../dtos/customer-search-response';
-import { UserType } from '../../../dtos/usertype';
+import {StaffReservationComponent} from './staff-reservation.component';
+import {ReservationService} from '../../../services/reservation.service';
+import {StaffService} from '../../../services/staff.service';
+import {ReservationStatus} from '../../../dtos/reservationstatus';
+import {ReservationDetail} from '../../../dtos/reservation-detail';
+import {CustomerSearchResponse} from '../../../dtos/customer-search-response';
+import {UserType} from '../../../dtos/usertype';
+import {NgbCollapse} from '@ng-bootstrap/ng-bootstrap';
 
 // AI-assisted: Code generated with Google Gemini and adapted
 describe('StaffReservationComponent', () => {
@@ -23,9 +24,45 @@ describe('StaffReservationComponent', () => {
   let routerMock: jasmine.SpyObj<Router>;
 
   const mockReservations: ReservationDetail[] = [
-    { id: 1, accountId: 10, customerProfileId: 101, customerName: 'John Doe', pickUpTime: '10:00:00', startDate: '2026-02-15', endDate: '2026-02-20', confirmationEmailSent: true, totalPrice: 10, items: [], reservationStatus: ReservationStatus.CREATED },
-    { id: 2, accountId: 11, customerProfileId: 102, customerName: 'Jane Doe', pickUpTime: '11:00:00', startDate: '2026-02-16', endDate: '2026-02-21', confirmationEmailSent: true, totalPrice: 20, items: [], reservationStatus: ReservationStatus.PICKED_UP },
-    { id: 3, accountId: 12, customerProfileId: 103, customerName: 'Bob Smith', pickUpTime: '12:00:00', startDate: '2026-02-17', endDate: '2026-02-22', confirmationEmailSent: true, totalPrice: 40, items: [], reservationStatus: ReservationStatus.RETURNED }
+    {
+      id: 1,
+      accountId: 10,
+      customerProfileId: 101,
+      customerName: 'John Doe',
+      pickUpTime: '10:00:00',
+      startDate: '2026-02-15',
+      endDate: '2026-02-20',
+      confirmationEmailSent: true,
+      totalPrice: 10,
+      items: [],
+      reservationStatus: ReservationStatus.CREATED
+    },
+    {
+      id: 2,
+      accountId: 11,
+      customerProfileId: 102,
+      customerName: 'Jane Doe',
+      pickUpTime: '11:00:00',
+      startDate: '2026-02-16',
+      endDate: '2026-02-21',
+      confirmationEmailSent: true,
+      totalPrice: 20,
+      items: [],
+      reservationStatus: ReservationStatus.PICKED_UP
+    },
+    {
+      id: 3,
+      accountId: 12,
+      customerProfileId: 103,
+      customerName: 'Bob Smith',
+      pickUpTime: '12:00:00',
+      startDate: '2026-02-17',
+      endDate: '2026-02-22',
+      confirmationEmailSent: true,
+      totalPrice: 40,
+      items: [],
+      reservationStatus: ReservationStatus.RETURNED
+    }
   ];
 
   const mockCustomerResponse: CustomerSearchResponse = {
@@ -48,12 +85,12 @@ describe('StaffReservationComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [StaffReservationComponent],
-      imports: [FormsModule, TranslateModule.forRoot(), ToastrModule.forRoot()],
+      imports: [FormsModule, NgbCollapse, TranslateModule.forRoot(), ToastrModule.forRoot()],
       providers: [
-        { provide: ReservationService, useValue: reservationServiceMock },
-        { provide: StaffService, useValue: staffServiceMock },
-        { provide: ToastrService, useValue: toastrServiceMock },
-        { provide: Router, useValue: routerMock }
+        {provide: ReservationService, useValue: reservationServiceMock},
+        {provide: StaffService, useValue: staffServiceMock},
+        {provide: ToastrService, useValue: toastrServiceMock},
+        {provide: Router, useValue: routerMock}
       ]
     }).compileComponents();
 
@@ -99,8 +136,8 @@ describe('StaffReservationComponent', () => {
       component.loadReservations();
 
       expect(reservationServiceMock.search).toHaveBeenCalledTimes(2);
-      expect(reservationServiceMock.search).toHaveBeenCalledWith(jasmine.objectContaining({ reservationStatus: ReservationStatus.CREATED }));
-      expect(reservationServiceMock.search).toHaveBeenCalledWith(jasmine.objectContaining({ reservationStatus: ReservationStatus.PICKED_UP }));
+      expect(reservationServiceMock.search).toHaveBeenCalledWith(jasmine.objectContaining({reservationStatus: ReservationStatus.CREATED}));
+      expect(reservationServiceMock.search).toHaveBeenCalledWith(jasmine.objectContaining({reservationStatus: ReservationStatus.PICKED_UP}));
       expect(component.reservations).toEqual([mockReservations[0], mockReservations[1]]);
     });
 
@@ -151,7 +188,7 @@ describe('StaffReservationComponent', () => {
 
     it('should clear selection and reload if all customer search inputs are empty', () => {
       component.selectedCustomerId = 123;
-      component.customerSearchCriteria = { firstName: '', lastName: '', email: '', userName: '' };
+      component.customerSearchCriteria = {firstName: '', lastName: '', email: '', userName: ''};
       reservationServiceMock.search.calls.reset();
 
       component.onCustomerFilterChange();
@@ -274,7 +311,7 @@ describe('StaffReservationComponent', () => {
     it('should handle server error on delete and set deleteError message', () => {
       spyOn(console, 'error');
       component.reservationToDelete = mockReservations[0];
-      reservationServiceMock.deleteForStaff.and.returnValue(throwError(() => ({ error: { message: 'Cannot delete active item' } })));
+      reservationServiceMock.deleteForStaff.and.returnValue(throwError(() => ({error: {message: 'Cannot delete active item'}})));
 
       component.confirmDelete();
 
@@ -290,7 +327,7 @@ describe('StaffReservationComponent', () => {
       component.timeFilter = '14:00';
       component.statusFilter = ReservationStatus.CANCELLED;
       component.showPastReservations = true;
-      component.customerSearchCriteria = { firstName: 'A', lastName: 'B', email: 'C', userName: 'D' };
+      component.customerSearchCriteria = {firstName: 'A', lastName: 'B', email: 'C', userName: 'D'};
       component.foundCustomers = [mockCustomerResponse];
       component.selectedCustomerAccount = mockCustomerResponse;
       component.selectedCustomerId = 99;
@@ -302,7 +339,7 @@ describe('StaffReservationComponent', () => {
       expect(component.timeFilter).toBe('');
       expect(component.statusFilter).toBeNull();
       expect(component.showPastReservations).toBeFalse();
-      expect(component.customerSearchCriteria).toEqual({ firstName: '', lastName: '', email: '', userName: '' });
+      expect(component.customerSearchCriteria).toEqual({firstName: '', lastName: '', email: '', userName: ''});
       expect(component.foundCustomers).toEqual([]);
       expect(component.selectedCustomerAccount).toBeNull();
       expect(component.selectedCustomerId).toBeNull();
@@ -313,7 +350,7 @@ describe('StaffReservationComponent', () => {
   describe('Pagination & Helper Methods', () => {
     beforeEach(() => {
       fixture.detectChanges();
-      component.reservations = Array.from({ length: 12 }).map((_, i) => ({
+      component.reservations = Array.from({length: 12}).map((_, i) => ({
         id: i + 1,
         customerProfileId: 200 + i,
         customerName: `User ${i}`,

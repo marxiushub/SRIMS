@@ -1,13 +1,13 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
-import { of, throwError } from 'rxjs';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {ActivatedRoute, Router} from '@angular/router';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {ToastrModule, ToastrService} from 'ngx-toastr';
+import {of, throwError} from 'rxjs';
 
-import { StaffReservationViewComponent } from './staff-reservation-view.component';
-import { ReservationService } from '../../../../services/reservation.service';
-import { ReservationStatus } from '../../../../dtos/reservationstatus';
-import { ReservationDetail } from '../../../../dtos/reservation-detail';
+import {StaffReservationViewComponent} from './staff-reservation-view.component';
+import {ReservationService} from '../../../../services/reservation.service';
+import {ReservationStatus} from '../../../../dtos/reservationstatus';
+import {ReservationDetail} from '../../../../dtos/reservation-detail';
 
 // AI-assisted: Code generated with Google Gemini and adapted
 describe('StaffReservationViewComponent', () => {
@@ -56,10 +56,10 @@ describe('StaffReservationViewComponent', () => {
       declarations: [StaffReservationViewComponent],
       imports: [TranslateModule.forRoot(), ToastrModule.forRoot()],
       providers: [
-        { provide: ReservationService, useValue: reservationServiceMock },
-        { provide: ToastrService, useValue: toastrServiceMock },
-        { provide: Router, useValue: routerMock },
-        { provide: ActivatedRoute, useValue: activatedRouteMock }
+        {provide: ReservationService, useValue: reservationServiceMock},
+        {provide: ToastrService, useValue: toastrServiceMock},
+        {provide: Router, useValue: routerMock},
+        {provide: ActivatedRoute, useValue: activatedRouteMock}
       ]
     }).compileComponents();
 
@@ -154,6 +154,7 @@ describe('StaffReservationViewComponent', () => {
     });
 
     it('should successfully delete reservation, close modal, show success toast, and navigate back to list', () => {
+      spyOn(console, 'error');
       reservationServiceMock.deleteForStaff.and.returnValue(of(void 0));
       spyOn(component, 'backToList');
 
@@ -172,7 +173,7 @@ describe('StaffReservationViewComponent', () => {
     it('should handle backend error on delete and set deleteError message', () => {
       spyOn(console, 'error');
       component.showDeleteModal = true;
-      reservationServiceMock.deleteForStaff.and.returnValue(throwError(() => ({ error: { message: 'Cannot delete' } })));
+      reservationServiceMock.deleteForStaff.and.returnValue(throwError(() => ({error: {message: 'Cannot delete'}})));
 
       component.confirmDelete();
 
@@ -184,7 +185,7 @@ describe('StaffReservationViewComponent', () => {
     it('should fallback to default error message if error payload contains no message text', () => {
       spyOn(console, 'error');
       component.showDeleteModal = true;
-      reservationServiceMock.deleteForStaff.and.returnValue(throwError(() => ({ error: {} })));
+      reservationServiceMock.deleteForStaff.and.returnValue(throwError(() => ({error: {}})));
 
       component.confirmDelete();
 
