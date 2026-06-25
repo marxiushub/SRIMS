@@ -173,6 +173,13 @@
       "SEND": "Send new password",
       "SUCCESS": "A new password has been sent to that email address."
     },
+    "REGISTER_STAFF": {
+      "TITLE": "Create Staff Account",
+      "DESC": "Create a new staff account",
+      "BACK": "Back",
+      "CREATE": "Create Account",
+      "SUCCESS": "The staff account was created successfully."
+    },
     "STATISTICS": {
       "TITLE": "Statistics",
       "SUBTITLE": "Analyze the utilization and rental duration of your equipment.",
