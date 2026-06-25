@@ -27,10 +27,11 @@ import jakarta.validation.constraints.Size;
 public abstract class UserCreationDto {
 
     @NotBlank(message = "Profile name is empty")
+    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
     private String userName;
 
     @NotBlank(message = "Password is empty")
-    @Size(min = 10, message = "Password must at least contain 10 characters ")
+    @Size(min = 10, max = 100, message = "Password must be between 10 and 100 characters")
     @Pattern(
         regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[^A-Za-z0-9]).+$",
         message = "Password must contain at least one number, and one special characters."
@@ -39,6 +40,7 @@ public abstract class UserCreationDto {
 
     @NotBlank(message = "E-Mail is empty")
     @Email(message = "Invalid E-Mail format")
+    @Size(max = 255, message = "Email must not exceed 255 characters")
     private String email;
 
     //Getter and Setter

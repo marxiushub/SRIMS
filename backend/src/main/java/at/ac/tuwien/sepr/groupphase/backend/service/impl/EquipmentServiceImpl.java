@@ -54,6 +54,7 @@ public class EquipmentServiceImpl implements EquipmentService {
     private final EquipmentRepository equipmentRepository;
     private final EquipmentMapper mapper;
     private final Map<EquipmentType, JpaRepository<? extends Equipment, Long>> repositoryMap;
+    private final EquipmentValidator validator;
 
     /**
      * Constructor for EquipmentService. Initializes the service with the necessary repositories and mapper.
@@ -76,7 +77,8 @@ public class EquipmentServiceImpl implements EquipmentService {
         SkiBootRepository skiBootRepository,
         SnowboardRepository snowboardRepository,
         SnowboardBootRepository snowboardBootRepository,
-        EquipmentMapper mapper
+        EquipmentMapper mapper,
+        EquipmentValidator validator
     ) {
         this.equipmentRepository = equipmentRepository;
         this.mapper = mapper;
@@ -88,12 +90,20 @@ public class EquipmentServiceImpl implements EquipmentService {
             EquipmentType.SNOWBOARD, snowboardRepository,
             EquipmentType.SNOWBOARDBOOT, snowboardBootRepository
         );
+        this.validator = validator;
     }
 
     @Transactional
     @Override
     public List<EquipmentDetailDto> createEquipment(EquipmentCreationDto dto) {
         LOGGER.trace("Creation of an {}", dto.getType());
+
+        validator.validateCreate(
+            dto.getPrice(),
+            dto.getModel(),
+            dto.getStatus(),
+            dto.getCreationNumber()
+        );
 
         List<EquipmentDetailDto> created = new ArrayList<>();
         JpaRepository<Equipment, Long> repo =
@@ -122,9 +132,12 @@ public class EquipmentServiceImpl implements EquipmentService {
             throw new IllegalArgumentException("id is negative");
         }
 
-        if (!equipmentRepository.existsById(id)) {
-            throw new NotFoundException("Equipment with ID " + id + " was not found.");
-        }
+        Equipment equipment = equipmentRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException(
+                "Equipment with ID " + id + " was not found."
+            ));
+
+        validator.validateDeletable(equipment);
 
         equipmentRepository.deleteById(id);
     }
@@ -190,28 +203,34 @@ public class EquipmentServiceImpl implements EquipmentService {
     @Transactional
     @Override
     public EquipmentDetailDto updateEquipment(Long id, EquipmentUpdateDto updateDto) {
+
         LOGGER.info("Updating equipment with id {}", id);
 
-        if (id == null) {
-            throw new IllegalArgumentException("id is null");
-        }
-        if (id < 0) {
-            throw new IllegalArgumentException("id is negative");
+        if (id == null || id < 0) {
+            throw new IllegalArgumentException("Id invalid");
         }
 
-        Equipment existingEquipment = equipmentRepository.findById(id)
-            .orElseThrow(() -> new NotFoundException("Equipment with ID " + id + " was not found."));
-
-        if (existingEquipment.getEquipmentType() != updateDto.getType()) {
-            throw new IllegalArgumentException(
-                String.format("Type mismatch: Cannot update a %s with a %s DTO.",
-                    existingEquipment.getEquipmentType(), updateDto.getType())
-            );
+        if (updateDto == null) {
+            throw new IllegalArgumentException("DTO null");
         }
-        mapper.updateEntityFromDto(updateDto, existingEquipment);
 
-        Equipment savedEquipment = equipmentRepository.save(existingEquipment);
-        return mapper.entityToDto(savedEquipment);
+        Equipment equipment = equipmentRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException("Equipment not found"));
+
+        validator.validateUpdate(
+            equipment,
+            updateDto.getPrice(),
+            updateDto.getModel(),
+            updateDto.getStatus()
+        );
+
+        if (updateDto.getType() != null && !equipment.getEquipmentType().equals(updateDto.getType())) {
+            throw new IllegalArgumentException("Type mismatch");
+        }
+
+        mapper.updateEntityFromDto(updateDto, equipment);
+
+        return mapper.entityToDto(equipmentRepository.save(equipment));
     }
 
     @Transactional(readOnly = true)

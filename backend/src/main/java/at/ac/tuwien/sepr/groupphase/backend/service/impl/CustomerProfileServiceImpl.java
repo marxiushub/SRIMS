@@ -55,10 +55,18 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
 
         LOGGER.trace("Creating customer profile for customer with id {}", customerId);
 
+        customerProfileValidator.validateCreationDto(dto);
+
         Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new NotFoundException("Customer with ID " + customerId + " was not found."));
 
+        String profileName = dto.getProfileName().trim();
+
+        if (customerProfileRepository.existsByCustomerIdAndProfileName(customerId, profileName)) {
+            throw new ValidationException("A profile with the name " + profileName + " already exists");
+        }
+
         CustomerProfile customerProfile = new CustomerProfile(
-            dto.getProfileName(),
+            profileName,
             dto.getHeight(),
             dto.getWeight(),
             dto.getShoeSize(),
@@ -93,9 +101,7 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
     public List<CustomerProfileDetailDto> getCustomerProfiles(Long customerId) {
         LOGGER.trace("Get customer profiles for customer with id {}", customerId);
 
-        if (customerId == null) {
-            throw new IllegalArgumentException("Customer ID cannot be null.");
-        }
+        validateProfileId(customerId);
 
         if (!customerRepository.existsById(customerId)) {
             throw new NotFoundException("Customer with ID " + customerId + " was not found.");
@@ -107,6 +113,10 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
     @Override
     public CustomerProfileDetailDto getCustomerProfileById(Long profileId) {
         LOGGER.trace("Get customer profile with id {}", profileId);
+
+        if (profileId == null) {
+            throw new IllegalArgumentException("Profile ID cannot be null.");
+        }
 
         CustomerProfile profile = customerProfileRepository.findById(profileId)
             .orElseThrow(() ->
@@ -135,7 +145,18 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
         CustomerProfile profile = checkUserAccessPermission(customerProfileId, currentUserId);
 
         if (dto.getProfileName() != null) {
-            profile.setProfileName(dto.getProfileName());
+
+            String newName = dto.getProfileName().trim();
+
+            boolean nameAlreadyExists = customerProfileRepository.existsByCustomerIdAndProfileName(currentUserId, newName);
+
+            if (nameAlreadyExists) {
+                throw new ValidationException("A profile with the name " + newName + " already exists");
+            }
+        }
+
+        if (dto.getProfileName() != null) {
+            profile.setProfileName(dto.getProfileName().trim());
         }
 
         if (dto.getHeight() != null) {
@@ -178,9 +199,7 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
     //Checks whether a given CustomerProfileID belongs to a given CustomerID
     private CustomerProfile checkUserAccessPermission(Long profileId, Long currentCustomerId) {
 
-        if (profileId == null) {
-            throw new IllegalArgumentException("Customer profile id is null.");
-        }
+        validateProfileId(profileId);
 
         CustomerProfile profile = customerProfileRepository.findById(profileId)
             .orElseThrow(() ->
@@ -192,5 +211,16 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
         }
 
         return profile;
+    }
+
+    //Checks if a given CustomerProfileID is valid
+    public void validateProfileId(Long profileId) {
+        if (profileId == null) {
+            throw new IllegalArgumentException("Customer profile ID is null");
+        }
+
+        if (profileId <= 0) {
+            throw new IllegalArgumentException("Customer Profile ID must be positive");
+        }
     }
 }

@@ -20,6 +20,9 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -39,9 +42,11 @@ public abstract class Equipment {
     private Long id;
 
     @Column(nullable = false)
+    @Positive(message = "price is negative")
     private double price;
 
     @Column(nullable = false)
+    @Size(max = 100, message = "model must be at most 100 characters")
     private String model;
 
     @Enumerated(EnumType.STRING)
@@ -60,6 +65,7 @@ public abstract class Equipment {
     @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TimePeriods> timePeriodsList = new ArrayList<>();
 
+    @PositiveOrZero(message = "Duration days can not be negative")
     private int usageDurationDays;
 
     @Enumerated(EnumType.STRING)

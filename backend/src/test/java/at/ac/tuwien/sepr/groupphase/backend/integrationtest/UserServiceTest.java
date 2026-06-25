@@ -225,6 +225,28 @@ public class UserServiceTest {
     }
 
     @Test
+    public void createUser_withExistingEmail_throwsValidationException() {
+        String email = uniqueEmail("duplicate.email");
+
+        CustomerCreationDto first = validCustomerDto(email);
+        UserDetailDto created = userService.createUser(first);
+        rememberCreatedUser(created);
+
+        CustomerCreationDto duplicate = validCustomerDto(email);
+
+        ValidationException exception = assertThrows(
+            ValidationException.class,
+            () -> userService.createUser(duplicate)
+        );
+
+        assertThat(exception.getMessage())
+            .contains("Email is already in use");
+
+        assertThat(exception.getErrors())
+            .anyMatch(err -> err.contains("Email " + email + " is already in use"));
+    }
+
+    @Test
     public void updateCustomer_withValidDto_updatesCustomerCorrectly() {
         CustomerCreationDto creationDto = validCustomerDto(uniqueEmail("customer.update"));
         UserDetailDto created = userService.createUser(creationDto);
@@ -371,6 +393,112 @@ public class UserServiceTest {
         );
 
         assertThat(exception.getMessage()).contains("New Password must differ from the current password.");
+    }
+
+    @Test
+    public void changePassword_withNullDto_throwsValidationException() {
+        CustomerCreationDto creationDto = validCustomerDto(uniqueEmail("customer.password.null"));
+        UserDetailDto created = userService.createUser(creationDto);
+        rememberCreatedUser(created);
+
+        ValidationException exception = assertThrows(
+            ValidationException.class,
+            () -> userService.changePassword(created.getId(), null)
+        );
+
+        assertThat(exception.getMessage())
+            .contains("Validation of the dto for changing passwords failed");
+
+        assertThat(exception.getErrors())
+            .contains("passwordChangeDto is null");
+    }
+
+    @Test
+    public void changePassword_withNullOldPassword_throwsValidationException() {
+        CustomerCreationDto creationDto = validCustomerDto(uniqueEmail("customer.password.nullold"));
+        UserDetailDto created = userService.createUser(creationDto);
+        rememberCreatedUser(created);
+
+        PasswordChangeDto dto = new PasswordChangeDto();
+        dto.setOldPassword(null);
+        dto.setNewPassword("NewPassword123!");
+
+        ValidationException exception = assertThrows(
+            ValidationException.class,
+            () -> userService.changePassword(created.getId(), dto)
+        );
+
+        assertThat(exception.getMessage())
+            .contains("Validation of the dto for changing passwords failed");
+
+        assertThat(exception.getErrors())
+            .contains("oldPassword is blank");
+    }
+
+    @Test
+    public void changePassword_withBlankOldPassword_throwsValidationException() {
+        CustomerCreationDto creationDto = validCustomerDto(uniqueEmail("customer.password.blankold"));
+        UserDetailDto created = userService.createUser(creationDto);
+        rememberCreatedUser(created);
+
+        PasswordChangeDto dto = new PasswordChangeDto();
+        dto.setOldPassword("   ");
+        dto.setNewPassword("NewPassword123!");
+
+        ValidationException exception = assertThrows(
+            ValidationException.class,
+            () -> userService.changePassword(created.getId(), dto)
+        );
+
+        assertThat(exception.getMessage())
+            .contains("Validation of the dto for changing passwords failed");
+
+        assertThat(exception.getErrors())
+            .contains("oldPassword is blank");
+    }
+
+    @Test
+    public void changePassword_withNullNewPassword_throwsValidationException() {
+        CustomerCreationDto creationDto = validCustomerDto(uniqueEmail("customer.password.nullnew"));
+        UserDetailDto created = userService.createUser(creationDto);
+        rememberCreatedUser(created);
+
+        PasswordChangeDto dto = new PasswordChangeDto();
+        dto.setOldPassword(creationDto.getPassword());
+        dto.setNewPassword(null);
+
+        ValidationException exception = assertThrows(
+            ValidationException.class,
+            () -> userService.changePassword(created.getId(), dto)
+        );
+
+        assertThat(exception.getMessage())
+            .contains("Validation of the dto for changing passwords failed");
+
+        assertThat(exception.getErrors())
+            .contains("newPassword is blank");
+    }
+
+    @Test
+    public void changePassword_withBlankNewPassword_throwsValidationException() {
+        CustomerCreationDto creationDto = validCustomerDto(uniqueEmail("customer.password.blanknew"));
+        UserDetailDto created = userService.createUser(creationDto);
+        rememberCreatedUser(created);
+
+        PasswordChangeDto dto = new PasswordChangeDto();
+        dto.setOldPassword(creationDto.getPassword());
+        dto.setNewPassword("   ");
+
+        ValidationException exception = assertThrows(
+            ValidationException.class,
+            () -> userService.changePassword(created.getId(), dto)
+        );
+
+        assertThat(exception.getMessage())
+            .contains("Validation of the dto for changing passwords failed");
+
+        assertThat(exception.getErrors())
+            .contains("newPassword is blank");
     }
 
     @Test
