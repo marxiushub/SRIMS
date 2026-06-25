@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.search;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.EquipmentType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 
@@ -12,7 +13,9 @@ import java.time.LocalDate;
  */
 public class EquipmentSearchDto {
 
+    @Size(max = 100, message = "model must be max 100 characters")
     private String model;
+
     private EquipmentType type;
     private RentalStatus status;
     private SkillLevel targetSkillLevel;

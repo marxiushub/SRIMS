@@ -6,10 +6,12 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.enums.EquipmentType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Max;
 
 /**
  * A general dto for Equipment.
@@ -34,19 +36,21 @@ import jakarta.validation.constraints.Positive;
 
 public abstract class EquipmentCreationDto {
 
-    @Positive(message = "price is negative")
+    @Positive(message = "Price is negative")
     private double price;
 
-    @NotBlank(message = "model name is empty")
+    @NotBlank(message = "Model is empty")
+    @Size(max = 100, message = "Model must be at most 100 characters")
     private String model;
 
     @NotNull(message = "RentalStatus is empty")
     private RentalStatus status;
 
-    @NotNull(message = "skillevel is empty")
+    @NotNull(message = "Skillevel is empty")
     private SkillLevel targetSkillLevel;
 
-    @Min(value = 1, message = "number of equipment can not be zero or negative")
+    @Min(value = 1, message = "CreationNumber must be at least 1")
+    @Max(value = 100, message = "CreationNumber must be at most 100")
     private int creationNumber = 1;
 
     /**

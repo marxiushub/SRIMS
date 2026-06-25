@@ -17,10 +17,12 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Helmet;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Ski;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.EquipmentRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.HelmetRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.SkiRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.EquipmentServiceImpl;
+import at.ac.tuwien.sepr.groupphase.backend.service.impl.EquipmentValidator;
 import jakarta.transaction.Transactional;
 import org.h2.mvstore.db.RowDataType;
 import org.junit.jupiter.api.AfterEach;
@@ -109,14 +111,30 @@ public class EquipmentServiceTest {
 
     @Test
     void deleteEquipmentValidIdDeletesSuccessfully() {
-        Helmet savedHelmet = helmetRepository.save(testEquipment);
+        //Creting new Helmet which is in no reservation
+        Helmet savedHelmet = helmetRepository.save(
+            new Helmet(
+                "Test Helmet Model",
+                10.0,
+                55.0,
+                RentalStatus.FREE,
+                SkillLevel.BEGINNER
+            )
+        );
+
         Long validId = savedHelmet.getId();
 
-        assertTrue(helmetRepository.findById(validId).isPresent(), "Helmet should exist");
+        assertTrue(
+            helmetRepository.findById(validId).isPresent(),
+            "Helmet should exist"
+        );
 
         equipmentService.deleteEquipment(validId);
 
-        assertTrue(helmetRepository.findById(validId).isEmpty(), "Helmet should not exist after deletion");
+        assertTrue(
+            helmetRepository.findById(validId).isEmpty(),
+            "Helmet should not exist after deletion"
+        );
     }
 
     @Test
@@ -596,6 +614,117 @@ public class EquipmentServiceTest {
             .getCounts().get(EquipmentType.SKI).get(RentalStatus.FREE);
 
         assertThat(skiCountAfter).isEqualTo(skiCountBefore);
+    }
+
+
+    //Validator Tests
+    @Test
+    void validateCreate_invalidPriceAndModel_andCreationNumber_throwsValidationException() {
+        EquipmentValidator validator = new EquipmentValidator();
+
+        ValidationException ex = assertThrows(ValidationException.class, () ->
+            validator.validateCreate(
+                -10.0,
+                "   ",
+                null,
+                200
+            )
+        );
+
+        assertThat(ex.getErrors()).hasSizeGreaterThanOrEqualTo(3);
+    }
+
+    @Test
+    void validateCreate_modelTooLong_throwsValidationException() {
+        EquipmentValidator validator = new EquipmentValidator();
+
+        String longModel = "x".repeat(101);
+
+        ValidationException ex = assertThrows(ValidationException.class, () ->
+            validator.validateCreate(
+                10.0,
+                longModel,
+                RentalStatus.FREE,
+                1
+            )
+        );
+
+        assertThat(ex.getErrors())
+            .anyMatch(msg -> msg.contains("Model must not exceed"));
+    }
+
+    @Test
+    void validateUpdate_withBlockingReservation_throwsValidationException() {
+        EquipmentValidator validator = new EquipmentValidator();
+
+        Helmet helmet = new Helmet("Test", 10.0, 55.0, RentalStatus.FREE, SkillLevel.BEGINNER);
+
+        // erzeugt "blocking reservation"
+        helmet.addTimePeriod(
+            LocalDate.now().plusDays(1),
+            LocalDate.now().plusDays(5),
+            PeriodType.RENTED,
+            null
+        );
+
+        ValidationException ex = assertThrows(ValidationException.class, () ->
+            validator.validateUpdate(
+                helmet,
+                20.0,
+                "New Model",
+                RentalStatus.FREE
+            )
+        );
+
+        assertThat(ex.getErrors())
+            .contains("Equipment is currently reserved and cannot be updated.");
+    }
+
+    @Test
+    void validateUpdate_negativePrice_andBlankModel_collectsErrors() {
+        EquipmentValidator validator = new EquipmentValidator();
+
+        Helmet helmet = new Helmet("Test", 10.0, 55.0, RentalStatus.FREE, SkillLevel.BEGINNER);
+
+        ValidationException ex = assertThrows(ValidationException.class, () ->
+            validator.validateUpdate(
+                helmet,
+                -5.0,
+                "   ",
+                RentalStatus.FREE
+            )
+        );
+
+        assertThat(ex.getErrors()).hasSize(2);
+    }
+
+    @Test
+    void validateDeletable_withRentedStatus_andBlockingReservation_throwsValidationException() {
+        EquipmentValidator validator = new EquipmentValidator();
+
+        Helmet helmet = new Helmet("Test", 10.0, 55.0, RentalStatus.RENTED, SkillLevel.BEGINNER);
+
+        helmet.addTimePeriod(
+            LocalDate.now().plusDays(1),
+            LocalDate.now().plusDays(3),
+            PeriodType.RENTED,
+            null
+        );
+
+        ValidationException ex = assertThrows(ValidationException.class, () ->
+            validator.validateDeletable(helmet)
+        );
+
+        assertThat(ex.getErrors()).hasSize(2);
+    }
+
+    @Test
+    void validateDeletable_nullEquipment_throwsIllegalArgument() {
+        EquipmentValidator validator = new EquipmentValidator();
+
+        assertThrows(IllegalArgumentException.class, () ->
+            validator.validateDeletable(null)
+        );
     }
 
 }
