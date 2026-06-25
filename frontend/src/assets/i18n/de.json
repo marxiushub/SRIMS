@@ -184,8 +184,8 @@
       "SUCCESS": "Ein neues Passwort wurde an diese E-Mail-Adresse gesendet."
     },
     "STATISTICS": {
-      "TITLE": "Statistiken",
-      "SUBTITLE": "Analysiere die Auslastung und Mietdauer deines Equipments.",
+      "TITLE": "Mietstatistiken",
+      "SUBTITLE": "Analysiere die Mietdauer des Equipments, pro Stück und pro Typ.",
       "FILTER": {
         "START": "Von",
         "END": "Bis",
@@ -206,7 +206,7 @@
       },
       "MESSAGES": {
         "NO_DATA": "Keine Daten für den gewählten Zeitraum vorhanden. Passe die Filter an und klicke auf 'Generieren'.",
-        "ERROR": "Statistiken konnten nicht geladen werden. Bitte überprüfe die Eingaben."
+        "ERROR": "Keine zu diesen Eingaben passende Daten gefunden."
       },
       "EQUIPMENT_TYPES": {
         "SKI": "Ski",

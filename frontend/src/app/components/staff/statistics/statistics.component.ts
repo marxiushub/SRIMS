@@ -31,7 +31,7 @@ export class StatisticsComponent implements OnInit {
   detailDegreeLabelKey = 'STAFF.STATISTICS.TABLE.MODEL_NAME';
   yAxisTicks: number[] = [];
   tableRows: RenderedRow[] = [];
-
+  emptyReturnList = false;
   constructor(
     private fb: FormBuilder,
     private statisticsService: StatisticsService,
@@ -68,7 +68,7 @@ export class StatisticsComponent implements OnInit {
 
   onSubmit(): void {
     if (this.filterForm.invalid) return;
-
+    this.emptyReturnList = false;
     this.isLoading = true;
     this.errorMessageKey = null;
     this.tableRows = [];
@@ -95,7 +95,10 @@ export class StatisticsComponent implements OnInit {
             daysRented: days
           }));
         }
-
+        if ((!response.itemCounts || Object.keys(response.itemCounts).length === 0) &&
+          (!response.modelCounts || Object.keys(response.modelCounts).length === 0) ) {
+          this.emptyReturnList = true;
+        }
         this.tableRows.sort((a, b) => b.daysRented - a.daysRented);
 
         this.maxDaysRented = this.tableRows.length > 0
