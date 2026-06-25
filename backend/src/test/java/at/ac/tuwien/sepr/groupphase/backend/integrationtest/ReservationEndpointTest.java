@@ -500,7 +500,7 @@ public class ReservationEndpointTest extends IntegrationTestBase implements Test
             LocalDate.now().plusDays(5)
         );
 
-        // anderer User (nicht owner)
+
         String differentToken = jwtTokenizer.getAuthToken(
             "other@test.com",
             99999L,

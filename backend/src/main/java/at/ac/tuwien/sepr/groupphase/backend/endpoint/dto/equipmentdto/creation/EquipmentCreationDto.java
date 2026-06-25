@@ -15,14 +15,13 @@ import jakarta.validation.constraints.Positive;
  * A general dto for Equipment.
  * */
 
-//PS: Dominik: die Annoationen werfen MethodArgumentNotValidException, muss im exception hanler behandelt werden
+
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.PROPERTY,
     property = "type"
 )
-//@JsonTypeInfo sagt das die info um welche unterklasse es sich handelt als feld mit
-//dem namen type in der json zu finden ist
+
 @JsonSubTypes({
     @JsonSubTypes.Type(value = HelmetCreationDto.class, name = "HELMET"),
     @JsonSubTypes.Type(value = SkiCreationDto.class, name = "SKI"),
@@ -30,7 +29,7 @@ import jakarta.validation.constraints.Positive;
     @JsonSubTypes.Type(value = SkiBootCreationDto.class, name = "SKIBOOT"),
     @JsonSubTypes.Type(value = SnowboardCreationDto.class, name = "SNOWBOARD"),
     @JsonSubTypes.Type(value = SnowboardBootCreationDto.class, name = "SNOWBOARDBOOT")
-})//sagt aus wie die typ info nun auf konkrete klassen mapped
+})
 
 public abstract class EquipmentCreationDto {
 

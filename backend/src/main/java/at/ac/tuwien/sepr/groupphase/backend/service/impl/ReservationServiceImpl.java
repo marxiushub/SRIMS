@@ -296,7 +296,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
                 throw new AccessDeniedException("Cannot search reservations of another customer.");
             }
 
-            // Customer darf nur sich selbst sehen
+
             effectiveAccountId = currentUserId;
         }
 

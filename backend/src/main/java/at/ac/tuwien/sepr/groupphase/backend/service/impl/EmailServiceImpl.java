@@ -45,8 +45,6 @@ public class EmailServiceImpl implements EmailService {
         message.setFrom("srims@widmer.wien");
 
         mailSender.send(message);
-
-
     }
 
     @Override

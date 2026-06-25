@@ -33,6 +33,7 @@ export class CustomerProfileDetailsComponent {
   constructor(private customerProfileService: CustomerProfileService, private router: Router, private route: ActivatedRoute) {
   }
 
+// Retrieves the profile ID from the active route and initiates data loading on component startup.
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
 
@@ -42,6 +43,7 @@ export class CustomerProfileDetailsComponent {
     }
   }
 
+  // Fetches the customer profile data from the API and manages loading/error states.
   loadProfile(id: number): void {
     this.loading = true;
     this.loadError = false;
@@ -58,14 +60,17 @@ export class CustomerProfileDetailsComponent {
     })
   }
 
+// Navigates the user back to the main customer profiles list.
   back(): void {
     this.router.navigate(['/customer/profiles']);
   }
 
+// Redirects the user to the edit page for the currently loaded profile.
   openEditPage(): void {
     this.router.navigate(['/customer/profiles/edit', this.profileId]);
   }
 
+// Sets the selected profile as the target for deletion and prepares the confirmation dialog.
   openDeleteDialog(item: CustomerProfile): void {
     this.profileToDelete = item;
     this.deleteError = undefined;
@@ -76,7 +81,7 @@ export class CustomerProfileDetailsComponent {
     this.profileToDelete = undefined;
     this.deleteLoading = false;
   }
-
+// Executes the deletion of the targeted profile via the service and redirects upon success.
   confirmDelete(): void {
     if (!this.profileToDelete) {
       return;

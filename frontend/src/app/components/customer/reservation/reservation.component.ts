@@ -170,6 +170,7 @@ export class ReservationComponent implements OnInit {
     this.deleteLoading = false;
   }
 
+// Deletes the targeted reservation via the service, updates the local list and pagination, and shows a success notification
   confirmDelete(): void {
     if (!this.reservationToDelete) {
       return;

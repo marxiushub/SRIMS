@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-//TODO: rework test to use datagenerators and integrationtestbase
+
 @ActiveProfiles({"test"})
 @SpringBootTest
 public class CustomerProfileServiceTest {

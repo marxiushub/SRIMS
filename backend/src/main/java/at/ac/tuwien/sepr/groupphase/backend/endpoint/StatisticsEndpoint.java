@@ -31,6 +31,12 @@ public class StatisticsEndpoint {
         this.service = service;
     }
 
+    /**
+     * Endpoint to retrieve statistical data for equipment based on the provided criteria.
+     *
+     * @param dto A DTO containing the type of statistics and any additional parameters required for the query.
+     * @return A DTO containing the requested statistical data.
+     */
     @PreAuthorize("hasAuthority('STAFF_READ')")
     @PostMapping("/get")
     public StatisticsResponseDto getStatisticalData(@Valid @RequestBody StatisticsRequestDto dto) {

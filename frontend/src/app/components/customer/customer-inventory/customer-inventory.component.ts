@@ -61,10 +61,16 @@ export class CustomerInventoryComponent implements OnInit {
   ) {
   }
 
+  /**
+   * Initializes the component and loads the initial equipment list.
+   */
   ngOnInit(): void {
     this.loadEquipment();
   }
 
+  /**
+   * Loads all equipment from the backend and initializes model options and pagination.
+   */
   loadEquipment(): void {
     this.loading = true;
     this.equipmentService.getAll().subscribe({
@@ -80,11 +86,11 @@ export class CustomerInventoryComponent implements OnInit {
       }
     });
   }
-
+// Navigates to the equipment detail view page for the selected item.
   openDetailPage(item: Equipment): void {
     this.router.navigate(['/customer/inventory/view', item.id]);
   }
-
+ // Returns the CSS class based on the equipment status.
   getStatusClass(status: string): string {
     switch (status) {
       case 'FREE':
@@ -98,6 +104,9 @@ export class CustomerInventoryComponent implements OnInit {
     }
   }
 
+  /**
+   * Searches equipment based on the current filter settings and updates the list.
+   */
   searchEquipment(): void {
     this.loading = true;
     const searchRequest: EquipmentSearch = {
@@ -140,6 +149,9 @@ export class CustomerInventoryComponent implements OnInit {
       .sort((a, b) => a.localeCompare(b));
   }
 
+  /**
+   * Sorts equipment by price depending on the selected sort direction.
+   */
   private sortByPrice(items: Equipment[]): Equipment[] {
     if (!this.priceSortDirection) return items;
     return [...items].sort((a, b) =>
@@ -147,6 +159,9 @@ export class CustomerInventoryComponent implements OnInit {
     );
   }
 
+  /**
+   * Applies sorting when the price sort direction changes.
+   */
   onPriceSortChange(): void {
     this.equipment = this.sortByPrice(this.equipment);
   }
@@ -177,10 +192,16 @@ export class CustomerInventoryComponent implements OnInit {
     return count;
   }
 
+  /**
+   * Calculates the starting index of the current pagination page.
+   */
   get startIndex(): number {
     return (this.currentPage - 1) * this.itemLimit + 1;
   }
 
+  /**
+   * Calculates the ending index of the current pagination page.
+   */
   get endIndex(): number {
     const endIndex = this.currentPage * this.itemLimit;
     return endIndex > this.equipment.length ? this.equipment.length : endIndex;
@@ -206,6 +227,9 @@ export class CustomerInventoryComponent implements OnInit {
     this.currentPage = 1;
   }
 
+  /**
+   * Validates start date filter and triggers a new search.
+   */
   onStartDateChange(): void {
     if (this.startFilter && this.endFilter && this.startFilter > this.endFilter) {
       this.endFilter = null;
@@ -213,6 +237,10 @@ export class CustomerInventoryComponent implements OnInit {
     this.searchEquipment();
   }
 
+
+  /**
+   * Validates end date filter and triggers a new search.
+   */
   onEndDateChange(): void {
     if (this.startFilter && this.endFilter && this.startFilter > this.endFilter) {
       this.endFilter = null;

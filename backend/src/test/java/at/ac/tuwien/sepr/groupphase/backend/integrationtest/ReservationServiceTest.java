@@ -621,7 +621,7 @@ public class ReservationServiceTest {
 
         ReservationDetailDto created = reservationService.createReservation(createDto);
 
-        // anderer User
+
         when(currentUserService.getUserId()).thenReturn(999L);
 
         assertThatThrownBy(() ->

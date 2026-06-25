@@ -26,7 +26,7 @@ import java.util.List;
 
 /**
  * Represents the REST API endpoint for managing customer profile-related operations.
- * TODO: Müssen noch die Pfade ändern, wenn wir mit den Tokens arbeiten und nicht mehr Ids übergeben
+ *
  */
 @RestController
 @RequestMapping("/api/v1/customer")
@@ -39,6 +39,12 @@ public class CustomerProfileEndpoint {
         this.customerProfileService = customerProfileService;
     }
 
+    /**
+     * Endpoint to create a new CustomerProfile for the authenticated customer.
+     *
+     * @param dto A DTO containing the details of the CustomerProfile to create.
+     * @return The details of the newly created CustomerProfile.
+     */
     @PreAuthorize("hasAuthority('CUSTOMERPROFILE_CREATE')")
     @PostMapping("/profiles")
     @ResponseStatus(HttpStatus.CREATED)
@@ -47,7 +53,12 @@ public class CustomerProfileEndpoint {
         return customerProfileService.createCustomerProfile(dto);
     }
 
-    //Allows Customers to Read all of their CustomerProfiles
+
+    /**
+     * Endpoint to retrieve all CustomerProfiles belonging to the authenticated customer.
+     *
+     * @return A list of CustomerProfiles owned by the authenticated customer.
+     */
     @PreAuthorize("hasAuthority('CUSTOMERPROFILE_READ')")
     @GetMapping("/profiles")
     @ResponseStatus(HttpStatus.OK)
@@ -56,7 +67,12 @@ public class CustomerProfileEndpoint {
         return customerProfileService.getCustomerProfiles();
     }
 
-    //Allows Staff to Read all of their CustomerProfiles
+    /**
+     * Endpoint for staff members to retrieve all CustomerProfiles belonging to a specific customer.
+     *
+     * @param customerId The ID of the customer whose CustomerProfiles should be retrieved.
+     * @return A list of CustomerProfiles belonging to the specified customer.
+     */
     @PreAuthorize("hasAuthority('CUSTOMERPROFILE_READ') and hasAuthority('STAFF')")
     @GetMapping("/{customerId}/profiles")
     @ResponseStatus(HttpStatus.OK)
@@ -65,8 +81,14 @@ public class CustomerProfileEndpoint {
         return customerProfileService.getCustomerProfiles(customerId);
     }
 
-    //Allows Staff to read a specific CustomerProfiles when a valid CustomerProfileID is provided
-    //Allows Customer to read a specific CustomerProfile, that belongs to the Customer sending the Request
+    /**
+     * Endpoint to retrieve a specific CustomerProfile.
+     * Customers may only access CustomerProfiles that belong to them,
+     * while staff members may access any CustomerProfile.
+     *
+     * @param profileId The ID of the CustomerProfile to retrieve.
+     * @return The details of the requested CustomerProfile.
+     */
     @PreAuthorize("hasAuthority('CUSTOMERPROFILE_READ') or hasAuthority('STAFF')")
     @GetMapping("/profiles/{profileId}")
     @ResponseStatus(HttpStatus.OK)
@@ -75,6 +97,11 @@ public class CustomerProfileEndpoint {
         return customerProfileService.getCustomerProfileById(profileId);
     }
 
+    /**
+     * Endpoint to delete a CustomerProfile.
+     *
+     * @param profileId The ID of the CustomerProfile to delete.
+     */
     @PreAuthorize("hasAuthority('CUSTOMERPROFILE_DELETE')")
     @DeleteMapping("/profiles/{profileId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -83,6 +110,13 @@ public class CustomerProfileEndpoint {
         customerProfileService.deleteCustomerProfile(profileId);
     }
 
+    /**
+     * Endpoint to update an existing CustomerProfile.
+     *
+     * @param profileId The ID of the CustomerProfile to update.
+     * @param dto A DTO containing the updated CustomerProfile information.
+     * @return The updated details of the CustomerProfile.
+     */
     @PreAuthorize("hasAuthority('CUSTOMERPROFILE_UPDATE')")
     @PatchMapping("/profiles/{profileId}")
     @ResponseStatus(HttpStatus.OK)
