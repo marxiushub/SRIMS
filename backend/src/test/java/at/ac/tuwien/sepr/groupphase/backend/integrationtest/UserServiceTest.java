@@ -370,7 +370,7 @@ public class UserServiceTest {
             () -> userService.changePassword(created.getId(), dto)
         );
 
-        assertThat(exception.getMessage()).contains("newPassword must differ from the current password.");
+        assertThat(exception.getMessage()).contains("New Password must differ from the current password.");
     }
 
     @Test
