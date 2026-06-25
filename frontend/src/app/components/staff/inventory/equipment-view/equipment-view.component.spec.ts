@@ -11,6 +11,7 @@ import {registerLocaleData} from '@angular/common';
 import localeDe from '@angular/common/locales/de';
 import {ReservationService} from '../../../../services/reservation.service';
 import {ReservationStatus} from "../../../../dtos/reservationstatus";
+import {NgbCollapse, NgbModule} from '@ng-bootstrap/ng-bootstrap';
 
 registerLocaleData(localeDe, 'de');
 
@@ -29,6 +30,8 @@ describe('EquipmentViewComponent', () => {
       declarations: [EquipmentViewComponent],
       imports: [
         RouterTestingModule,
+        NgbModule,
+        NgbCollapse,
         TranslateModule.forRoot()
       ],
       providers: [
@@ -83,10 +86,10 @@ describe('EquipmentViewComponent', () => {
     expect(component.equipment?.id).toBe(1);
 
     expect(reservationServiceSpy.search).toHaveBeenCalledWith(
-      jasmine.objectContaining({ equipmentIds: [1], reservationStatus: ReservationStatus.CREATED })
+      jasmine.objectContaining({equipmentIds: [1], reservationStatus: ReservationStatus.CREATED})
     );
     expect(reservationServiceSpy.search).toHaveBeenCalledWith(
-      jasmine.objectContaining({ equipmentIds: [1], reservationStatus: ReservationStatus.PICKED_UP })
+      jasmine.objectContaining({equipmentIds: [1], reservationStatus: ReservationStatus.PICKED_UP})
     );
 
     expect(component.reservations.length).toBe(0);
@@ -120,6 +123,7 @@ describe('EquipmentViewComponent', () => {
   });
 
   it('should set reservationsError to true when reservation search fails', () => {
+    spyOn(console, 'error');
     reservationServiceSpy.search.and.returnValue(throwError(() => new Error('Backend error')));
 
     component['loadReservationsForEquipment'](1);

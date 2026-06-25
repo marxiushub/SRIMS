@@ -29,8 +29,17 @@ import {
   CustomerProfileDetailsComponent
 } from "./components/customer/customer-profile/customer-profile-details/customer-profile-details.component";
 import {EquipmentViewComponent} from "./components/staff/inventory/equipment-view/equipment-view.component";
+import {
+  CustomerAccountComponent
+} from "./components/customer/customer-account/customer-account.component";
+import {
+  StaffAccountComponent
+} from "./components/staff/staff-account/staff-account.component";
+import {
+  ResetStaffPasswordComponent
+} from "./components/staff/reset-staff-password/reset-staff-password.component";
 import {OverviewComponent} from "./components/staff/overview/overview.component";
-
+import {RegisterStaffComponent} from "./components/staff/register-staff/register-staff.component";
 import {
   ReservationCreateEditComponent
 } from "./components/customer/reservation/reservation-create-edit/reservation-create-edit.component";
@@ -87,6 +96,8 @@ export function HttpLoaderFactory(http: HttpClient): TranslateLoader {
     StaffReservationEditComponent,
     StaffReservationViewComponent,
     BarcodeScannerComponent,
+    StaffAccountComponent,
+    ResetStaffPasswordComponent,
     ReservationComponent,
     ReservationCreateEditComponent,
     ReservationViewComponent,
@@ -96,8 +107,10 @@ export function HttpLoaderFactory(http: HttpClient): TranslateLoader {
     CustomerProfileComponent,
     CustomerProfileCreateEditComponent,
     CustomerProfileDetailsComponent,
+    CustomerAccountComponent,
     StatisticsComponent,
     OverviewComponent,
+    RegisterStaffComponent,
   ],
   bootstrap: [AppComponent],
   imports: [BrowserModule,

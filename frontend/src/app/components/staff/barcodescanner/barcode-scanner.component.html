@@ -6,7 +6,7 @@
   </div>
 
   <div class="card mb-4 shadow-sm">
-    <div class="card-body">
+    <div class="card-body flex-wrap d-flex align-items-center">
       <label class="form-label small fw-bold">{{ 'BARCODE_SCANNER.MODE_LABEL' | translate }}</label>
       <div class="btn-group w-100" role="group">
         <button type="button" class="btn"
@@ -14,14 +14,16 @@
                 [class.btn-outline-primary]="checkoutMode !== 'RENTAL'"
                 (click)="requestCheckoutModeSwitch('RENTAL', modeSwitchDialog)">
           <i class="bi bi-lightning-fill me-1"></i>
-          {{ 'BARCODE_SCANNER.MODE_RENTAL' | translate }}
+          <span class="d-none d-sm-inline">{{ 'BARCODE_SCANNER.MODE_RENTAL' | translate }}</span>
+          <span class="d-sm-none">{{ 'BARCODE_SCANNER.MODE_RENTAL_SHORT' | translate }}</span>
         </button>
         <button type="button" class="btn"
                 [class.btn-secondary]="checkoutMode === 'MAINTENANCE'"
                 [class.btn-outline-secondary]="checkoutMode !== 'MAINTENANCE'"
                 (click)="requestCheckoutModeSwitch('MAINTENANCE', modeSwitchDialog)">
           <i class="bi bi-tools me-1"></i>
-          {{ 'BARCODE_SCANNER.MODE_MAINTENANCE' | translate }}
+          <span class="d-none d-sm-inline">{{ 'BARCODE_SCANNER.MODE_MAINTENANCE' | translate }}</span>
+          <span class="d-sm-none">{{ 'BARCODE_SCANNER.MODE_MAINTENANCE_SHORT' | translate }}</span>
         </button>
       </div>
 
@@ -37,9 +39,9 @@
     <div class="card-body">
       @if (isCameraOpen) {
         <div class="camera-container mb-4">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h5 class="m-0 text-primary">Camera Scanner</h5>
-            <button class="btn btn-outline-danger btn-sm"
+          <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 gap-2">
+            <h5 class="m-0 text-primary text-nowrap">{{ 'BARCODE_SCANNER.CAMERA_TITLE' | translate }}</h5>
+            <button class="btn btn-outline-danger btn-sm text-nowrap"
                     (click)="closeCamera()">{{ 'BARCODE_SCANNER.CLOSE_CAMERA' | translate }}
             </button>
           </div>
@@ -63,7 +65,7 @@
         </div>
       }
 
-      <form class="d-flex gap-2" (ngSubmit)="searchEquipment()">
+      <form class="d-flex flex-wrap gap-2" (ngSubmit)="searchEquipment()">
         <div class="flex-grow-1">
           <input
             type="text"
@@ -72,17 +74,16 @@
             [placeholder]="'BARCODE_SCANNER.INPUT_PLACEHOLDER' | translate"
             class="form-control form-control-lg"
             [disabled]="loading || scanScenario === 'CONFLICT_RESERVATION' || equipmentScenario === 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED'"
-            autofocus
           />
         </div>
-        <button type="button" class="btn btn-outline-secondary" (click)="openCamera()"
-                [disabled]="loading || isCameraOpen || scanScenario === 'CONFLICT_RESERVATION' || equipmentScenario === 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED'">
-          <i class="bi bi-camera-fill"></i> {{ 'BARCODE_SCANNER.OPEN_CAMERA' | translate }}
-        </button>
-        <button class="btn btn-primary btn-lg"
+        <button class="btn btn-primary btn-lg text-nowrap"
                 type="submit"
                 [disabled]="loading || scanScenario === 'CONFLICT_RESERVATION' || equipmentScenario === 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED'">
           {{ 'BARCODE_SCANNER.BTN_CHECK' | translate }}
+        </button>
+        <button type="button" class="btn btn-outline-secondary text-nowrap" (click)="openCamera()"
+                [disabled]="loading || isCameraOpen || scanScenario === 'CONFLICT_RESERVATION' || equipmentScenario === 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED'">
+          <i class="bi bi-camera-fill"></i> {{ 'BARCODE_SCANNER.OPEN_CAMERA' | translate }}
         </button>
       </form>
     </div>
@@ -117,7 +118,8 @@
         @if (scanScenario === 'NO_RESERVATION' && scannedEquipments.length > 0) {
           <div class="p-4 bg-light border-bottom animate-fade-in">
             <h5 class="text-secondary mb-3 fw-bold">
-              <i class="bi me-2" [ngClass]="checkoutMode === 'MAINTENANCE' ? 'bi-tools text-secondary' : 'bi-lightning-charge-fill text-warning'"></i>
+              <i class="bi me-2"
+                 [ngClass]="checkoutMode === 'MAINTENANCE' ? 'bi-tools text-secondary' : 'bi-lightning-charge-fill text-warning'"></i>
               {{ (checkoutMode === 'MAINTENANCE' ? 'BARCODE_SCANNER.MAINTENANCE_TITLE' : 'BARCODE_SCANNER.WALK_IN_TITLE') | translate }}
             </h5>
             <p class="text-muted small mb-4">
@@ -151,7 +153,8 @@
                     <label for="walkInProfile"
                            class="form-label small fw-bold">{{ 'RESERVATION.SELECT_PROFILE' | translate }} *</label>
                     <select id="walkInProfile" formControlName="customerProfileId" class="form-select">
-                      <option [ngValue]="null" disabled>-- {{ 'BARCODE_SCANNER.CHOOSE_PROFILE_PLACEHOLDER' | translate }}
+                      <option [ngValue]="null" disabled>
+                        -- {{ 'BARCODE_SCANNER.CHOOSE_PROFILE_PLACEHOLDER' | translate }}
                         --
                       </option>
                       @for (profile of filteredProfiles; track profile.id) {
@@ -210,102 +213,165 @@
           </div>
         }
       } @else {
-        <table class="table align-middle mb-0" style="table-layout: fixed;">
-          <thead>
-          <tr>
-            <th>{{ 'RESERVATION.CUSTOMER_PROFILE_NAME' | translate }}</th>
-            <th>{{ 'RESERVATION.PICKUP_DATE' | translate }}</th>
-            <th>{{ 'RESERVATION.PICKUP_TIME' | translate }}</th>
-            <th>{{ 'RESERVATION.RETURN_DATE' | translate }}</th>
-            <th>{{ 'RESERVATION.RESERVATION_STATUS' | translate }}</th>
-            <th>{{ 'RESERVATION.EQUIPMENT_COUNT' | translate }}</th>
-          </tr>
-          </thead>
-          <tbody>
-            @for (item of matchedReservations; track item.id) {
-              <tr class="table-light fw-bold border-bottom-0">
-                <td>
-                  <i class="bi bi-calendar-event text-primary me-2"></i>{{ item.customerName }}
-                </td>
-                <td>{{ item.startDate | date:'dd.MM.yyyy' }}</td>
-                <td>{{ item.pickUpTime ? item.pickUpTime.substring(0, 5) : '' }}</td>
-                <td>{{ item.endDate | date:'dd.MM.yyyy' }}</td>
-                <td>
-                  @if (item.reservationStatus === ReservationStatus.CREATED) {
-                    <span class="badge bg-warning text-dark">
-                      {{ 'RESERVATION_STATUS.CREATED' | translate }}
-                    </span>
-                  }
-                  @if (item.reservationStatus === ReservationStatus.PICKED_UP) {
-                    <span class="badge bg-info text-white">
-                      {{ 'RESERVATION_STATUS.PICKED_UP' | translate }}
-                    </span>
-                  }
-                </td>
-                <td>
-                  <span class="badge bg-primary">
-                    {{ item.items?.length || 0 }} {{ 'RESERVATION.ITEMS' | translate }}
-                  </span>
-                </td>
-              </tr>
 
-              <tr class="border-top-0">
-                <td colspan="5" class="p-0 bg-white">
-                  <div class="ps-4 pe-4 pb-3 pt-1 border-start border-primary border-2 ms-3 my-1">
-                    <div class="text-muted small fw-bold mb-1 text-uppercase tracking-wider"
-                         style="font-size: 0.75rem;">
-                      {{ 'RESERVATION.SELECTED_EQUIPMENT' | translate }}:
+
+        <!-- Card list: small screens -->
+        <div class="d-xl-none d-flex flex-column gap-2 p-2">
+          @for (item of matchedReservations; track item.id) {
+            <div class="inv-card inv-card--no-hover">
+              <div class="d-flex align-items-center gap-2 mb-1">
+                <i class="bi bi-calendar-event text-primary"></i>
+                <p class="fw-medium mb-0 text-truncate flex-fill">{{ item.customerName }}</p>
+                @if (item.reservationStatus === ReservationStatus.CREATED) {
+                  <span class="badge bg-warning text-dark text-nowrap">
+              {{ 'RESERVATION_STATUS.CREATED' | translate }}
+            </span>
+                }
+                @if (item.reservationStatus === ReservationStatus.PICKED_UP) {
+                  <span class="badge bg-info text-white text-nowrap">
+              {{ 'RESERVATION_STATUS.PICKED_UP' | translate }}
+            </span>
+                }
+              </div>
+
+              <div class="d-flex gap-3 text-muted small mb-2">
+                <span><i class="bi bi-box-arrow-up me-1"></i>{{ item.startDate | date:'dd.MM.yyyy' }}</span>
+                @if (item.pickUpTime) {
+                  <span>{{ item.pickUpTime.substring(0, 5) }}</span>
+                }
+                <span><i class="bi bi-box-arrow-in-down me-1"></i>{{ item.endDate | date:'dd.MM.yyyy' }}</span>
+              </div>
+
+              <div class="border rounded bg-light-subtle">
+                @for (eq of item.items; track eq.id) {
+                  <div
+                    class="d-flex align-items-center justify-content-between py-1 px-3 border-bottom small text-secondary flex-wrap gap-1"
+                    [ngClass]="{'bg-success-subtle text-success-emphasis border-success-subtle fw-semibold': scannedEquipmentIds.includes(eq.id)}"
+                    [class.border-bottom-0]="$last">
+                    <div class="d-flex align-items-center gap-2">
+                      @if (scannedEquipmentIds.includes(eq.id)) {
+                        <span
+                          class="badge bg-success rounded-circle p-0 d-inline-flex align-items-center justify-content-center"
+                          style="width: 16px; height: 16px; font-size: 10px;">✓</span>
+                      } @else {
+                        <span class="border border-secondary rounded-circle d-inline-block"
+                              style="width: 16px; height: 16px; opacity: 0.4;"></span>
+                      }
+                      <span class="text-dark">{{ eq.model }}</span>
+                      <span class="text-muted">({{ 'EQUIPMENT_TYPE.' + eq.equipmentType | translate }})</span>
                     </div>
-
-                    <div class="border rounded bg-light-subtle">
-                      @for (eq of item.items; track eq.id) {
-                        <div
-                          class="d-flex align-items-center justify-content-between py-1 px-3 border-bottom text-secondary small"
-                          [ngClass]="{'bg-success-subtle text-success-emphasis border-success-subtle fw-semibold': scannedEquipmentIds.includes(eq.id)}"
-                          [class.border-bottom-0]="$last">
-
-                          <div class="d-flex align-items-center gap-2">
-                            @if (scannedEquipmentIds.includes(eq.id)) {
-                              <span
-                                class="badge bg-success rounded-circle p-0 d-inline-flex align-items-center justify-content-center"
-                                style="width: 16px; height: 16px; font-size: 10px;">
-                                ✓
-                              </span>
-                            } @else {
-                              <span class="border border-secondary rounded-circle d-inline-block"
-                                    style="width: 16px; height: 16px; opacity: 0.4;"></span>
-                            }
-
-                            <div>
-                              <span class="text-dark me-2">{{ eq.model }}</span>
-                              <span class="text-muted small">
-                                ({{ 'EQUIPMENT_TYPE.' + eq.equipmentType | translate }})
-                              </span>
-                            </div>
-                          </div>
-
-                          <div class="text-end text-muted font-monospace" style="font-size: 0.8rem;">
-                            @if (eq.barcodeId) {
-                              <span class="me-3 bg-light border px-2 py-0.5 rounded text-dark">
-                                <i class="bi bi-upc-scan me-1 text-muted"></i>{{ eq.barcodeId }}
-                              </span>
-                            }
-                            <span class="small">{{ 'SKILL_LEVEL.' + eq.targetSkillLevel | translate }}</span>
-                          </div>
-
-                        </div>
-                      } @empty {
-                        <div class="p-2 text-muted small bg-light italic text-center">
-                          {{ 'RESERVATION.NO_EQUIPMENT_SELECTED' | translate }}
-                        </div>
+                    <div class="d-flex align-items-center gap-2 ms-auto">
+                      @if (eq.barcodeId) {
+                        <span class="font-monospace bg-light border px-2 rounded text-dark ms-auto"
+                              style="font-size: 0.8rem;">
+                          <i class="bi bi-upc-scan me-1 text-muted"></i>{{ eq.barcodeId }}
+                        </span>
+                      }
+                      <span class="small">{{ 'SKILL_LEVEL.' + eq.targetSkillLevel | translate }}</span>
+                      @if (scanScenario === 'SINGLE_RESERVATION' &&
+                      item.reservationStatus === ReservationStatus.CREATED) {
+                        <button type="button" class="btn btn-xs btn-danger py-0 px-2" style="font-size: 0.75rem;"
+                                (click)="removeEquipmentFromExistingReservation(eq.id)" [disabled]="loading">
+                          <i class="bi bi-trash"></i> {{ 'BARCODE_SCANNER.BTN_REMOVE' | translate }}
+                        </button>
                       }
                     </div>
                   </div>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
+                } @empty {
+                  <div class="p-2 text-muted small text-center">
+                    {{ 'RESERVATION.NO_EQUIPMENT_SELECTED' | translate }}
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Table-style card list: xl+ screens -->
+        <div class="d-none d-xl-flex flex-column gap-2 p-2">
+          @for (item of matchedReservations; track item.id) {
+            <div class="inv-card inv-card--no-hover" style="flex-direction: column; align-items: stretch;">
+
+              <!-- Reservation header row -->
+              <div class="d-flex align-items-center gap-3 w-100">
+                <div class="inv-col-model">
+                  <p class="inv-model-name">
+                    <i class="bi bi-calendar-event text-primary me-2"></i>{{ item.customerName }}
+                  </p>
+                </div>
+                <div class="inv-col-type">
+                  <i class="bi bi-box-arrow-up me-1"></i>{{ item.startDate | date:'dd.MM.yyyy' }}
+                  @if (item.pickUpTime) {
+                    · {{ item.pickUpTime.substring(0, 5) }}
+                  }
+                </div>
+                <div class="inv-col-skill">
+                  <i class="bi bi-box-arrow-down me-1"></i>{{ item.endDate | date:'dd.MM.yyyy' }}
+                </div>
+                <div class="inv-col-badge">
+                  @if (item.reservationStatus === ReservationStatus.CREATED) {
+                    <span class="badge bg-warning text-dark">
+              {{ 'RESERVATION_STATUS.CREATED' | translate }}
+            </span>
+                  }
+                  @if (item.reservationStatus === ReservationStatus.PICKED_UP) {
+                    <span class="badge bg-info text-white">
+              {{ 'RESERVATION_STATUS.PICKED_UP' | translate }}
+            </span>
+                  }
+                </div>
+                <div class="inv-col-actions">
+          <span class="badge bg-primary">
+            {{ item.items?.length || 0 }} {{ 'RESERVATION.ITEMS' | translate }}
+          </span>
+                </div>
+              </div>
+
+              <!-- Equipment sub-list -->
+              <div class="border rounded bg-light-subtle mt-2">
+                @for (eq of item.items; track eq.id) {
+                  <div
+                    class="d-flex align-items-center justify-content-between py-1 px-3 border-bottom text-secondary small"
+                    [ngClass]="{'bg-success-subtle text-success-emphasis border-success-subtle fw-semibold': scannedEquipmentIds.includes(eq.id)}"
+                    [class.border-bottom-0]="$last">
+                    <div class="d-flex align-items-center gap-2">
+                      @if (scannedEquipmentIds.includes(eq.id)) {
+                        <span
+                          class="badge bg-success rounded-circle p-0 d-inline-flex align-items-center justify-content-center"
+                          style="width: 16px; height: 16px; font-size: 10px;">✓</span>
+                      } @else {
+                        <span class="border border-secondary rounded-circle d-inline-block"
+                              style="width: 16px; height: 16px; opacity: 0.4;"></span>
+                      }
+                      <span class="text-dark me-2">{{ eq.model }}</span>
+                      <span class="text-muted">({{ 'EQUIPMENT_TYPE.' + eq.equipmentType | translate }})</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-3 font-monospace text-end" style="font-size: 0.8rem;">
+                      @if (eq.barcodeId) {
+                        <span class="bg-light border px-2 py-0 rounded text-dark">
+                          <i class="bi bi-upc-scan me-1 text-muted"></i>{{ eq.barcodeId }}
+                        </span>
+                      }
+                      <span class="small">{{ 'SKILL_LEVEL.' + eq.targetSkillLevel | translate }}</span>
+                      @if (scanScenario === 'SINGLE_RESERVATION' &&
+                      item.reservationStatus === ReservationStatus.CREATED) {
+                        <button type="button" class="btn btn-sm btn-danger py-0 px-2"
+                                (click)="removeEquipmentFromExistingReservation(eq.id)" [disabled]="loading">
+                          <i class="bi bi-trash me-1"></i> {{ 'BARCODE_SCANNER.BTN_REMOVE' | translate }}
+                        </button>
+                      }
+                    </div>
+                  </div>
+                } @empty {
+                  <div class="p-2 text-muted small text-center">
+                    {{ 'RESERVATION.NO_EQUIPMENT_SELECTED' | translate }}
+                  </div>
+                }
+              </div>
+
+            </div>
+          }
+        </div>
       }
     </div>
   </div>
@@ -314,127 +380,180 @@
     <div class="card-header bg-light fw-bold">
       {{ 'BARCODE_SCANNER.SCANNED_LIST_TITLE' | translate }} ({{ scannedEquipments.length }})
     </div>
-    <div class="card-body p-0">
 
+    <div class="card-body p-0">
       @if (scannedEquipments.length === 0) {
         <div class="p-4 text-center text-muted">
           {{ 'BARCODE_SCANNER.NO_EQUIPMENT_SCANNED' | translate }}
         </div>
       } @else {
-        <table class="table table-hover table-striped align-middle mb-0">
-          <thead>
-          <tr>
-            <th>{{ 'INVENTORY.EQUIPMENT_MODEL' | translate }}</th>
-            <th>{{ 'INVENTORY.EQUIPMENT_TYP' | translate }}</th>
-            <th>{{ 'INVENTORY.EQUIPMENT_STATUS' | translate }}</th>
-            <th>{{ 'INVENTORY.EQUIPMENT_SKILL' | translate }}</th>
-            <th>{{ 'INVENTORY.EQUIPMENT_PRICE' | translate }}</th>
-            <th>{{ 'INVENTORY.EQUIPMENT_ACTIONS' | translate }}</th>
-          </tr>
-          </thead>
-          <tbody>
-            @for (item of scannedEquipments; track item.id) {
-              <tr>
-                <td>{{ item.model }}</td>
-                <td>{{ 'EQUIPMENT_TYPE.' + item.equipmentType | translate }}</td>
-                <td>
-                  <span class="badge" [ngClass]="getStatusClass(item.status)">
-                    {{ 'RENTAL_STATUS.' + item.status | translate }}
-                  </span>
-                </td>
-                <td>{{ 'SKILL_LEVEL.' + item.targetSkillLevel | translate }}</td>
-                <td>{{ item.price | currency:'EUR':'symbol':'1.2-2':(translateService.currentLang || 'de') }}</td>
-                <td>
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-outline-danger"
-                    (click)="removeEquipmentFromList(item)">
-                    {{ 'BARCODE_SCANNER.REMOVE_FROM_LIST' | translate }}
+
+        <!-- Card list: small screens -->
+        <div class="d-xl-none d-flex flex-column gap-2 p-2" style="max-height: 350px; overflow-y: auto;">
+          @for (item of scannedEquipments; track item.id) {
+            <div class="inv-card">
+              <div class="d-flex align-items-center gap-2">
+                <p class="fw-medium mb-0 text-truncate flex-fill">{{ item.model }}</p>
+                <span class="badge ms-2 text-nowrap" [ngClass]="getStatusClass(item.status)">
+          {{ 'RENTAL_STATUS.' + item.status | translate }}
+        </span>
+              </div>
+              <p class="text-muted small mb-1">{{ 'EQUIPMENT_TYPE.' + item.equipmentType | translate }}</p>
+              <div class="d-flex align-items-center gap-2">
+        <span class="small text-muted flex-fill">
+          <i class="bi bi-person me-1"></i>{{ 'SKILL_LEVEL.' + item.targetSkillLevel | translate }}
+        </span>
+                <span class="small fw-medium fs-6 fw-bold">
+          {{ item.price | currency:'EUR':'symbol':'1.2-2':(translateService.currentLang || 'de') }}
+        </span>
+              </div>
+              <div class="mt-2 d-flex justify-content-between align-items-center gap-2">
+
+                @if (scanScenario === 'SINGLE_RESERVATION' &&
+                equipmentScenario === 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED' &&
+                matchedReservations[0]?.reservationStatus === ReservationStatus.CREATED &&
+                isEquipmentUnreserved(item.id)) {
+                  <button type="button" class="btn btn-sm btn-success"
+                          (click)="addEquipmentToExistingReservation(item.id)" [disabled]="loading">
+                    <i class="bi bi-plus-lg me-1"></i> {{ 'BARCODE_SCANNER.BTN_ADD' | translate }}
                   </button>
-                </td>
-              </tr>
-            }
-          </tbody>
+                }
 
-          @if (scannedItemsTotalPrice > 0 && checkoutMode !== 'MAINTENANCE') {
-            <tfoot>
-            <tr class="table-group-divider bg-light">
-              <td colspan="4" class="text-end fw-bold fs-5 py-3">
-                {{ 'RESERVATION.TOTAL_PRICE' | translate }} ({{ scanScenario === 'NO_RESERVATION' ? ('BARCODE_SCANNER.WALK_IN_TITLE' | translate) : ('RESERVATION.TITLE_OVERVIEW' | translate) }}):
-              </td>
-              <td colspan="2" class="fw-bold text-primary fs-5 py-3 font-monospace">
-                {{ scannedItemsTotalPrice | currency:'EUR':'symbol':'1.2-2':'de-AT' }}
-              </td>
-            </tr>
-            </tfoot>
+                <button type="button" class="btn btn-sm btn-outline-danger ms-auto"
+                        (click)="removeEquipmentFromList(item)">
+                  {{ 'BARCODE_SCANNER.REMOVE_FROM_LIST' | translate }}
+                </button>
+              </div>
+            </div>
           }
+        </div>
 
-        </table>
+        <!-- Table-style card list: xl+ screens -->
+        <div class="d-none d-xl-flex flex-column p-2" style="max-height: 250px; overflow-y: auto;">
+          @for (item of scannedEquipments; track item.id) {
+            <div class="inv-card">
+              <div class="inv-col-model">
+                <p class="inv-model-name">{{ item.model }}</p>
+              </div>
+              <div class="inv-col-type">
+                {{ 'EQUIPMENT_TYPE.' + item.equipmentType | translate }}
+              </div>
+              <div class="inv-col-skill">
+                <i class="bi bi-person me-1"></i>{{ 'SKILL_LEVEL.' + item.targetSkillLevel | translate }}
+              </div>
+              <div class="inv-col-price fs-6 fw-bold">
+                {{ item.price | currency:'EUR':'symbol':'1.2-2':(translateService.currentLang || 'de') }}
+              </div>
+              <div class="inv-col-badge">
+        <span class="badge" [ngClass]="getStatusClass(item.status)">
+          {{ 'RENTAL_STATUS.' + item.status | translate }}
+        </span>
+              </div>
+              <div class="inv-col-actions d-flex gap-2">
+
+                @if (scanScenario === 'SINGLE_RESERVATION' &&
+                equipmentScenario === 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED' &&
+                matchedReservations[0]?.reservationStatus === ReservationStatus.CREATED &&
+                isEquipmentUnreserved(item.id)) {
+                  <button type="button" class="btn btn-sm btn-success text-nowrap"
+                          (click)="addEquipmentToExistingReservation(item.id)" [disabled]="loading">
+                    <i class="bi bi-plus-lg me-1"></i> {{ 'BARCODE_SCANNER.BTN_ADD' | translate }}
+                  </button>
+                }
+
+                <button type="button" class="btn btn-sm btn-outline-danger"
+                        (click)="removeEquipmentFromList(item)">
+                  {{ 'BARCODE_SCANNER.REMOVE_FROM_LIST' | translate }}
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Total price footer -->
+        @if (scannedItemsTotalPrice > 0 && checkoutMode !== 'MAINTENANCE') {
+          <div class="d-flex justify-content-end align-items-center gap-3 px-3 py-2 border-top bg-light">
+        <span class="fw-bold fs-5">
+          {{ 'RESERVATION.TOTAL_PRICE' | translate }}:
+        </span>
+            <span class="fw-bold text-primary fs-5 font-monospace">
+          {{ scannedItemsTotalPrice | currency:'EUR':'symbol':'1.2-2':'de-AT' }}
+        </span>
+          </div>
+        }
       }
     </div>
   </div>
 
-  <div class="d-flex justify-content-end gap-3 mt-4 p-3 bg-light border rounded shadow-sm">
+  @if ((scanScenario === 'NO_RESERVATION' && scannedEquipments.length > 0) ||
+  ((checkoutMode === 'RENTAL' || isMaintenanceReactivation) && scanScenario === 'SINGLE_RESERVATION' && equipmentScenario === 'ALL_RESERVED_EQUIPMENT_SCANNED') ||
+  (checkoutMode === 'RENTAL' && scanScenario === 'SINGLE_RESERVATION' && equipmentScenario === 'SOME_RESERVED_EQUIPMENT_SCANNED') ||
+  (checkoutMode === 'RENTAL' && equipmentScenario === 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED') ||
+  (checkoutMode === 'RENTAL' && scanScenario === 'CONFLICT_RESERVATION' && equipmentScenario !== 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED') ||
+  hasGenuineMaintenanceConflict) {
+    <div class="d-flex justify-content-end gap-3 mt-4 p-3 bg-light border rounded shadow-sm">
 
-    @if (scanScenario === 'NO_RESERVATION' && scannedEquipments.length > 0) {
-      <button class="btn btn-success btn-lg" type="button"
-              [disabled]="(checkoutMode === 'MAINTENANCE'
+      @if (scanScenario === 'NO_RESERVATION' && scannedEquipments.length > 0) {
+        <button class="btn btn-success btn-lg" type="button"
+                [disabled]="(checkoutMode === 'MAINTENANCE'
                             ? (maintenanceCustomerProfileId === null || isWalkInDateRangeInvalid || !walkInForm.get('endDate')?.value)
                             : (walkInForm?.invalid || isWalkInDateRangeInvalid))
                           || scannedEquipmentIds.length === 0 || submitLoading"
-              (click)="openConfirmationModal(confirmDialog)">
-        <i class="bi" [ngClass]="checkoutMode === 'MAINTENANCE' ? 'bi-tools' : 'bi-lightning-fill'"></i>&nbsp;
-        {{ (checkoutMode === 'MAINTENANCE' ? 'BARCODE_SCANNER.BTN_SUBMIT_MAINTENANCE' : 'BARCODE_SCANNER.BTN_SUBMIT_WALK_IN') | translate }}
-      </button>
-    }
-
-    @if ((checkoutMode === 'RENTAL' || isMaintenanceReactivation) && scanScenario === 'SINGLE_RESERVATION' && equipmentScenario === 'ALL_RESERVED_EQUIPMENT_SCANNED') {
-      @if (matchedReservations[0].reservationStatus === ReservationStatus.CREATED) {
-        <button class="btn btn-success btn-lg" type="button" [disabled]="loading"
                 (click)="openConfirmationModal(confirmDialog)">
-          <i class="bi bi-box-arrow-up me-2"></i>
-          {{ 'BARCODE_SCANNER.BTN_CHECKOUT_FOR' | translate:{name: matchedReservations[0].customerName} }}
+          <i class="bi" [ngClass]="checkoutMode === 'MAINTENANCE' ? 'bi-tools' : 'bi-lightning-fill'"></i>&nbsp;
+          {{ (checkoutMode === 'MAINTENANCE' ? 'BARCODE_SCANNER.BTN_SUBMIT_MAINTENANCE' : 'BARCODE_SCANNER.BTN_SUBMIT_WALK_IN') | translate }}
         </button>
       }
-      @if (matchedReservations[0].reservationStatus === ReservationStatus.PICKED_UP) {
-        <button class="btn btn-info text-white btn-lg" type="button" [disabled]="loading"
-                (click)="openConfirmationModal(confirmDialog)">
-          <i class="bi" [ngClass]="isMaintenanceReactivation ? 'bi-check-circle-fill' : 'bi-box-arrow-in-down'"></i>&nbsp;
-          {{ (isMaintenanceReactivation ? 'BARCODE_SCANNER.BTN_REACTIVATE' : 'BARCODE_SCANNER.BTN_CHECKIN_FOR') | translate:{name: matchedReservations[0].customerName} }}
+
+      @if ((checkoutMode === 'RENTAL' || isMaintenanceReactivation) && scanScenario === 'SINGLE_RESERVATION' && equipmentScenario === 'ALL_RESERVED_EQUIPMENT_SCANNED') {
+        @if (matchedReservations[0].reservationStatus === ReservationStatus.CREATED) {
+          <button class="btn btn-success btn-lg" type="button" [disabled]="loading"
+                  (click)="openConfirmationModal(confirmDialog)">
+            <i class="bi bi-box-arrow-up me-2"></i>
+            {{ 'BARCODE_SCANNER.BTN_CHECKOUT_FOR' | translate:{name: matchedReservations[0].customerName} }}
+          </button>
+        }
+        @if (matchedReservations[0].reservationStatus === ReservationStatus.PICKED_UP) {
+          <button class="btn btn-info text-white btn-lg" type="button" [disabled]="loading"
+                  (click)="openConfirmationModal(confirmDialog)">
+            <i class="bi" [ngClass]="isMaintenanceReactivation ? 'bi-check-circle-fill' : 'bi-box-arrow-in-down'"></i>&nbsp;
+            {{ (isMaintenanceReactivation ? 'BARCODE_SCANNER.BTN_REACTIVATE' : 'BARCODE_SCANNER.BTN_CHECKIN_FOR') | translate:{name: matchedReservations[0].customerName} }}
+          </button>
+        }
+      }
+
+      @if (checkoutMode === 'RENTAL' && scanScenario === 'SINGLE_RESERVATION' && equipmentScenario === 'SOME_RESERVED_EQUIPMENT_SCANNED') {
+        <button class="btn btn-secondary btn-lg" type="button" disabled>
+          <i class="bi bi-hourglass-split me-2"></i>
+          {{ 'BARCODE_SCANNER.BTN_BLOCKED_INCOMPLETE' | translate }}
         </button>
       }
-    }
 
-    @if (checkoutMode === 'RENTAL' && scanScenario === 'SINGLE_RESERVATION' && equipmentScenario === 'SOME_RESERVED_EQUIPMENT_SCANNED') {
-      <button class="btn btn-secondary btn-lg" type="button" disabled>
-        <i class="bi bi-hourglass-split me-2"></i>
-        {{ 'BARCODE_SCANNER.BTN_BLOCKED_INCOMPLETE' | translate }}
-      </button>
-    }
+      @if (checkoutMode === 'RENTAL' && equipmentScenario === 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED') {
+        <button class="btn btn-danger btn-lg" type="button" disabled>
+          <i class="bi bi-exclamation-octagon-fill me-2"></i>
+          {{ 'BARCODE_SCANNER.BTN_BLOCKED_UNRESERVED' | translate }}
+        </button>
+      }
 
-    @if (checkoutMode === 'RENTAL' && equipmentScenario === 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED') {
-      <button class="btn btn-danger btn-lg" type="button" disabled>
-        <i class="bi bi-exclamation-octagon-fill me-2"></i>
-        {{ 'BARCODE_SCANNER.BTN_BLOCKED_UNRESERVED' | translate }}
-      </button>
-    }
+      @if (checkoutMode === 'RENTAL' && scanScenario === 'CONFLICT_RESERVATION' && equipmentScenario !== 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED') {
+        <button class="btn btn-danger btn-lg" type="button" disabled>
+          <i class="bi bi-lock-fill me-2"></i>
+          {{ 'BARCODE_SCANNER.BTN_BLOCKED_CONFLICT' | translate }}
+        </button>
+      }
 
-    @if (checkoutMode === 'RENTAL' && scanScenario === 'CONFLICT_RESERVATION' && equipmentScenario !== 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED') {
-      <button class="btn btn-danger btn-lg" type="button" disabled>
-        <i class="bi bi-lock-fill me-2"></i>
-        {{ 'BARCODE_SCANNER.BTN_BLOCKED_CONFLICT' | translate }}
-      </button>
-    }
+      @if (hasGenuineMaintenanceConflict) {
+        <button class="btn btn-danger btn-lg" type="button" disabled>
+          <i class="bi bi-lock-fill me-2"></i>
+          {{ 'BARCODE_SCANNER.BTN_BLOCKED_MAINTENANCE_HAS_RESERVATION' | translate }}
+        </button>
+      }
+    </div>
+  }
 
-    @if (hasGenuineMaintenanceConflict) {
-      <button class="btn btn-danger btn-lg" type="button" disabled>
-        <i class="bi bi-lock-fill me-2"></i>
-        {{ 'BARCODE_SCANNER.BTN_BLOCKED_MAINTENANCE_HAS_RESERVATION' | translate }}
-      </button>
-    }
-  </div>
-
-  <dialog #confirmDialog class="border-0 rounded shadow-lg p-0 backend-modal" style="max-width: 500px; width: 100%;">
+  <dialog #confirmDialog class="border-0 rounded shadow-lg p-0 backend-modal"
+          style="max-width: 500px; width: calc(100% - 2rem);">
     <div class="card border-0">
       <div class="card-header bg-primary text-white py-3">
         <h5 class="card-title mb-0 d-flex align-items-center">
@@ -483,7 +602,8 @@
     </div>
   </dialog>
 
-  <dialog #modeSwitchDialog class="border-0 rounded shadow-lg p-0 backend-modal" style="max-width: 500px; width: 100%;">
+  <dialog #modeSwitchDialog class="border-0 rounded shadow-lg p-0 backend-modal"
+          style="max-width: 500px; width: calc(100% - 2rem);">
     <div class="card border-0">
       <div class="card-header bg-warning text-dark py-3">
         <h5 class="card-title mb-0 d-flex align-items-center">
@@ -500,7 +620,8 @@
         <button type="button" class="btn btn-outline-secondary px-4" (click)="modeSwitchDialog.close()">
           {{ 'BARCODE_SCANNER.MODAL_BTN_CANCEL' | translate }}
         </button>
-        <button type="button" class="btn btn-warning px-4 fw-bold" (click)="confirmCheckoutModeSwitch(modeSwitchDialog)">
+        <button type="button" class="btn btn-warning px-4 fw-bold"
+                (click)="confirmCheckoutModeSwitch(modeSwitchDialog)">
           {{ 'BARCODE_SCANNER.MODAL_BTN_CONFIRM' | translate }}
         </button>
       </div>

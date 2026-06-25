@@ -1,10 +1,13 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 import java.util.List;
 
 public class ReservationAddDeleteEquipmentDto {
+
+    @Positive(message = "Reservation id must be greater than 0")
     @NotNull(message = "id should not be null")
     private Long id;
 

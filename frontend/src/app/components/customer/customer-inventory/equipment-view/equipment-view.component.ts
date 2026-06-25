@@ -25,6 +25,7 @@ export class CustomerEquipmentViewComponent implements OnInit {
     public translateService: TranslateService
   ) {}
 
+// Initializes the component and loads equipment details based on the route parameter ID.
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
@@ -32,6 +33,7 @@ export class CustomerEquipmentViewComponent implements OnInit {
     }
   }
 
+  // Fetches equipment details from the backend and updates the component state.
   private loadEquipment(id: number): void {
     this.loading = true;
     this.error = false;
@@ -48,10 +50,12 @@ export class CustomerEquipmentViewComponent implements OnInit {
     });
   }
 
+  // Navigates back to the customer inventory overview page.
   goBack(): void {
     this.router.navigate(['/customer/inventory']);
   }
 
+  // Returns the corresponding CSS class for the given equipment status.
   getStatusClass(status: string): string {
     switch (status) {
       case 'FREE': return 'bg-success';

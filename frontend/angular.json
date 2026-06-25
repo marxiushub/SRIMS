@@ -72,6 +72,7 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "options": {
+            "allowedHosts": ["srims.widmer.wien"],
             "buildTarget": "sepr-group-phase:build"
           },
           "configurations": {

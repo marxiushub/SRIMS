@@ -20,6 +20,11 @@
     "PASSWORD_MIN_LENGTH": "Das Passwort muss mindestens 10 Zeichen lang sein.",
     "PASSWORD_PATTERN": "Das Passwort muss mindestens eine Zahl und ein Sonderzeichen enthalten.",
     "PASSWORD_MISMATCH": "Die Passwörter stimmen nicht überein.",
+    "FORGOT_PASSWORD": "Passwort vergessen?",
+    "RESET_PASSWORD": "Passwort zurücksetzen",
+    "SEND_RESET_EMAIL": "Neues Passwort anfordern",
+    "PASSWORD_RESET_SUCCESS": "Ein neues Passwort wurde an Ihre E-Mail-Adresse gesendet.",
+    "BACK_TO_LOGIN": "Zurück zum Login",
     "REPEAT_PASSWORD_REQUIRED": "Bitte wiederholen Sie das Passwort.",
     "FIRST_NAME_REQUIRED": "Vorname ist erforderlich!",
     "LAST_NAME_REQUIRED": "Nachname ist erforderlich!",
@@ -29,7 +34,7 @@
     "DATE_OF_BIRTH_FUTURE": "Das Geburtsdatum darf nicht in der Zukunft liegen!",
     "ALREADY_LOGGED_IN": "Sie sind bereits eingeloggt.",
     "LOGIN_SUCCESS": "Erfolgreich angemeldet.",
-    "REGISTER_SUCCESS": "Erfolgreich registriert. Bitte loggen Sie sich ein.",
+    "REGISTER_SUCCESS": "Erfolgreich registriert.",
     "LOGOUT_SUCCESS": "Erfolgreich ausgeloggt."
   },
   "INVENTORY": {
@@ -65,6 +70,7 @@
     "HIGHEST_FIRST": "Preis absteigend",
     "ROWS_PER_PAGE": "Zeilen pro Seite",
     "OF": "von",
+    "CREATE_RESERVATION": "Reservierung erstellen",
     "RESERVATIONS_TITLE": "Zukünftige Reservierungen",
     "RESERVATIONS_LOADING": "Reservierungen werden geladen...",
     "RESERVATIONS_ERROR": "Fehler beim Laden der Reservierungen für dieses Equipment.",
@@ -147,6 +153,18 @@
       "TITLE": "Barcode-Scanner",
       "DESC": "Equipment kontaktlos ausgeben oder zurücknehmen."
     },
+    "ACCOUNT": {
+      "TITLE": "Mein Konto",
+      "DESC": "Kontodaten ansehen und Passwort ändern",
+      "BACK": "Zurück",
+      "LOADING": "Kontodaten werden geladen...",
+      "LOADING_ERROR": "Kontodaten konnten nicht geladen werden. Bitte versuchen Sie es später erneut.",
+      "ROLE": "Rolle",
+      "CHANGE_PASSWORD": "Passwort ändern",
+      "OLD_PASSWORD": "Aktuelles Passwort",
+      "NEW_PASSWORD": "Neues Passwort",
+      "PASSWORD_CHANGE_SUCCESS": "Ihr Passwort wurde erfolgreich geändert."
+    },
     "OVERVIEW": {
       "TITLE": "Grafische Übersicht",
       "DESC": "Visuelle Darstellung des gesamten Bestands-Status.",
@@ -157,9 +175,24 @@
         "ERROR": "Übersicht konnte nicht geladen werden. Bitte versuche es erneut."
       }
     },
+    "RESET_PASSWORD": {
+      "TITLE": "Mitarbeiter-Passwort zurücksetzen",
+      "DESC": "Ein neues Passwort an die E-Mail-Adresse eines Mitarbeiters senden",
+      "BACK": "Zurück",
+      "EMAIL_PLACEHOLDER": "E-Mail-Adresse des Mitarbeiters",
+      "SEND": "Neues Passwort senden",
+      "SUCCESS": "Ein neues Passwort wurde an diese E-Mail-Adresse gesendet."
+    },
+    "REGISTER_STAFF": {
+      "TITLE": "Mitarbeiterkonto erstellen",
+      "DESC": "Ein neues Mitarbeiterkonto erstellen",
+      "BACK": "Zurück",
+      "CREATE": "Konto erstellen",
+      "SUCCESS": "Das Mitarbeiterkonto wurde erfolgreich erstellt."
+    },
     "STATISTICS": {
-      "TITLE": "Statistiken",
-      "SUBTITLE": "Analysiere die Auslastung und Mietdauer deines Equipments.",
+      "TITLE": "Mietstatistiken",
+      "SUBTITLE": "Analysiere die Mietdauer des Equipments, pro Stück und pro Typ.",
       "FILTER": {
         "START": "Von",
         "END": "Bis",
@@ -180,7 +213,7 @@
       },
       "MESSAGES": {
         "NO_DATA": "Keine Daten für den gewählten Zeitraum vorhanden. Passe die Filter an und klicke auf 'Generieren'.",
-        "ERROR": "Statistiken konnten nicht geladen werden. Bitte überprüfe die Eingaben."
+        "ERROR": "Keine zu diesen Eingaben passende Daten gefunden."
       },
       "EQUIPMENT_TYPES": {
         "SKI": "Ski",
@@ -206,7 +239,9 @@
     "TITLE": "Prototyp Barcode Scanner",
     "MODE_LABEL": "Scanner-Modus auswählen:",
     "MODE_RENTAL": "Modus 1: Ausleihen / Zurückgeben (FREE ↔ RENTED)",
+    "MODE_RENTAL_SHORT": "Mode 1: Ausleihen / Zurückgeben",
     "MODE_MAINTENANCE": "Modus 2: In Reparatur (FREE ↔ MAINTENANCE)",
+    "MODE_MAINTENANCE_SHORT": "Mode 2: Reparatur",
     "INPUT_PLACEHOLDER": "Barcode einscannen oder eingeben...",
     "BTN_CHECK": "Barcode prüfen",
     "ERROR_EMPTY": "Bitte gib eine Barcode-ID ein.",
@@ -226,7 +261,7 @@
     "ERROR_ALREADY_SCANNED": "{{model}} wurde in dieser Sitzung bereits gescannt.",
     "SCANNED_LIST_TITLE": "Gescannte Ausrüstung",
     "NO_EQUIPMENT_SCANNED": "Noch keine Ausrüstung gescannt. Bitte Barcode einscannen.",
-    "REMOVE_FROM_LIST": "Entfernen",
+    "REMOVE_FROM_LIST": "Gescannten Gegenstand entfernen",
     "SUCCESS_ADDED": "{{model}} wurde der Liste hinzugefügt.",
     "SUCCESS_REMOVED": "{{model}} wurde aus der Liste entfernt.",
     "ERROR_NO_RESERVATION_TODAY": "Für {{model}} wurde am heutigen Tag keine aktive Reservierung gefunden.",
@@ -274,7 +309,10 @@
     "MAINTENANCE_REACTIVATE_CONFIRM_PROMPT": "Möchten Sie dieses Equipment jetzt aus der Wartung zurückholen und als verfügbar markieren?",
     "CAMERA_SCANNER": "Kamera Scanner",
     "CLOSE_CAMERA": "Kamera schließen",
-    "OPEN_CAMERA": "Kamera öffnen"
+    "OPEN_CAMERA": "Kamera öffnen",
+    "CAMERA_TITLE": "Kamera-Scanner",
+    "BTN_REMOVE": "Von Reservierung entfernen",
+    "BTN_ADD": "Zu Reservierung hinzufügen"
   },
   "RESERVATION": {
     "CUSTOMER_NAME": "Kunde (Account)",
@@ -336,6 +374,17 @@
   "CUSTOMER": {
     "DASHBOARD_TITLE": "Kundenportal",
     "DASHBOARD_SUBTITLE": "Willkommen im SRIMS Verleih-System. Wählen Sie eine Option:",
+    "ACCOUNT": {
+      "TITLE": "Mein Konto",
+      "DESC": "Kontodaten ansehen und Passwort ändern",
+      "BACK": "Zurück",
+      "LOADING": "Kontodaten werden geladen...",
+      "LOADING_ERROR": "Kontodaten konnten nicht geladen werden. Bitte versuchen Sie es später erneut.",
+      "CHANGE_PASSWORD": "Passwort ändern",
+      "OLD_PASSWORD": "Aktuelles Passwort",
+      "NEW_PASSWORD": "Neues Passwort",
+      "PASSWORD_CHANGE_SUCCESS": "Ihr Passwort wurde erfolgreich geändert."
+    },
     "RESERVATIONS": {
       "TITLE": "Meine Reservierungen",
       "DESC": "Bestehende Buchungen einsehen oder neue Ausrüstung reservieren"
@@ -412,5 +461,16 @@
     "BACK": "Zurück",
     "EDIT": "Bearbeiten",
     "DELETE": "Löschen"
+  },
+  "USER_TYPE": {
+    "CUSTOMER": "Kunde",
+    "STAFF": "Mitarbeiter"
+  },
+  "REGISTRATION_EXT": {
+    "PROFILE_SECTION_TITLE": "Erstes Kundenprofil erstellen",
+    "PLACEHOLDER_HEIGHT": "z.B. 175",
+    "PLACEHOLDER_WEIGHT": "z.B. 70",
+    "PLACEHOLDER_SHOE_SIZE": "z.B. 42",
+    "CHOOSE_SKILL_PLACEHOLDER": "-- Bitte Erfahrungslevel wählen --"
   }
 }

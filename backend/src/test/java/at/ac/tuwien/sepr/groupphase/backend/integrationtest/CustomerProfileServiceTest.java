@@ -4,12 +4,15 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.customerprofile.Custome
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.customerprofile.CustomerProfileDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.customerprofile.CustomerProfileUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Permission;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Reservation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Role;
+import at.ac.tuwien.sepr.groupphase.backend.entity.enums.ReservationStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.Customer;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ReservationRepository;
 import org.springframework.security.access.AccessDeniedException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerProfileRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
@@ -23,6 +26,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
 
@@ -31,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-//TODO: rework test to use datagenerators and integrationtestbase
+
 @ActiveProfiles({"test"})
 @SpringBootTest
 public class CustomerProfileServiceTest {
@@ -45,11 +49,15 @@ public class CustomerProfileServiceTest {
     @Autowired
     private CustomerProfileRepository customerProfileRepository;
 
+    @Autowired
+    private ReservationRepository reservationRepository;
+
     @MockitoBean
     private CurrentUserService currentUserService;
 
     @AfterEach
     public void cleanup() {
+        reservationRepository.deleteAll();
         customerProfileRepository.deleteAll();
         customerRepository.deleteAll();
     }
@@ -82,7 +90,6 @@ public class CustomerProfileServiceTest {
         return customerProfileRepository.save(profile);
     }
 
-    // Sets up the mock so the service believes "customer" is the currently authenticated, non-staff user.
     private void actingAsCustomer(Customer customer) {
         when(currentUserService.getUserId()).thenReturn(customer.getId());
         when(currentUserService.hasAuthority("STAFF")).thenReturn(false);
@@ -575,6 +582,7 @@ public class CustomerProfileServiceTest {
         );
     }
 
+
     //Validator Tests:
     @Test
     public void createCustomerProfile_withNullDto_throwsIllegalArgumentException() {
@@ -688,6 +696,32 @@ public class CustomerProfileServiceTest {
         assertThrows(
             ValidationException.class,
             () -> customerProfileService.updateCustomerProfile(profile.getId(), dto)
+
+    @Test
+    public void deleteCustomerProfile_withExistingReservations_throwsValidationException() {
+        Customer customer = createTestCustomer("delete_blocked_by_res");
+        CustomerProfile profile = createTestProfile(customer, "Blocked Profile", SkillLevel.BEGINNER);
+
+        actingAsCustomer(customer);
+
+        Reservation reservation = new Reservation(
+            profile,
+            LocalTime.of(10, 0),
+            LocalDate.now().plusDays(1),
+            LocalDate.now().plusDays(5),
+            ReservationStatus.CREATED
+        );
+        reservation.setTotalPrice(42.0);
+        reservationRepository.save(reservation);
+
+        ValidationException exception = assertThrows(ValidationException.class, () ->
+            customerProfileService.deleteCustomerProfile(profile.getId())
+        );
+
+        assertAll(
+            "Verify that profile with reservations cannot be deleted",
+            () -> assertThat(exception).isNotNull(),
+            () -> assertThat(exception.getMessage()).containsIgnoringCase("Cannot delete customer profile with existing reservations")
         );
     }
 }

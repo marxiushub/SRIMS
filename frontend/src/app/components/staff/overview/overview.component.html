@@ -17,18 +17,18 @@
   }
 
   @if (!loading && !errorMessageKey && overview) {
-    <div class="summary-tiles">
+    <div class="summary-tiles d-flex flex-wrap">
       <div class="summary-tile tile-free">
         <span class="summary-count">{{ totalFree }}</span>
-        <span class="summary-label">{{ 'RENTAL_STATUS.FREE' | translate }}</span>
+        <span class="summary-label text-nowrap">{{ 'RENTAL_STATUS.FREE' | translate }}</span>
       </div>
       <div class="summary-tile tile-rented">
         <span class="summary-count">{{ totalRented }}</span>
-        <span class="summary-label">{{ 'RENTAL_STATUS.RENTED' | translate }}</span>
+        <span class="summary-label text-nowrap">{{ 'RENTAL_STATUS.RENTED' | translate }}</span>
       </div>
       <div class="summary-tile tile-maintenance">
         <span class="summary-count">{{ totalMaintenance }}</span>
-        <span class="summary-label">{{ 'RENTAL_STATUS.MAINTENANCE' | translate }}</span>
+        <span class="summary-label text-nowrap">{{ 'RENTAL_STATUS.MAINTENANCE' | translate }}</span>
       </div>
     </div>
 
@@ -76,17 +76,22 @@
               }
             }
             <text x="60" y="56" text-anchor="middle" class="donut-total">{{ donut.total }}</text>
-            <text x="60" y="72" text-anchor="middle" class="donut-total-label">{{ 'STAFF.OVERVIEW.TOTAL' | translate }}</text>
+            <text x="60" y="72" text-anchor="middle"
+                  class="donut-total-label">{{ 'STAFF.OVERVIEW.TOTAL' | translate }}
+            </text>
           </svg>
           <h4>{{ 'EQUIPMENT_TYPE.' + donut.type | translate }}</h4>
         </div>
       }
     </div>
 
-    <div class="bar-legend">
-      <span class="legend-item"><span class="legend-swatch tile-free"></span>{{ 'RENTAL_STATUS.FREE' | translate }}</span>
-      <span class="legend-item"><span class="legend-swatch tile-rented"></span>{{ 'RENTAL_STATUS.RENTED' | translate }}</span>
-      <span class="legend-item"><span class="legend-swatch tile-maintenance"></span>{{ 'RENTAL_STATUS.MAINTENANCE' | translate }}</span>
+    <div class="bar-legend d-flex flex-wrap">
+      <span class="legend-item"><span
+        class="legend-swatch tile-free text-nowrap"></span>{{ 'RENTAL_STATUS.FREE' | translate }}</span>
+      <span class="legend-item text-nowrap"><span
+        class="legend-swatch tile-rented"></span>{{ 'RENTAL_STATUS.RENTED' | translate }}</span>
+      <span class="legend-item text-nowrap"><span
+        class="legend-swatch tile-maintenance"></span>{{ 'RENTAL_STATUS.MAINTENANCE' | translate }}</span>
     </div>
   }
 </div>

@@ -9,6 +9,7 @@ import {ReservationDetail} from '../dtos/reservation-detail';
 import {ReservationCreation} from '../dtos/reservation-creation';
 import {ReservationUpdate} from '../dtos/reservation-update';
 import {ReservationStatus} from "../dtos/reservationstatus";
+import { ReservationAddDeleteEquipment } from '../dtos/reservation-add-delete-equipment';
 
 describe('ReservationService', () => {
   let service: ReservationService;
@@ -382,6 +383,109 @@ describe('ReservationService', () => {
       expect(req.request.body).toBeNull();
 
       req.flush(null);
+    });
+  });
+
+  describe('addEquipmentToReservation', () => {
+    it('should make a POST request with the payload to the equipment URI', () => {
+      const mockDto: ReservationAddDeleteEquipment = {
+        id: 1,
+        equipmentIds: [101, 102]
+      };
+
+      const mockResponse: ReservationDetail = {
+        id: 1,
+        customerProfileId: 2,
+        accountId: 1,
+        customerName: 'Max Mustermann',
+        pickUpTime: '09:00',
+        startDate: '2026-03-01',
+        endDate: '2026-03-02',
+        confirmationEmailSent: false,
+        totalPrice: 50, // Preis angepasst durch neues Equipment
+        items: [],
+        reservationStatus: ReservationStatus.CREATED
+      };
+
+      service.addEquipmentToReservation(mockDto).subscribe((data) => {
+        expect(data).toBeTruthy();
+        expect(data.id).toBe(1);
+      });
+
+      const req = httpMock.expectOne(`${globals.backendUri}/reservation/equipment`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual(mockDto);
+
+      req.flush(mockResponse);
+    });
+
+    it('should forward backend error if adding equipment fails', () => {
+      const mockDto: ReservationAddDeleteEquipment = {
+        id: 999,
+        equipmentIds: [101]
+      };
+
+      service.addEquipmentToReservation(mockDto).subscribe({
+        next: () => fail('Should have failed'),
+        error: (error) => {
+          expect(error.status).toBe(404);
+        }
+      });
+
+      const req = httpMock.expectOne(`${globals.backendUri}/reservation/equipment`);
+      req.flush('Reservation not found', { status: 404, statusText: 'Not Found' });
+    });
+  });
+
+  describe('removeEquipmentFromReservation', () => {
+    it('should make a DELETE request with the payload embedded inside the request body', () => {
+      const mockDto: ReservationAddDeleteEquipment = {
+        id: 1,
+        equipmentIds: [102]
+      };
+
+      const mockResponse: ReservationDetail = {
+        id: 1,
+        customerProfileId: 2,
+        accountId: 1,
+        customerName: 'Max Mustermann',
+        pickUpTime: '09:00',
+        startDate: '2026-03-01',
+        endDate: '2026-03-02',
+        confirmationEmailSent: false,
+        totalPrice: 20,
+        items: [],
+        reservationStatus: ReservationStatus.CREATED
+      };
+
+      service.removeEquipmentFromReservation(mockDto).subscribe((data) => {
+        expect(data).toBeTruthy();
+        expect(data.id).toBe(1);
+      });
+
+      const req = httpMock.expectOne(`${globals.backendUri}/reservation/equipment`);
+      expect(req.request.method).toBe('DELETE');
+
+      expect(req.request.body).toEqual(mockDto);
+
+      req.flush(mockResponse);
+    });
+
+    it('should forward backend error if removing equipment fails', () => {
+      const mockDto: ReservationAddDeleteEquipment = {
+        id: 1,
+        equipmentIds: [9999]
+      };
+
+      service.removeEquipmentFromReservation(mockDto).subscribe({
+        next: () => fail('Should have failed'),
+        error: (error) => {
+          expect(error.status).toBe(400);
+        }
+      });
+
+      const req = httpMock.expectOne(`${globals.backendUri}/reservation/equipment`);
+      req.flush('Equipment not found in reservation', { status: 400, statusText: 'Bad Request' });
     });
   });
 });

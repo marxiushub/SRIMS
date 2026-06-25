@@ -107,7 +107,7 @@ public class StatisticsServiceTest {
         updateDto.setId(created.getId());
         updateDto.setReservationStatus(ReservationStatus.PICKED_UP);
 
-        reservationService.updateReservationStaff(updateDto);
+        reservationService.updateReservationStaff(updateDto, false);
 
         StatisticsRequestDto request = new StatisticsRequestDto();
         request.setSearchStart(LocalDate.now());

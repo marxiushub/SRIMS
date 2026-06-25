@@ -2,6 +2,8 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.ReservationStatus;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -10,6 +12,7 @@ import java.util.List;
 public class ReservationUpdateDto {
 
     @NotNull(message = "id should not be null")
+    @Positive(message = "id must be greater than 0")
     private Long id;
 
     private LocalTime pickUpTime;
@@ -18,8 +21,10 @@ public class ReservationUpdateDto {
 
     private LocalDate endDate;
 
+    @Size(max = 100, message = "You can only select up to 100 equipment items")
     private List<Long> equipmentIds;
 
+    @Positive(message = "customerProfileId must be greater than 0")
     private Long customerProfileId;
 
     private ReservationStatus reservationStatus;

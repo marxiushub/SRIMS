@@ -9,14 +9,19 @@ import {
 } from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {AuthService} from '../../services/auth.service';
+import { CustomerProfileService } from '../../services/customer-profile.service';
 import {AuthRequest} from '../../dtos/auth-request';
 import {CustomerCreationDto} from '../../dtos/customer-creation';
+import { CustomerProfileCreationUpdate } from '../../dtos/customer-profile-creation-update';
+import { SkillLevel } from '../../dtos/skilllevel';
 import {ToastrService} from "ngx-toastr";
 import {TranslateService} from "@ngx-translate/core";
+import { switchMap } from 'rxjs/operators';
 
 export enum LoginRegisterMode {
   login,
-  register
+  register,
+  resetPassword
 }
 
 export function maxDateTodayValidator(): ValidatorFn {
@@ -40,6 +45,8 @@ export function maxDateTodayValidator(): ValidatorFn {
 })
 export class LoginRegisterComponent implements OnInit {
   readonly LoginRegisterMode = LoginRegisterMode;
+  readonly SkillLevelEnum = SkillLevel;
+
   mode: LoginRegisterMode = LoginRegisterMode.login;
 
   loginForm: UntypedFormGroup;
@@ -50,7 +57,20 @@ export class LoginRegisterComponent implements OnInit {
   showPassword = false;
   showRepeatPassword = false;
 
-  constructor(private formBuilder: UntypedFormBuilder, private authService: AuthService, public translateService: TranslateService, private router: Router, private route: ActivatedRoute, private notification: ToastrService) {
+  skillLevels = [
+    SkillLevel.BEGINNER,
+    SkillLevel.INTERMEDIATE,
+    SkillLevel.ADVANCED
+  ];
+
+  constructor(
+    private formBuilder: UntypedFormBuilder,
+    private authService: AuthService,
+    private customerProfileService: CustomerProfileService,
+    public translateService: TranslateService,
+    private router: Router,
+    private route: ActivatedRoute,
+    private notification: ToastrService) {
     this.loginForm = this.formBuilder.group({
       username: ['', [Validators.required]],
       password: ['', [Validators.required]],
@@ -58,7 +78,11 @@ export class LoginRegisterComponent implements OnInit {
       firstName: ['', [Validators.required]],
       lastName: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
-      dateOfBirth: ['', [Validators.required, maxDateTodayValidator()]]
+      dateOfBirth: ['', [Validators.required, maxDateTodayValidator()]],
+      height: [null],
+      weight: [null],
+      shoeSize: [null],
+      skillLevel: [null]
     });
   }
 
@@ -85,10 +109,19 @@ export class LoginRegisterComponent implements OnInit {
           email: this.loginForm.controls.email.value,
           firstName: this.loginForm.controls.firstName.value,
           lastName: this.loginForm.controls.lastName.value,
-          dateOfBirth: this.loginForm.controls.dateOfBirth.value
+          dateOfBirth: this.loginForm.controls.dateOfBirth.value,
+        };
+        const profileDto: CustomerProfileCreationUpdate = {
+          profileName: this.loginForm.controls.username.value,
+          height: Number(this.loginForm.controls.height.value),
+          weight: Number(this.loginForm.controls.weight.value),
+          shoeSize: Number(this.loginForm.controls.shoeSize.value),
+          skillLevel: this.loginForm.controls.skillLevel.value
         };
         console.log(customerDto)
-        this.registerUser(customerDto);
+        this.registerUserWithProfile(customerDto, profileDto);
+      } else if (this.mode === LoginRegisterMode.resetPassword) {
+        this.requestPasswordReset(this.loginForm.controls.username.value);
       } else {
         const authRequest: AuthRequest = new AuthRequest(this.loginForm.controls.username.value, this.loginForm.controls.password.value);
         this.authenticateUser(authRequest);
@@ -125,13 +158,40 @@ export class LoginRegisterComponent implements OnInit {
   /**
    * Send registration data to the authService to create a new account
    */
-  registerUser(customerDto: CustomerCreationDto) {
+  registerUserWithProfile(customerDto: CustomerCreationDto, profileDto: CustomerProfileCreationUpdate) {
     console.log('Registering customer: ' + customerDto.userName);
-    this.authService.registerUser(customerDto).subscribe({
+
+    this.authService.registerUser(customerDto).pipe(
+      switchMap(() => {
+        const loginCredentials = new AuthRequest(customerDto.email, customerDto.password);
+        return this.authService.loginUser(loginCredentials);
+      }),
+      switchMap(() => {
+        return this.customerProfileService.create(profileDto);
+      })
+    ).subscribe({
       next: () => {
-        console.log('Successfully registered user: ' + customerDto.email);
+        console.log('Successfully registered user and created primary profile.');
         this.notification.success(this.translateService.instant('COMMON.REGISTER_SUCCESS'));
-        this.router.navigate(['/']);
+        this.router.navigate(['/customer']);
+      },
+      error: error => this.handleError(error)
+    });
+  }
+
+  /**
+   * Send a password reset request for the given email to the authService.
+   * On success, the backend sends a new generated password to that email address.
+   *
+   * @param email the email of the customer who forgot their password
+   */
+  requestPasswordReset(email: string) {
+    console.log('Requesting password reset for: ' + email);
+    this.authService.resetPassword(email).subscribe({
+      next: () => {
+        console.log('Successfully requested password reset for: ' + email);
+        this.notification.success(this.translateService.instant('COMMON.PASSWORD_RESET_SUCCESS'));
+        this.router.navigate(['/login']);
       },
       error: error => this.handleError(error)
     });
@@ -187,7 +247,17 @@ export class LoginRegisterComponent implements OnInit {
           Validators.minLength(10),
           Validators.pattern('^(?=.*[A-Za-z])(?=.*\\d)(?=.*[^A-Za-z0-9]).+$')
         ]);
+        this.loginForm.get('height')?.setValidators([Validators.required, Validators.min(50), Validators.max(250)]);
+        this.loginForm.get('weight')?.setValidators([Validators.required, Validators.min(10), Validators.max(250)]);
+        this.loginForm.get('shoeSize')?.setValidators([Validators.required, Validators.min(15), Validators.max(60)]);
+        this.loginForm.get('skillLevel')?.setValidators([Validators.required]);
+
         this.loginForm.setValidators([this.passwordMatchValidator.bind(this)]);
+      } else if (this.mode === LoginRegisterMode.resetPassword) {
+        usernameControl?.setValidators([Validators.required, Validators.email]);
+        passwordControl?.clearValidators();
+        registrationControls.forEach(control => this.loginForm.get(control)?.clearValidators());
+        this.loginForm.clearValidators();
       } else {
         usernameControl?.setValidators([Validators.required, Validators.email]);
         passwordControl?.setValidators([Validators.required]);
@@ -196,6 +266,7 @@ export class LoginRegisterComponent implements OnInit {
       }
 
       usernameControl?.updateValueAndValidity();
+      passwordControl?.updateValueAndValidity();
       registrationControls.forEach(control => this.loginForm.get(control)?.updateValueAndValidity());
       this.loginForm.updateValueAndValidity();
     });

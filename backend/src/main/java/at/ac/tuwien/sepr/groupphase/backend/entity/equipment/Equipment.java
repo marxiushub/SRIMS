@@ -74,7 +74,6 @@ public abstract class Equipment {
     protected Equipment() {
     }
 
-    //für wartungsdaten: 1:x beziehung mit eigener tabelle
     public Equipment(String model, double price, RentalStatus status, SkillLevel targetSkillLevel) {
         this.model = model;
         this.price = price;
@@ -115,7 +114,6 @@ public abstract class Equipment {
         return barcodeId;
     }
 
-    //TODO: Getters and Setters for usageDurationDays, if necessary
 
     /**
      * Setter.

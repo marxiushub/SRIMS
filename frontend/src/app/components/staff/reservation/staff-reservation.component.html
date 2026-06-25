@@ -1,96 +1,191 @@
 <div class="container-fluid pt-4">
 
-  <div class="d-flex align-items-center mb-3">
+  <div class="d-flex align-items-center mb-3 text-nowrap flex-wrap gap-2">
     <h2 class="mb-0">{{ 'STAFF.RESERVATION_MANAGEMENT' | translate }}</h2>
 
-    <span style="flex: 1"></span>
+    <div class="flex-nowrap d-flex align-items-center gap-2">
+      <button class="btn btn-outline-secondary d-xl-none" type="button" (click)="toggleFilters()">
+        {{ 'INVENTORY.FILTERS' | translate }}
+        @if (activeFilterCount > 0) {
+          <span class="badge bg-primary rounded-pill ms-1">{{ activeFilterCount }}</span>
+        }
+        <i class="bi ms-1" [ngClass]="filtersExpanded ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+      </button>
 
-    <button class="btn btn-primary" (click)="loadReservations()">
-      {{ 'INVENTORY.RELOAD' | translate }}
-    </button>
+      <button class="btn btn-primary" type="button" [disabled]="activeFilterCount === 0" (click)="clearAllFilters()">
+        {{ 'INVENTORY.CLEAR' | translate }}
+      </button>
+    </div>
   </div>
 
-  <form class="mb-3" (ngSubmit)="loadReservations()">
+  <form class="row g-2 mb-3 align-items-end filter-form filter-form-collapsible" [ngbCollapse]="!filtersExpanded"
+        (ngSubmit)="loadReservations()">
 
-    <div class="d-flex flex-row w-auto mb-2 align-items-end">
-      <div class="me-2 flex-grow-1">
-        <label for="searchCustFirstName" class="col-form-label py-1 small text-muted">{{ 'CUSTOMER_SEARCH.FIRST_NAME' | translate }}</label>
-        <input type="text" id="searchCustFirstName" [(ngModel)]="customerSearchCriteria.firstName" (ngModelChange)="onCustomerFilterChange()" [ngModelOptions]="{ standalone: true }" class="form-control">
-      </div>
-      <div class="me-2 flex-grow-1">
-        <label for="searchCustLastName" class="col-form-label py-1 small text-muted">{{ 'CUSTOMER_SEARCH.LAST_NAME' | translate }}</label>
-        <input type="text" id="searchCustLastName" [(ngModel)]="customerSearchCriteria.lastName" (ngModelChange)="onCustomerFilterChange()" [ngModelOptions]="{ standalone: true }" class="form-control">
-      </div>
-      <div class="me-2 flex-grow-1">
-        <label for="searchCustUser" class="col-form-label py-1 small text-muted">{{ 'CUSTOMER_SEARCH.USERNAME' | translate }}</label>
-        <input type="text" id="searchCustUser" [(ngModel)]="customerSearchCriteria.userName" (ngModelChange)="onCustomerFilterChange()" [ngModelOptions]="{ standalone: true }" class="form-control">
-      </div>
-      <div class="flex-grow-1">
-        <label for="searchCustEmail" class="col-form-label py-1 small text-muted">{{ 'CUSTOMER_SEARCH.EMAIL' | translate }}</label>
-        <input type="email" id="searchCustEmail" [(ngModel)]="customerSearchCriteria.email" (ngModelChange)="onCustomerFilterChange()" [ngModelOptions]="{ standalone: true }" class="form-control">
+    <div class="col-12 col-sm-6 col-xl">
+      <div class="row align-items-center g-2">
+        <label for="searchCustFirstName" class="col-form-label">{{ 'CUSTOMER_SEARCH.FIRST_NAME' | translate }}</label>
+        <div class="col-12 col-sm-12">
+          <input
+            type="text"
+            id="searchCustFirstName"
+            name="searchCustFirstName"
+            [(ngModel)]="customerSearchCriteria.firstName"
+            (ngModelChange)="onCustomerFilterChange()"
+            [ngModelOptions]="{ standalone: true }"
+            class="form-control">
+        </div>
       </div>
     </div>
 
-    @if (foundCustomers.length > 0) {
-      <div class="mb-3 p-2 bg-light border rounded animate-fade-in">
-        <label for="customerSelectDropdown" class="form-label small fw-bold text-primary mb-1">
-          {{ 'CUSTOMER_SEARCH.SELECT_ACCOUNT' | translate }} ({{ foundCustomers.length }} {{ 'CUSTOMER_SEARCH.CUSTOMERS_FOUND' | translate }})
-        </label>
-        <select id="customerSelectDropdown" class="form-select"
-                [(ngModel)]="selectedCustomerId"
-                [ngModelOptions]="{ standalone: true }"
-                (ngModelChange)="onCustomerSelectById($event)">
-          <option [ngValue]="null">{{ 'CUSTOMER_SEARCH.ALL_CUSTOMERS' | translate }}</option>
-          @for (cust of foundCustomers; track cust.id) {
-            <option [ngValue]="cust.id">{{ cust.firstName }} {{ cust.lastName }} ({{ cust.userName }} / {{ cust.email }})</option>
-          }
-        </select>
-      </div>
-    }
-
-    <div class="d-flex flex-row w-auto align-items-end mt-2">
-      <div class="me-2">
-        <label for="searchStartDate" class="col-form-label py-1">{{ 'RESERVATION.PICKUP_DATE' | translate }}</label>
-        <input type="date" id="searchStartDate" [(ngModel)]="dateFilter" (ngModelChange)="loadReservations()" [ngModelOptions]="{ standalone: true }" class="form-control">
-      </div>
-
-      <div class="me-2">
-        <label for="searchPickUpTime" class="col-form-label py-1">{{ 'RESERVATION.PICKUP_TIME' | translate }}</label>
-        <input type="time" id="searchPickUpTime" [(ngModel)]="timeFilter" (ngModelChange)="loadReservations()" [ngModelOptions]="{ standalone: true }" class="form-control">
-      </div>
-
-      <div class="me-2" style="min-width: 200px;">
-        <label for="searchStatus" class="col-form-label py-1">{{ 'RESERVATION.RESERVATION_STATUS' | translate }}</label>
-        <select id="searchStatus" [(ngModel)]="statusFilter" (ngModelChange)="loadReservations()" [ngModelOptions]="{ standalone: true }" class="form-select">
-          <option [ngValue]="null">{{ 'INVENTORY.EQUIPMENT_ALL' | translate }}</option>
-          <option [ngValue]="ReservationStatusEnum.CREATED">{{ 'RESERVATION_STATUS.CREATED' | translate }}</option>
-          <option [ngValue]="ReservationStatusEnum.PICKED_UP">{{ 'RESERVATION_STATUS.PICKED_UP' | translate }}</option>
-          <option [ngValue]="ReservationStatusEnum.RETURNED">{{ 'RESERVATION_STATUS.RETURNED' | translate }}</option>
-          <option [ngValue]="ReservationStatusEnum.CANCELLED">{{ 'RESERVATION_STATUS.CANCELLED' | translate }}</option>
-        </select>
-      </div>
-
-      <div class="form-check form-switch me-3 mb-2 d-flex align-items-center large-switch ms-3">
-        <input
-          class="form-check-input"
-          type="checkbox"
-          id="showPastReservationsSwitch"
-          name="showPastReservations"
-          [(ngModel)]="showPastReservations"
-          [ngModelOptions]="{ standalone: true }"
-          (ngModelChange)="loadReservations()">
-        <label class="form-check-label text-nowrap" for="showPastReservationsSwitch">
-          {{ 'RESERVATION.SHOW_PAST' | translate }}
-        </label>
-      </div>
-
-      <div class="ms-auto">
-        <button class="btn btn-primary" type="button" (click)="clearAllFilters()">
-          {{ 'INVENTORY.CLEAR' | translate }}
-        </button>
+    <div class="col-12 col-sm-6 col-xl">
+      <div class="row align-items-center g-2">
+        <label for="searchCustLastName" class="col-form-label">{{ 'CUSTOMER_SEARCH.LAST_NAME' | translate }}</label>
+        <div class="col-12 col-sm-12">
+          <input
+            type="text"
+            id="searchCustLastName"
+            name="searchCustLastName"
+            [(ngModel)]="customerSearchCriteria.lastName"
+            (ngModelChange)="onCustomerFilterChange()"
+            [ngModelOptions]="{ standalone: true }"
+            class="form-control">
+        </div>
       </div>
     </div>
+
+    <div class="col-12 col-sm-6 col-xl">
+      <div class="row align-items-center g-2">
+        <label for="searchCustUser" class="col-form-label">{{ 'CUSTOMER_SEARCH.USERNAME' | translate }}</label>
+        <div class="col-12 col-sm-12">
+          <input
+            type="text"
+            id="searchCustUser"
+            name="searchCustUser"
+            [(ngModel)]="customerSearchCriteria.userName"
+            (ngModelChange)="onCustomerFilterChange()"
+            [ngModelOptions]="{ standalone: true }"
+            class="form-control">
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl">
+      <div class="row align-items-center g-2">
+        <label for="searchCustEmail" class="col-form-label">{{ 'CUSTOMER_SEARCH.EMAIL' | translate }}</label>
+        <div class="col-12 col-sm-12">
+          <input
+            type="email"
+            id="searchCustEmail"
+            name="searchCustEmail"
+            [(ngModel)]="customerSearchCriteria.email"
+            (ngModelChange)="onCustomerFilterChange()"
+            [ngModelOptions]="{ standalone: true }"
+            class="form-control">
+        </div>
+      </div>
+    </div>
+
+    <!-- Force a line break before date/time/status filters on xl+ screens -->
+    <div class="w-100 d-none d-xl-block"></div>
+
+    <div class="col-12 col-sm-6 col-xl-auto flex-xl-shrink-1">
+      <div class="row align-items-center g-2">
+        <label for="searchStartDate" class="col-form-label">{{ 'RESERVATION.PICKUP_DATE' | translate }}</label>
+        <div class="col-12 col-sm-12">
+          <input
+            type="date"
+            id="searchStartDate"
+            name="searchStartDate"
+            [(ngModel)]="dateFilter"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="loadReservations()"
+            class="form-control">
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-auto flex-xl-shrink-1">
+      <div class="row align-items-center g-2">
+        <label for="searchPickUpTime" class="col-form-label">{{ 'RESERVATION.PICKUP_TIME' | translate }}</label>
+        <div class="col-12 col-sm-12">
+          <input
+            type="time"
+            id="searchPickUpTime"
+            name="searchPickUpTime"
+            [(ngModel)]="timeFilter"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="loadReservations()"
+            class="form-control">
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-auto flex-xl-shrink-1">
+      <div class="row align-items-center g-2">
+        <label for="searchStatus" class="col-form-label">{{ 'RESERVATION.RESERVATION_STATUS' | translate }}</label>
+        <div class="col-12 col-sm-12">
+          <select
+            id="searchStatus"
+            name="searchStatus"
+            [(ngModel)]="statusFilter"
+            (ngModelChange)="loadReservations()"
+            [ngModelOptions]="{ standalone: true }"
+            class="form-select">
+            <option [ngValue]="null">{{ 'INVENTORY.EQUIPMENT_ALL' | translate }}</option>
+            <option [ngValue]="ReservationStatusEnum.CREATED">{{ 'RESERVATION_STATUS.CREATED' | translate }}</option>
+            <option [ngValue]="ReservationStatusEnum.PICKED_UP">{{ 'RESERVATION_STATUS.PICKED_UP' | translate }}
+            </option>
+            <option [ngValue]="ReservationStatusEnum.RETURNED">{{ 'RESERVATION_STATUS.RETURNED' | translate }}</option>
+            <option [ngValue]="ReservationStatusEnum.CANCELLED">{{ 'RESERVATION_STATUS.CANCELLED' | translate }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-auto flex-xl-shrink-1">
+      <div class="row align-items-center g-2">
+        <div class="col-12 col-sm-12">
+          <div class="form-check form-switch large-switch mb-0 d-flex align-items-center">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="showPastReservationsSwitch"
+              name="showPastReservations"
+              [(ngModel)]="showPastReservations"
+              [ngModelOptions]="{ standalone: true }"
+              (ngModelChange)="loadReservations()">
+            <label class="form-check-label ms-2" for="showPastReservationsSwitch">
+              {{ 'RESERVATION.SHOW_PAST' | translate }}
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </form>
+
+  @if (foundCustomers.length > 0) {
+    <div class="mb-3 p-2 bg-light border rounded animate-fade-in">
+      <label for="customerSelectDropdown" class="form-label small fw-bold text-primary mb-1">
+        {{ 'CUSTOMER_SEARCH.SELECT_ACCOUNT' | translate }}
+        ({{ foundCustomers.length }} {{ 'CUSTOMER_SEARCH.CUSTOMERS_FOUND' | translate }})
+      </label>
+      <select
+        id="customerSelectDropdown"
+        class="form-select"
+        [(ngModel)]="selectedCustomerId"
+        [ngModelOptions]="{ standalone: true }"
+        (ngModelChange)="onCustomerSelectById($event)">
+        <option [ngValue]="null">{{ 'CUSTOMER_SEARCH.ALL_CUSTOMERS' | translate }}</option>
+        @for (cust of foundCustomers; track cust.id) {
+          <option [ngValue]="cust.id">{{ cust.firstName }} {{ cust.lastName }} ({{ cust.userName }} / {{ cust.email }}
+            )
+          </option>
+        }
+      </select>
+    </div>
+  }
 
   @if (loading) {
     <div class="alert alert-info">
@@ -105,118 +200,212 @@
   }
 
   @if (!loading && reservations.length > 0) {
-    <table class="table table-hover table-striped align-middle">
-      <thead>
-      <tr>
-        <th>{{ 'RESERVATION.CUSTOMER_PROFILE_NAME' | translate }}</th>
-        <th>{{ 'RESERVATION.PICKUP_DATE' | translate }}</th>
-        <th>{{ 'RESERVATION.PICKUP_TIME' | translate }}</th>
-        <th>{{ 'RESERVATION.RETURN_DATE' | translate }}</th>
-        <th>{{ 'RESERVATION.RESERVATION_STATUS' | translate }}</th>
-        <th>{{ 'RESERVATION.TOTAL_PRICE' | translate }}</th>
-        <th>{{ 'RESERVATION.EQUIPMENT_COUNT' | translate }}</th>
-        <th>{{ 'INVENTORY.EQUIPMENT_ACTIONS' | translate }}</th>
-      </tr>
-      </thead>
 
-      <tbody>
-        @for (item of reservations | slice:startIndex - 1:endIndex; track item.id) {
-          <tr (click)="openDetailPage(item)" class="clickable-row">
-            <td><strong>{{ item.customerName || ('STAFF.UNKNOWN_CUSTOMER' | translate) }}</strong></td>
-            <td>{{ item.startDate | date:'dd.MM.yyyy' }}</td>
-            <td>{{ item.pickUpTime.substring(0, 5) }}</td>
-            <td>{{ item.endDate | date:'dd.MM.yyyy' }}</td>
-            <td>
-              @if (item.reservationStatus === 'CREATED') {
-                <span class="badge bg-warning text-dark">{{ 'RESERVATION_STATUS.CREATED' | translate }}</span>
-              }
-              @if (item.reservationStatus === 'PICKED_UP') {
-                <span class="badge bg-info text-white">{{ 'RESERVATION_STATUS.PICKED_UP' | translate }}</span>
-              }
-              @if (item.reservationStatus === 'RETURNED') {
-                <span class="badge bg-success text-white">{{ 'RESERVATION_STATUS.RETURNED' | translate }}</span>
-              }
-              @if (item.reservationStatus === 'CANCELLED') {
-                <span class="badge bg-danger text-white">{{ 'RESERVATION_STATUS.CANCELLED' | translate }}</span>
-              }
-            </td>
-            <td>
-              <strong>{{ item.totalPrice | currency:'EUR':'symbol':'1.2-2':'de-AT' }}
-              </strong>
-            </td>
-            <td>
-              <span class="badge bg-info text-dark">
-                {{ item.items?.length || 0 }} {{ 'RESERVATION.ITEMS' | translate }}
+    <!-- Card list: shown on small screens -->
+    <div class="d-xl-none d-flex flex-column gap-2 mb-3">
+      @for (item of reservations | slice:startIndex - 1:endIndex; track item.id) {
+        <div class="card inv-card" (click)="openDetailPage(item)" style="cursor: pointer;">
+          <div class="card-body py-2 px-3">
+            <div class="d-flex align-items-start justify-content-between mb-1">
+              <div>
+                <p class="fw-medium mb-0">{{ item.customerName || ('STAFF.UNKNOWN_CUSTOMER' | translate) }}</p>
+                <p class="text-muted small mb-0">
+                  {{ item.startDate | date:'dd.MM.yyyy' }} – {{ item.endDate | date:'dd.MM.yyyy' }}
+                </p>
+              </div>
+              <div class="d-flex flex-column align-items-end gap-1">
+                @if (item.reservationStatus === 'CREATED') {
+                  <span class="badge bg-warning text-dark ms-2 text-nowrap">
+                    {{ 'RESERVATION_STATUS.CREATED' | translate }}
+                  </span>
+                }
+                @if (item.reservationStatus === 'PICKED_UP') {
+                  <span class="badge bg-info text-white ms-2 text-nowrap">
+                    {{ 'RESERVATION_STATUS.PICKED_UP' | translate }}
+                  </span>
+                }
+                @if (item.reservationStatus === 'RETURNED') {
+                  <span class="badge bg-success text-white ms-2 text-nowrap">
+                    {{ 'RESERVATION_STATUS.RETURNED' | translate }}
+                  </span>
+                }
+                @if (item.reservationStatus === 'CANCELLED') {
+                  <span class="badge bg-danger text-white ms-2 text-nowrap">
+                    {{ 'RESERVATION_STATUS.CANCELLED' | translate }}
+                  </span>
+                }
+                <span class="badge bg-info text-dark">
+                  {{ item.items?.length || 0 }} {{ 'RESERVATION.ITEMS' | translate }}
+                </span>
+              </div>
+            </div>
+
+            <div class="d-flex align-items-center justify-content-between">
+              <span class="small text-muted">
+                <i class="bi bi-clock me-1"></i>{{ item.pickUpTime.substring(0, 5) }}
               </span>
-            </td>
-            <td>
-              <button type="button" class="btn btn-sm btn-outline-primary me-2" (click)="openEditPage(item); $event.stopPropagation()">
+              <span class="fw-bold fs-5">
+                {{ item.totalPrice | currency:'EUR':'symbol':'1.2-2':'de-AT' }}
+              </span>
+            </div>
+
+            <div class="d-flex gap-1 mt-1">
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-primary"
+                (click)="openEditPage(item); $event.stopPropagation()">
                 {{ 'EQUIPMENT_EDIT.TITLE' | translate }}
               </button>
-              <button type="button" class="btn btn-sm btn-outline-danger" (click)="openDeleteDialog(item); $event.stopPropagation()">
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-danger"
+                (click)="openDeleteDialog(item); $event.stopPropagation()">
                 {{ 'INVENTORY.DELETE' | translate }}
               </button>
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
-
-    <div class="d-flex align-items-center mt-3">
-      <label for="itemLimit" class="me-2 mb-0">{{ 'INVENTORY.ROWS_PER_PAGE' | translate }}</label>
-      <select id="itemLimit" name="itemLimit" class="form-select w-auto" [(ngModel)]="itemLimit" (ngModelChange)="currentPage = 1" [ngModelOptions]="{ standalone: true }">
-        <option [value]="5">5</option>
-        <option [value]="10">10</option>
-        <option [value]="20">20</option>
-        <option [value]="50">50</option>
-      </select>
-
-      <span class="ms-3 text-muted">
-        {{ startIndex + '-' + endIndex }} {{ 'INVENTORY.OF' | translate }} {{ reservations.length }}
-      </span>
-
-      <div class="btn-group ms-3">
-        <button class="btn btn-sm btn-primary me-2" [disabled]="currentPage === 1" (click)="currentPage = 1">
-          <span class="fs-5 lh-1">&laquo;</span>
-        </button>
-        <button class="btn btn-sm btn-primary me-4" [disabled]="currentPage === 1" (click)="previousPage()">
-          <span class="fs-5 lh-1">&lsaquo;</span>
-        </button>
-        <button class="btn btn-sm btn-primary me-2" [disabled]="endIndex >= reservations.length" (click)="nextPage()">
-          <span class="fs-5 lh-1">&rsaquo;</span>
-        </button>
-        <button class="btn btn-sm btn-primary me-2" [disabled]="endIndex >= reservations.length" (click)="goToLastPage()">
-          <span class="fs-5 lh-1">&raquo;</span>
-        </button>
-      </div>
+            </div>
+          </div>
+        </div>
+      }
     </div>
+
+    <!-- Table: shown on xl+ screens -->
+    <div class="d-none d-xl-flex flex-column gap-2 mb-3">
+      @for (item of reservations | slice:startIndex - 1:endIndex; track item.id) {
+        <div class="inv-card" (click)="openDetailPage(item)">
+          <div class="inv-col-model">
+            <p class="inv-model-name">{{ item.customerName || ('STAFF.UNKNOWN_CUSTOMER' | translate) }}</p>
+          </div>
+          <div class="inv-col-type">
+            {{ item.startDate | date:'dd.MM.yyyy' }} – {{ item.endDate | date:'dd.MM.yyyy' }}
+            <span class="text-muted ms-3">
+              <i class="bi bi-clock me-1"></i>{{ item.pickUpTime.substring(0, 5) }}
+            </span>
+          </div>
+          <div class="inv-col-badge d-flex align-items-center gap-2">
+            @if (item.reservationStatus === 'CREATED') {
+              <span class="badge bg-warning text-dark">{{ 'RESERVATION_STATUS.CREATED' | translate }}</span>
+            }
+            @if (item.reservationStatus === 'PICKED_UP') {
+              <span class="badge bg-info text-white">{{ 'RESERVATION_STATUS.PICKED_UP' | translate }}</span>
+            }
+            @if (item.reservationStatus === 'RETURNED') {
+              <span class="badge bg-success text-white">{{ 'RESERVATION_STATUS.RETURNED' | translate }}</span>
+            }
+            @if (item.reservationStatus === 'CANCELLED') {
+              <span class="badge bg-danger text-white">{{ 'RESERVATION_STATUS.CANCELLED' | translate }}</span>
+            }
+            <span class="badge bg-info text-dark me-2">
+              {{ item.items?.length || 0 }} {{ 'RESERVATION.ITEMS' | translate }}
+            </span>
+          </div>
+          <div class="inv-col-price">
+            <span class="fw-bold fs-5">
+              {{ item.totalPrice | currency:'EUR':'symbol':'1.2-2':'de-AT' }}
+            </span>
+          </div>
+          <div class="inv-col-actions">
+            <button type="button" class="btn btn-sm btn-outline-primary me-2"
+                    (click)="openEditPage(item); $event.stopPropagation()">
+              {{ 'EQUIPMENT_EDIT.TITLE' | translate }}
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-danger"
+                    (click)="openDeleteDialog(item); $event.stopPropagation()">
+              {{ 'INVENTORY.DELETE' | translate }}
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+
+    @if (reservations.length > 5) {
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <div class="d-flex align-items-center flex-wrap gap-2">
+          <label for="itemLimit" class="me-2 mb-0">{{ 'INVENTORY.ROWS_PER_PAGE' | translate }}</label>
+          <select
+            id="itemLimit"
+            name="itemLimit"
+            class="form-select w-auto"
+            [(ngModel)]="itemLimit"
+            (ngModelChange)="currentPage = 1"
+            [ngModelOptions]="{ standalone: true }">
+            <option [value]="5">5</option>
+            <option [value]="10">10</option>
+            <option [value]="20">20</option>
+            <option [value]="50">50</option>
+          </select>
+
+          <span class="ms-3 text-muted">
+            {{ startIndex + '-' + endIndex }} {{ 'INVENTORY.OF' | translate }} {{ reservations.length }}
+          </span>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn btn-sm btn-primary me-2" [disabled]="currentPage === 1" (click)="currentPage = 1">
+            <span class="fs-5 lh-1">&laquo;</span>
+          </button>
+          <button class="btn btn-sm btn-primary me-4" [disabled]="currentPage === 1" (click)="previousPage()">
+            <span class="fs-5 lh-1">&lsaquo;</span>
+          </button>
+          <button class="btn btn-sm btn-primary me-2" [disabled]="endIndex >= reservations.length" (click)="nextPage()">
+            <span class="fs-5 lh-1">&rsaquo;</span>
+          </button>
+          <button class="btn btn-sm btn-primary me-2" [disabled]="endIndex >= reservations.length"
+                  (click)="goToLastPage()">
+            <span class="fs-5 lh-1">&raquo;</span>
+          </button>
+        </div>
+      </div>
+    }
   }
 
   @if (reservationToDelete) {
     <div class="modal fade show d-block" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
+
           <div class="modal-header">
             <h5 class="modal-title">{{ 'RESERVATION.DELETE_TITLE' | translate }}</h5>
-            <button type="button" class="btn-close" aria-label="Close" [disabled]="deleteLoading" (click)="cancelDelete()"></button>
+            <button
+              type="button"
+              class="btn-close"
+              aria-label="Close"
+              [disabled]="deleteLoading"
+              (click)="cancelDelete()">
+            </button>
           </div>
+
           <div class="modal-body">
             <p>{{ 'RESERVATION.DELETE_CONFIRMATION' | translate }}</p>
             @if (deleteError) {
               <div class="alert alert-danger mt-3 mb-0">{{ deleteError }}</div>
             }
           </div>
+
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" [disabled]="deleteLoading" (click)="cancelDelete()">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              [disabled]="deleteLoading"
+              (click)="cancelDelete()">
               {{ 'INVENTORY.DELETE_CANCEL' | translate }}
             </button>
-            <button type="button" class="btn btn-danger" [disabled]="deleteLoading" (click)="confirmDelete()">
-              {{ (deleteLoading ? 'INVENTORY.DELETE_CONFIRM' : 'INVENTORY.DELETE_CONFIRM') | translate }}
+            <button
+              type="button"
+              class="btn btn-danger"
+              [disabled]="deleteLoading"
+              (click)="confirmDelete()">
+              @if (deleteLoading) {
+                {{ 'INVENTORY.DELETE_CONFIRM' | translate }}...
+              } @else {
+                {{ 'INVENTORY.DELETE_CONFIRM' | translate }}
+              }
             </button>
           </div>
+
         </div>
       </div>
     </div>
     <div class="modal-backdrop fade show"></div>
   }
+
 </div>

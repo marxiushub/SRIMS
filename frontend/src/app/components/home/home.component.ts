@@ -11,10 +11,10 @@ import {EquipmentSearch} from "../../dtos/equipment-search";
 import {debounceTime, distinctUntilChanged, map, OperatorFunction} from "rxjs";
 
 @Component({
-    selector: 'app-home',
-    templateUrl: './home.component.html',
-    styleUrls: ['./home.component.scss'],
-    standalone: false
+  selector: 'app-home',
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.scss'],
+  standalone: false
 })
 export class HomeComponent implements OnInit {
 
@@ -29,6 +29,7 @@ export class HomeComponent implements OnInit {
   startFilter: string | null = null;
   endFilter: string | null = null;
   priceSortDirection: 'asc' | 'desc' = 'asc';
+  filtersExpanded = false;
 
   itemLimit: number = 10;
   currentPage: number = 1;
@@ -55,7 +56,8 @@ export class HomeComponent implements OnInit {
     SkillLevel.ADVANCED
   ];
 
-  constructor(public authService: AuthService, private equipmentService: EquipmentService, public translateService: TranslateService, private router: Router) { }
+  constructor(public authService: AuthService, private equipmentService: EquipmentService, public translateService: TranslateService, private router: Router) {
+  }
 
   ngOnInit() {
     this.loadEquipment();
@@ -162,6 +164,21 @@ export class HomeComponent implements OnInit {
     this.endFilter = null;
     this.priceSortDirection = 'asc';
     this.loadEquipment();
+  }
+
+  toggleFilters(): void {
+    this.filtersExpanded = !this.filtersExpanded;
+  }
+
+  get activeFilterCount(): number {
+    let count = 0;
+    if (this.modelFilter) count++;
+    if (this.typeFilter) count++;
+    if (this.statusFilter) count++;
+    if (this.skillFilter) count++;
+    if (this.startFilter) count++;
+    if (this.endFilter) count++;
+    return count;
   }
 
   get startIndex(): number {

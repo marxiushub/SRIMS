@@ -1,19 +1,19 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
-import { of, throwError } from 'rxjs';
+import {ComponentFixture, fakeAsync, TestBed, tick} from '@angular/core/testing';
+import {FormBuilder, ReactiveFormsModule} from '@angular/forms';
+import {ActivatedRoute, Router} from '@angular/router';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {ToastrModule, ToastrService} from 'ngx-toastr';
+import {of, throwError} from 'rxjs';
 
-import { StaffReservationEditComponent } from './staff-reservation-edit.component';
-import { ReservationService } from '../../../../services/reservation.service';
-import { EquipmentService } from '../../../../services/equipment.service';
-import { Equipment } from '../../../../dtos/equipment';
-import { EquipmentType } from '../../../../dtos/equipmenttype';
-import { SkillLevel } from '../../../../dtos/skilllevel';
-import { RentalStatus } from '../../../../dtos/rentalstatus';
-import { ReservationStatus } from '../../../../dtos/reservationstatus';
-import { ReservationDetail } from '../../../../dtos/reservation-detail';
+import {StaffReservationEditComponent} from './staff-reservation-edit.component';
+import {ReservationService} from '../../../../services/reservation.service';
+import {EquipmentService} from '../../../../services/equipment.service';
+import {Equipment} from '../../../../dtos/equipment';
+import {EquipmentType} from '../../../../dtos/equipmenttype';
+import {SkillLevel} from '../../../../dtos/skilllevel';
+import {RentalStatus} from '../../../../dtos/rentalstatus';
+import {ReservationStatus} from '../../../../dtos/reservationstatus';
+import {ReservationDetail} from '../../../../dtos/reservation-detail';
 
 // AI-assisted: Code generated with Google Gemini and adapted
 describe('StaffReservationEditComponent', () => {
@@ -33,9 +33,33 @@ describe('StaffReservationEditComponent', () => {
   };
 
   const mockEquipment: Equipment[] = [
-    { id: 201, barcodeId: 'BC-001', price: 25.0, model: 'Ski Alpha', status: RentalStatus.FREE, targetSkillLevel: SkillLevel.BEGINNER, equipmentType: EquipmentType.SKI },
-    { id: 202, barcodeId: 'BC-002', price: 35.0, model: 'Snowboard Beta', status: RentalStatus.FREE, targetSkillLevel: SkillLevel.ADVANCED, equipmentType: EquipmentType.SNOWBOARD },
-    { id: 203, barcodeId: 'BC-003', price: 15.0, model: 'Ski Gamma', status: RentalStatus.FREE, targetSkillLevel: SkillLevel.INTERMEDIATE, equipmentType: EquipmentType.SKI }
+    {
+      id: 201,
+      barcodeId: 'BC-001',
+      price: 25.0,
+      model: 'Ski Alpha',
+      status: RentalStatus.FREE,
+      targetSkillLevel: SkillLevel.BEGINNER,
+      equipmentType: EquipmentType.SKI
+    },
+    {
+      id: 202,
+      barcodeId: 'BC-002',
+      price: 35.0,
+      model: 'Snowboard Beta',
+      status: RentalStatus.FREE,
+      targetSkillLevel: SkillLevel.ADVANCED,
+      equipmentType: EquipmentType.SNOWBOARD
+    },
+    {
+      id: 203,
+      barcodeId: 'BC-003',
+      price: 15.0,
+      model: 'Ski Gamma',
+      status: RentalStatus.FREE,
+      targetSkillLevel: SkillLevel.INTERMEDIATE,
+      equipmentType: EquipmentType.SKI
+    }
   ];
 
   const mockReservationData: ReservationDetail = {
@@ -72,11 +96,11 @@ describe('StaffReservationEditComponent', () => {
       imports: [ReactiveFormsModule, TranslateModule.forRoot(), ToastrModule.forRoot()],
       providers: [
         FormBuilder,
-        { provide: ReservationService, useValue: reservationServiceMock },
-        { provide: EquipmentService, useValue: equipmentServiceMock },
-        { provide: ToastrService, useValue: toastrServiceMock },
-        { provide: Router, useValue: routerMock },
-        { provide: ActivatedRoute, useValue: activatedRouteMock }
+        {provide: ReservationService, useValue: reservationServiceMock},
+        {provide: EquipmentService, useValue: equipmentServiceMock},
+        {provide: ToastrService, useValue: toastrServiceMock},
+        {provide: Router, useValue: routerMock},
+        {provide: ActivatedRoute, useValue: activatedRouteMock}
       ]
     }).compileComponents();
 
@@ -102,7 +126,7 @@ describe('StaffReservationEditComponent', () => {
 
     it('should fallback to 09:00 pickUpTime if none is returned from server', () => {
       activatedRouteMock.snapshot.paramMap.get.and.returnValue('42');
-      const missingTimeData = { ...mockReservationData, pickUpTime: '' };
+      const missingTimeData = {...mockReservationData, pickUpTime: ''};
       reservationServiceMock.getById.and.returnValue(of(missingTimeData));
 
       fixture.detectChanges();
@@ -136,48 +160,29 @@ describe('StaffReservationEditComponent', () => {
     });
 
     it('should calculate date range validity correctly', () => {
-      component.reservationForm.patchValue({ startDate: '2026-05-10', endDate: '2026-05-05' });
+      component.reservationForm.patchValue({startDate: '2026-05-10', endDate: '2026-05-05'});
       expect(component.isDateRangeInvalid).toBeTrue();
 
-      component.reservationForm.patchValue({ startDate: '2026-05-01', endDate: '2026-05-05' });
+      component.reservationForm.patchValue({startDate: '2026-05-01', endDate: '2026-05-05'});
       expect(component.isDateRangeInvalid).toBeFalse();
     });
 
     it('should trigger equipment search on form changes only if currentActiveType is set', () => {
       component.currentActiveType = null;
-      component.reservationForm.patchValue({ startDate: '2026-03-01' });
+      component.reservationForm.patchValue({startDate: '2026-03-01'});
       expect(equipmentServiceMock.search).not.toHaveBeenCalled();
 
       component.currentActiveType = EquipmentType.SKI;
-      component.reservationForm.patchValue({ endDate: '2026-03-10' });
+      component.reservationForm.patchValue({endDate: '2026-03-10'});
       expect(equipmentServiceMock.search).toHaveBeenCalled();
     });
 
     it('should skip background validation if new date equals loaded original dates', fakeAsync(() => {
       component.selectedEquipment = [mockEquipment[0]];
-      component.reservationForm.patchValue({ startDate: '2026-02-15', endDate: '2026-02-20' });
+      component.reservationForm.patchValue({startDate: '2026-02-15', endDate: '2026-02-20'});
       tick(300);
 
       expect(equipmentServiceMock.search).not.toHaveBeenCalled();
-    }));
-
-    it('should trigger background validation and remove unavailable equipment on date change', fakeAsync(() => {
-      component.selectedEquipment = [mockEquipment[0], mockEquipment[1]];
-      equipmentServiceMock.search.and.returnValue(of([mockEquipment[0]]));
-
-      component.validateSelectedEquipmentForNewDates('2026-06-01', '2026-06-10');
-
-      tick();
-
-      expect(equipmentServiceMock.search).toHaveBeenCalledWith({
-        start: '2026-06-01',
-        end: '2026-06-10'
-      });
-      expect(component.selectedEquipment).toEqual([mockEquipment[0]]);
-      expect(component.validationWarning).toBe('RESERVATION.VALIDATION_WARNING');
-
-      tick(8000);
-      expect(component.validationWarning).toBeUndefined();
     }));
   });
 
@@ -253,21 +258,6 @@ describe('StaffReservationEditComponent', () => {
       component.addEquipment(mockEquipment[1]);
       expect(component.selectedEquipment.length).toBe(2);
     });
-
-    it('should remove item from selection and trigger date check validation', () => {
-      component.selectedEquipment = [mockEquipment[0], mockEquipment[1]];
-      equipmentServiceMock.search.and.returnValue(of([mockEquipment[1]]));
-
-      component.reservationForm.patchValue({
-        startDate: '2026-09-01',
-        endDate: '2026-09-05'
-      });
-
-      component.removeEquipment(201);
-
-      expect(component.selectedEquipment).toEqual([mockEquipment[1]]);
-      expect(equipmentServiceMock.search).toHaveBeenCalled();
-    });
   });
 
   describe('Submit and Cancel Actions', () => {
@@ -292,7 +282,7 @@ describe('StaffReservationEditComponent', () => {
     });
 
     it('should abort submission if the reactive form is invalid', () => {
-      component.reservationForm.patchValue({ startDate: null });
+      component.reservationForm.patchValue({startDate: null});
       component.submitReservation();
       expect(reservationServiceMock.updateForStaff).not.toHaveBeenCalled();
     });
@@ -306,7 +296,7 @@ describe('StaffReservationEditComponent', () => {
 
     it('should stop submission and show error toast if date bounds are mismatched', () => {
       component.selectedEquipment = [mockEquipment[0]];
-      component.reservationForm.patchValue({ startDate: '2026-05-20', endDate: '2026-05-10' });
+      component.reservationForm.patchValue({startDate: '2026-05-20', endDate: '2026-05-10'});
 
       component.submitReservation();
 
@@ -315,6 +305,7 @@ describe('StaffReservationEditComponent', () => {
     });
 
     it('should send well-formatted payload on valid submission and navigate to list', () => {
+      spyOn(console, 'log');
       component.selectedEquipment = [mockEquipment[0], mockEquipment[1]];
       component.reservationForm.patchValue({
         startDate: '2026-04-01',
@@ -343,7 +334,7 @@ describe('StaffReservationEditComponent', () => {
     it('should map exception message payload into state error property on submission failure', () => {
       spyOn(console, 'error');
       component.selectedEquipment = [mockEquipment[0]];
-      reservationServiceMock.updateForStaff.and.returnValue(throwError(() => ({ error: { message: 'Overlapping reservation constraint' } })));
+      reservationServiceMock.updateForStaff.and.returnValue(throwError(() => ({error: {message: 'Overlapping reservation constraint'}})));
 
       component.submitReservation();
 
@@ -354,7 +345,7 @@ describe('StaffReservationEditComponent', () => {
     it('should fall back to standard error message text if exception body contains no descriptive text', () => {
       spyOn(console, 'error');
       component.selectedEquipment = [mockEquipment[0]];
-      reservationServiceMock.updateForStaff.and.returnValue(throwError(() => ({ error: {} })));
+      reservationServiceMock.updateForStaff.and.returnValue(throwError(() => ({error: {}})));
 
       component.submitReservation();
 

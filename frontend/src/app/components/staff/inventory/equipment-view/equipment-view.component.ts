@@ -8,7 +8,7 @@ import {TranslateService} from '@ngx-translate/core';
 import {ReservationService} from '../../../../services/reservation.service';
 import {ReservationDetail} from '../../../../dtos/reservation-detail';
 import JsBarcode from 'jsbarcode';
-import { forkJoin } from 'rxjs';
+import {forkJoin} from 'rxjs';
 import {ReservationStatus} from "../../../../dtos/reservationstatus";
 
 @Component({
@@ -61,7 +61,7 @@ export class EquipmentViewComponent implements OnInit {
         setTimeout(() => {
           JsBarcode("#barcode", this.equipment?.barcodeId || "Unknown", {
             format: "code128",
-            width: 1.5,
+            width: 1.75,
             height: 80,
             displayValue: true
           });

@@ -1,9 +1,107 @@
 .scanner-container {
-  width: 500px;
-  max-width: 90vw;
+  width: 100%;
+  max-width: 500px;
   margin: 0 auto;
+  overflow: hidden;
 }
 
 .scanner-container zxing-scanner {
+  display: block;
   width: 100%;
+}
+
+.scanner-container zxing-scanner video {
+  width: 100% !important;
+  height: auto !important;
+  max-width: 100%;
+  display: block;
+}
+
+.filter-form {
+  @media (max-width: 575.98px) {
+    .form-control,
+    .form-select {
+      width: 90%;
+      margin-left: auto;
+    }
+  }
+}
+
+// Shared base card styles
+.inv-card {
+  background: var(--bs-body-bg);
+  border: 0.5px solid rgba(0, 0, 0, 0.12);
+  border-radius: 0.75rem;
+  padding: 0.6rem 0.9rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+
+  &:hover {
+    background: var(--bs-secondary-bg);
+    border-color: rgba(0, 0, 0, 0.22);
+  }
+}
+
+// Table-style layout for xl+ screens only
+@media (min-width: 1200px) {
+  .inv-card {
+    padding: 0.65rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+
+    &:hover {
+      border-color: rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  .inv-model-name {
+    font-weight: 500;
+    font-size: 0.9375rem;
+    margin: 0 0 2px;
+  }
+  .inv-model-sub {
+    font-size: 0.75rem;
+    color: var(--bs-secondary-color);
+    margin: 0;
+  }
+  .inv-col-model {
+    flex: 2;
+    min-width: 0;
+  }
+  .inv-col-type {
+    flex: 1;
+    min-width: 0;
+    font-size: 0.875rem;
+    color: var(--bs-secondary-color);
+  }
+  .inv-col-skill {
+    flex: 1;
+    min-width: 0;
+    font-size: 0.875rem;
+    color: var(--bs-secondary-color);
+  }
+  .inv-col-price {
+    flex: 0 0 auto;
+    font-weight: 500;
+    font-size: 0.875rem;
+  }
+  .inv-col-badge {
+    flex: 0 0 auto;
+  }
+  .inv-col-actions {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+  }
+}
+
+.inv-card--no-hover {
+  cursor: default;
+
+  &:hover {
+    background: var(--bs-body-bg);
+    border-color: rgba(0, 0, 0, 0.12);
+  }
 }

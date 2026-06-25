@@ -39,6 +39,19 @@ export class AuthService {
   }
 
   /**
+   * Request a password reset for the given email. The backend generates a new
+   * password and sends it to that email address; no request body is needed.
+   *
+   * @param email the email of the customer who forgot their password
+   */
+  resetPassword(email: string): Observable<any> {
+    return this.httpClient.patch<any>(
+      `${this.authBaseUri.replace('/authentication', '')}/customer/password-resets/${encodeURIComponent(email)}`,
+      null
+    );
+  }
+
+  /**
    * Check if a valid JWT token is saved in the localStorage
    */
   isLoggedIn() {
@@ -48,6 +61,13 @@ export class AuthService {
     }
     const expirationDate = this.getTokenExpirationDate(token);
     return !!expirationDate && (expirationDate.valueOf() > new Date().valueOf());
+  }
+
+  /**
+   * Check if the user is a staff member based on the current token
+   */
+  isStaff(): boolean {
+    return this.getUserRole() === 'ADMIN';
   }
 
   logoutUser() {
@@ -77,6 +97,19 @@ export class AuthService {
     return 'UNDEFINED';
   }
 
+  /**
+   * Returns the id of the currently logged-in user, decoded from the JWT's 'uid' claim,
+   * or null if no token is present.
+   */
+  getUserId(): number | null {
+    const token = this.getToken();
+    if (token != null) {
+      const decoded: any = jwtDecode(token);
+      return decoded.uid ?? null;
+    }
+    return null;
+  }
+
   private setToken(authResponse: string) {
     localStorage.setItem('authToken', authResponse);
   }
@@ -91,6 +124,29 @@ export class AuthService {
     const date = new Date(0);
     date.setUTCSeconds(decoded.exp);
     return date;
+  }
+
+  /**
+   * Returns the user email based on the current token
+   */
+  getUserEmail(): string {
+    let token = this.getToken();
+    if (token != null) {
+      try {
+        if (token.startsWith('Bearer ')) {
+          token = token.substring(7);
+        } else if (token.includes(' ')) {
+          token = token.split(' ')[1];
+        }
+
+        const decoded: any = jwtDecode(token);
+        return decoded.sub || '';
+      } catch (error) {
+        console.error('Error decoding token:', error);
+        return '';
+      }
+    }
+    return '';
   }
 
 }

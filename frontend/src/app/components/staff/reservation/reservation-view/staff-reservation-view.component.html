@@ -19,37 +19,51 @@
 
   @if (!loading && !error && reservation) {
     <div>
+
       <div class="card p-3 mb-4 bg-light">
-        <div class="row g-3 align-items-end">
-          <div class="col-md-3">
-            <label class="form-label fw-bold">{{ 'RESERVATION.CUSTOMER_PROFILE_NAME' | translate }}</label>
+        <div class="row g-3">
+
+          <div class="col-12 col-sm-6 col-xl-3">
+            <label class="form-label fw-bold flex-nowrap">{{ 'RESERVATION.CUSTOMER_PROFILE_NAME' | translate }}</label>
             <input type="text" class="form-control" [value]="reservation.customerName" disabled>
           </div>
-          <div class="col-md-3">
-            <label class="form-label fw-bold">{{ 'RESERVATION.PICKUP_DATE' | translate }}</label>
+
+          <div class="col-12 col-sm-6 col-xl-3">
+            <label class="form-label fw-bold flex-nowrap">{{ 'RESERVATION.PICKUP_DATE' | translate }}</label>
             <input type="text" class="form-control" [value]="reservation.startDate | date:'dd.MM.yyyy'" disabled>
           </div>
-          <div class="col-md-3">
-            <label class="form-label fw-bold">{{ 'RESERVATION.RETURN_DATE' | translate }}</label>
+
+          <div class="col-12 col-sm-6 col-xl-3">
+            <label class="form-label fw-bold flex-nowrap">{{ 'RESERVATION.RETURN_DATE' | translate }}</label>
             <input type="text" class="form-control" [value]="reservation.endDate | date:'dd.MM.yyyy'" disabled>
           </div>
-          <div class="col-md-3">
-            <label class="form-label fw-bold">{{ 'RESERVATION.RESERVATION_STATUS' | translate }}</label>
+
+          <div class="col-12 col-sm-6 col-xl-3">
+            <label class="form-label fw-bold flex-nowrap">{{ 'RESERVATION.RESERVATION_STATUS' | translate }}</label>
             <div class="d-block">
               @if (reservation.reservationStatus === 'CREATED') {
-                <span class="badge bg-warning text-dark fs-6 px-3 py-2 w-100 text-center">{{ 'RESERVATION_STATUS.CREATED' | translate }}</span>
+                <span class="badge bg-warning text-dark fs-6 px-3 py-2 w-100 text-center">
+                  {{ 'RESERVATION_STATUS.CREATED' | translate }}
+                </span>
               }
               @if (reservation.reservationStatus === 'PICKED_UP') {
-                <span class="badge bg-info text-white fs-6 px-3 py-2 w-100 text-center">{{ 'RESERVATION_STATUS.PICKED_UP' | translate }}</span>
+                <span class="badge bg-info text-white fs-6 px-3 py-2 w-100 text-center">
+                  {{ 'RESERVATION_STATUS.PICKED_UP' | translate }}
+                </span>
               }
               @if (reservation.reservationStatus === 'RETURNED') {
-                <span class="badge bg-success text-white fs-6 px-3 py-2 w-100 text-center">{{ 'RESERVATION_STATUS.RETURNED' | translate }}</span>
+                <span class="badge bg-success text-white fs-6 px-3 py-2 w-100 text-center">
+                  {{ 'RESERVATION_STATUS.RETURNED' | translate }}
+                </span>
               }
               @if (reservation.reservationStatus === 'CANCELLED') {
-                <span class="badge bg-danger text-white fs-6 px-3 py-2 w-100 text-center">{{ 'RESERVATION_STATUS.CANCELLED' | translate }}</span>
+                <span class="badge bg-danger text-white fs-6 px-3 py-2 w-100 text-center">
+                  {{ 'RESERVATION_STATUS.CANCELLED' | translate }}
+                </span>
               }
             </div>
           </div>
+
         </div>
       </div>
 
@@ -57,58 +71,77 @@
         <h4 class="mb-3">{{ 'RESERVATION.SELECTED_EQUIPMENT' | translate }}</h4>
 
         @if (!reservation.items || reservation.items.length === 0) {
-          <div class="text-muted small italic">
+          <div class="text-muted small fst-italic">
             {{ 'RESERVATION.NO_EQUIPMENT_SELECTED' | translate }}
           </div>
         } @else {
-          <table class="table table-striped align-middle mb-0">
-            <thead>
-            <tr>
-              <th>{{ 'INVENTORY.EQUIPMENT_MODEL' | translate }}</th>
-              <th>{{ 'INVENTORY.EQUIPMENT_TYP' | translate }}</th>
-              <th>{{ 'INVENTORY.EQUIPMENT_SKILL' | translate }}</th>
-              <th>{{ 'INVENTORY.EQUIPMENT_PRICE' | translate }}</th>
-            </tr>
-            </thead>
-            <tbody>
-              @for (item of reservation.items; track item.id) {
-                <tr (click)="viewEquipmentDetails(item.id)" style="cursor: pointer;">
-                  <td class="fw-bold">{{ item.model }}</td>
-                  <td>{{ 'EQUIPMENT_TYPE.' + item.equipmentType | translate }}</td>
-                  <td>{{ 'SKILL_LEVEL.' + item.targetSkillLevel | translate }}</td>
-                  <td>{{ item.price | currency:'EUR':'symbol':'1.2-2' }}</td>
-                </tr>
-              }
-            </tbody>
-            <tfoot>
-              <tr class="table-group-divider">
-                <td colspan="3" class="text-end fw-bold fs-5 py-3">
-                  {{ 'RESERVATION.TOTAL_PRICE' | translate }}:
-                </td>
-                <td class="fw-bold text-primary fs-5 py-3">
-                  {{ reservation.totalPrice | currency:'EUR':'symbol':'1.2-2':'de-AT' }}
-                </td>
-              </tr>
-            </tfoot>
-          </table>
+
+          <!-- Card list: shown on screens below xl -->
+          <div class="d-xl-none d-flex flex-column gap-2 mb-3" style="max-height: 350px; overflow-y: auto;">
+            @for (item of reservation.items; track item.id) {
+              <div class="res-eq-card">
+                <div class="d-flex align-items-center gap-2">
+                  <p class="fw-medium mb-0 text-truncate flex-fill">{{ item.model }}</p>
+                  <span class="fw-medium text-nowrap">
+                    {{ item.price | currency:'EUR':'symbol':'1.2-2' }}
+                  </span>
+                </div>
+                <p class="text-muted small mb-1">{{ 'EQUIPMENT_TYPE.' + item.equipmentType | translate }}</p>
+                <span class="small text-muted">
+                  <i class="bi bi-person me-1"></i>{{ 'SKILL_LEVEL.' + item.targetSkillLevel | translate }}
+                </span>
+              </div>
+            }
+          </div>
+
+          <!-- Table-row cards: shown on xl+ screens -->
+          <div class="d-none d-xl-flex flex-column gap-2 mb-3" style="max-height: 250px; overflow-y: auto;">
+            @for (item of reservation.items; track item.id) {
+              <div class="res-eq-card res-eq-card--row">
+                <div class="res-eq-col-model">
+                  <p class="res-eq-model-name">{{ item.model }}</p>
+                </div>
+                <div class="res-eq-col-type">
+                  {{ 'EQUIPMENT_TYPE.' + item.equipmentType | translate }}
+                </div>
+                <div class="res-eq-col-skill">
+                  <i class="bi bi-person me-1"></i>{{ 'SKILL_LEVEL.' + item.targetSkillLevel | translate }}
+                </div>
+                <div class="res-eq-col-price">
+                  {{ item.price | currency:'EUR':'symbol':'1.2-2' }}
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Total price row -->
+          <div class="d-flex justify-content-end align-items-center gap-3 pt-2 border-top">
+            <span class="fw-bold fs-5">{{ 'RESERVATION.TOTAL_PRICE' | translate }}:</span>
+            <span class="fw-bold text-primary fs-5">
+              {{ reservation.totalPrice | currency:'EUR':'symbol':'1.2-2':'de-AT' }}
+            </span>
+          </div>
         }
       </div>
 
-      <div class="d-flex gap-2">
+      <div class="mt-4 d-flex flex-wrap justify-content-between gap-2">
         <button type="button" class="btn btn-secondary btn-lg" (click)="backToList()">
           &larr; {{ 'BARCODE_SCANNER.MODAL_BTN_CANCEL' | translate }}
         </button>
 
-        <span style="flex: 1"></span>
+        <span class="d-none d-sm-block" style="flex: 1"></span>
 
-        <button type="button" class="btn btn-primary btn-lg px-4" (click)="openEditPage()">
-          {{ 'EQUIPMENT_EDIT.TITLE' | translate }}
-        </button>
+        <div class="d-flex flex-nowrap gap-2">
+          <button type="button" class="btn btn-primary btn-lg px-4" (click)="openEditPage()">
+            {{ 'EQUIPMENT_EDIT.TITLE' | translate }}
+          </button>
 
-        <button type="button" class="btn btn-danger btn-lg px-4" (click)="openDeleteDialog()">
-          {{ 'INVENTORY.DELETE' | translate }}
-        </button>
+          <button type="button" class="btn btn-danger btn-lg px-4" (click)="openDeleteDialog()">
+            {{ 'INVENTORY.DELETE' | translate }}
+          </button>
+        </div>
       </div>
+
     </div>
   }
 
@@ -173,4 +206,5 @@
 
     <div class="modal-backdrop fade show"></div>
   }
+
 </div>

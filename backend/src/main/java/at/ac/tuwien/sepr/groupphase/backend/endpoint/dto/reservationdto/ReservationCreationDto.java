@@ -4,16 +4,21 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.enums.ReservationStatus;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
 public class ReservationCreationDto {
 
+    @Positive(message = "customerProfileId must be greater than 0")
     @NotNull(message = "Customer must be specified")
     private Long customerProfileId;
 
     @NotEmpty(message = "At least one equipment item must be selected")
+    @Size(min = 1, max = 100, message = "You must select between 1 and 100 equipment items")
     private List<Long> equipmentIds;
 
     @NotNull(message = "Pickup time must not be empty")

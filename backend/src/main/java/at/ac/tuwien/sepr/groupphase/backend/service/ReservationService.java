@@ -56,13 +56,14 @@ public interface ReservationService {
      * Performs a reservation update with the privileges of staff members.
      *
      * @param dto the data transfer object containing values to update on the reservation
+     * @param isScan boolean that shows whether this update is done as part of a scan or not
      * @return an updated {@link ReservationDetailDto} reflecting the persisted changes
      * @throws NotFoundException                                                  if no reservation with the given identifier exists
      * @throws IllegalArgumentException                                           if any provided field value is invalid
      * @throws at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException if the provided data fails validation checks
      */
     @Transactional
-    ReservationDetailDto updateReservationStaff(ReservationUpdateDto dto);
+    ReservationDetailDto updateReservationStaff(ReservationUpdateDto dto, boolean isScan);
 
     /**
      * Searches for reservations based on dynamic criteria

@@ -15,7 +15,7 @@ import {RentalStatus} from '../../../dtos/rentalstatus';
 import {SkillLevel} from '../../../dtos/skilllevel';
 
 import {FormsModule} from '@angular/forms';
-import {NgbTypeaheadModule} from '@ng-bootstrap/ng-bootstrap';
+import {NgbModule, NgbTypeaheadModule} from '@ng-bootstrap/ng-bootstrap';
 
 describe('CustomerInventoryComponent', () => {
   let component: CustomerInventoryComponent;
@@ -52,6 +52,7 @@ describe('CustomerInventoryComponent', () => {
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
         FormsModule,
+        NgbModule,
         NgbTypeaheadModule
       ],
       providers: [
