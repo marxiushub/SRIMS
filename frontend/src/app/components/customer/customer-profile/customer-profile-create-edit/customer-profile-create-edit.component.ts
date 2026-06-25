@@ -29,11 +29,11 @@ export class CustomerProfileCreateEditComponent {
   submitted = false;
 
   profile: CustomerProfileCreationUpdate = {
-    height: 50,
+    height: null,
     profileName: '',
-    shoeSize: 25,
-    skillLevel: SkillLevel.BEGINNER,
-    weight: 20
+    shoeSize: null,
+    skillLevel: null,
+    weight: null
   };
 
   skillLevels = [
