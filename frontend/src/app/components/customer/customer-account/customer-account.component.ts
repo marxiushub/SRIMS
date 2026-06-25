@@ -45,6 +45,7 @@ export class CustomerAccountComponent implements OnInit {
     });
   }
 
+  // Initializes the component and loads the customer account if the user is authenticated.
   ngOnInit(): void {
     this.customerId = this.authService.getUserId();
     if (this.customerId != null) {
@@ -53,7 +54,7 @@ export class CustomerAccountComponent implements OnInit {
       this.loadError = true;
     }
   }
-
+// Loads the customer account data for the given customer ID from the backend.
   loadAccount(id: number): void {
     this.loading = true;
     this.loadError = false;
@@ -69,7 +70,7 @@ export class CustomerAccountComponent implements OnInit {
       }
     });
   }
-
+  // Submits a password change request after validating the form input.
   onSubmitPasswordChange(): void {
     this.passwordSubmitted = true;
     if (this.passwordForm.invalid || this.customerId == null) {
@@ -91,10 +92,11 @@ export class CustomerAccountComponent implements OnInit {
     });
   }
 
+// Navigates back to the customer overview page.
   back(): void {
     this.router.navigate(['/customer']);
   }
-
+// Processes and displays error messages from failed HTTP requests.
   private handleError(error: any): void {
     console.log('Action failed due to:', error);
     let errorMessage: string;

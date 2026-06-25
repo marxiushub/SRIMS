@@ -27,6 +27,7 @@ export class CustomerProfileComponent {
     this.loadProfiles();
   }
 
+// Retrieves the list of customer profiles from the API and updates the loading state.
   loadProfiles(): void {
     this.loading = true;
 
@@ -42,10 +43,11 @@ export class CustomerProfileComponent {
     })
   }
 
+// Navigates the user to the page for creating a new customer profile.
   openCreatePage(): void {
     this.router.navigate(['/customer/profiles/create']);
   }
-
+// Closes the navigation bar and redirects to the edit page for the selected profile.
   openEditPage(item: CustomerProfile): void {
     this.navbarService.close();
     this.router.navigate(['/customer/profiles/edit', item.id])
@@ -54,7 +56,7 @@ export class CustomerProfileComponent {
   openDetailPage(item: CustomerProfile): void {
     this.router.navigate(['customer/profiles/view', item.id])
   }
-
+// Closes the navigation bar and stages the selected profile for deletion in the dialog
   openDeleteDialog(item: CustomerProfile): void {
     this.navbarService.close();
     this.profileToDelete = item;
@@ -66,7 +68,7 @@ export class CustomerProfileComponent {
     this.profileToDelete = undefined;
     this.deleteLoading = false;
   }
-
+// Deletes the profile via the service, updates the local UI list, and shows a success notification.
   confirmDelete(): void {
     if (!this.profileToDelete) {
       return;

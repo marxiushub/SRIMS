@@ -34,7 +34,7 @@ public class StatisticsRequestDto {
         this.detailDegree = detailDegree;
     }
 
-    // Getter und Setter für searchStart
+
     public LocalDate getSearchStart() {
         return searchStart;
     }
@@ -43,7 +43,7 @@ public class StatisticsRequestDto {
         this.searchStart = searchStart;
     }
 
-    // Getter und Setter für searchEnd
+
     public LocalDate getSearchEnd() {
         return searchEnd;
     }
@@ -52,7 +52,7 @@ public class StatisticsRequestDto {
         this.searchEnd = searchEnd;
     }
 
-    // Getter und Setter für type
+
     public EquipmentType getType() {
         return type;
     }

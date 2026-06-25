@@ -45,6 +45,9 @@ export class CustomerProfileCreateEditComponent {
   constructor(private customerProfileService: CustomerProfileService, public translateService: TranslateService, private router: Router, private route: ActivatedRoute, private notification: ToastrService) {
   }
 
+  /**
+  * Initializes the component and switches to edit mode if a profile ID is present in the route.
+  */
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
 
@@ -55,6 +58,9 @@ export class CustomerProfileCreateEditComponent {
     }
   }
 
+  /**
+   * Loads a customer profile from the backend and maps it into the form model.
+   */
   private loadProfile(id: number): void {
     this.loading = true;
     this.loadError = false;
@@ -78,6 +84,9 @@ export class CustomerProfileCreateEditComponent {
     });
   }
 
+  /**
+   * Submits the form to either create a new profile or update an existing one.
+   */
   onSubmit(form?: NgForm): void {
     this.submitted = true;
     this.loading = true;
