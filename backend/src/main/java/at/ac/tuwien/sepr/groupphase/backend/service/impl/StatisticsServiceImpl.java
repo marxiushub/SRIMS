@@ -81,6 +81,7 @@ public class StatisticsServiceImpl implements StatisicsService {
                     && !reservation.getCustomerProfile().getProfileName().equals("Maintenance")
             ).collect(Collectors.toList());
 
+
         Map<Long, Integer> itemCounts = new HashMap<>();
         Map<String, Integer> modelCounts = new HashMap<>();
 
