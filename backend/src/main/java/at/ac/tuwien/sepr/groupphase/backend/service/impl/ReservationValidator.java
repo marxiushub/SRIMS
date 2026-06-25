@@ -224,6 +224,9 @@ public class ReservationValidator {
                     validationErrors.add("Equipment with ID " + equipment.getId() + " is not available at this date");
                 }
             }
+            else if (time.getEndDate().isEqual(start)) {
+                validationErrors.add("Equipment with ID " + equipment.getId() + " is not available at this date");
+            }
         }
     }
 
