@@ -160,7 +160,7 @@
     </div>
 
     <!-- Table: shown on xl+ screens -->
-    <div class="d-none d-xl-flex flex-column gap-2 mb-3">
+    <div class="d-none d-xl-flex flex-column gap-0 mb-3">
       @for (item of equipment | slice:startIndex - 1:endIndex; track item.id) {
         <div class="inv-card" (click)="openDetailPage(item)">
           <div class="inv-col-model">

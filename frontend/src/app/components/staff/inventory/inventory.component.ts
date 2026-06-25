@@ -9,6 +9,7 @@ import {RentalStatus} from "../../../dtos/rentalstatus";
 import {SkillLevel} from "../../../dtos/skilllevel";
 import {EquipmentSearch} from '../../../dtos/equipment-search';
 import {ToastrService} from 'ngx-toastr';
+import {NavbarService} from "../../../services/navbar.service";
 
 @Component({
   selector: 'app-inventory',
@@ -33,6 +34,7 @@ export class InventoryComponent implements OnInit {
   startFilter: string | null = null;
   endFilter: string | null = null;
   priceSortDirection: 'asc' | 'desc' = 'asc';
+  filtersExpanded = false;
 
   itemLimit: number = 10;
   currentPage: number = 1;
@@ -58,7 +60,7 @@ export class InventoryComponent implements OnInit {
     SkillLevel.ADVANCED
   ];
 
-  constructor(private equipmentService: EquipmentService, public translateService: TranslateService, private router: Router, private notification: ToastrService) {
+  constructor(private equipmentService: EquipmentService, public translateService: TranslateService, private navbarService: NavbarService, private router: Router, private notification: ToastrService) {
   }
 
   ngOnInit(): void {
@@ -91,10 +93,12 @@ export class InventoryComponent implements OnInit {
   }
 
   openEditPage(item: Equipment): void {
+    this.navbarService.close();
     this.router.navigate(['/staff/inventory/edit', item.id])
   }
 
   openDeleteDialog(item: Equipment): void {
+    this.navbarService.close();
     this.equipmentToDelete = item;
     this.deleteError = undefined;
   }
@@ -221,6 +225,21 @@ export class InventoryComponent implements OnInit {
     this.endFilter = null;
     this.priceSortDirection = 'asc';
     this.loadEquipment();
+  }
+
+  toggleFilters(): void {
+    this.filtersExpanded = !this.filtersExpanded;
+  }
+
+  get activeFilterCount(): number {
+    let count = 0;
+    if (this.modelFilter) count++;
+    if (this.typeFilter) count++;
+    if (this.statusFilter) count++;
+    if (this.skillFilter) count++;
+    if (this.startFilter) count++;
+    if (this.endFilter) count++;
+    return count;
   }
 
   get startIndex(): number {
