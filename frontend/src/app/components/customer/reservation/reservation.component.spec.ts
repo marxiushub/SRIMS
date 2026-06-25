@@ -45,34 +45,35 @@ describe('ReservationComponent', () => {
     }
   ];
 
-  const testReservations: ReservationDetail[] = [
-    {
-      id: 100,
-      customerProfileId: 10,
-      accountId: 1,
-      customerName: 'Max Mustermann',
-      pickUpTime: '10:00:00',
-      startDate: '2026-12-24',
-      endDate: '2026-12-31',
-      confirmationEmailSent: true,
-      totalPrice: 175,
-      items: [{id: 1, model: 'Ski Alpha', price: 25} as any],
-      reservationStatus: ReservationStatus.CREATED
-    },
-    {
-      id: 200,
-      customerProfileId: 20,
-      accountId: 1,
-      customerName: 'Erika Musterfrau',
-      pickUpTime: '08:30:00',
-      startDate: '2026-02-15',
-      endDate: '2026-02-20',
-      confirmationEmailSent: false,
-      totalPrice: 20,
-      items: [],
-      reservationStatus: ReservationStatus.PICKED_UP
-    }
-  ];
+  const createdReservation: ReservationDetail = {
+    id: 100,
+    customerProfileId: 10,
+    accountId: 1,
+    customerName: 'Max Mustermann',
+    pickUpTime: '10:00:00',
+    startDate: '2026-12-24',
+    endDate: '2026-12-31',
+    confirmationEmailSent: true,
+    totalPrice: 175,
+    items: [{id: 1, model: 'Ski Alpha', price: 25} as any],
+    reservationStatus: ReservationStatus.CREATED
+  };
+
+  const pickedUpReservation: ReservationDetail = {
+    id: 200,
+    customerProfileId: 20,
+    accountId: 1,
+    customerName: 'Erika Musterfrau',
+    pickUpTime: '08:30:00',
+    startDate: '2026-02-15',
+    endDate: '2026-02-20',
+    confirmationEmailSent: false,
+    totalPrice: 20,
+    items: [],
+    reservationStatus: ReservationStatus.PICKED_UP
+  };
+
+  const testReservations: ReservationDetail[] = [createdReservation, pickedUpReservation];
 
   beforeEach(async () => {
     reservationServiceMock = jasmine.createSpyObj('ReservationService', ['search', 'delete']);
@@ -277,7 +278,11 @@ describe('ReservationComponent', () => {
     component.showPastReservations = true;
 
     reservationServiceMock.search.calls.reset();
-    reservationServiceMock.search.and.returnValue(of(testReservations));
+    reservationServiceMock.search.calls.reset();
+    reservationServiceMock.search.and.returnValues(
+      of([createdReservation]),
+      of([pickedUpReservation])
+    );
 
     component.clearFilters();
 

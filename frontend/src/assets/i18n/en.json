@@ -29,7 +29,7 @@
     "DATE_OF_BIRTH_FUTURE": "Date of birth cannot be in the future!",
     "ALREADY_LOGGED_IN": "You are already logged in.",
     "LOGIN_SUCCESS": "Login successful.",
-    "REGISTER_SUCCESS": "Registration successful. You can now log in.",
+    "REGISTER_SUCCESS": "Registration successful.",
     "LOGOUT_SUCCESS": "Logout successful."
   },
   "INVENTORY": {

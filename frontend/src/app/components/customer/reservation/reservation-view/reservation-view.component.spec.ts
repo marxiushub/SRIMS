@@ -106,6 +106,7 @@ describe('ReservationViewComponent', () => {
   });
 
   it('should handle errors when backend call fails on init', () => {
+    spyOn(console, 'error');
     reservationServiceSpy.getById.and.returnValue(throwError(() => new Error('Backend failure')));
 
     component.reservation = undefined;
@@ -169,6 +170,7 @@ describe('ReservationViewComponent', () => {
   });
 
   it('should display error message if delete service call fails', () => {
+    spyOn(console, 'error');
     const errorResponse = {error: {message: 'Cannot delete active reservation'}};
     reservationServiceSpy.delete.and.returnValue(throwError(() => errorResponse));
     component.reservation = mockReservation;
