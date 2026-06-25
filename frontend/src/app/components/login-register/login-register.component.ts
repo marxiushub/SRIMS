@@ -64,13 +64,13 @@ export class LoginRegisterComponent implements OnInit {
   ];
 
   constructor(
-      private formBuilder: UntypedFormBuilder,
-      private authService: AuthService,
-      private customerProfileService: CustomerProfileService,
-      public translateService: TranslateService,
-      private router: Router,
-      private route: ActivatedRoute,
-      private notification: ToastrService) {
+    private formBuilder: UntypedFormBuilder,
+    private authService: AuthService,
+    private customerProfileService: CustomerProfileService,
+    public translateService: TranslateService,
+    private router: Router,
+    private route: ActivatedRoute,
+    private notification: ToastrService) {
     this.loginForm = this.formBuilder.group({
       username: ['', [Validators.required]],
       password: ['', [Validators.required]],
@@ -119,7 +119,7 @@ export class LoginRegisterComponent implements OnInit {
           skillLevel: this.loginForm.controls.skillLevel.value
         };
         console.log(customerDto)
-        this.registerUser(customerDto);
+        this.registerUserWithProfile(customerDto, profileDto);
       } else if (this.mode === LoginRegisterMode.resetPassword) {
         this.requestPasswordReset(this.loginForm.controls.username.value);
       } else {
@@ -162,13 +162,13 @@ export class LoginRegisterComponent implements OnInit {
     console.log('Registering customer: ' + customerDto.userName);
 
     this.authService.registerUser(customerDto).pipe(
-        switchMap(() => {
-          const loginCredentials = new AuthRequest(customerDto.email, customerDto.password);
-          return this.authService.loginUser(loginCredentials);
-        }),
-        switchMap(() => {
-          return this.customerProfileService.create(profileDto);
-        })
+      switchMap(() => {
+        const loginCredentials = new AuthRequest(customerDto.email, customerDto.password);
+        return this.authService.loginUser(loginCredentials);
+      }),
+      switchMap(() => {
+        return this.customerProfileService.create(profileDto);
+      })
     ).subscribe({
       next: () => {
         console.log('Successfully registered user and created primary profile.');
