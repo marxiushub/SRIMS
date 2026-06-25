@@ -261,7 +261,7 @@
     "ERROR_ALREADY_SCANNED": "{{model}} has already been scanned in this session.",
     "SCANNED_LIST_TITLE": "Scanned Equipment",
     "NO_EQUIPMENT_SCANNED": "No equipment scanned yet. Please scan a barcode.",
-    "REMOVE_FROM_LIST": "Remove",
+    "REMOVE_FROM_LIST": "Remove from scanned items",
     "SUCCESS_ADDED": "{{model}} has been added to the list.",
     "SUCCESS_REMOVED": "{{model}} has been removed from the list.",
     "ERROR_NO_RESERVATION_TODAY": "No active reservation found for {{model}} for today.",
@@ -309,7 +309,10 @@
     "MAINTENANCE_REACTIVATE_CONFIRM_PROMPT": "Do you want to bring this equipment back from maintenance and mark it as available?",
     "CAMERA_SCANNER": "Camera Scanner",
     "CLOSE_CAMERA": "Close Camera",
-    "OPEN_CAMERA": "Open Camera"
+    "OPEN_CAMERA": "Open Camera",
+    "CAMERA_TITLE": "Camera-Scanner",
+    "BTN_REMOVE": "Remove from Reservation",
+    "BTN_ADD": "Add to Reservation"
   },
   "RESERVATION": {
     "CUSTOMER_NAME": "Customer (Account)",

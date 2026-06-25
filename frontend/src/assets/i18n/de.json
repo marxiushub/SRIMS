@@ -261,7 +261,7 @@
     "ERROR_ALREADY_SCANNED": "{{model}} wurde in dieser Sitzung bereits gescannt.",
     "SCANNED_LIST_TITLE": "Gescannte Ausrüstung",
     "NO_EQUIPMENT_SCANNED": "Noch keine Ausrüstung gescannt. Bitte Barcode einscannen.",
-    "REMOVE_FROM_LIST": "Entfernen",
+    "REMOVE_FROM_LIST": "Gescannten Gegenstand entfernen",
     "SUCCESS_ADDED": "{{model}} wurde der Liste hinzugefügt.",
     "SUCCESS_REMOVED": "{{model}} wurde aus der Liste entfernt.",
     "ERROR_NO_RESERVATION_TODAY": "Für {{model}} wurde am heutigen Tag keine aktive Reservierung gefunden.",
@@ -309,7 +309,10 @@
     "MAINTENANCE_REACTIVATE_CONFIRM_PROMPT": "Möchten Sie dieses Equipment jetzt aus der Wartung zurückholen und als verfügbar markieren?",
     "CAMERA_SCANNER": "Kamera Scanner",
     "CLOSE_CAMERA": "Kamera schließen",
-    "OPEN_CAMERA": "Kamera öffnen"
+    "OPEN_CAMERA": "Kamera öffnen",
+    "CAMERA_TITLE": "Kamera-Scanner",
+    "BTN_REMOVE": "Von Reservierung entfernen",
+    "BTN_ADD": "Zu Reservierung hinzufügen"
   },
   "RESERVATION": {
     "CUSTOMER_NAME": "Kunde (Account)",

@@ -18,7 +18,6 @@ import {StaffService} from '../../../services/staff.service';
 import {CustomerSearch} from '../../../dtos/customer-search';
 import {CustomerSearchResponse} from '../../../dtos/customer-search-response';
 import {BarcodeFormat} from '@zxing/library';
-import {UserType} from "../../../dtos/usertype";
 
 @Component({
   selector: 'app-barcode-scanner',
@@ -428,6 +427,76 @@ export class BarcodeScannerComponent implements OnInit {
         this.updateScanScenario();
       }
     });
+  }
+
+  /**
+   * Adds a specific equipment item directly to the current matched reservation (if a Reservation was loaded from
+   * the Backend).
+   */
+  addEquipmentToExistingReservation(equipmentId: number): void {
+    if (this.matchedReservations.length !== 1) return;
+
+    const currentReservation = this.matchedReservations[0];
+    const dto = {
+      id: currentReservation.id,
+      equipmentIds: [equipmentId]
+    };
+
+    this.loading = true;
+    this.reservationService.addEquipmentToReservation(dto).subscribe({
+      next: (updatedReservation) => {
+        this.loading = false;
+        this.matchedReservations[0] = updatedReservation;
+        this.notification.success(this.translateService.instant('BARCODE_SCANNER.SUCCESS_EQUIPMENT_ADDED_TO_RES') || 'Equipment added to reservation.');
+
+        this.updateScanScenario();
+      },
+      error: (err) => {
+        this.loading = false;
+        console.error('Failed to add equipment to reservation', err);
+        this.notification.error(err.error?.message || 'Error adding equipment.');
+      }
+    });
+  }
+
+  /**
+   * Removes a specific equipment item directly from the current matched reservation (if a Reservation was loaded
+   * from the Backend).
+   */
+  removeEquipmentFromExistingReservation(equipmentId: number): void {
+    if (this.matchedReservations.length !== 1) return;
+
+    const currentReservation = this.matchedReservations[0];
+    const dto = {
+      id: currentReservation.id,
+      equipmentIds: [equipmentId]
+    };
+
+    this.loading = true;
+    this.reservationService.removeEquipmentFromReservation(dto).subscribe({
+      next: (updatedReservation) => {
+        this.loading = false;
+        this.matchedReservations[0] = updatedReservation;
+        this.notification.success(this.translateService.instant('BARCODE_SCANNER.SUCCESS_EQUIPMENT_REMOVED_FROM_RES') || 'Equipment removed from reservation.');
+
+        this.scannedEquipments = this.scannedEquipments.filter(e => e.id !== equipmentId);
+        this.scannedEquipmentIds = this.scannedEquipmentIds.filter(id => id !== equipmentId);
+
+        this.updateScanScenario();
+      },
+      error: (err) => {
+        this.loading = false;
+        console.error('Failed to remove equipment from reservation', err);
+        this.notification.error(err.error?.message || 'Error removing equipment.');
+      }
+    });
+  }
+
+  isEquipmentUnreserved(equipmentId: number): boolean {
+    if (!this.matchedReservations || this.matchedReservations.length === 0) {
+      return false;
+    }
+    return !this.matchedReservations[0].items?.some(eq => eq.id === equipmentId);
   }
 
   //Initializes the WalkInForm with current date and time as startDate and pickUpTime

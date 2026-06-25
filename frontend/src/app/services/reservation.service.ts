@@ -110,4 +110,26 @@ export class ReservationService {
   deleteForStaff(reservationId: number): Observable<void> {
     return this.httpClient.delete<void>(`${this.reservationBaseUri}/staff/${reservationId}`);
   }
+
+  /**
+   * Adds specific equipment to an existing reservation.
+   * Maps to POST /api/v1/reservation/equipment
+   *
+   * @param dto the DTO containing the reservation ID and the equipment IDs to add
+   * @return an Observable of the updated ReservationDetail
+   */
+  addEquipmentToReservation(dto: ReservationAddDeleteEquipment): Observable<ReservationDetail> {
+    return this.httpClient.post<ReservationDetail>(`${this.reservationBaseUri}/equipment`, dto);
+  }
+
+  /**
+   * Removes specific equipment from an existing reservation.
+   * Maps to DELETE /api/v1/reservation/equipment
+   *
+   * @param dto the DTO containing the reservation ID and the equipment IDs to remove
+   * @return an Observable of the updated ReservationDetail
+   */
+  removeEquipmentFromReservation(dto: ReservationAddDeleteEquipment): Observable<ReservationDetail> {
+    return this.httpClient.delete<ReservationDetail>(`${this.reservationBaseUri}/equipment`, { body: dto });
+  }
 }
