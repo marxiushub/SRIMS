@@ -4,12 +4,14 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 
 /**
  * DTO for updating a customer profile.
  */
 public class CustomerProfileUpdateDto {
 
+    @Size(max = 100, message = "Profile name must not exceed 100 characters")
     private String profileName;
 
     @Positive(message = "Height must be positive")

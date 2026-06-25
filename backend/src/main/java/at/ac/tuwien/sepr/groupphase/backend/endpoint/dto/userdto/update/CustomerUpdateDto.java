@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update;
 
 import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 
@@ -10,8 +11,10 @@ import java.time.LocalDate;
 
 public class CustomerUpdateDto extends UserUpdateDto {
 
+    @Size(min = 1, max = 100, message = "First name must be between 1 and 100 characters")
     private String firstName;
 
+    @Size(min = 1, max = 100, message = "Last name must be between 1 and 100 characters")
     private String lastName;
 
     @Past(message = "Date of birth must be in the past")

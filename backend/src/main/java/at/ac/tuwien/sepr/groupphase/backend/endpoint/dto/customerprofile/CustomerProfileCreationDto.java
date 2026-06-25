@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Size;
 
 /**
  * DTO for creating a CustomerProfile.
@@ -13,6 +14,7 @@ import jakarta.validation.constraints.Max;
 public class CustomerProfileCreationDto {
 
     @NotBlank(message = "Profile name is empty")
+    @Size(max = 100, message = "Profile name must not exceed 100 characters")
     private String profileName;
 
     @Positive(message = "Height must be positive")

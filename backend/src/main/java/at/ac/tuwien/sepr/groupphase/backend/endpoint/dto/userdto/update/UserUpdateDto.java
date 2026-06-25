@@ -20,9 +20,10 @@ import jakarta.validation.constraints.Email;
 
 public abstract class UserUpdateDto {
 
+    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
     private String userName;
 
-    @Size(min = 10, message = "Password must at least contain 10 characters ")
+    @Size(min = 10, max = 100, message = "Password must be between 10 and 100 characters")
     @Pattern(
         regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[^A-Za-z0-9]).+$",
         message = "Password must contain at least one number, and one special characters."
@@ -30,6 +31,7 @@ public abstract class UserUpdateDto {
     private String password;
 
     @Email(message = "Invalid E-Mail format")
+    @Size(max = 255, message = "Email must not exceed 255 characters")
     private String email;
 
     /**

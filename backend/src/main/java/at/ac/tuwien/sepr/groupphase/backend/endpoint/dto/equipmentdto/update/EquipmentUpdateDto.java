@@ -5,8 +5,9 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
@@ -27,11 +28,12 @@ public abstract class EquipmentUpdateDto {
     @NotNull(message = "Type is not allowed to be missing")
     private EquipmentType type;
 
-
-    @Min(0)
+    @PositiveOrZero(message = "price must not be negative")
     private Double price;
 
+    @Size(max = 100, message = "model must be max 100 characters")
     private String model;
+
     private RentalStatus status;
     private SkillLevel targetSkillLevel;
 
