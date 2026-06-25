@@ -164,6 +164,14 @@
       "NEW_PASSWORD": "New Password",
       "PASSWORD_CHANGE_SUCCESS": "Your password has been changed successfully."
     },
+    "RESET_PASSWORD": {
+      "TITLE": "Reset Staff Password",
+      "DESC": "Send a new password to a staff member's email",
+      "BACK": "Back",
+      "EMAIL_PLACEHOLDER": "Staff member's email address",
+      "SEND": "Send new password",
+      "SUCCESS": "A new password has been sent to that email address."
+    },
     "STATISTICS": {
       "TITLE": "Statistics",
       "SUBTITLE": "Analyze the utilization and rental duration of your equipment.",

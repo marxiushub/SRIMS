@@ -168,6 +168,14 @@
       "TITLE": "Grafische Übersicht",
       "DESC": "Visuelle Darstellung des gesamten Bestands-Status."
     },
+    "RESET_PASSWORD": {
+      "TITLE": "Mitarbeiter-Passwort zurücksetzen",
+      "DESC": "Ein neues Passwort an die E-Mail-Adresse eines Mitarbeiters senden",
+      "BACK": "Zurück",
+      "EMAIL_PLACEHOLDER": "E-Mail-Adresse des Mitarbeiters",
+      "SEND": "Neues Passwort senden",
+      "SUCCESS": "Ein neues Passwort wurde an diese E-Mail-Adresse gesendet."
+    },
     "STATISTICS": {
       "TITLE": "Statistiken",
       "SUBTITLE": "Analysiere die Auslastung und Mietdauer deines Equipments.",

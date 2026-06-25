@@ -62,4 +62,16 @@ export class StaffService {
   changePassword(id: number, passwordChange: PasswordChange): Observable<StaffSearchResponse> {
     return this.httpClient.patch<StaffSearchResponse>(`${this.staffBaseUri}/password/${id}`, passwordChange);
   }
+
+  /**
+   * Requests a password reset for the staff account with the given email.
+   * Maps to PATCH /api/v1/staff/password-resets/{email}
+   * Requires the caller to be an authenticated staff member with STAFF_UPDATE authority.
+   * The backend generates a new password and emails it to that address; no request body is needed.
+   *
+   * @param email the email of the staff account whose password should be reset
+   */
+  resetPasswordForStaff(email: string): Observable<any> {
+    return this.httpClient.patch<any>(`${this.staffBaseUri}/password-resets/${encodeURIComponent(email)}`, null);
+  }
 }
