@@ -48,6 +48,7 @@ import {
 import {
   StaffReservationEditComponent
 } from "./components/staff/reservation/reservation-edit/staff-reservation-edit.component";
+import {ResetStaffPasswordComponent} from "./components/staff/reset-staff-password/reset-staff-password.component";
 
 
 const routes: Routes = [
@@ -69,6 +70,7 @@ const routes: Routes = [
       {path: 'barcode-scanner', component: BarcodeScannerComponent},
       {path: 'statistics', component: StatisticsComponent},
       {path: 'account', component: StaffAccountComponent},
+      {path: 'reset-staff-password', component: ResetStaffPasswordComponent},
     ]
   },
   {

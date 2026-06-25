@@ -35,6 +35,9 @@ import {
 import {
   StaffAccountComponent
 } from "./components/staff/staff-account/staff-account.component";
+import {
+  ResetStaffPasswordComponent
+} from "./components/staff/reset-staff-password/reset-staff-password.component";
 
 import {
   ReservationCreateEditComponent
@@ -93,6 +96,7 @@ export function HttpLoaderFactory(http: HttpClient): TranslateLoader {
     StaffReservationViewComponent,
     BarcodeScannerComponent,
     StaffAccountComponent,
+    ResetStaffPasswordComponent,
     ReservationComponent,
     ReservationCreateEditComponent,
     ReservationViewComponent,
