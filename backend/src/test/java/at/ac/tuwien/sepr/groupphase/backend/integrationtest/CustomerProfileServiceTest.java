@@ -248,7 +248,7 @@ public class CustomerProfileServiceTest {
             "Verify that a null customer id is rejected",
             () -> assertThat(exception).isNotNull(),
             () -> assertThat(exception.getMessage())
-                .containsIgnoringCase("cannot be null")
+                .containsIgnoringCase("Customer profile ID is null")
         );
     }
 
@@ -572,6 +572,122 @@ public class CustomerProfileServiceTest {
             "Verify that getting an unknown customer profile fails",
             () -> assertThat(exception).isNotNull(),
             () -> assertThat(exception.getMessage()).containsIgnoringCase("not found")
+        );
+    }
+
+    //Validator Tests:
+    @Test
+    public void createCustomerProfile_withNullDto_throwsIllegalArgumentException() {
+        Customer customer = createTestCustomer("null_dto");
+        actingAsCustomer(customer);
+
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class,
+            () -> customerProfileService.createCustomerProfile(null)
+        );
+
+        assertThat(exception.getMessage()).contains("null");
+    }
+
+    @Test
+    public void createCustomerProfile_withBlankProfileName_throwsValidationException() {
+        Customer customer = createTestCustomer("blank_name");
+        actingAsCustomer(customer);
+
+        CustomerProfileCreationDto dto = new CustomerProfileCreationDto();
+        dto.setProfileName("   ");
+        dto.setHeight(175);
+        dto.setWeight(70);
+        dto.setShoeSize(42);
+        dto.setSkillLevel(SkillLevel.BEGINNER);
+
+        ValidationException exception = assertThrows(
+            ValidationException.class,
+            () -> customerProfileService.createCustomerProfile(dto)
+        );
+
+        assertThat(exception.getMessage()).containsIgnoringCase("creation failed");
+    }
+
+    @Test
+    public void createCustomerProfile_withTooLongProfileName_throwsValidationException() {
+        Customer customer = createTestCustomer("long_name");
+        actingAsCustomer(customer);
+
+        CustomerProfileCreationDto dto = new CustomerProfileCreationDto();
+        dto.setProfileName("a".repeat(101)); // > 100 chars
+        dto.setHeight(175);
+        dto.setWeight(70);
+        dto.setShoeSize(42);
+        dto.setSkillLevel(SkillLevel.BEGINNER);
+
+        assertThrows(
+            ValidationException.class,
+            () -> customerProfileService.createCustomerProfile(dto)
+        );
+    }
+
+    @Test
+    public void createCustomerProfile_withDuplicateProfileName_throwsValidationException() {
+        Customer customer = createTestCustomer("duplicate_name");
+        actingAsCustomer(customer);
+
+        createTestProfile(customer, "Duplicate", SkillLevel.BEGINNER);
+
+        CustomerProfileCreationDto dto = new CustomerProfileCreationDto();
+        dto.setProfileName("Duplicate"); // same name + same customer
+        dto.setHeight(175);
+        dto.setWeight(70);
+        dto.setShoeSize(42);
+        dto.setSkillLevel(SkillLevel.BEGINNER);
+
+        assertThrows(
+            ValidationException.class,
+            () -> customerProfileService.createCustomerProfile(dto)
+        );
+    }
+
+    @Test
+    public void updateCustomerProfile_withNullDto_throwsIllegalArgumentException() {
+        Customer customer = createTestCustomer("null_update");
+        CustomerProfile profile = createTestProfile(customer, "Name", SkillLevel.BEGINNER);
+        actingAsCustomer(customer);
+
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> customerProfileService.updateCustomerProfile(profile.getId(), null)
+        );
+    }
+
+    @Test
+    public void updateCustomerProfile_withOnlyWhitespaceFields_throwsValidationException() {
+        Customer customer = createTestCustomer("whitespace_update");
+        CustomerProfile profile = createTestProfile(customer, "Valid", SkillLevel.BEGINNER);
+        actingAsCustomer(customer);
+
+        CustomerProfileUpdateDto dto = new CustomerProfileUpdateDto();
+        dto.setProfileName("   "); // invalid after trim
+
+        ValidationException exception = assertThrows(
+            ValidationException.class,
+            () -> customerProfileService.updateCustomerProfile(profile.getId(), dto)
+        );
+
+        assertThat(exception.getErrors())
+            .anyMatch(msg -> msg.contains("blank") || msg.contains("Profile name"));
+    }
+
+    @Test
+    public void updateCustomerProfile_withAllNullFields_throwsValidationException() {
+        Customer customer = createTestCustomer("all_null");
+        CustomerProfile profile = createTestProfile(customer, "Valid", SkillLevel.BEGINNER);
+        actingAsCustomer(customer);
+
+        CustomerProfileUpdateDto dto = new CustomerProfileUpdateDto();
+
+        assertThrows(
+            ValidationException.class,
+            () -> customerProfileService.updateCustomerProfile(profile.getId(), dto)
         );
     }
 }

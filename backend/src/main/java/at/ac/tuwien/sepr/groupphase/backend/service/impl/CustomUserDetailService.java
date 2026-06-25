@@ -173,7 +173,7 @@ public class CustomUserDetailService implements UserService {
 
         LOGGER.info("Updating user with id {}", id);
 
-        validator.userUpdateDtoValidator(updateDto);
+        validator.userUpdateDtoValidator(id, updateDto);
         validator.idTester(id);
 
         checkUserAccessPermission(id);

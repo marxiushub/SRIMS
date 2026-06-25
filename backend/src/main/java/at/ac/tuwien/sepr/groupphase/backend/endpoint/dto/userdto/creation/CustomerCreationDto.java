@@ -5,7 +5,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.user.Customer;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -16,9 +16,11 @@ import java.util.HashSet;
 
 public class CustomerCreationDto extends UserCreationDto {
     @NotBlank(message = "First name is empty")
+    @Size(min = 1, max = 100, message = "First name must be between 1 and 100 characters")
     private String firstName;
 
     @NotBlank(message = "Last name is empty")
+    @Size(min = 1, max = 100, message = "Last name must be between 1 and 100 characters")
     private String lastName;
 
     @NotNull(message = "Date of birth is required")
