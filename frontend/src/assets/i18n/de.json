@@ -412,5 +412,12 @@
     "BACK": "Zurück",
     "EDIT": "Bearbeiten",
     "DELETE": "Löschen"
+  },
+  "REGISTRATION_EXT": {
+    "PROFILE_SECTION_TITLE": "Erstes Kundenprofil erstellen",
+    "PLACEHOLDER_HEIGHT": "z.B. 175",
+    "PLACEHOLDER_WEIGHT": "z.B. 70",
+    "PLACEHOLDER_SHOE_SIZE": "z.B. 42",
+    "CHOOSE_SKILL_PLACEHOLDER": "-- Bitte Erfahrungslevel wählen --"
   }
 }

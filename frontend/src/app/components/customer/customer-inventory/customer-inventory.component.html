@@ -48,13 +48,13 @@
 
     <div class="col-12 col-sm-6 col-md-4 col-xl-auto flex-xl-shrink-1">
       <div class="row align-items-center g-2">
-        <label for="searchEquipmentSkill" class="col-4 col-sm-12 col-form-label">{{ 'INVENTORY.EQUIPMENT_SKILL' | translate }}</label>
+        <label for="searchEquipmentStatus" class="col-4 col-sm-12 col-form-label">{{ 'INVENTORY.EQUIPMENT_STATUS' | translate }}</label>
         <div class="col-8 col-sm-12">
-          <select id="searchEquipmentSkill" name="searchEquipmentSkill" [(ngModel)]="skillFilter"
+          <select id="searchEquipmentStatus" name="searchEquipmentStatus" [(ngModel)]="statusFilter"
                   [ngModelOptions]="{ standalone: true }" (ngModelChange)="searchEquipment()" class="form-select">
             <option [ngValue]="null">{{ 'INVENTORY.EQUIPMENT_ALL' | translate }}</option>
-            @for (skillLevel of skillLevels; track skillLevel) {
-              <option [value]="skillLevel">{{ 'SKILL_LEVEL.' + skillLevel | translate }}</option>
+            @for (status of rentalStatuses; track status) {
+              <option [value]="status">{{ 'RENTAL_STATUS.' + status | translate }}</option>
             }
           </select>
         </div>
@@ -63,13 +63,13 @@
 
     <div class="col-12 col-sm-6 col-md-4 col-xl-auto flex-xl-shrink-1">
       <div class="row align-items-center g-2">
-        <label for="searchEquipmentStatus" class="col-4 col-sm-12 col-form-label">{{ 'INVENTORY.EQUIPMENT_STATUS' | translate }}</label>
+        <label for="searchEquipmentSkill" class="col-4 col-sm-12 col-form-label">{{ 'INVENTORY.EQUIPMENT_SKILL' | translate }}</label>
         <div class="col-8 col-sm-12">
-          <select id="searchEquipmentStatus" name="searchEquipmentStatus" [(ngModel)]="statusFilter"
+          <select id="searchEquipmentSkill" name="searchEquipmentSkill" [(ngModel)]="skillFilter"
                   [ngModelOptions]="{ standalone: true }" (ngModelChange)="searchEquipment()" class="form-select">
             <option [ngValue]="null">{{ 'INVENTORY.EQUIPMENT_ALL' | translate }}</option>
-            @for (status of rentalStatuses; track status) {
-              <option [value]="status">{{ 'RENTAL_STATUS.' + status | translate }}</option>
+            @for (skillLevel of skillLevels; track skillLevel) {
+              <option [value]="skillLevel">{{ 'SKILL_LEVEL.' + skillLevel | translate }}</option>
             }
           </select>
         </div>
