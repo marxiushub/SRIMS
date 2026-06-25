@@ -8,6 +8,8 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.CustomerProfileMappe
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.Customer;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ReservationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerProfileRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.CurrentUserService;
@@ -31,17 +33,20 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
     private final CustomerProfileMapper customerProfileMapper;
     private final CustomerProfileValidator customerProfileValidator;
     private final CurrentUserService currentUserService;
+    private final ReservationRepository reservationRepository;
 
     public CustomerProfileServiceImpl(CustomerProfileRepository customerProfileRepository,
                                       CustomerRepository customerRepository,
                                       CustomerProfileMapper mapper,
                                       CustomerProfileValidator customerProfileValidator,
-                                      CurrentUserService currentUserService) {
+                                      CurrentUserService currentUserService,
+                                      ReservationRepository reservationRepository) {
         this.customerProfileRepository = customerProfileRepository;
         this.customerRepository = customerRepository;
         this.customerProfileMapper = mapper;
         this.customerProfileValidator = customerProfileValidator;
         this.currentUserService = currentUserService;
+        this.reservationRepository = reservationRepository;
     }
 
     @Override
@@ -160,6 +165,10 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
 
         Long currentUserId = currentUserService.getUserId();
         CustomerProfile profile = checkUserAccessPermission(customerProfileId, currentUserId);
+
+        if (reservationRepository.existsByCustomerProfileId(profile.getId())) {
+            throw new ValidationException("Cannot delete customer profile with existing reservations.");
+        }
 
         customerProfileRepository.delete(profile);
     }
