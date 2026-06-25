@@ -20,6 +20,11 @@
     "PASSWORD_MIN_LENGTH": "Password must be at least 10 characters long!",
     "PASSWORD_PATTERN": "Password must contain at least one number, and one special character.",
     "PASSWORD_MISMATCH": "Passwords do not match!",
+    "FORGOT_PASSWORD": "Forgot your password?",
+    "RESET_PASSWORD": "Reset Password",
+    "SEND_RESET_EMAIL": "Request new password",
+    "PASSWORD_RESET_SUCCESS": "A new password has been sent to your email address.",
+    "BACK_TO_LOGIN": "Back to login",
     "REPEAT_PASSWORD_REQUIRED": "Please repeat your password!",
     "FIRST_NAME_REQUIRED": "First name is required!",
     "LAST_NAME_REQUIRED": "Last name is required!",
@@ -147,6 +152,26 @@
     "BARCODE": {
       "TITLE": "Barcode Scanner",
       "DESC": "Check-out or check-in equipment contactlessly."
+    },
+    "ACCOUNT": {
+      "TITLE": "My Account",
+      "DESC": "View your account details and change your password",
+      "BACK": "Back",
+      "LOADING": "Loading account data...",
+      "LOADING_ERROR": "Failed to load account data. Please try again later.",
+      "ROLE": "Role",
+      "CHANGE_PASSWORD": "Change Password",
+      "OLD_PASSWORD": "Current Password",
+      "NEW_PASSWORD": "New Password",
+      "PASSWORD_CHANGE_SUCCESS": "Your password has been changed successfully."
+    },
+    "RESET_PASSWORD": {
+      "TITLE": "Reset Staff Password",
+      "DESC": "Send a new password to a staff member's email",
+      "BACK": "Back",
+      "EMAIL_PLACEHOLDER": "Staff member's email address",
+      "SEND": "Send new password",
+      "SUCCESS": "A new password has been sent to that email address."
     },
     "STATISTICS": {
       "TITLE": "Statistics",
@@ -339,6 +364,17 @@
   "CUSTOMER": {
     "DASHBOARD_TITLE": "Customer Portal",
     "DASHBOARD_SUBTITLE": "Welcome to the SRIMS rental system. Please select an option:",
+    "ACCOUNT": {
+      "TITLE": "My Account",
+      "DESC": "View your account details and change your password",
+      "BACK": "Back",
+      "LOADING": "Loading account data...",
+      "LOADING_ERROR": "Failed to load account data. Please try again later.",
+      "CHANGE_PASSWORD": "Change Password",
+      "OLD_PASSWORD": "Current Password",
+      "NEW_PASSWORD": "New Password",
+      "PASSWORD_CHANGE_SUCCESS": "Your password has been changed successfully."
+    },
     "RESERVATIONS": {
       "TITLE": "My Reservations",
       "DESC": "View your current bookings or reserve new equipment"
@@ -415,6 +451,10 @@
     "BACK": "Back to Profiles",
     "EDIT": "Edit",
     "DELETE": "Delete"
+  },
+  "USER_TYPE": {
+    "CUSTOMER": "Customer",
+    "STAFF": "Staff"
   },
   "REGISTRATION_EXT": {
     "PROFILE_SECTION_TITLE": "Create first Profile",

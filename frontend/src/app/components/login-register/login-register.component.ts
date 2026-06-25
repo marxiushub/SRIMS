@@ -20,7 +20,8 @@ import { switchMap } from 'rxjs/operators';
 
 export enum LoginRegisterMode {
   login,
-  register
+  register,
+  resetPassword
 }
 
 export function maxDateTodayValidator(): ValidatorFn {
@@ -63,13 +64,13 @@ export class LoginRegisterComponent implements OnInit {
   ];
 
   constructor(
-      private formBuilder: UntypedFormBuilder,
-      private authService: AuthService,
-      private customerProfileService: CustomerProfileService,
-      public translateService: TranslateService,
-      private router: Router,
-      private route: ActivatedRoute,
-      private notification: ToastrService) {
+    private formBuilder: UntypedFormBuilder,
+    private authService: AuthService,
+    private customerProfileService: CustomerProfileService,
+    public translateService: TranslateService,
+    private router: Router,
+    private route: ActivatedRoute,
+    private notification: ToastrService) {
     this.loginForm = this.formBuilder.group({
       username: ['', [Validators.required]],
       password: ['', [Validators.required]],
@@ -119,6 +120,8 @@ export class LoginRegisterComponent implements OnInit {
         };
         console.log(customerDto)
         this.registerUserWithProfile(customerDto, profileDto);
+      } else if (this.mode === LoginRegisterMode.resetPassword) {
+        this.requestPasswordReset(this.loginForm.controls.username.value);
       } else {
         const authRequest: AuthRequest = new AuthRequest(this.loginForm.controls.username.value, this.loginForm.controls.password.value);
         this.authenticateUser(authRequest);
@@ -159,18 +162,36 @@ export class LoginRegisterComponent implements OnInit {
     console.log('Registering customer: ' + customerDto.userName);
 
     this.authService.registerUser(customerDto).pipe(
-        switchMap(() => {
-          const loginCredentials = new AuthRequest(customerDto.email, customerDto.password);
-          return this.authService.loginUser(loginCredentials);
-        }),
-        switchMap(() => {
-          return this.customerProfileService.create(profileDto);
-        })
+      switchMap(() => {
+        const loginCredentials = new AuthRequest(customerDto.email, customerDto.password);
+        return this.authService.loginUser(loginCredentials);
+      }),
+      switchMap(() => {
+        return this.customerProfileService.create(profileDto);
+      })
     ).subscribe({
       next: () => {
         console.log('Successfully registered user and created primary profile.');
         this.notification.success(this.translateService.instant('COMMON.REGISTER_SUCCESS'));
         this.router.navigate(['/customer']);
+      },
+      error: error => this.handleError(error)
+    });
+  }
+
+  /**
+   * Send a password reset request for the given email to the authService.
+   * On success, the backend sends a new generated password to that email address.
+   *
+   * @param email the email of the customer who forgot their password
+   */
+  requestPasswordReset(email: string) {
+    console.log('Requesting password reset for: ' + email);
+    this.authService.resetPassword(email).subscribe({
+      next: () => {
+        console.log('Successfully requested password reset for: ' + email);
+        this.notification.success(this.translateService.instant('COMMON.PASSWORD_RESET_SUCCESS'));
+        this.router.navigate(['/login']);
       },
       error: error => this.handleError(error)
     });
@@ -232,6 +253,11 @@ export class LoginRegisterComponent implements OnInit {
         this.loginForm.get('skillLevel')?.setValidators([Validators.required]);
 
         this.loginForm.setValidators([this.passwordMatchValidator.bind(this)]);
+      } else if (this.mode === LoginRegisterMode.resetPassword) {
+        usernameControl?.setValidators([Validators.required, Validators.email]);
+        passwordControl?.clearValidators();
+        registrationControls.forEach(control => this.loginForm.get(control)?.clearValidators());
+        this.loginForm.clearValidators();
       } else {
         usernameControl?.setValidators([Validators.required, Validators.email]);
         passwordControl?.setValidators([Validators.required]);
@@ -240,6 +266,7 @@ export class LoginRegisterComponent implements OnInit {
       }
 
       usernameControl?.updateValueAndValidity();
+      passwordControl?.updateValueAndValidity();
       registrationControls.forEach(control => this.loginForm.get(control)?.updateValueAndValidity());
       this.loginForm.updateValueAndValidity();
     });

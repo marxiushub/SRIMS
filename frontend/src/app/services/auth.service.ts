@@ -39,6 +39,19 @@ export class AuthService {
   }
 
   /**
+   * Request a password reset for the given email. The backend generates a new
+   * password and sends it to that email address; no request body is needed.
+   *
+   * @param email the email of the customer who forgot their password
+   */
+  resetPassword(email: string): Observable<any> {
+    return this.httpClient.patch<any>(
+      `${this.authBaseUri.replace('/authentication', '')}/customer/password-resets/${encodeURIComponent(email)}`,
+      null
+    );
+  }
+
+  /**
    * Check if a valid JWT token is saved in the localStorage
    */
   isLoggedIn() {
@@ -82,6 +95,19 @@ export class AuthService {
       }
     }
     return 'UNDEFINED';
+  }
+
+  /**
+   * Returns the id of the currently logged-in user, decoded from the JWT's 'uid' claim,
+   * or null if no token is present.
+   */
+  getUserId(): number | null {
+    const token = this.getToken();
+    if (token != null) {
+      const decoded: any = jwtDecode(token);
+      return decoded.uid ?? null;
+    }
+    return null;
   }
 
   private setToken(authResponse: string) {

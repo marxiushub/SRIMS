@@ -20,6 +20,11 @@
     "PASSWORD_MIN_LENGTH": "Das Passwort muss mindestens 10 Zeichen lang sein.",
     "PASSWORD_PATTERN": "Das Passwort muss mindestens eine Zahl und ein Sonderzeichen enthalten.",
     "PASSWORD_MISMATCH": "Die Passwörter stimmen nicht überein.",
+    "FORGOT_PASSWORD": "Passwort vergessen?",
+    "RESET_PASSWORD": "Passwort zurücksetzen",
+    "SEND_RESET_EMAIL": "Neues Passwort anfordern",
+    "PASSWORD_RESET_SUCCESS": "Ein neues Passwort wurde an Ihre E-Mail-Adresse gesendet.",
+    "BACK_TO_LOGIN": "Zurück zum Login",
     "REPEAT_PASSWORD_REQUIRED": "Bitte wiederholen Sie das Passwort.",
     "FIRST_NAME_REQUIRED": "Vorname ist erforderlich!",
     "LAST_NAME_REQUIRED": "Nachname ist erforderlich!",
@@ -148,6 +153,18 @@
       "TITLE": "Barcode-Scanner",
       "DESC": "Equipment kontaktlos ausgeben oder zurücknehmen."
     },
+    "ACCOUNT": {
+      "TITLE": "Mein Konto",
+      "DESC": "Kontodaten ansehen und Passwort ändern",
+      "BACK": "Zurück",
+      "LOADING": "Kontodaten werden geladen...",
+      "LOADING_ERROR": "Kontodaten konnten nicht geladen werden. Bitte versuchen Sie es später erneut.",
+      "ROLE": "Rolle",
+      "CHANGE_PASSWORD": "Passwort ändern",
+      "OLD_PASSWORD": "Aktuelles Passwort",
+      "NEW_PASSWORD": "Neues Passwort",
+      "PASSWORD_CHANGE_SUCCESS": "Ihr Passwort wurde erfolgreich geändert."
+    },
     "OVERVIEW": {
       "TITLE": "Grafische Übersicht",
       "DESC": "Visuelle Darstellung des gesamten Bestands-Status.",
@@ -157,6 +174,14 @@
         "NO_DATA": "Keine Daten verfügbar.",
         "ERROR": "Übersicht konnte nicht geladen werden. Bitte versuche es erneut."
       }
+    },
+    "RESET_PASSWORD": {
+      "TITLE": "Mitarbeiter-Passwort zurücksetzen",
+      "DESC": "Ein neues Passwort an die E-Mail-Adresse eines Mitarbeiters senden",
+      "BACK": "Zurück",
+      "EMAIL_PLACEHOLDER": "E-Mail-Adresse des Mitarbeiters",
+      "SEND": "Neues Passwort senden",
+      "SUCCESS": "Ein neues Passwort wurde an diese E-Mail-Adresse gesendet."
     },
     "STATISTICS": {
       "TITLE": "Statistiken",
@@ -339,6 +364,17 @@
   "CUSTOMER": {
     "DASHBOARD_TITLE": "Kundenportal",
     "DASHBOARD_SUBTITLE": "Willkommen im SRIMS Verleih-System. Wählen Sie eine Option:",
+    "ACCOUNT": {
+      "TITLE": "Mein Konto",
+      "DESC": "Kontodaten ansehen und Passwort ändern",
+      "BACK": "Zurück",
+      "LOADING": "Kontodaten werden geladen...",
+      "LOADING_ERROR": "Kontodaten konnten nicht geladen werden. Bitte versuchen Sie es später erneut.",
+      "CHANGE_PASSWORD": "Passwort ändern",
+      "OLD_PASSWORD": "Aktuelles Passwort",
+      "NEW_PASSWORD": "Neues Passwort",
+      "PASSWORD_CHANGE_SUCCESS": "Ihr Passwort wurde erfolgreich geändert."
+    },
     "RESERVATIONS": {
       "TITLE": "Meine Reservierungen",
       "DESC": "Bestehende Buchungen einsehen oder neue Ausrüstung reservieren"
@@ -415,6 +451,10 @@
     "BACK": "Zurück",
     "EDIT": "Bearbeiten",
     "DELETE": "Löschen"
+  },
+  "USER_TYPE": {
+    "CUSTOMER": "Kunde",
+    "STAFF": "Mitarbeiter"
   },
   "REGISTRATION_EXT": {
     "PROFILE_SECTION_TITLE": "Erstes Kundenprofil erstellen",

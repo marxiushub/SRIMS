@@ -31,6 +31,12 @@ import {
   CustomerEquipmentViewComponent
 } from "./components/customer/customer-inventory/equipment-view/equipment-view.component";
 import {ReservationComponent} from "./components/customer/reservation/reservation.component";
+import {
+  CustomerAccountComponent
+} from './components/customer/customer-account/customer-account.component';
+import {
+  StaffAccountComponent
+} from './components/staff/staff-account/staff-account.component';
 
 import { StatisticsComponent } from './components/staff/statistics/statistics.component';
 import {OverviewComponent} from './components/staff/overview/overview.component';
@@ -43,6 +49,7 @@ import {
 import {
   StaffReservationEditComponent
 } from "./components/staff/reservation/reservation-edit/staff-reservation-edit.component";
+import {ResetStaffPasswordComponent} from "./components/staff/reset-staff-password/reset-staff-password.component";
 import {StaffGuard} from "./guards/staff.guard";
 
 
@@ -50,6 +57,7 @@ const routes: Routes = [
   {path: '', component: HomeComponent, canActivate: [homeGuard]},
   {path: 'login', component: LoginRegisterComponent, data: {mode: LoginRegisterMode.login}},
   {path: 'register', component: LoginRegisterComponent, data: {mode: LoginRegisterMode.register}},
+  {path: 'forgot-password', component: LoginRegisterComponent, data: {mode: LoginRegisterMode.resetPassword}},
   {path: 'message', canActivate: mapToCanActivate([AuthGuard]), component: MessageComponent},
 
   {
@@ -63,6 +71,8 @@ const routes: Routes = [
       {path: 'reservation/view/:id', component: StaffReservationViewComponent},
       {path: 'barcode-scanner', component: BarcodeScannerComponent},
       {path: 'statistics', component: StatisticsComponent},
+      {path: 'account', component: StaffAccountComponent},
+      {path: 'reset-staff-password', component: ResetStaffPasswordComponent},
       {path: 'overview', component: OverviewComponent},
     ]
   },
@@ -81,7 +91,8 @@ const routes: Routes = [
       },
       {path: 'reservation/view/:id', component: ReservationViewComponent},
       {path: 'inventory', component: CustomerInventoryComponent},
-      {path: 'inventory/view/:id', component: CustomerEquipmentViewComponent}
+      {path: 'inventory/view/:id', component: CustomerEquipmentViewComponent},
+      {path: 'account', component: CustomerAccountComponent}
     ]
   },
   {path: 'customer/profiles', component: CustomerProfileComponent},
