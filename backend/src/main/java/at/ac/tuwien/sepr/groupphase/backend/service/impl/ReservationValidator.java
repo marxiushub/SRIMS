@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class ReservationValidator {
@@ -158,6 +159,8 @@ public class ReservationValidator {
             new NotFoundException("Reservation with ID " + dto.getId() + " not found.")
         );
 
+        validateNoDuplicateEquipmentInRequestOrReservation(dto.getEquipmentIds(), reservation, validationErrors);
+
         if (dto.getEquipmentIds() != null) {
             for (Long id : dto.getEquipmentIds()) {
                 Equipment equipment = equipmentRepository.findById(id)
@@ -199,6 +202,8 @@ public class ReservationValidator {
             }
         }
 
+        validateReservationNotEmptyAfterRemove(dto.getEquipmentIds(), reservation, validationErrors);
+
         if (!validationErrors.isEmpty()) {
             throw new ValidationException("Validation of the dto for update failed", validationErrors);
         }
@@ -233,6 +238,62 @@ public class ReservationValidator {
             }
         }
 
+    }
+
+    private void validateNoDuplicateEquipmentInRequestOrReservation(
+        List<Long> requestedEquipmentIds,
+        Reservation reservation,
+        List<String> validationErrors
+    ) {
+        if (requestedEquipmentIds == null || requestedEquipmentIds.isEmpty()) {
+            return;
+        }
+
+        Set<Long> seenIdsInRequest = new HashSet<>();
+        Set<Long> duplicateInRequest = new HashSet<>();
+        Set<Long> alreadyInReservation = new HashSet<>();
+
+        Set<Long> existingEquipmentIds = reservation.getItems().stream()
+            .map(item -> item.getEquipment().getId())
+            .collect(Collectors.toSet());
+
+        for (Long id : requestedEquipmentIds) {
+            if (!seenIdsInRequest.add(id)) {
+                duplicateInRequest.add(id);
+            }
+
+            if (existingEquipmentIds.contains(id)) {
+                alreadyInReservation.add(id);
+            }
+        }
+
+        if (!duplicateInRequest.isEmpty()) {
+            validationErrors.add("Equipment list contains duplicate IDs: " + duplicateInRequest);
+        }
+
+        if (!alreadyInReservation.isEmpty()) {
+            validationErrors.add("The following equipments are already part of this reservation: " + alreadyInReservation);
+        }
+    }
+
+    private void validateReservationNotEmptyAfterRemove(
+        List<Long> equipmentIdsToRemove,
+        Reservation reservation,
+        List<String> validationErrors
+    ) {
+        if (equipmentIdsToRemove == null || equipmentIdsToRemove.isEmpty()) {
+            return;
+        }
+
+        long validItemsToRemove = equipmentIdsToRemove.stream()
+            .distinct()
+            .filter(id -> reservation.getItems().stream()
+                .anyMatch(item -> item.getEquipment().getId().equals(id)))
+            .count();
+
+        if (reservation.getItems().size() <= validItemsToRemove) {
+            validationErrors.add("Cannot remove all items. A reservation must contain at least one equipment.");
+        }
     }
 
 }
