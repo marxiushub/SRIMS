@@ -34,7 +34,7 @@
     "DATE_OF_BIRTH_FUTURE": "Date of birth cannot be in the future!",
     "ALREADY_LOGGED_IN": "You are already logged in.",
     "LOGIN_SUCCESS": "Login successful.",
-    "REGISTER_SUCCESS": "Registration successful. You can now log in.",
+    "REGISTER_SUCCESS": "Registration successful.",
     "LOGOUT_SUCCESS": "Logout successful."
   },
   "INVENTORY": {
@@ -181,8 +181,8 @@
       "SUCCESS": "The staff account was created successfully."
     },
     "STATISTICS": {
-      "TITLE": "Statistics",
-      "SUBTITLE": "Analyze the utilization and rental duration of your equipment.",
+      "TITLE": "Rental Statistics",
+      "SUBTITLE": "Analyze the rental duration of your equipment per item and per typ.",
       "FILTER": {
         "START": "From",
         "END": "To",
@@ -203,7 +203,7 @@
       },
       "MESSAGES": {
         "NO_DATA": "No data available for the selected period. Adjust the filters and click 'Generate'.",
-        "ERROR": "Statistics could not be loaded. Please check your inputs."
+        "ERROR": "No data found, matching this input."
       },
       "EQUIPMENT_TYPES": {
         "SKI": "Skis",

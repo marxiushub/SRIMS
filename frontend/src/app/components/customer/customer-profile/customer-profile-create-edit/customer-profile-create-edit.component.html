@@ -31,7 +31,8 @@
         <div class="row">
           <div class="mb-2 col-lg-6">
             <div class="d-flex flex-column flex-md-row">
-              <label for="profileName" class="col-form-label text-muted text-nowrap mb-0 me-md-2 flex-shrink-0 form-label-fixed">
+              <label for="profileName"
+                     class="col-form-label text-muted text-nowrap mb-0 me-md-2 flex-shrink-0 form-label-fixed">
                 {{ 'CUSTOMER_PROFILE_CREATE.NAME' | translate }}
               </label>
               <div class="flex-grow-1">
@@ -62,7 +63,8 @@
 
           <div class="mb-2 col-lg-6">
             <div class="d-flex flex-column flex-md-row">
-              <label for="profileHeight" class="col-form-label text-muted text-nowrap mb-0 me-md-2 flex-shrink-0 form-label-fixed">
+              <label for="profileHeight"
+                     class="col-form-label text-muted text-nowrap mb-0 me-md-2 flex-shrink-0 form-label-fixed">
                 {{ 'CUSTOMER_PROFILE_CREATE.HEIGHT' | translate }}
               </label>
               <div class="flex-grow-1">
@@ -73,6 +75,7 @@
                   class="form-control"
                   step="1"
                   [class.is-invalid]="isInvalid(profileHeight)"
+                  [placeholder]="'REGISTRATION_EXT.PLACEHOLDER_HEIGHT' | translate"
                   [min]="50"
                   [max]="250"
                   [(ngModel)]="profile.height"
@@ -104,7 +107,8 @@
         <div class="row">
           <div class="mb-2 col-lg-6">
             <div class="d-flex flex-column flex-md-row">
-              <label for="profileShoeSize" class="col-form-label text-muted text-nowrap mb-0 me-md-2 flex-shrink-0 form-label-fixed">
+              <label for="profileShoeSize"
+                     class="col-form-label text-muted text-nowrap mb-0 me-md-2 flex-shrink-0 form-label-fixed">
                 {{ 'CUSTOMER_PROFILE_CREATE.SHOE_SIZE' | translate }}
               </label>
               <div class="flex-grow-1">
@@ -115,6 +119,7 @@
                   class="form-control"
                   step="1"
                   [class.is-invalid]="isInvalid(profileShoeSize)"
+                  [placeholder]="'REGISTRATION_EXT.PLACEHOLDER_SHOE_SIZE' | translate"
                   [min]="25"
                   [max]="50"
                   [(ngModel)]="profile.shoeSize"
@@ -145,31 +150,8 @@
 
           <div class="mb-2 col-lg-6">
             <div class="d-flex flex-column flex-md-row">
-              <label for="profileSkillLevel" class="col-form-label text-muted text-nowrap mb-0 me-md-2 flex-shrink-0 form-label-fixed">
-                {{ 'CUSTOMER_PROFILE_CREATE.SKILL_LEVEL' | translate }}
-              </label>
-              <div class="flex-grow-1">
-                <select
-                  id="profileSkillLevel"
-                  name="profileSkillLevel"
-                  class="form-select"
-                  required
-                  [(ngModel)]="profile.skillLevel">
-                  @for (skillLevel of skillLevels; track skillLevel) {
-                    <option [value]="skillLevel">
-                      {{ 'SKILL_LEVEL.' + skillLevel | translate }}
-                    </option>
-                  }
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="mb-2 col-lg-6">
-            <div class="d-flex flex-column flex-md-row">
-              <label for="profileWeight" class="col-form-label text-muted text-nowrap mb-0 me-md-2 flex-shrink-0 form-label-fixed">
+              <label for="profileWeight"
+                     class="col-form-label text-muted text-nowrap mb-0 me-md-2 flex-shrink-0 form-label-fixed">
                 {{ 'CUSTOMER_PROFILE_CREATE.WEIGHT' | translate }}
               </label>
               <div class="flex-grow-1">
@@ -180,6 +162,7 @@
                   class="form-control"
                   step="1"
                   [class.is-invalid]="isInvalid(profileWeight)"
+                  [placeholder]="'REGISTRATION_EXT.PLACEHOLDER_WEIGHT' | translate"
                   [min]="20"
                   [max]="150"
                   [(ngModel)]="profile.weight"
@@ -208,6 +191,31 @@
             </div>
           </div>
 
+          <div class="mb-2 col-lg-6">
+            <div class="d-flex flex-column flex-md-row">
+              <label for="profileSkillLevel"
+                     class="col-form-label text-muted text-nowrap mb-0 me-md-2 flex-shrink-0 form-label-fixed">
+                {{ 'CUSTOMER_PROFILE_CREATE.SKILL_LEVEL' | translate }}
+              </label>
+              <div class="flex-grow-1">
+                <select
+                  id="profileSkillLevel"
+                  name="profileSkillLevel"
+                  class="form-select"
+                  required
+                  [(ngModel)]="profile.skillLevel">
+                  <option [ngValue]="null" disabled hidden>
+                    {{ 'REGISTRATION_EXT.CHOOSE_SKILL_PLACEHOLDER' | translate }}
+                  </option>
+                  @for (skillLevel of skillLevels; track skillLevel) {
+                    <option [value]="skillLevel">
+                      {{ 'SKILL_LEVEL.' + skillLevel | translate }}
+                    </option>
+                  }
+                </select>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="mt-4 d-flex flex-wrap gap-2">

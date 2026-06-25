@@ -13,7 +13,7 @@ import {RentalStatus} from '../../../dtos/rentalstatus';
 import {SkillLevel} from '../../../dtos/skilllevel';
 
 import {FormsModule} from '@angular/forms';
-import {NgbTypeaheadModule} from '@ng-bootstrap/ng-bootstrap';
+import {NgbCollapse, NgbTypeaheadModule} from '@ng-bootstrap/ng-bootstrap';
 import {ToastrModule, ToastrService} from 'ngx-toastr';
 
 
@@ -58,6 +58,7 @@ describe('InventoryComponent', () => {
         TranslateModule.forRoot(),
         ToastrModule.forRoot(),
         FormsModule,
+        NgbCollapse,
         NgbTypeaheadModule
       ],
       providers: [

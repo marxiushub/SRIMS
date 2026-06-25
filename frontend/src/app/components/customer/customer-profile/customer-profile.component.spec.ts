@@ -8,6 +8,7 @@ import {CustomerProfileService} from '../../../services/customer-profile.service
 import {SkillLevel} from '../../../dtos/skilllevel';
 import {CustomerProfile} from '../../../dtos/customer-profile';
 import {ToastrModule, ToastrService} from 'ngx-toastr';
+import {NgbCollapse} from '@ng-bootstrap/ng-bootstrap';
 
 describe('CustomerProfileComponent', () => {
   let component: CustomerProfileComponent;
@@ -50,7 +51,7 @@ describe('CustomerProfileComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [CustomerProfileComponent],
-      imports: [TranslateModule.forRoot(), ToastrModule.forRoot()],
+      imports: [NgbCollapse, TranslateModule.forRoot(), ToastrModule.forRoot()],
       providers: [
         {provide: CustomerProfileService, useValue: customerProfileServiceMock},
         {provide: Router, useValue: routerMock},
@@ -104,6 +105,7 @@ describe('CustomerProfileComponent', () => {
   });
 
   it('should set an error when delete fails', () => {
+    spyOn(console, 'error');
     customerProfileServiceMock.delete.and.returnValue(throwError(() => new Error('Delete failed')));
     component.profileToDelete = testProfiles[0];
 
