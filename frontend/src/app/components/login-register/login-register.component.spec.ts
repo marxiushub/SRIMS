@@ -7,10 +7,9 @@ import {Router} from '@angular/router';
 import {LoginRegisterComponent, LoginRegisterMode} from './login-register.component';
 import {AuthService} from '../../services/auth.service';
 import {CustomerProfileService} from '../../services/customer-profile.service';
-import {ToastrService} from 'ngx-toastr';
-import { TranslateModule } from '@ngx-translate/core';
-import { ToastrModule } from 'ngx-toastr';
-import { of, throwError } from 'rxjs';
+import {ToastrModule, ToastrService} from 'ngx-toastr';
+import {TranslateModule} from '@ngx-translate/core';
+import {of, throwError} from 'rxjs';
 import {CustomerCreationDto} from '../../dtos/customer-creation';
 import {SkillLevel} from '../../dtos/skilllevel';
 
@@ -21,6 +20,10 @@ describe('LoginRegisterComponent', () => {
   let customerProfileService: CustomerProfileService;
   let router: Router;
   let notification: ToastrService;
+
+  beforeEach(() => {
+    spyOn(console, 'log').and.stub();
+  });
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
