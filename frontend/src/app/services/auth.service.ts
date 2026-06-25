@@ -35,7 +35,7 @@ export class AuthService {
    * @param customerDto User data for the new account
    */
   registerUser(customerDto: CustomerCreationDto): Observable<any> {
-    return this.httpClient.post<any>(`${this.authBaseUri.replace('/authentication', '')}/customer/create`, customerDto);
+    return this.httpClient.post<any>(`${this.authBaseUri.replace('/authentication', '')}/customers`, customerDto);
   }
 
   /**
@@ -46,7 +46,7 @@ export class AuthService {
    */
   resetPassword(email: string): Observable<any> {
     return this.httpClient.patch<any>(
-      `${this.authBaseUri.replace('/authentication', '')}/customer/password-resets/${encodeURIComponent(email)}`,
+      `${this.authBaseUri.replace('/authentication', '')}/customers/password-resets/${encodeURIComponent(email)}`,
       null
     );
   }
