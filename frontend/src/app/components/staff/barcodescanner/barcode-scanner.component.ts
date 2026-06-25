@@ -16,7 +16,9 @@ import {ToastrService} from "ngx-toastr";
 import {ReservationCreationWithMode} from "../../../dtos/reservation-creation-with-mode";
 import {StaffService} from '../../../services/staff.service';
 import {CustomerSearch} from '../../../dtos/customer-search';
+import {CustomerSearchResponse} from '../../../dtos/customer-search-response';
 import {BarcodeFormat} from '@zxing/library';
+import {UserType} from "../../../dtos/usertype";
 
 @Component({
   selector: 'app-barcode-scanner',
@@ -43,7 +45,7 @@ export class BarcodeScannerComponent implements OnInit {
   successMessage = '';
 
   walkInForm!: FormGroup;
-  allUsers: any[] = [];
+  allUsers: CustomerSearchResponse[] = [];
   filteredProfiles: CustomerProfile[] = [];
   submitLoading = false;
   submitError: string | null = null;
@@ -75,6 +77,7 @@ export class BarcodeScannerComponent implements OnInit {
   }
 
   async ngOnInit() {
+    window.scrollTo(0, 0);
     this.initWalkInForm();
     this.loadAllSystemUsers();
     navigator.mediaDevices?.addEventListener(
@@ -100,7 +103,6 @@ export class BarcodeScannerComponent implements OnInit {
     }
     this.isScanningPaused = true;
     this.inputBarcodeId = result;
-    this.notification.success(this.translateService.instant('BARCODE_SCANNER.SUCCESS_ADDED', {model: result}) || "Scanned successfully.");
     console.log('Successfully scanned code:', result);
     this.searchEquipment();
 
@@ -169,7 +171,7 @@ export class BarcodeScannerComponent implements OnInit {
           const alreadyExists = this.scannedEquipmentIds.includes(equipmentData.id);
 
           if (alreadyExists) {
-            this.errorMessage = this.translateService.instant('BARCODE_SCANNER.ERROR_ALREADY_SCANNED', {model: equipmentData.model});
+            this.notification.error(this.translateService.instant('BARCODE_SCANNER.ERROR_ALREADY_SCANNED', {model: equipmentData.model}));
             this.loading = false;
             this.updateScanScenario();
             return;
@@ -190,6 +192,7 @@ export class BarcodeScannerComponent implements OnInit {
           this.scannedEquipments.push(equipmentData);
           this.scannedEquipmentIds.push(equipmentData.id);
 
+          this.notification.success(this.translateService.instant('BARCODE_SCANNER.SUCCESS_ADDED', {model: equipmentData.model}) || "Scanned successfully.");
           this.successMessage = this.translateService.instant('BARCODE_SCANNER.SUCCESS_ADDED', {model: equipmentData.model});
           this.inputBarcodeId = '';
 
@@ -556,11 +559,22 @@ export class BarcodeScannerComponent implements OnInit {
 
   //Loads all customerAccounts for the dropdown
   private loadAllSystemUsers(): void {
-    // TODO: Replace with real API-call from UserService when ready
-    this.allUsers = [
-      {id: 1, username: 'Hans'},
-      {id: 2, username: 'Not Actually An User'}
-    ];
+    const search: CustomerSearch = {};
+
+    this.staffService.searchCustomers(search).subscribe({
+      next: (customers) => {
+        if (customers) {
+          this.allUsers = customers || [];
+        } else {
+          this.allUsers = [];
+        }
+      },
+      error: (err) => {
+        this.loading = false;
+        console.error('Failed to load all system users:', err);
+        this.errorMessage = this.translateService.instant('BARCODE_SCANNER.ERROR_UNEXPECTED');
+      }
+    });
   }
 
   //Loads the customerProfiles for the selected customerAccount

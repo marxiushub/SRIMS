@@ -38,6 +38,7 @@ import {
 import {
   ResetStaffPasswordComponent
 } from "./components/staff/reset-staff-password/reset-staff-password.component";
+import {OverviewComponent} from "./components/staff/overview/overview.component";
 
 import {
   ReservationCreateEditComponent
@@ -108,6 +109,7 @@ export function HttpLoaderFactory(http: HttpClient): TranslateLoader {
     CustomerProfileDetailsComponent,
     CustomerAccountComponent,
     StatisticsComponent,
+    OverviewComponent,
   ],
   bootstrap: [AppComponent],
   imports: [BrowserModule,

@@ -3,7 +3,7 @@ import {mapToCanActivate, RouterModule, Routes} from '@angular/router';
 import {HomeComponent} from './components/home/home.component';
 import {LoginRegisterComponent, LoginRegisterMode} from './components/login-register/login-register.component';
 import {AuthGuard} from './guards/auth.guard';
-import { homeGuard } from './guards/home.guard';
+import {homeGuard} from './guards/home.guard';
 import {MessageComponent} from './components/message/message.component';
 import {StaffComponent} from './components/staff/staff.component';
 import {InventoryComponent} from './components/staff/inventory/inventory.component';
@@ -39,6 +39,7 @@ import {
 } from './components/staff/staff-account/staff-account.component';
 
 import { StatisticsComponent } from './components/staff/statistics/statistics.component';
+import {OverviewComponent} from './components/staff/overview/overview.component';
 
 import {ReservationViewComponent} from "./components/customer/reservation/reservation-view/reservation-view.component";
 import {StaffReservationComponent} from "./components/staff/reservation/staff-reservation.component";
@@ -49,6 +50,7 @@ import {
   StaffReservationEditComponent
 } from "./components/staff/reservation/reservation-edit/staff-reservation-edit.component";
 import {ResetStaffPasswordComponent} from "./components/staff/reset-staff-password/reset-staff-password.component";
+import {StaffGuard} from "./guards/staff.guard";
 
 
 const routes: Routes = [
@@ -59,7 +61,7 @@ const routes: Routes = [
   {path: 'message', canActivate: mapToCanActivate([AuthGuard]), component: MessageComponent},
 
   {
-    path: 'staff', component: StaffComponent, canActivate: [AuthGuard], children: [
+    path: 'staff', component: StaffComponent, canActivate: [StaffGuard], children: [
       {path: 'inventory', component: InventoryComponent},
       {path: 'inventory/create', component: EquipmentCreateEditComponent, data: {mode: EquipmentCreateEditMode.create}},
       {path: 'inventory/edit/:id', component: EquipmentCreateEditComponent, data: {mode: EquipmentCreateEditMode.edit}},
@@ -71,6 +73,7 @@ const routes: Routes = [
       {path: 'statistics', component: StatisticsComponent},
       {path: 'account', component: StaffAccountComponent},
       {path: 'reset-staff-password', component: ResetStaffPasswordComponent},
+      {path: 'overview', component: OverviewComponent},
     ]
   },
   {

@@ -1,0 +1,147 @@
+.overview-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  .page-header {
+    margin-bottom: 1.5rem;
+
+    h2 {
+      margin-bottom: 0.25rem;
+    }
+
+    p {
+      color: #6c757d;
+      margin-bottom: 0;
+    }
+  }
+
+  .summary-tiles {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .summary-tile {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    color: #fff;
+
+    .summary-count {
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .summary-label {
+      font-size: 0.85rem;
+      margin-top: 0.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+  }
+
+  .tile-free {
+    background-color: #2f9e44;
+  }
+
+  .tile-rented {
+    background-color: #e03131;
+  }
+
+  .tile-maintenance {
+    background-color: #868e96;
+  }
+
+  .donut-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .donut-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid #dee2e6;
+    border-radius: 0.4rem;
+    padding: 0.75rem;
+
+    h4 {
+      font-size: 0.95rem;
+      margin: 0.5rem 0 0;
+    }
+  }
+
+  .donut-svg {
+    width: 100%;
+    max-width: 120px;
+  }
+
+  .donut-track {
+    fill: none;
+    stroke: #f1f3f5;
+    stroke-width: 14;
+  }
+
+  .donut-empty {
+    fill: none;
+    stroke-width: 14;
+    stroke: #e9ecef;
+  }
+
+  .donut-segment {
+    fill: none;
+    stroke-width: 14;
+    transition: stroke-dasharray 0.2s ease, stroke-dashoffset 0.2s ease;
+  }
+
+  .donut-free {
+    stroke: #2f9e44;
+  }
+
+  .donut-rented {
+    stroke: #e03131;
+  }
+
+  .donut-maintenance {
+    stroke: #868e96;
+  }
+
+  .donut-total {
+    font-size: 1.1rem;
+    font-weight: 700;
+    fill: #212529;
+  }
+
+  .donut-total-label {
+    font-size: 0.6rem;
+    fill: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .bar-legend {
+    display: flex;
+    gap: 1.25rem;
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .legend-swatch {
+    display: inline-block;
+    width: 0.9rem;
+    height: 0.9rem;
+    border-radius: 2px;
+  }
+}

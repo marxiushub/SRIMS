@@ -70,6 +70,7 @@
     "HIGHEST_FIRST": "Preis absteigend",
     "ROWS_PER_PAGE": "Zeilen pro Seite",
     "OF": "von",
+    "CREATE_RESERVATION": "Reservierung erstellen",
     "RESERVATIONS_TITLE": "Zukünftige Reservierungen",
     "RESERVATIONS_LOADING": "Reservierungen werden geladen...",
     "RESERVATIONS_ERROR": "Fehler beim Laden der Reservierungen für dieses Equipment.",
@@ -166,7 +167,13 @@
     },
     "OVERVIEW": {
       "TITLE": "Grafische Übersicht",
-      "DESC": "Visuelle Darstellung des gesamten Bestands-Status."
+      "DESC": "Visuelle Darstellung des gesamten Bestands-Status.",
+      "TOTAL": "Gesamt",
+      "MESSAGES": {
+        "LOADING": "Lädt...",
+        "NO_DATA": "Keine Daten verfügbar.",
+        "ERROR": "Übersicht konnte nicht geladen werden. Bitte versuche es erneut."
+      }
     },
     "RESET_PASSWORD": {
       "TITLE": "Mitarbeiter-Passwort zurücksetzen",
@@ -225,7 +232,9 @@
     "TITLE": "Prototyp Barcode Scanner",
     "MODE_LABEL": "Scanner-Modus auswählen:",
     "MODE_RENTAL": "Modus 1: Ausleihen / Zurückgeben (FREE ↔ RENTED)",
+    "MODE_RENTAL_SHORT": "Mode 1: Ausleihen / Zurückgeben",
     "MODE_MAINTENANCE": "Modus 2: In Reparatur (FREE ↔ MAINTENANCE)",
+    "MODE_MAINTENANCE_SHORT": "Mode 2: Reparatur",
     "INPUT_PLACEHOLDER": "Barcode einscannen oder eingeben...",
     "BTN_CHECK": "Barcode prüfen",
     "ERROR_EMPTY": "Bitte gib eine Barcode-ID ein.",
@@ -446,5 +455,12 @@
   "USER_TYPE": {
     "CUSTOMER": "Kunde",
     "STAFF": "Mitarbeiter"
+  },
+  "REGISTRATION_EXT": {
+    "PROFILE_SECTION_TITLE": "Erstes Kundenprofil erstellen",
+    "PLACEHOLDER_HEIGHT": "z.B. 175",
+    "PLACEHOLDER_WEIGHT": "z.B. 70",
+    "PLACEHOLDER_SHOE_SIZE": "z.B. 42",
+    "CHOOSE_SKILL_PLACEHOLDER": "-- Bitte Erfahrungslevel wählen --"
   }
 }

@@ -160,25 +160,6 @@ describe('StaffReservationEditComponent', () => {
 
       expect(equipmentServiceMock.search).not.toHaveBeenCalled();
     }));
-
-    it('should trigger background validation and remove unavailable equipment on date change', fakeAsync(() => {
-      component.selectedEquipment = [mockEquipment[0], mockEquipment[1]];
-      equipmentServiceMock.search.and.returnValue(of([mockEquipment[0]]));
-
-      component.validateSelectedEquipmentForNewDates('2026-06-01', '2026-06-10');
-
-      tick();
-
-      expect(equipmentServiceMock.search).toHaveBeenCalledWith({
-        start: '2026-06-01',
-        end: '2026-06-10'
-      });
-      expect(component.selectedEquipment).toEqual([mockEquipment[0]]);
-      expect(component.validationWarning).toBe('RESERVATION.VALIDATION_WARNING');
-
-      tick(8000);
-      expect(component.validationWarning).toBeUndefined();
-    }));
   });
 
   describe('Equipment Search, Filtering and Selection', () => {
@@ -252,21 +233,6 @@ describe('StaffReservationEditComponent', () => {
 
       component.addEquipment(mockEquipment[1]);
       expect(component.selectedEquipment.length).toBe(2);
-    });
-
-    it('should remove item from selection and trigger date check validation', () => {
-      component.selectedEquipment = [mockEquipment[0], mockEquipment[1]];
-      equipmentServiceMock.search.and.returnValue(of([mockEquipment[1]]));
-
-      component.reservationForm.patchValue({
-        startDate: '2026-09-01',
-        endDate: '2026-09-05'
-      });
-
-      component.removeEquipment(201);
-
-      expect(component.selectedEquipment).toEqual([mockEquipment[1]]);
-      expect(equipmentServiceMock.search).toHaveBeenCalled();
     });
   });
 

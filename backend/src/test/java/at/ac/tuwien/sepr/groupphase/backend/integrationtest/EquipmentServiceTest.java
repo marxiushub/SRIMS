@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.creation.S
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.detail.EquipmentDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.detail.HelmetDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.detail.SkiDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.overview.EquipmentStatusOverviewDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.search.EquipmentSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.update.EquipmentUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.update.HelmetUpdateDto;
@@ -14,11 +15,14 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.SkillLevel;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Helmet;
+import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Ski;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.EquipmentRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.HelmetRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.SkiRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.EquipmentServiceImpl;
 import jakarta.transaction.Transactional;
+import org.h2.mvstore.db.RowDataType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -520,6 +524,78 @@ public class EquipmentServiceTest {
         List<EquipmentDetailDto> result = equipmentService.searchEquipment(dto);
 
         assertThat(result).isNotNull();
+    }
+
+    @Test
+    void getStatusOverview_returnsAllSixTypesWithAllThreeStatusKeys() {
+        EquipmentStatusOverviewDto result = equipmentService.getStatusOverview();
+
+        assertAll(
+            "All 6 equipment types and all 3 status keys must be present,"
+                + " regardless of the actual DB content",
+            () -> assertThat(result).isNotNull(),
+            () -> assertThat(result.getCounts()).isNotNull(),
+            () -> assertThat(result.getCounts()).containsKeys(EquipmentType.values()),
+            () -> assertThat(result.getCounts().get(EquipmentType.HELMET))
+                .containsKeys(RentalStatus.values()),
+            () -> assertThat(result.getCounts().get(EquipmentType.SKI))
+                .containsKeys(RentalStatus.values())
+        );
+    }
+
+    @Test
+    void getStatusOverview_afterSavingTwoFreeHelmets_increasesHelmetFreeCountByTwo() {
+        long freeHelmetCountBefore = equipmentService.getStatusOverview()
+            .getCounts().get(EquipmentType.HELMET).get(RentalStatus.FREE);
+
+        helmetRepository.save(
+            new Helmet("Overview Test Helmet A", 50.0, 56.0, RentalStatus.FREE, SkillLevel.BEGINNER));
+        helmetRepository.save(
+            new Helmet("Overview Test Helmet B", 50.0, 57.0, RentalStatus.FREE, SkillLevel.BEGINNER));
+
+        long freeHelmetCountAfter = equipmentService.getStatusOverview()
+            .getCounts().get(EquipmentType.HELMET).get(RentalStatus.FREE);
+
+        assertThat(freeHelmetCountAfter).isEqualTo(freeHelmetCountBefore + 2);
+    }
+
+    @Test
+    void getStatusOverview_afterChangingHelmetStatus_movesCountBetweenStatuses() {
+        Helmet helmet = helmetRepository.save(
+            new Helmet("Overview Status Change Helmet", 50.0, 56.0, RentalStatus.FREE, SkillLevel.BEGINNER));
+
+        long freeBefore = equipmentService.getStatusOverview()
+            .getCounts().get(EquipmentType.HELMET).get(RentalStatus.FREE);
+        long maintenanceBefore = equipmentService.getStatusOverview()
+            .getCounts().get(EquipmentType.HELMET).get(RentalStatus.MAINTENANCE);
+
+        equipmentService.updateEquipmentStatuses(List.of(helmet.getId()), RentalStatus.MAINTENANCE);
+
+        EquipmentStatusOverviewDto after = equipmentService.getStatusOverview();
+        long freeAfter = after.getCounts().get(EquipmentType.HELMET).get(RentalStatus.FREE);
+        long maintenanceAfter = after.getCounts().get(EquipmentType.HELMET).get(RentalStatus.MAINTENANCE);
+
+        assertAll(
+            "A helmet that changes from FREE to MAINTENANCE must move between"
+                + " categories in the overview, not be counted in both",
+            () -> assertThat(freeAfter).isEqualTo(freeBefore - 1),
+            () -> assertThat(maintenanceAfter).isEqualTo(maintenanceBefore + 1)
+        );
+    }
+
+    @Test
+    void getStatusOverview_doesNotMixUpDifferentEquipmentTypes() {
+        // ensure a newly created helmet is NOT counted under SKI
+        long skiCountBefore = equipmentService.getStatusOverview()
+            .getCounts().get(EquipmentType.SKI).get(RentalStatus.FREE);
+
+        helmetRepository.save(
+            new Helmet("Type Isolation Test Helmet", 50.0, 56.0, RentalStatus.FREE, SkillLevel.BEGINNER));
+
+        long skiCountAfter = equipmentService.getStatusOverview()
+            .getCounts().get(EquipmentType.SKI).get(RentalStatus.FREE);
+
+        assertThat(skiCountAfter).isEqualTo(skiCountBefore);
     }
 
 }

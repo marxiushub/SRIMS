@@ -6,6 +6,7 @@ import {Equipment} from '../dtos/equipment';
 import {EquipmentCreation} from '../dtos/equipment-creation';
 import {EquipmentUpdate} from '../dtos/equipment-update';
 import {EquipmentSearch} from '../dtos/equipment-search';
+import {EquipmentOverview} from "../dtos/equipment-overview";
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +25,15 @@ export class EquipmentService {
    */
   getAll(): Observable<Equipment[]> {
     return this.httpClient.get<Equipment[]>(this.equipmentBaseUri);
+  }
+
+  /**
+   * Loads an aggregated overview of equipment counts, grouped by equipment type and rental status.
+   *
+   * @return an Observable of the equipment status overview
+   */
+  getStatusOverview(): Observable<EquipmentOverview> {
+    return this.httpClient.get<EquipmentOverview>(`${this.equipmentBaseUri}/overview`);
   }
 
   /**

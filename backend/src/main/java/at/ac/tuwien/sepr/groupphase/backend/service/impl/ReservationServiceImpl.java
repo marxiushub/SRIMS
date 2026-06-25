@@ -93,7 +93,26 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
 
         validator.validateCreateDto(dto);
 
+        boolean isStaff = currentUserService.hasAuthority("STAFF");
+
         CustomerProfile profile = customerProfileRepository.getReferenceById(dto.getCustomerProfileId());
+
+
+        if (!isStaff) {
+
+            Long userId = currentUserService.getUserId();
+            Long customerId = profile.getCustomer().getId();
+
+            if (userId == null || !userId.equals(customerId)) {
+                throw new AccessDeniedException("You are not allowed to create a reservation "
+                    + "for a profile that does not belong to the you.");
+            }
+
+            if (dto.getReservationStatus() != ReservationStatus.CREATED) {
+                throw new ValidationException("Customers can only create reservations with status CREATED.");
+            }
+
+        }
 
         Reservation reservation = new Reservation(
             profile,
@@ -131,6 +150,10 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
             if (reservation.getStartDate().isBefore(LocalDate.now().plusDays(2))) {
                 throw new ValidationException("Reservations can only be deleted at least two days before the start date.");
             }
+        }
+
+        if (reservation.getReservationStatus() == ReservationStatus.PICKED_UP) {
+            throw new ValidationException("Reservations can only be deleted if they have not been picked up.");
         }
 
         deleteTimePeriodsForEquipment(reservation.getItems().stream().map(ReservationRelation::getEquipment).toList(), reservation);
@@ -180,6 +203,11 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
      * removing time periods when changed to RETURNED/CANCELLED) is applied.
      */
     private void applyUpdateCommon(Reservation reservation, ReservationUpdateDto dto, boolean isStaff) {
+
+        if (reservation.getReservationStatus() == ReservationStatus.PICKED_UP) {
+            throw new ValidationException("Reservations can only be deleted if they have not been picked up.");
+        }
+
         boolean datesChanged = (dto.getStartDate() != null && !dto.getStartDate().equals(reservation.getStartDate()))
             || (dto.getEndDate() != null && !dto.getEndDate().equals(reservation.getEndDate()));
         boolean equipmentChanged = dto.getEquipmentIds() != null;

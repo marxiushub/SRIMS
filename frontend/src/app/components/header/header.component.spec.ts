@@ -15,8 +15,9 @@ describe('HeaderComponent', () => {
   let appComponentMock: any;
 
   beforeEach(waitForAsync(() => {
-    authServiceMock = jasmine.createSpyObj('AuthService', ['isLoggedIn', 'logoutUser']);
+    authServiceMock = jasmine.createSpyObj('AuthService', ['isLoggedIn', 'logoutUser', 'getUserEmail']);
     authServiceMock.isLoggedIn.and.returnValue(false);
+    authServiceMock.getUserEmail.and.returnValue('test@user.com');
 
     appComponentMock = {
       title: 'SRIMS',

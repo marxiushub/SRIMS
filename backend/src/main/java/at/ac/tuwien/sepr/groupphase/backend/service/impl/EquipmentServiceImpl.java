@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.creation.EquipmentCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.detail.EquipmentDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.overview.EquipmentStatusOverviewDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.equipmentdto.search.EquipmentSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EquipmentMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.EquipmentType;
@@ -36,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
@@ -309,6 +311,42 @@ public class EquipmentServiceImpl implements EquipmentService {
             existingEquipment.setStatus(newRentalStatus);
             equipmentRepository.save(existingEquipment);
         }
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public EquipmentStatusOverviewDto getStatusOverview() {
+        LOGGER.trace("Computing equipment status overview");
+
+        Map<EquipmentType, Class<? extends Equipment>> typeToClass = Map.of(
+            HELMET, Helmet.class,
+            EquipmentType.POLE, Pole.class,
+            SKI, Ski.class,
+            EquipmentType.SKIBOOT, SkiBoot.class,
+            EquipmentType.SNOWBOARD, Snowboard.class,
+            EquipmentType.SNOWBOARDBOOT, SnowboardBoot.class
+        );
+
+        Map<EquipmentType, Map<RentalStatus, Long>> counts = new EnumMap<>(EquipmentType.class);
+
+        for (EquipmentType type : EquipmentType.values()) {
+            Class<? extends Equipment> targetClass = typeToClass.get(type);
+            Map<RentalStatus, Long> statusCounts = new EnumMap<>(RentalStatus.class);
+
+            for (RentalStatus status : RentalStatus.values()) {
+                Specification<Equipment> spec = (root, query, cb) ->
+                    cb.and(
+                        cb.equal(root.type(), targetClass),
+                        cb.equal(root.get("status"), status)
+                    );
+                long count = equipmentRepository.count(spec);
+                statusCounts.put(status, count);
+            }
+
+            counts.put(type, statusCounts);
+        }
+
+        return new EquipmentStatusOverviewDto(counts);
     }
 
 
