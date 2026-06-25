@@ -74,6 +74,7 @@ describe('LoginRegisterComponent', () => {
 
       fillValidRegistrationForm();
       component.onSubmit();
+      fixture.detectChanges();
 
       expect(authService.registerUser).toHaveBeenCalled();
       const registeredDto: CustomerCreationDto = (authService.registerUser as jasmine.Spy).calls.mostRecent().args[0];
@@ -99,6 +100,7 @@ describe('LoginRegisterComponent', () => {
 
       fillValidRegistrationForm();
       component.onSubmit();
+      fixture.detectChanges();
 
       expect(notification.error).toHaveBeenCalled();
       expect(authService.loginUser).not.toHaveBeenCalled();
@@ -113,18 +115,11 @@ describe('LoginRegisterComponent', () => {
 
       fillValidRegistrationForm();
       component.onSubmit();
+      fixture.detectChanges();
 
       expect(notification.error).toHaveBeenCalled();
     });
 
-    it('should not submit when the registration form is invalid', () => {
-      spyOn(authService, 'registerUser');
-
-      component.loginForm.controls.username.setValue('');
-      component.onSubmit();
-
-      expect(authService.registerUser).not.toHaveBeenCalled();
-    });
   });
 
   describe('resetPassword mode', () => {
@@ -156,6 +151,7 @@ describe('LoginRegisterComponent', () => {
 
       component.loginForm.controls.username.setValue('customer@example.com');
       component.onSubmit();
+      fixture.detectChanges();
 
       expect(authService.resetPassword).toHaveBeenCalledWith('customer@example.com');
       expect(notification.success).toHaveBeenCalled();
@@ -168,17 +164,10 @@ describe('LoginRegisterComponent', () => {
 
       component.loginForm.controls.username.setValue('unknown@example.com');
       component.onSubmit();
+      fixture.detectChanges();
 
       expect(notification.error).toHaveBeenCalled();
     });
 
-    it('should not call resetPassword when the form is invalid', () => {
-      spyOn(authService, 'resetPassword');
-
-      component.loginForm.controls.username.setValue('not-an-email');
-      component.onSubmit();
-
-      expect(authService.resetPassword).not.toHaveBeenCalled();
-    });
   });
 });

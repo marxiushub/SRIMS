@@ -183,6 +183,13 @@
       "SEND": "Neues Passwort senden",
       "SUCCESS": "Ein neues Passwort wurde an diese E-Mail-Adresse gesendet."
     },
+    "REGISTER_STAFF": {
+      "TITLE": "Mitarbeiterkonto erstellen",
+      "DESC": "Ein neues Mitarbeiterkonto erstellen",
+      "BACK": "Zurück",
+      "CREATE": "Konto erstellen",
+      "SUCCESS": "Das Mitarbeiterkonto wurde erfolgreich erstellt."
+    },
     "STATISTICS": {
       "TITLE": "Mietstatistiken",
       "SUBTITLE": "Analysiere die Mietdauer des Equipments, pro Stück und pro Typ.",
