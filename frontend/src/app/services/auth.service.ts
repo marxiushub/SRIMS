@@ -93,4 +93,27 @@ export class AuthService {
     return date;
   }
 
+  /**
+   * Returns the user email based on the current token
+   */
+  getUserEmail(): string {
+    let token = this.getToken();
+    if (token != null) {
+      try {
+        if (token.startsWith('Bearer ')) {
+          token = token.substring(7);
+        } else if (token.includes(' ')) {
+          token = token.split(' ')[1];
+        }
+
+        const decoded: any = jwtDecode(token);
+        return decoded.sub || '';
+      } catch (error) {
+        console.error('Error decoding token:', error);
+        return '';
+      }
+    }
+    return '';
+  }
+
 }
