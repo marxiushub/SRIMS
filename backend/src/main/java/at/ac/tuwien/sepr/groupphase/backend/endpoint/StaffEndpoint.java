@@ -50,9 +50,9 @@ public class StaffEndpoint {
      * @return a Staff entity
      */
     @PreAuthorize("hasAuthority('STAFF_CREATE')")
-    @PostMapping("/create")
+    @PostMapping
     public UserDetailDto createStaff(@Valid @RequestBody StaffCreationDto dto) {
-        LOGGER.info("POST /api/v1/staff/create - {}", dto);
+        LOGGER.info("POST /api/v1/staff - {}", dto);
         return userService.createUser(dto);
     }
 
@@ -64,9 +64,9 @@ public class StaffEndpoint {
      * @return the updated staff user
      */
     @PreAuthorize("hasAuthority('STAFF_UPDATE')")
-    @PutMapping("/update/{id}")
+    @PutMapping("/{id}")
     public UserDetailDto updateStaff(@PathVariable("id") Long id, @Valid @RequestBody StaffUpdateDto dto) {
-        LOGGER.info("PUT /api/v1/staff/update/{} - {}", id, dto);
+        LOGGER.info("PUT /api/v1/staff/{} - {}", id, dto);
         return userService.updateUser(id, dto);
     }
 
@@ -103,9 +103,9 @@ public class StaffEndpoint {
      * @param id the ID of the staff user to delete
      */
     @PreAuthorize("hasAuthority('STAFF_DELETE')")
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable("id") Long id) {
-        LOGGER.info("DELETE /api/v1/staff/delete/{}", id);
+        LOGGER.info("DELETE /api/v1/staff/{}", id);
         userService.deleteUserById(id);
     }
 
@@ -130,10 +130,10 @@ public class StaffEndpoint {
      * @return a list of customers matching the criteria
      */
     @PreAuthorize("hasAuthority('CUSTOMER_READ') and hasAuthority('STAFF')")
-    @GetMapping("/customers/search")
+    @GetMapping("/customers")
     @ResponseStatus(HttpStatus.OK)
     public List<UserSearchResponseDto> searchCustomers(CustomerSearchDto searchDto) {
-        LOGGER.info("GET /api/v1/staff/customers/search");
+        LOGGER.info("GET /api/v1/staff/customers");
         return userService.searchCustomers(searchDto);
     }
 }

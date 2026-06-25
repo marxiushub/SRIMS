@@ -38,11 +38,10 @@ public class StatisticsEndpoint {
      * @return A DTO containing the requested statistical data.
      */
     @PreAuthorize("hasAuthority('STAFF_READ')")
-    @PostMapping("/get")
+    @PostMapping
     public StatisticsResponseDto getStatisticalData(@Valid @RequestBody StatisticsRequestDto dto) {
         LOGGER.info("GET /api/v1/statistics{}", dto.getType());
         return service.getEquipmentStatistics(dto);
     }
-
 
 }
