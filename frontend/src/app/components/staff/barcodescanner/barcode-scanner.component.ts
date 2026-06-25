@@ -18,7 +18,6 @@ import {StaffService} from '../../../services/staff.service';
 import {CustomerSearch} from '../../../dtos/customer-search';
 import {CustomerSearchResponse} from '../../../dtos/customer-search-response';
 import {BarcodeFormat} from '@zxing/library';
-import {UserType} from "../../../dtos/usertype";
 
 @Component({
   selector: 'app-barcode-scanner',
