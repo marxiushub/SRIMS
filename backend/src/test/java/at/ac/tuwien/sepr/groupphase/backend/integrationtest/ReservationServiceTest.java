@@ -893,30 +893,6 @@ public class ReservationServiceTest {
     }
 
     @Test
-    public void removeEquipmentFromReservation_removingAllItems_setsTotalPriceToZero() {
-        ReservationCreationDto createDto = createReservationCreationDto(
-            testCustomerProfile.getId(),
-            List.of(testEquipment.getId()),
-            LocalDate.now().plusDays(2),
-            LocalDate.now().plusDays(5),
-            LocalTime.of(10, 0)
-        );
-        ReservationDetailDto created = reservationService.createReservation(createDto);
-
-        ReservationAddDeleteEquipmentDto removeDto = new ReservationAddDeleteEquipmentDto();
-        removeDto.setId(created.getId());
-        removeDto.setEquipmentIds(List.of(testEquipment.getId()));
-
-        ReservationDetailDto result = reservationService.removeEquipmentFromReservation(removeDto);
-
-        assertAll(
-            "Verify that removing the last item sets price to 0 and avoids errors",
-            () -> assertThat(result.getItems()).isEmpty(),
-            () -> assertThat(result.getTotalPrice()).isEqualTo(0.0) // Dies testet Zeile 290
-        );
-    }
-
-    @Test
     public void processOverdueReservations_withOverdueItems_sendsEmailAndUpdatesFlag() {
         ReservationCreationDto createDto = createReservationCreationDto(
             testCustomerProfile.getId(),
@@ -974,4 +950,113 @@ public class ReservationServiceTest {
 
         verify(emailService, times(1)).sendPickUpReminderEmail(anyList(), any(Reservation.class));
     }
+
+    @Test
+    public void addEquipmentToReservation_withDuplicateIdsInRequest_throwsValidationException() {
+        ReservationCreationDto createDto = createReservationCreationDto(
+            testCustomerProfile.getId(),
+            List.of(testEquipment.getId()),
+            LocalDate.now().plusDays(10),
+            LocalDate.now().plusDays(15),
+            LocalTime.of(10, 0)
+        );
+        ReservationDetailDto created = reservationService.createReservation(createDto);
+
+        ReservationAddDeleteEquipmentDto addDto = new ReservationAddDeleteEquipmentDto();
+        addDto.setId(created.getId());
+        addDto.setEquipmentIds(List.of(testEquipment2.getId(), testEquipment2.getId()));
+
+        ValidationException exception = assertThrows(ValidationException.class, () ->
+            reservationService.addEquipmentToReservation(addDto)
+        );
+
+        assertAll(
+            "Verify that duplicate equipment IDs in the request are blocked",
+            () -> assertThat(exception).isNotNull(),
+            () -> assertThat(exception.getErrors().stream()
+                .anyMatch(e -> e.contains("duplicate IDs"))).isTrue()
+        );
+    }
+
+    @Test
+    public void addEquipmentToReservation_withEquipmentAlreadyInReservation_throwsValidationException() {
+        ReservationCreationDto createDto = createReservationCreationDto(
+            testCustomerProfile.getId(),
+            List.of(testEquipment.getId()),
+            LocalDate.now().plusDays(10),
+            LocalDate.now().plusDays(15),
+            LocalTime.of(10, 0)
+        );
+        ReservationDetailDto created = reservationService.createReservation(createDto);
+
+        ReservationAddDeleteEquipmentDto addDto = new ReservationAddDeleteEquipmentDto();
+        addDto.setId(created.getId());
+        addDto.setEquipmentIds(List.of(testEquipment.getId()));
+
+        ValidationException exception = assertThrows(ValidationException.class, () ->
+            reservationService.addEquipmentToReservation(addDto)
+        );
+
+        assertAll(
+            "Verify that adding already existing equipment is blocked",
+            () -> assertThat(exception).isNotNull(),
+            () -> assertThat(exception.getErrors().stream()
+                .anyMatch(e -> e.contains("already part of this reservation"))).isTrue()
+        );
+    }
+
+    @Test
+    public void removeEquipmentFromReservation_leavingReservationEmpty_throwsValidationException() {
+        ReservationCreationDto createDto = createReservationCreationDto(
+            testCustomerProfile.getId(),
+            List.of(testEquipment.getId()),
+            LocalDate.now().plusDays(5),
+            LocalDate.now().plusDays(8),
+            LocalTime.of(9, 0)
+        );
+        ReservationDetailDto created = reservationService.createReservation(createDto);
+
+        ReservationAddDeleteEquipmentDto removeDto = new ReservationAddDeleteEquipmentDto();
+        removeDto.setId(created.getId());
+        removeDto.setEquipmentIds(List.of(testEquipment.getId()));
+
+        ValidationException exception = assertThrows(ValidationException.class, () ->
+            reservationService.removeEquipmentFromReservation(removeDto)
+        );
+
+        assertAll(
+            "Verify that a reservation cannot be emptied completely",
+            () -> assertThat(exception).isNotNull(),
+            () -> assertThat(exception.getErrors().stream()
+                .anyMatch(e -> e.contains("must contain at least one equipment"))).isTrue()
+        );
+    }
+
+    @Test
+    public void removeEquipmentFromReservation_withEquipmentNotInReservation_throwsValidationException() {
+        ReservationCreationDto createDto = createReservationCreationDto(
+            testCustomerProfile.getId(),
+            List.of(testEquipment.getId()),
+            LocalDate.now().plusDays(5),
+            LocalDate.now().plusDays(8),
+            LocalTime.of(9, 0)
+        );
+        ReservationDetailDto created = reservationService.createReservation(createDto);
+
+        ReservationAddDeleteEquipmentDto removeDto = new ReservationAddDeleteEquipmentDto();
+        removeDto.setId(created.getId());
+        removeDto.setEquipmentIds(List.of(testEquipment2.getId()));
+
+        ValidationException exception = assertThrows(ValidationException.class, () ->
+            reservationService.removeEquipmentFromReservation(removeDto)
+        );
+
+        assertAll(
+            "Verify that removing unassociated equipment throws an error",
+            () -> assertThat(exception).isNotNull(),
+            () -> assertThat(exception.getErrors().stream()
+                .anyMatch(e -> e.contains("not part of this reservation"))).isTrue()
+        );
+    }
+
 }
