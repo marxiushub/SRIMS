@@ -156,6 +156,10 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
             throw new ValidationException("Reservations can only be deleted if they have not been picked up.");
         }
 
+        if (reservation.getReservationStatus() == ReservationStatus.RETURNED) {
+            throw new ValidationException("Reservations can only be deleted if they have not been returned.");
+        }
+
         deleteTimePeriodsForEquipment(reservation.getItems().stream().map(ReservationRelation::getEquipment).toList(), reservation);
 
         reservationRepository.delete(reservation);
@@ -203,6 +207,9 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
      * removing time periods when changed to RETURNED/CANCELLED) is applied.
      */
     private void applyUpdateCommon(Reservation reservation, ReservationUpdateDto dto, boolean isStaff, boolean isScan) {
+        if (reservation.getReservationStatus() == ReservationStatus.RETURNED) {
+            throw new ValidationException("Reservations can only be updated if they have not been returned.");
+        }
         if (reservation.getReservationStatus() == ReservationStatus.PICKED_UP && !isScan) {
             throw new ValidationException("Reservations that are PICKED_UP can only be updated or deleted as part of a scan.");
         }
@@ -375,6 +382,11 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
         validator.validateReservationAddEquip(dto);
 
         Reservation reservation = reservationRepository.getReferenceById(dto.getId());
+
+        if (reservation.getReservationStatus() == ReservationStatus.RETURNED) {
+            throw new ValidationException("Reservations can only be deleted if they have not been returned.");
+        }
+
         List<Equipment> equipmentList = equipmentRepository.findAllById(dto.getEquipmentIds());
 
         for (Equipment equipment : equipmentList) {
@@ -392,6 +404,11 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
         validator.validateReservationRemoveEquipment(dto);
 
         Reservation reservation = reservationRepository.getReferenceById(dto.getId());
+
+        if (reservation.getReservationStatus() == ReservationStatus.RETURNED) {
+            throw new ValidationException("Equipment can only be removed if it has not been returned.");
+        }
+
         List<Equipment> equipmentList = equipmentRepository.findAllById(dto.getEquipmentIds());
 
         deleteTimePeriodsForEquipment(equipmentList, reservation);
