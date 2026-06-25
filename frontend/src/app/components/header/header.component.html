@@ -58,6 +58,10 @@
         </li>
       }
       @if (authService.isLoggedIn()) {
+        <li class="nav-item navbar-text text-white-50 me-lg-3 mb-2 mb-lg-0 align-self-end align-self-lg-center small">
+          {{ authService.getUserEmail() }}
+        </li>
+
         <li class="nav-item">
           <a class="nav-link" routerLink="/" (click)="authService.logoutUser()">{{ 'COMMON.LOGOUT' | translate }}</a>
         </li>

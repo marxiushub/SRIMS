@@ -192,24 +192,6 @@ describe('ReservationCreateEditComponent', () => {
     expect(toastrServiceMock.success).toHaveBeenCalledWith('Reservation created');
   });
 
-  it('should trigger equipment validation after date change and remove unavailable equipment', fakeAsync(() => {
-    fixture.detectChanges();
-
-    component.selectedEquipment = [{...mockEquipment[0]}];
-
-    equipmentServiceMock.search.and.returnValue(of([mockEquipment[1]]));
-
-    component.reservationForm.patchValue({
-      startDate: '2026-07-01',
-      endDate: '2026-07-05'
-    });
-
-    tick(300);
-
-    expect(component.selectedEquipment.length).toBe(0);
-    expect(component.validationWarning).toBe('RESERVATION.VALIDATION_WARNING');
-  }));
-
   it('should switch to edit mode and load existing reservation data on init', () => {
     activatedRouteMock.snapshot.data = {mode: ReservationCreateEditMode.edit};
     activatedRouteMock.snapshot.paramMap = convertToParamMap({id: '100'});

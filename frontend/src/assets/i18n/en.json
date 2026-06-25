@@ -65,6 +65,7 @@
     "HIGHEST_FIRST": "Highest first",
     "ROWS_PER_PAGE": "Rows per page",
     "OF": "of",
+    "CREATE_RESERVATION": "Create Reservation",
     "RESERVATIONS_TITLE": "Upcoming Reservations",
     "RESERVATIONS_LOADING": "Loading reservations...",
     "RESERVATIONS_ERROR": "Error loading reservations for this equipment.",
@@ -206,7 +207,9 @@
     "TITLE": "Prototype Barcode Scanner",
     "MODE_LABEL": "Select Scanner Mode:",
     "MODE_RENTAL": "Mode 1: Rental / Return (FREE ↔ RENTED)",
+    "MODE_RENTAL_SHORT": "Mode 1: Rental / Return",
     "MODE_MAINTENANCE": "Mode 2: Send to Repair (FREE ↔ MAINTENANCE)",
+    "MODE_MAINTENANCE_SHORT": "Mode 2: Repair",
     "INPUT_PLACEHOLDER": "Scan or enter barcode...",
     "BTN_CHECK": "Check Barcode",
     "ERROR_EMPTY": "Please enter a barcode ID.",
@@ -412,5 +415,12 @@
     "BACK": "Back to Profiles",
     "EDIT": "Edit",
     "DELETE": "Delete"
+  },
+  "REGISTRATION_EXT": {
+    "PROFILE_SECTION_TITLE": "Create first Profile",
+    "PLACEHOLDER_HEIGHT": "i.e. 175",
+    "PLACEHOLDER_WEIGHT": "i.e. 70",
+    "PLACEHOLDER_SHOE_SIZE": "i.e. 42",
+    "CHOOSE_SKILL_PLACEHOLDER": "-- Please choose a skill level --"
   }
 }

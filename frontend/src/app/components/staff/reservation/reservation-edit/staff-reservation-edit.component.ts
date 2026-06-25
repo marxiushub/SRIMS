@@ -1,16 +1,16 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ReservationService } from '../../../../services/reservation.service';
-import { EquipmentService } from '../../../../services/equipment.service';
-import { TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
-import { Equipment } from '../../../../dtos/equipment';
-import { EquipmentSearch } from '../../../../dtos/equipment-search';
-import { EquipmentType } from '../../../../dtos/equipmenttype';
-import { SkillLevel } from '../../../../dtos/skilllevel';
-import { ReservationUpdate } from '../../../../dtos/reservation-update';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
+import {Component, OnInit} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {ReservationService} from '../../../../services/reservation.service';
+import {EquipmentService} from '../../../../services/equipment.service';
+import {TranslateService} from '@ngx-translate/core';
+import {ToastrService} from 'ngx-toastr';
+import {Equipment} from '../../../../dtos/equipment';
+import {EquipmentSearch} from '../../../../dtos/equipment-search';
+import {EquipmentType} from '../../../../dtos/equipmenttype';
+import {SkillLevel} from '../../../../dtos/skilllevel';
+import {ReservationUpdate} from '../../../../dtos/reservation-update';
+import {debounceTime, distinctUntilChanged, forkJoin} from 'rxjs';
 
 @Component({
   selector: 'app-staff-reservation-edit',
@@ -34,14 +34,17 @@ export class StaffReservationEditComponent implements OnInit {
   skillFilter: SkillLevel | null = null;
   priceSortDirection: 'asc' | 'desc' | '' = 'asc';
 
+  filtersExpanded: boolean = false;
+  equipmentListExpanded: boolean = true;
+
   loading = false;
   submitLoading = false;
   submitError?: string;
   validationWarning?: string;
 
-  //Saves original dates, to prevent false validation-alarms during first loading
   private originalStartDate!: string;
   private originalEndDate!: string;
+  private selectedEquipmentBackup: Equipment[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -51,7 +54,8 @@ export class StaffReservationEditComponent implements OnInit {
     private equipmentService: EquipmentService,
     private notification: ToastrService,
     public translateService: TranslateService
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.initForm();
@@ -91,7 +95,7 @@ export class StaffReservationEditComponent implements OnInit {
         prev.startDate === curr.startDate && prev.endDate === curr.endDate
       )
     ).subscribe(values => {
-      if (this.selectedEquipment.length > 0 && values.startDate && values.endDate && !this.isDateRangeInvalid) {
+      if (this.selectedEquipmentBackup.length > 0 && values.startDate && values.endDate && !this.isDateRangeInvalid) {
         this.validateSelectedEquipmentForNewDates(values.startDate, values.endDate);
       }
     });
@@ -102,30 +106,77 @@ export class StaffReservationEditComponent implements OnInit {
    * Removes equipment that is no longer available.
    */
   public validateSelectedEquipmentForNewDates(startDate: string, endDate: string): void {
-    if (startDate === this.originalStartDate && endDate === this.originalEndDate) {
+    const originalStart = new Date(this.originalStartDate);
+    const originalEnd = new Date(this.originalEndDate);
+    const newStart = new Date(startDate);
+    const newEnd = new Date(endDate);
+
+    // Case 1: New Date Range is entirely within original one (or identical) - restore with Backup
+    if (newStart >= originalStart && newEnd <= originalEnd) {
+      this.selectedEquipment = [...this.selectedEquipmentBackup];
       this.validationWarning = undefined;
       return;
     }
 
-    const searchRequest: EquipmentSearch = {
-      start: startDate,
-      end: endDate
-    };
+    const requests = [];
 
-    this.equipmentService.search(searchRequest).subscribe({
-      next: (availableEquipment) => {
-        const availableIds = availableEquipment.map(e => e.id);
+    // Case 2: Complete change of dates so that there is no more overlap with the original
+    if (newEnd < originalStart || newStart > originalEnd) {
+      requests.push(this.equipmentService.search({
+        start: startDate,
+        end: endDate
+      }));
+    }
+    // Case 3: Partial Overlap with original date range - Calculation of the new days to check
+    else {
+      if (newStart < originalStart) {
+        const dayBeforeOriginalStart = new Date(originalStart);
+        dayBeforeOriginalStart.setDate(dayBeforeOriginalStart.getDate() - 1);
 
-        const filteredList = this.selectedEquipment.filter(item => {
-          return availableIds.includes(item.id);
-        });
+        const formattedDate = dayBeforeOriginalStart.getFullYear() + '-' +
+            String(dayBeforeOriginalStart.getMonth() + 1).padStart(2, '0') + '-' +
+            String(dayBeforeOriginalStart.getDate()).padStart(2, '0');
 
-        if (filteredList.length !== this.selectedEquipment.length) {
+        requests.push(this.equipmentService.search({
+          start: startDate,
+          end: formattedDate
+        }));
+      }
+      if (newEnd > originalEnd) {
+        const dayAfterOriginalEnd = new Date(originalEnd);
+        dayAfterOriginalEnd.setDate(dayAfterOriginalEnd.getDate() + 1);
+
+        const formattedDate = dayAfterOriginalEnd.getFullYear() + '-' +
+            String(dayAfterOriginalEnd.getMonth() + 1).padStart(2, '0') + '-' +
+            String(dayAfterOriginalEnd.getDate()).padStart(2, '0');
+
+        requests.push(this.equipmentService.search({
+          start: formattedDate,
+          end: endDate
+        }));
+      }
+    }
+
+    forkJoin(requests).subscribe({
+      next: (results) => {
+        let availableIds: number[] = [];
+
+        if (results.length === 1) {
+          availableIds = results[0].map((e: any) => e.id);
+        } else if (results.length === 2) {
+          const idsFront = results[0].map((e: any) => e.id);
+          const idsBack = results[1].map((e: any) => e.id);
+          availableIds = idsFront.filter((id: number) => idsBack.includes(id));
+        }
+
+        const filteredList = this.selectedEquipmentBackup.filter(item => availableIds.includes(item.id));
+
+        if (filteredList.length !== this.selectedEquipmentBackup.length) {
           this.selectedEquipment = filteredList;
           this.validationWarning = 'RESERVATION.VALIDATION_WARNING';
-
           setTimeout(() => this.validationWarning = undefined, 8000);
         } else {
+          this.selectedEquipment = filteredList;
           this.validationWarning = undefined;
         }
       },
@@ -188,7 +239,6 @@ export class StaffReservationEditComponent implements OnInit {
           formattedTime = formattedTime.substring(0, 5);
         }
 
-        // Sichern der Originaldaten, um die initiale automatische Validierung zu übergehen
         this.originalStartDate = data.startDate;
         this.originalEndDate = data.endDate;
 
@@ -202,6 +252,9 @@ export class StaffReservationEditComponent implements OnInit {
         });
 
         this.selectedEquipment = data.items || data.equipment || data.equipments || data.equipmentList || [];
+
+        this.selectedEquipmentBackup = [...this.selectedEquipment];
+
         this.loading = false;
       },
       error: (err) => {
@@ -275,9 +328,46 @@ export class StaffReservationEditComponent implements OnInit {
    */
   clearFilters(): void {
     this.modelFilter = '';
+    this.currentActiveType = null;
     this.skillFilter = null;
     this.priceSortDirection = 'asc';
+    this.availableEquipmentList = [];
+    this.filtersExpanded = false;
     this.searchEquipment();
+  }
+
+  /**
+   * Toggles the visibility of the filter section in the UI.
+   */
+  toggleFilters(): void {
+    this.filtersExpanded = !this.filtersExpanded;
+  }
+
+  /**
+   * Counts the number of active filters for display in the UI.
+   */
+  get activeFilterCount(): number {
+    let count = 0;
+    if (this.modelFilter?.trim()) count++;
+    if (this.skillFilter) count++;
+    if (this.priceSortDirection && this.priceSortDirection !== 'asc') count++;
+    return count;
+  }
+
+  /**
+   * Checks if a specific piece of equipment is already selected for the reservation.
+   * @param itemId ID of the equipment to check
+   * @returns true if the equipment is already selected, false otherwise
+   */
+  isAlreadySelected(itemId: number): boolean {
+    return this.selectedEquipment.some(e => e.id === itemId);
+  }
+
+  /**
+   * Toggles the visibility of the available equipment list in the UI.
+   */
+  toggleEquipmentList(): void {
+    this.equipmentListExpanded = !this.equipmentListExpanded;
   }
 
   /**
@@ -286,6 +376,7 @@ export class StaffReservationEditComponent implements OnInit {
   addEquipment(item: Equipment): void {
     if (!this.selectedEquipment.some(e => e.id === item.id)) {
       this.selectedEquipment.push(item);
+      this.selectedEquipmentBackup.push(item);
     }
   }
 
@@ -294,6 +385,8 @@ export class StaffReservationEditComponent implements OnInit {
    */
   removeEquipment(itemId: number): void {
     this.selectedEquipment = this.selectedEquipment.filter(item => item.id !== itemId);
+    this.selectedEquipmentBackup = this.selectedEquipmentBackup.filter(item => item.id !== itemId);
+
     const start = this.reservationForm.get('startDate')?.value;
     const end = this.reservationForm.get('endDate')?.value;
     if (start && end && !this.isDateRangeInvalid) {
