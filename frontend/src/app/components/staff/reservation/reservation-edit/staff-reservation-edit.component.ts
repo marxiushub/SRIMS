@@ -134,8 +134,8 @@ export class StaffReservationEditComponent implements OnInit {
         dayBeforeOriginalStart.setDate(dayBeforeOriginalStart.getDate() - 1);
 
         const formattedDate = dayBeforeOriginalStart.getFullYear() + '-' +
-            String(dayBeforeOriginalStart.getMonth() + 1).padStart(2, '0') + '-' +
-            String(dayBeforeOriginalStart.getDate()).padStart(2, '0');
+          String(dayBeforeOriginalStart.getMonth() + 1).padStart(2, '0') + '-' +
+          String(dayBeforeOriginalStart.getDate()).padStart(2, '0');
 
         requests.push(this.equipmentService.search({
           start: startDate,
@@ -147,8 +147,8 @@ export class StaffReservationEditComponent implements OnInit {
         dayAfterOriginalEnd.setDate(dayAfterOriginalEnd.getDate() + 1);
 
         const formattedDate = dayAfterOriginalEnd.getFullYear() + '-' +
-            String(dayAfterOriginalEnd.getMonth() + 1).padStart(2, '0') + '-' +
-            String(dayAfterOriginalEnd.getDate()).padStart(2, '0');
+          String(dayAfterOriginalEnd.getMonth() + 1).padStart(2, '0') + '-' +
+          String(dayAfterOriginalEnd.getDate()).padStart(2, '0');
 
         requests.push(this.equipmentService.search({
           start: formattedDate,
@@ -196,6 +196,31 @@ export class StaffReservationEditComponent implements OnInit {
       return false;
     }
     return new Date(end) < new Date(start);
+  }
+
+  /**
+   * Checks if the start date is in the past.
+   */
+  get isStartDateInPast(): boolean {
+    const start = this.reservationForm.get('startDate')?.value;
+    if (!start) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return new Date(start) < today;
+  }
+
+  /**
+   * Checks if the end date is in the past.
+   */
+  get isStartDateMissing(): boolean {
+    return !this.reservationForm.get('startDate')?.value;
+  }
+
+  /**
+   * Checks if the end date is missing.
+   */
+  get isEndDateMissing(): boolean {
+    return !this.reservationForm.get('endDate')?.value;
   }
 
   /**

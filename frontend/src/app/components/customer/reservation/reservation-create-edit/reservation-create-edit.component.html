@@ -32,7 +32,7 @@
         <div class="col-12 col-sm-6 col-xl-3">
           <label for="startDate" class="form-label fw-bold">{{ 'RESERVATION.PICKUP_DATE' | translate }} *</label>
           <input type="date" id="startDate" formControlName="startDate" class="form-control"
-                 [ngClass]="{ 'is-invalid': isDateRangeInvalid || isStartDateInPast}">
+                 [ngClass]="{ 'is-invalid': isDateRangeInvalid || isStartDateInPast || isStartDateMissing}">
         </div>
 
         <div class="col-12 col-sm-6 col-xl-2">
@@ -43,7 +43,7 @@
         <div class="col-12 col-sm-6 col-xl-3">
           <label for="endDate" class="form-label fw-bold">{{ 'RESERVATION.RETURN_DATE' | translate }} *</label>
           <input type="date" id="endDate" formControlName="endDate" class="form-control"
-                 [ngClass]="{ 'is-invalid': isDateRangeInvalid}">
+                 [ngClass]="{ 'is-invalid': isDateRangeInvalid || isEndDateMissing}">
         </div>
 
         @if (isDateRangeInvalid) {

@@ -50,6 +50,7 @@ export class ReservationCreateEditComponent implements OnInit {
 
   filtersExpanded: boolean = false;
   equipmentListExpanded: boolean = true;
+  formSubmitAttempted: boolean = false;
 
   loading: boolean = false;
   submitLoading: boolean = false;
@@ -325,6 +326,20 @@ export class ReservationCreateEditComponent implements OnInit {
   }
 
   /**
+   * Checks if the end date is in the past.
+   */
+  get isStartDateMissing(): boolean {
+    return !this.reservationForm.get('startDate')?.value;
+  }
+
+  /**
+   * Checks if the end date is missing.
+   */
+  get isEndDateMissing(): boolean {
+    return !this.reservationForm.get('endDate')?.value;
+  }
+
+  /**
    * Calculates the current live total price based on selected equipment and days.
    */
   get currentTotalPrice(): number {
@@ -507,6 +522,7 @@ export class ReservationCreateEditComponent implements OnInit {
    * Submits finished reservation to backend.
    */
   submitReservation(): void {
+    this.formSubmitAttempted = true;
     if (this.reservationForm.invalid) {
       return;
     }
