@@ -12,6 +12,7 @@ import {RentalStatus} from '../../../../dtos/rentalstatus';
 import {SkillLevel} from '../../../../dtos/skilllevel';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {ToastrModule, ToastrService} from 'ngx-toastr';
+import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 
 describe('ReservationCreateEditComponent', () => {
   let component: ReservationCreateEditComponent;
@@ -101,6 +102,7 @@ describe('ReservationCreateEditComponent', () => {
       imports: [
         ReactiveFormsModule,
         FormsModule,
+        NgbModule,
         TranslateModule.forRoot(),
         ToastrModule.forRoot()
       ],
@@ -274,10 +276,10 @@ describe('ReservationCreateEditComponent', () => {
     it('should return 0 if startDate or endDate is missing', () => {
       component.selectedEquipment = [mockEquipment[0]]; // 25 €
 
-      component.reservationForm.patchValue({ startDate: null, endDate: '2026-06-22' });
+      component.reservationForm.patchValue({startDate: null, endDate: '2026-06-22'});
       expect(component.currentTotalPrice).toBe(0);
 
-      component.reservationForm.patchValue({ startDate: '2026-06-20', endDate: null });
+      component.reservationForm.patchValue({startDate: '2026-06-20', endDate: null});
       expect(component.currentTotalPrice).toBe(0);
     });
 

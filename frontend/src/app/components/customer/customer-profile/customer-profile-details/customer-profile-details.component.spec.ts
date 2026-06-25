@@ -5,6 +5,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {EMPTY, of, throwError} from 'rxjs';
 import {SkillLevel} from '../../../../dtos/skilllevel';
 import {TranslateModule} from "@ngx-translate/core";
+import {NgbCollapse} from '@ng-bootstrap/ng-bootstrap';
 
 describe('CustomerProfileDetailsComponent', () => {
   let component: CustomerProfileDetailsComponent;
@@ -19,7 +20,7 @@ describe('CustomerProfileDetailsComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [CustomerProfileDetailsComponent],
-      imports: [TranslateModule.forRoot()],
+      imports: [NgbCollapse, TranslateModule.forRoot()],
       providers: [
         {provide: CustomerProfileService, useValue: customerProfileServiceMock},
         {provide: Router, useValue: routerMock},
@@ -56,6 +57,7 @@ describe('CustomerProfileDetailsComponent', () => {
   });
 
   it('should handle deletion error correctly', () => {
+    spyOn(console, 'error');
     const mockProfile = {
       id: 1,
       customerId: 1,

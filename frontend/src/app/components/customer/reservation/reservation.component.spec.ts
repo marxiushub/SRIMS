@@ -14,6 +14,7 @@ import {CustomerProfile} from '../../../dtos/customer-profile';
 import {SkillLevel} from "../../../dtos/skilllevel";
 import {ToastrModule, ToastrService} from 'ngx-toastr';
 import {ReservationStatus} from "../../../dtos/reservationstatus";
+import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 
 // AI-assisted: Code generated with Google Gemini and adapted
 describe('ReservationComponent', () => {
@@ -88,7 +89,8 @@ describe('ReservationComponent', () => {
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
         ToastrModule.forRoot(),
-        FormsModule
+        FormsModule,
+        NgbModule
       ],
       providers: [
         provideHttpClient(),
