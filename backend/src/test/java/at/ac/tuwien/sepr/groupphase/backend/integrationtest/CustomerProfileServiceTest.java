@@ -90,7 +90,6 @@ public class CustomerProfileServiceTest {
         return customerProfileRepository.save(profile);
     }
 
-    // Sets up the mock so the service believes "customer" is the currently authenticated, non-staff user.
     private void actingAsCustomer(Customer customer) {
         when(currentUserService.getUserId()).thenReturn(customer.getId());
         when(currentUserService.hasAuthority("STAFF")).thenReturn(false);
