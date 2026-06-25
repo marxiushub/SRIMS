@@ -1,12 +1,10 @@
 package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationCreationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto.ReservationCreationWithModeDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.ReservationStatus;
-import at.ac.tuwien.sepr.groupphase.backend.service.BarcodeScannerService;
 import at.ac.tuwien.sepr.groupphase.backend.service.EquipmentService;
 import at.ac.tuwien.sepr.groupphase.backend.service.ReservationService;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.BarcodeScannerServiceImpl;
@@ -37,8 +35,6 @@ class BarcodeScannerServiceTest {
 
     @InjectMocks
     private BarcodeScannerServiceImpl barcodeScannerService;
-
-
 
     @Test
     void checkOutOrInWithExistingReservation_statusPickedUp_updatesReservationAndSetsEquipmentRented() {

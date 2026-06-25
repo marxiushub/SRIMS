@@ -159,6 +159,83 @@
                     </div>
                   }
                 </div>
+
+                <hr class="my-4">
+                <h5 class="mb-3 text-muted">{{ 'REGISTRATION_EXT.PROFILE_SECTION_TITLE' | translate }}</h5>
+
+                <div class="form-group">
+                  <label for="height">{{ 'CUSTOMER_PROFILE_CREATE.HEIGHT' | translate }}</label>
+                  <input type="number" name="height" formControlName="height" class="form-control" id="height"
+                         [placeholder]="'REGISTRATION_EXT.PLACEHOLDER_HEIGHT' | translate">
+                  @if (submitted && loginForm.controls.height.errors) {
+                    <div class="error">
+                      @if (loginForm.get('height')?.hasError('required')) {
+                        <small class="form-text text-danger">{{ 'CUSTOMER_PROFILE_CREATE.HEIGHT_REQUIRED' | translate }}</small>
+                      }
+                      @if (loginForm.get('height')?.hasError('min')) {
+                        <small class="form-text text-danger">{{ 'CUSTOMER_PROFILE_CREATE.HEIGHT_MIN' | translate }}</small>
+                      }
+                      @if (loginForm.get('height')?.hasError('max')) {
+                        <small class="form-text text-danger">{{ 'CUSTOMER_PROFILE_CREATE.HEIGHT_MAX' | translate }}</small>
+                      }
+                    </div>
+                  }
+                </div>
+
+                <div class="form-group">
+                  <label for="weight">{{ 'CUSTOMER_PROFILE_CREATE.WEIGHT' | translate }}</label>
+                  <input type="number" name="weight" formControlName="weight" class="form-control" id="weight"
+                         [placeholder]="'REGISTRATION_EXT.PLACEHOLDER_WEIGHT' | translate">
+                  @if (submitted && loginForm.controls.weight.errors) {
+                    <div class="error">
+                      @if (loginForm.get('weight')?.hasError('required')) {
+                        <small class="form-text text-danger">{{ 'CUSTOMER_PROFILE_CREATE.WEIGHT_REQUIRED' | translate }}</small>
+                      }
+                      @if (loginForm.get('weight')?.hasError('min')) {
+                        <small class="form-text text-danger">{{ 'CUSTOMER_PROFILE_CREATE.WEIGHT_MIN' | translate }}</small>
+                      }
+                      @if (loginForm.get('weight')?.hasError('max')) {
+                        <small class="form-text text-danger">{{ 'CUSTOMER_PROFILE_CREATE.WEIGHT_MAX' | translate }}</small>
+                      }
+                    </div>
+                  }
+                </div>
+
+                <div class="form-group">
+                  <label for="shoeSize">{{ 'CUSTOMER_PROFILE_CREATE.SHOE_SIZE' | translate }}</label>
+                  <input type="number" step="0.5" name="shoeSize" formControlName="shoeSize" class="form-control" id="shoeSize"
+                         [placeholder]="'REGISTRATION_EXT.PLACEHOLDER_SHOE_SIZE' | translate">
+                  @if (submitted && loginForm.controls.shoeSize.errors) {
+                    <div class="error">
+                      @if (loginForm.get('shoeSize')?.hasError('required')) {
+                        <small class="form-text text-danger">{{ 'CUSTOMER_PROFILE_CREATE.SHOE_SIZE_REQUIRED' | translate }}</small>
+                      }
+                      @if (loginForm.get('shoeSize')?.hasError('min')) {
+                        <small class="form-text text-danger">{{ 'CUSTOMER_PROFILE_CREATE.SHOE_SIZE_MIN' | translate }}</small>
+                      }
+                      @if (loginForm.get('shoeSize')?.hasError('max')) {
+                        <small class="form-text text-danger">{{ 'CUSTOMER_PROFILE_CREATE.SHOE_SIZE_MAX' | translate }}</small>
+                      }
+                    </div>
+                  }
+                </div>
+
+                <div class="form-group">
+                  <label for="skillLevel">{{ 'CUSTOMER_PROFILE_CREATE.SKILL_LEVEL' | translate }}</label>
+                  <select id="skillLevel" name="skillLevel" formControlName="skillLevel" class="form-select">
+                    <option [ngValue]="null" disabled selected>-- {{ 'REGISTRATION_EXT.CHOOSE_SKILL_PLACEHOLDER' | translate }} --</option>
+                    @for (level of skillLevels; track level) {
+                      <option [value]="level">{{ 'SKILL_LEVEL.' + level | translate }}</option>
+                    }
+                  </select>
+                  @if (submitted && loginForm.controls.skillLevel.errors) {
+                    <div class="error">
+                      @if (loginForm.get('skillLevel')?.hasError('required')) {
+                        <small class="form-text text-danger">{{ 'CUSTOMER_PROFILE_CREATE.NAME_REQUIRED' | translate }}</small>
+                      }
+                    </div>
+                  }
+                </div>
               }
 
               <div class="auth-actions">

@@ -15,6 +15,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
 import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.HelmetRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerProfileRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
+import at.ac.tuwien.sepr.groupphase.backend.security.CurrentUserService;
 import at.ac.tuwien.sepr.groupphase.backend.service.ReservationService;
 import at.ac.tuwien.sepr.groupphase.backend.service.StatisicsService;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,12 +23,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mockito.Mockito.when;
 
 @ActiveProfiles({"test", "datagenerator", "generateData"})
 @SpringBootTest
@@ -50,6 +53,9 @@ public class StatisticsServiceTest {
 
     @Autowired
     private StatisicsService statisicsService;
+
+    @MockitoBean
+    private CurrentUserService currentUserService;
 
     private CustomerProfile testCustomerProfile;
     private Customer testCustomer;
@@ -79,6 +85,8 @@ public class StatisticsServiceTest {
         testEquipment2 = helmetRepository.save(
             new Helmet("Statistics Test Helmet", 10.0, 58.0, RentalStatus.FREE, SkillLevel.INTERMEDIATE));
 
+        when(currentUserService.getUserId()).thenReturn(testCustomer.getId());
+        when(currentUserService.hasAuthority("STAFF")).thenReturn(true);
     }
 
     @Test

@@ -50,7 +50,6 @@ export class InventoryComponent implements OnInit {
 
   rentalStatuses = [
     RentalStatus.FREE,
-    RentalStatus.RESERVED,
     RentalStatus.RENTED,
     RentalStatus.MAINTENANCE
   ];
@@ -149,8 +148,6 @@ export class InventoryComponent implements OnInit {
     switch (status) {
       case 'FREE':
         return 'bg-success';
-      case 'RESERVED':
-        return 'bg-warning text-dark';
       case 'RENTED':
         return 'bg-danger';
       case 'MAINTENANCE':

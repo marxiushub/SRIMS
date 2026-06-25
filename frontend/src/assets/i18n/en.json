@@ -415,5 +415,12 @@
     "BACK": "Back to Profiles",
     "EDIT": "Edit",
     "DELETE": "Delete"
+  },
+  "REGISTRATION_EXT": {
+    "PROFILE_SECTION_TITLE": "Create first Profile",
+    "PLACEHOLDER_HEIGHT": "i.e. 175",
+    "PLACEHOLDER_WEIGHT": "i.e. 70",
+    "PLACEHOLDER_SHOE_SIZE": "i.e. 42",
+    "CHOOSE_SKILL_PLACEHOLDER": "-- Please choose a skill level --"
   }
 }
