@@ -6,6 +6,7 @@ import { CustomerSearch } from '../dtos/customer-search';
 import { CustomerSearchResponse } from '../dtos/customer-search-response';
 import { StaffSearchResponse } from '../dtos/staff-search-response';
 import { PasswordChange } from '../dtos/password-change';
+import {StaffCreationDto} from "../dtos/staff-creation";
 
 @Injectable({
   providedIn: 'root'
@@ -73,5 +74,16 @@ export class StaffService {
    */
   resetPasswordForStaff(email: string): Observable<any> {
     return this.httpClient.patch<any>(`${this.staffBaseUri}/password-resets/${encodeURIComponent(email)}`, null);
+  }
+
+  /**
+   * Creates a new staff account.
+   * Maps to POST /api/v1/staff/create
+   * Requires the caller to be an authenticated staff member with STAFF_CREATE authority.
+   *
+   * @param staffCreationDto the DTO containing the new staff account's userName, password, and email
+   */
+  createStaff(staffCreationDto: StaffCreationDto): Observable<any> {
+    return this.httpClient.post<any>(`${this.staffBaseUri}/create`, staffCreationDto);
   }
 }

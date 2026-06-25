@@ -296,13 +296,19 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
                 throw new AccessDeniedException("Cannot search reservations of another customer.");
             }
 
-            // Customer darf nur sich selbst sehen
+
             effectiveAccountId = currentUserId;
         }
 
         Specification<Reservation> spec = (root, query, cb) -> cb.conjunction();
 
         final Long accountId = effectiveAccountId;
+
+        if (searchDto.getSearchRangeStart() != null && searchDto.getSearchRangeEnd() != null) {
+            if (searchDto.getSearchRangeStart().isAfter(searchDto.getSearchRangeEnd())) {
+                throw new ValidationException("Start date must be before end date");
+            }
+        }
 
         if (accountId != null) {
             spec = spec.and((root, query, cb) ->

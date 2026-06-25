@@ -274,7 +274,7 @@ public class CustomUserDetailService implements UserService {
         if (passwordEncoder.matches(passwordChangeDto.getNewPassword(), existingUser.getPassword())) {
             throw new ValidationException(
                 "Validation of the dto for changing passwords failed",
-                List.of("newPassword must differ from the current password.")
+                List.of("New Password must differ from the current password.")
             );
         }
 

@@ -1,19 +1,24 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.reservationdto;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.ReservationStatus;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
 public class ReservationSearchDto {
+    @Positive(message = "customerProfileId must be positive")
     private Long customerProfileId;
+    @Positive(message = "accountId must be positive")
     private Long accountId;
     private LocalDate startDate;
     private LocalDate endDate;
     private LocalTime pickUpTime;
     private LocalDate searchRangeStart;
     private LocalDate searchRangeEnd;
+    @Size(max = 100, message = "You can only search for 100 equipment items")
     private List<Long> equipmentIds;
     private ReservationStatus reservationStatus;
 

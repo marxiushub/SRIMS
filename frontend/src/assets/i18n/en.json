@@ -173,9 +173,16 @@
       "SEND": "Send new password",
       "SUCCESS": "A new password has been sent to that email address."
     },
+    "REGISTER_STAFF": {
+      "TITLE": "Create Staff Account",
+      "DESC": "Create a new staff account",
+      "BACK": "Back",
+      "CREATE": "Create Account",
+      "SUCCESS": "The staff account was created successfully."
+    },
     "STATISTICS": {
-      "TITLE": "Statistics",
-      "SUBTITLE": "Analyze the utilization and rental duration of your equipment.",
+      "TITLE": "Rental Statistics",
+      "SUBTITLE": "Analyze the rental duration of your equipment per item and per typ.",
       "FILTER": {
         "START": "From",
         "END": "To",
@@ -196,7 +203,7 @@
       },
       "MESSAGES": {
         "NO_DATA": "No data available for the selected period. Adjust the filters and click 'Generate'.",
-        "ERROR": "Statistics could not be loaded. Please check your inputs."
+        "ERROR": "No data found, matching this input."
       },
       "EQUIPMENT_TYPES": {
         "SKI": "Skis",

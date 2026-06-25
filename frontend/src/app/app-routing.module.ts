@@ -51,6 +51,7 @@ import {
 } from "./components/staff/reservation/reservation-edit/staff-reservation-edit.component";
 import {ResetStaffPasswordComponent} from "./components/staff/reset-staff-password/reset-staff-password.component";
 import {StaffGuard} from "./guards/staff.guard";
+import {RegisterStaffComponent} from "./components/staff/register-staff/register-staff.component";
 
 
 const routes: Routes = [
@@ -74,6 +75,7 @@ const routes: Routes = [
       {path: 'account', component: StaffAccountComponent},
       {path: 'reset-staff-password', component: ResetStaffPasswordComponent},
       {path: 'overview', component: OverviewComponent},
+      {path: 'register-staff', component: RegisterStaffComponent},
     ]
   },
   {

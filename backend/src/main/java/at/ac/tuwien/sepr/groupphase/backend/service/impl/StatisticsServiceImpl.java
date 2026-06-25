@@ -78,7 +78,9 @@ public class StatisticsServiceImpl implements StatisicsService {
             .filter(reservation ->
                 !reservation.getStartDate().isAfter(searchEnd)
                     && !reservation.getEndDate().isBefore(searchStart)
+                    && !reservation.getCustomerProfile().getProfileName().equals("Maintenance")
             ).collect(Collectors.toList());
+
 
         Map<Long, Integer> itemCounts = new HashMap<>();
         Map<String, Integer> modelCounts = new HashMap<>();

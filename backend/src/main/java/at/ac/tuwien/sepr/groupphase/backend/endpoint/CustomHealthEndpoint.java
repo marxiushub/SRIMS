@@ -25,7 +25,12 @@ public class CustomHealthEndpoint {
         this.applicationContext = applicationContext;
     }
 
-
+    /**
+     * Health check endpoint used to verify that the application is running and healthy.
+     *
+     * @return A response containing "OK" if the application is healthy,
+     *         otherwise an HTTP 500 Internal Server Error response.
+     */
     @PermitAll
     @GetMapping
     public ResponseEntity<String> getHealth() {

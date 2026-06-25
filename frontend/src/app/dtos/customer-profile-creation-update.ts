@@ -1,9 +1,9 @@
 import {SkillLevel} from "./skilllevel";
 
 export interface CustomerProfileCreationUpdate {
-  height: number;
+  height: number | null;
   profileName: string;
-  shoeSize: number;
-  skillLevel: SkillLevel;
-  weight: number;
+  shoeSize: number | null;
+  skillLevel: SkillLevel | null;
+  weight: number | null;
 }
