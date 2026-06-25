@@ -11,12 +11,11 @@ import {CustomerProfile} from '../../../../dtos/customer-profile';
 import {EquipmentType} from "../../../../dtos/equipmenttype";
 import {RentalStatus} from "../../../../dtos/rentalstatus";
 import {SkillLevel} from "../../../../dtos/skilllevel";
-import {debounceTime, distinctUntilChanged} from "rxjs";
+import {debounceTime, distinctUntilChanged, forkJoin} from "rxjs";
 import {CustomerProfileService} from "../../../../services/customer-profile.service";
 import {ReservationUpdate} from "../../../../dtos/reservation-update";
 import {ToastrService} from 'ngx-toastr';
 import {ReservationStatus} from "../../../../dtos/reservationstatus";
-import {forkJoin, of} from 'rxjs';
 
 export enum ReservationCreateEditMode {
   create,
@@ -207,7 +206,7 @@ export class ReservationCreateEditComponent implements OnInit {
   private validateSelectedEquipmentForNewDates(startDate: string, endDate: string): void {
     // If the Modus is CREATE, just search for availability in the new date range
     if (this.mode === ReservationCreateEditMode.create) {
-      const searchRequest: EquipmentSearch = { start: startDate, end: endDate };
+      const searchRequest: EquipmentSearch = {start: startDate, end: endDate};
       this.equipmentService.search(searchRequest).subscribe({
         next: (availableEquipment) => {
           const availableIds = availableEquipment.map(e => e.id);
@@ -312,6 +311,17 @@ export class ReservationCreateEditComponent implements OnInit {
       return false;
     }
     return new Date(end) < new Date(start);
+  }
+
+  /**
+   * Checks if the start date is in the past.
+   */
+  get isStartDateInPast(): boolean {
+    const start = this.reservationForm.get('startDate')?.value;
+    if (!start) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return new Date(start) < today;
   }
 
   /**

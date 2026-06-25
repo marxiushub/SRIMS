@@ -363,7 +363,9 @@
     "CONFIRM_PROMPT": "Möchten Sie diese Reservierung wirklich abschicken?",
     "CONFIRM_SUBTEXT": "Bitte überprüfe noch einmal alle ausgewählten Ausrüstungsstücke und Daten, bevor Sie fortfahren.",
     "TITLE_DETAIL": "Reservierung ansehen",
-    "SHOW_PAST": "Vergangene Reservierungen anzeigen"
+    "SHOW_PAST": "Vergangene Reservierungen anzeigen",
+    "DATE_RANGE_INVALID": "Das Rückgabedatum darf nicht vor dem Abholdatum liegen.",
+    "DATE_START_IN_PAST": "Das Abholdatum darf nicht in der Vergangenheit liegen."
   },
   "RESERVATION_STATUS": {
     "CREATED": "Erstellt",
