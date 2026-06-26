@@ -13,6 +13,7 @@ import {CustomerCreationDto} from '../dtos/customer-creation';
 export class AuthService {
 
   private authBaseUri: string = this.globals.backendUri + '/authentication';
+  private customerBaseUri: string = this.globals.backendUri + '/customers';
 
   constructor(private httpClient: HttpClient, private globals: Globals) {
   }
@@ -35,7 +36,7 @@ export class AuthService {
    * @param customerDto User data for the new account
    */
   registerUser(customerDto: CustomerCreationDto): Observable<any> {
-    return this.httpClient.post<any>(`${this.authBaseUri.replace('/authentication', '')}/customers`, customerDto);
+    return this.httpClient.post<any>(this.customerBaseUri, customerDto);
   }
 
   /**
@@ -46,7 +47,7 @@ export class AuthService {
    */
   resetPassword(email: string): Observable<any> {
     return this.httpClient.patch<any>(
-      `${this.authBaseUri.replace('/authentication', '')}/customers/password-resets/${encodeURIComponent(email)}`,
+      `${this.authBaseUri.replace('/authentication', '')}/customers/password-reset/${encodeURIComponent(email)}`,
       null
     );
   }
