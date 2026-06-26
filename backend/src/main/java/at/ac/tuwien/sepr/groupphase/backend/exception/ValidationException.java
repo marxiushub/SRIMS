@@ -7,7 +7,7 @@ public class ValidationException extends RuntimeException {
 
     private final List<String> errors;
 
-    public ValidationException(String message, List<String> errors) {
+    public ValidationException(String message, String deMessage, List<String> errors) {
         super(message + ": " + String.join(", ", errors));
         this.errors = errors;
     }
