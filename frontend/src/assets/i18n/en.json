@@ -365,7 +365,8 @@
     "TITLE_DETAIL": "View Reservation",
     "SHOW_PAST": "Show Past Reservations",
     "DATE_RANGE_INVALID": "The return date cannot be before the pickup date.",
-    "DATE_START_IN_PAST": "The pickup date cannot be in the past."
+    "DATE_START_IN_PAST": "The pickup date cannot be in the past.",
+    "WARNING_2_DAY_LOCK": "Achtung: Diese Reservierung kann nicht mehr geändert werden, da der Starttermin in weniger als 2 Tagen liegt."
   },
   "RESERVATION_STATUS": {
     "CREATED": "Created",

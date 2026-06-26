@@ -63,6 +63,13 @@
       </div>
     </div>
 
+    @if (mode === ReservationCreateEditMode.edit && isWithin2DaysOfStart) {
+      <div class="alert alert-warning d-flex align-items-center gap-2 mb-3 fw-semibold border-warning border-2">
+        <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+        {{ 'RESERVATION.WARNING_2_DAY_LOCK' | translate }}
+      </div>
+    }
+
     @if (validationWarning) {
       <div class="alert alert-warning animate-fade-in">
         {{ validationWarning | translate }}

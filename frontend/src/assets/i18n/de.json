@@ -365,7 +365,8 @@
     "TITLE_DETAIL": "Reservierung ansehen",
     "SHOW_PAST": "Vergangene Reservierungen anzeigen",
     "DATE_RANGE_INVALID": "Das Rückgabedatum darf nicht vor dem Abholdatum liegen.",
-    "DATE_START_IN_PAST": "Das Abholdatum darf nicht in der Vergangenheit liegen."
+    "DATE_START_IN_PAST": "Das Abholdatum darf nicht in der Vergangenheit liegen.",
+    "WARNING_2_DAY_LOCK": "Achtung: Diese Reservierung kann nicht mehr geändert werden, da der Starttermin in weniger als 2 Tagen liegt."
   },
   "RESERVATION_STATUS": {
     "CREATED": "Erstellt",
