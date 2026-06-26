@@ -80,23 +80,19 @@ describe('HeaderComponent', () => {
     expect(component.isEnglish).toBeFalse();
   });
 
-  it('should switch language to English when checkbox is toggled to checked', () => {
+  it('should switch language to English when current language is German', () => {
     fixture.detectChanges();
-    const mockEvent = {
-      target: { checked: true }
-    } as unknown as Event;
+    translateService.use('de');
 
-    component.onLanguageToggle(mockEvent);
+    component.toggleLanguage();
     expect(appComponentMock.switchLanguage).toHaveBeenCalledWith('en');
   });
 
-  it('should switch language to German when checkbox is toggled to unchecked', () => {
+  it('should switch language to German when current language is English', () => {
     fixture.detectChanges();
-    const mockEvent = {
-      target: { checked: false }
-    } as unknown as Event;
+    translateService.use('en');
 
-    component.onLanguageToggle(mockEvent);
+    component.toggleLanguage();
     expect(appComponentMock.switchLanguage).toHaveBeenCalledWith('de');
   });
 });
