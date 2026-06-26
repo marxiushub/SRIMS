@@ -11,32 +11,6 @@ export class ErrorMappingService {
   /**
    * Extracts the error-message in the correct language from the error
    */
-  /*
-  getErrorMessage(error: any): string {
-    const errorBody = error?.error ? error.error : error;
-
-    const currentLang = this.translate.currentLang || this.translate.defaultLang;
-
-    if (currentLang === 'de') {
-      if (errorBody?.deMessage) {
-        return errorBody.deMessage;
-      }
-      if (errorBody?.errors) {
-        return errorBody.errors;
-      }
-    }
-
-    if (errorBody?.message) {
-      return errorBody.message;
-    }
-
-    return this.translate.instant('COMMON.UNKNOWN_ERROR') || 'An unexpected error occurred.';
-  }
-  /*
-
-  /**
-   * Extracts the error-message in the correct language from the error
-   */
   getErrorMessage(error: any): string {
     const errorBody = error?.error ? error.error : error;
     const currentLang = this.translate.currentLang || this.translate.defaultLang;
