@@ -271,7 +271,7 @@ describe('StaffReservationComponent', () => {
     it('should open delete dialog and set state variables', () => {
       component.openDeleteDialog(mockReservations[0]);
       expect(component.reservationToDelete).toEqual(mockReservations[0]);
-      expect(component.deleteError).toBeUndefined();
+      expect(component.deleteError).toBeNull();
     });
 
     it('should cancel delete and clear variables', () => {
@@ -282,7 +282,7 @@ describe('StaffReservationComponent', () => {
       component.cancelDelete();
 
       expect(component.reservationToDelete).toBeUndefined();
-      expect(component.deleteError).toBeUndefined();
+      expect(component.deleteError).toBeNull();
       expect(component.deleteLoading).toBeFalse();
     });
 

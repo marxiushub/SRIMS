@@ -9,14 +9,15 @@ import {
 } from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {AuthService} from '../../services/auth.service';
-import { CustomerProfileService } from '../../services/customer-profile.service';
+import {CustomerProfileService} from '../../services/customer-profile.service';
 import {AuthRequest} from '../../dtos/auth-request';
 import {CustomerCreationDto} from '../../dtos/customer-creation';
-import { CustomerProfileCreationUpdate } from '../../dtos/customer-profile-creation-update';
-import { SkillLevel } from '../../dtos/skilllevel';
+import {CustomerProfileCreationUpdate} from '../../dtos/customer-profile-creation-update';
+import {SkillLevel} from '../../dtos/skilllevel';
 import {ToastrService} from "ngx-toastr";
 import {TranslateService} from "@ngx-translate/core";
-import { switchMap } from 'rxjs/operators';
+import {switchMap} from 'rxjs/operators';
+import {ErrorMappingService} from "../../services/error-mapping.service";
 
 export enum LoginRegisterMode {
   login,
@@ -70,7 +71,8 @@ export class LoginRegisterComponent implements OnInit {
     public translateService: TranslateService,
     private router: Router,
     private route: ActivatedRoute,
-    private notification: ToastrService) {
+    private notification: ToastrService,
+    private errorMapping: ErrorMappingService) {
     this.loginForm = this.formBuilder.group({
       username: ['', [Validators.required]],
       password: ['', [Validators.required]],
@@ -203,7 +205,8 @@ export class LoginRegisterComponent implements OnInit {
   private handleError(error: any) {
     console.log('Action failed due to:', error);
 
-    if (error.error && typeof error.error === 'object') {
+    this.errorMessage = this.errorMapping.getErrorMessage(error);
+    /*if (error.error && typeof error.error === 'object') {
       if (error.error.errors) {
         this.errorMessage = error.error.errors;
       } else if (error.error.message) {
@@ -215,7 +218,7 @@ export class LoginRegisterComponent implements OnInit {
       this.errorMessage = error.error;
     } else {
       this.errorMessage = this.translateService.instant('COMMON.UNKNOWN_ERROR') || 'An unexpected error occurred.';
-    }
+    }*/
 
     this.notification.error(this.errorMessage);
   }

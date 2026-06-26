@@ -19,13 +19,16 @@
     </div>
   </div>
 
-  <form class="row g-2 mb-3 align-items-end flex-xl-nowrap d-xl-flex filter-form" [ngbCollapse]="!filtersExpanded" (ngSubmit)="searchEquipment()">
+  <form class="row g-2 mb-3 align-items-end flex-xl-nowrap d-xl-flex filter-form" [ngbCollapse]="!filtersExpanded"
+        (ngSubmit)="searchEquipment()">
     <div class="col-12 col-sm-6 col-md-4 col-xl-auto flex-xl-shrink-1">
       <div class="row align-items-center g-2">
-        <label for="searchEquipmentModel" class="col-4 col-sm-12 col-form-label">{{ 'INVENTORY.EQUIPMENT_MODEL' | translate }}</label>
+        <label for="searchEquipmentModel"
+               class="col-4 col-sm-12 col-form-label">{{ 'INVENTORY.EQUIPMENT_MODEL' | translate }}</label>
         <div class="col-8 col-sm-12">
           <input type="text" id="searchEquipmentModel" name="searchEquipmentModel" [(ngModel)]="modelFilter"
-                 [ngModelOptions]="{ standalone: true }" [ngbTypeahead]="searchModel" (ngModelChange)="searchEquipment()"
+                 [ngModelOptions]="{ standalone: true }" [ngbTypeahead]="searchModel"
+                 (ngModelChange)="searchEquipment()"
                  class="form-control">
         </div>
       </div>
@@ -33,7 +36,8 @@
 
     <div class="col-12 col-sm-6 col-md-4 col-xl-auto flex-xl-shrink-1">
       <div class="row align-items-center g-2">
-        <label for="searchEquipmentType" class="col-4 col-sm-12 col-form-label">{{ 'INVENTORY.EQUIPMENT_TYP' | translate }}</label>
+        <label for="searchEquipmentType"
+               class="col-4 col-sm-12 col-form-label">{{ 'INVENTORY.EQUIPMENT_TYP' | translate }}</label>
         <div class="col-8 col-sm-12">
           <select id="searchEquipmentType" name="searchEquipmentType" [(ngModel)]="typeFilter"
                   [ngModelOptions]="{ standalone: true }" (ngModelChange)="searchEquipment()" class="form-select">
@@ -48,7 +52,8 @@
 
     <div class="col-12 col-sm-6 col-md-4 col-xl-auto flex-xl-shrink-1">
       <div class="row align-items-center g-2">
-        <label for="searchEquipmentStatus" class="col-4 col-sm-12 col-form-label">{{ 'INVENTORY.EQUIPMENT_STATUS' | translate }}</label>
+        <label for="searchEquipmentStatus"
+               class="col-4 col-sm-12 col-form-label">{{ 'INVENTORY.EQUIPMENT_STATUS' | translate }}</label>
         <div class="col-8 col-sm-12">
           <select id="searchEquipmentStatus" name="searchEquipmentStatus" [(ngModel)]="statusFilter"
                   [ngModelOptions]="{ standalone: true }" (ngModelChange)="searchEquipment()" class="form-select">
@@ -63,7 +68,8 @@
 
     <div class="col-12 col-sm-6 col-md-4 col-xl-auto flex-xl-shrink-1">
       <div class="row align-items-center g-2">
-        <label for="searchEquipmentSkill" class="col-4 col-sm-12 col-form-label">{{ 'INVENTORY.EQUIPMENT_SKILL' | translate }}</label>
+        <label for="searchEquipmentSkill"
+               class="col-4 col-sm-12 col-form-label">{{ 'INVENTORY.EQUIPMENT_SKILL' | translate }}</label>
         <div class="col-8 col-sm-12">
           <select id="searchEquipmentSkill" name="searchEquipmentSkill" [(ngModel)]="skillFilter"
                   [ngModelOptions]="{ standalone: true }" (ngModelChange)="searchEquipment()" class="form-select">
@@ -78,7 +84,8 @@
 
     <div class="col-12 col-sm-6 col-md-4 col-xl-auto flex-xl-shrink-1">
       <div class="row align-items-center g-2">
-        <label for="searchEquipmentStart" class="col-4 col-sm-12 col-form-label">{{ 'INVENTORY.START_DATE' | translate }}</label>
+        <label for="searchEquipmentStart"
+               class="col-4 col-sm-12 col-form-label">{{ 'INVENTORY.START_DATE' | translate }}</label>
         <div class="col-8 col-sm-12">
           <input
             type="date"
@@ -94,7 +101,8 @@
 
     <div class="col-12 col-sm-6 col-md-4 col-xl-auto flex-xl-shrink-1">
       <div class="row align-items-center g-2">
-        <label for="searchEquipmentEnd" class="col-4 col-sm-12 col-form-label">{{ 'INVENTORY.END_DATE' | translate }}</label>
+        <label for="searchEquipmentEnd"
+               class="col-4 col-sm-12 col-form-label">{{ 'INVENTORY.END_DATE' | translate }}</label>
         <div class="col-8 col-sm-12">
           <input
             type="date"
@@ -111,7 +119,8 @@
 
     <div class="col-12 col-sm-6 col-md-4 col-xl-auto flex-xl-shrink-1">
       <div class="row align-items-center g-2">
-        <label for="searchEquipmentPriceSort" class="col-4 col-sm-12 col-form-label">{{ 'INVENTORY.EQUIPMENT_PRICE' | translate }}</label>
+        <label for="searchEquipmentPriceSort"
+               class="col-4 col-sm-12 col-form-label">{{ 'INVENTORY.EQUIPMENT_PRICE' | translate }}</label>
         <div class="col-8 col-sm-12">
           <select id="searchEquipmentPriceSort" name="searchEquipmentPriceSort" [(ngModel)]="priceSortDirection"
                   [ngModelOptions]="{ standalone: true }" (ngModelChange)="onPriceSortChange()" class="form-select">
@@ -123,10 +132,24 @@
     </div>
   </form>
 
+  @if (errorMessage) {
+    <div class="alert alert-danger mb-3 shadow-sm d-flex align-items-center gap-2">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      <div>{{ errorMessage }}</div>
+    </div>
+  }
+
   @if (loading) {
     <div class="alert alert-info">{{ 'INVENTORY.LOADING' | translate }}</div>
   }
-  @if (!loading && equipment.length === 0) {
+
+  @if (loadError) {
+    <div class="alert alert-danger">
+      {{ errorMessage || 'CUSTOMER_PROFILE.LOADING_ERROR' | translate }}
+    </div>
+  }
+
+  @if (!loading && equipment.length === 0 && !errorMessage) {
     <div class="alert alert-warning">{{ 'INVENTORY.NO_EQUIPMENT' | translate }}</div>
   }
 
@@ -204,9 +227,11 @@
             class="fs-5 lh-1">&laquo;</span></button>
           <button class="btn btn-sm btn-primary me-4" [disabled]="currentPage === 1" (click)="previousPage()"><span
             class="fs-5 lh-1">&lsaquo;</span></button>
-          <button class="btn btn-sm btn-primary me-2" [disabled]="endIndex >= equipment.length" (click)="nextPage()"><span
+          <button class="btn btn-sm btn-primary me-2" [disabled]="endIndex >= equipment.length"
+                  (click)="nextPage()"><span
             class="fs-5 lh-1">&rsaquo;</span></button>
-          <button class="btn btn-sm btn-primary me-2" [disabled]="endIndex >= equipment.length" (click)="goToLastPage()">
+          <button class="btn btn-sm btn-primary me-2" [disabled]="endIndex >= equipment.length"
+                  (click)="goToLastPage()">
             <span class="fs-5 lh-1">&raquo;</span></button>
         </div>
       </div>

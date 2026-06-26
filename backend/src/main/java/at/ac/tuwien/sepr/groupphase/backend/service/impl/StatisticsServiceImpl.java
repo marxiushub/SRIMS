@@ -66,7 +66,7 @@ public class StatisticsServiceImpl implements StatisicsService {
         LOGGER.trace("create StatisticsResponseDto for: {}", request.getType());
 
         if (request.getSearchEnd().isBefore(request.getSearchStart())) {
-            throw new ValidationException("Date not Valid");
+            throw new ValidationException("Date not Valid", "Datum nicht Valide");
         }
 
         LocalDate searchStart = request.getSearchStart();

@@ -12,8 +12,10 @@
     <div class="alert alert-info">{{ 'INVENTORY.LOADING' | translate }}</div>
   }
 
-  @if (error) {
-    <div class="alert alert-danger">{{ 'INVENTORY.LOADING_ERROR' | translate }}</div>
+  @if (errorMessage) {
+    <div class="alert alert-danger">
+      {{ errorMessage || 'INVENTORY.LOADING_ERROR' | translate }}
+    </div>
   }
 
   @if (!loading && equipment) {
@@ -117,11 +119,13 @@
         </div>
       }
 
-      @if (reservationsError) {
-        <div class="alert alert-danger mb-0">{{ 'INVENTORY.RESERVATIONS_ERROR' | translate }}</div>
+      @if (reservationsErrorMessage) {
+        <div class="alert alert-danger mb-0">
+          {{ reservationsErrorMessage || 'INVENTORY.RESERVATIONS_ERROR' | translate }}
+        </div>
       }
 
-      @if (!reservationsLoading && !reservationsError) {
+      @if (!reservationsLoading && !reservationsErrorMessage) {
         @if (reservations.length === 0) {
           <p class="text-muted mb-0">{{ 'INVENTORY.NO_RESERVATIONS' | translate }}</p>
         } @else {
@@ -236,7 +240,9 @@
             <p>{{ 'INVENTORY.DELETE_CONFIRMATION' | translate }}</p>
             <p class="fw-bold mb-0">{{ equipment.model }}</p>
             @if (deleteError) {
-              <div class="alert alert-danger mt-3 mb-0">{{ 'INVENTORY.DELETE_ERROR' | translate }}</div>
+              <div class="alert alert-danger mt-3 mb-0">
+                {{ deleteError || 'INVENTORY.DELETE_ERROR' | translate }}
+              </div>
             }
           </div>
           <div class="modal-footer">

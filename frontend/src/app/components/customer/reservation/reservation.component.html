@@ -100,6 +100,12 @@
     </div>
   </form>
 
+  @if (errorMessage) {
+    <div class="alert alert-danger animate-fade-in">
+      {{ errorMessage || ('RESERVATION.LOADING_FAILED' | translate) }}
+    </div>
+  }
+
   @if (loading) {
     <div class="alert alert-info">
       {{ 'INVENTORY.LOADING' | translate }}
@@ -297,7 +303,7 @@
 
             @if (deleteError) {
               <div class="alert alert-danger mt-3 mb-0">
-                {{ deleteError }}
+                {{ deleteError || 'RESERVATION.DELETE_FAILED' | translate }}
               </div>
             }
           </div>

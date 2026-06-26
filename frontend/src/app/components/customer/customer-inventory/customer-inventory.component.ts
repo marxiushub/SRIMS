@@ -8,6 +8,7 @@ import {EquipmentType} from "../../../dtos/equipmenttype";
 import {RentalStatus} from "../../../dtos/rentalstatus";
 import {SkillLevel} from "../../../dtos/skilllevel";
 import {EquipmentSearch} from '../../../dtos/equipment-search';
+import {ErrorMappingService} from '../../../services/error-mapping.service';
 
 @Component({
   selector: 'app-customer-inventory',
@@ -19,6 +20,8 @@ export class CustomerInventoryComponent implements OnInit {
 
   equipment: Equipment[] = [];
   loading = false;
+  loadError = false;
+  errorMessage = '';
 
   modelOptions: string[] = [];
   modelFilter = '';
@@ -57,7 +60,8 @@ export class CustomerInventoryComponent implements OnInit {
   constructor(
     private equipmentService: EquipmentService,
     public translateService: TranslateService,
-    private router: Router
+    private router: Router,
+    private errorMapping: ErrorMappingService
   ) {
   }
 
@@ -83,14 +87,17 @@ export class CustomerInventoryComponent implements OnInit {
       error: (err) => {
         console.error('Failed to load equipment', err);
         this.loading = false;
+        this.errorMessage = this.errorMapping.getErrorMessage(err);
       }
     });
   }
+
 // Navigates to the equipment detail view page for the selected item.
   openDetailPage(item: Equipment): void {
     this.router.navigate(['/customer/inventory/view', item.id]);
   }
- // Returns the CSS class based on the equipment status.
+
+  // Returns the CSS class based on the equipment status.
   getStatusClass(status: string): string {
     switch (status) {
       case 'FREE':
@@ -127,6 +134,7 @@ export class CustomerInventoryComponent implements OnInit {
       error: (err) => {
         console.error('Failed to search equipment', err);
         this.loading = false;
+        this.errorMessage = this.errorMapping.getErrorMessage(err);
       }
     });
   }

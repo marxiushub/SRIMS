@@ -12,6 +12,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Helmet;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
+import at.ac.tuwien.sepr.groupphase.backend.exception.LocalizedError;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ReservationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.EquipmentRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerProfileRepository;
@@ -46,6 +47,18 @@ class ReservationValidatorTest {
     @InjectMocks
     private ReservationValidator validator;
 
+    private static void assertContainsErrorMessage(ValidationException ex, String expectedMessage) {
+        assertThat(ex.getErrors())
+            .extracting(LocalizedError::message)
+            .contains(expectedMessage);
+    }
+
+    private static void assertContainsErrorMessageContaining(ValidationException ex, String expectedMessagePart) {
+        assertThat(ex.getErrors())
+            .extracting(LocalizedError::message)
+            .anyMatch(message -> message.contains(expectedMessagePart));
+    }
+
     @Test
     void allMethods_withNullDto_throwsException() {
         assertThrows(ValidationException.class, () -> validator.validateCreateDto(null));
@@ -68,7 +81,7 @@ class ReservationValidatorTest {
         when(equipmentRepository.existsById(10L)).thenReturn(true);
 
         ValidationException ex = assertThrows(ValidationException.class, () -> validator.validateCreateDto(dto));
-        assertThat(ex.getErrors()).contains("End date is before start date");
+        assertContainsErrorMessage(ex, "End date is before start date");
     }
 
     @Test
@@ -83,7 +96,7 @@ class ReservationValidatorTest {
         when(customerProfileRepository.existsById(1L)).thenReturn(true);
 
         ValidationException ex = assertThrows(ValidationException.class, () -> validator.validateCreateDto(dto));
-        assertThat(ex.getErrors()).contains("A reservation must contain at least one equipment.");
+        assertContainsErrorMessage(ex, "A reservation must contain at least one equipment.");
     }
 
     @Test
@@ -99,7 +112,7 @@ class ReservationValidatorTest {
         when(equipmentRepository.existsById(10L)).thenReturn(true);
 
         ValidationException ex = assertThrows(ValidationException.class, () -> validator.validateCreateDto(dto));
-        assertThat(ex.getErrors().stream().anyMatch(e -> e.contains("is double in list"))).isTrue();
+        assertContainsErrorMessageContaining(ex, "is double in list");
     }
 
     @Test
@@ -115,7 +128,7 @@ class ReservationValidatorTest {
         when(equipmentRepository.existsById(99L)).thenReturn(false);
 
         ValidationException ex = assertThrows(ValidationException.class, () -> validator.validateCreateDto(dto));
-        assertThat(ex.getErrors()).contains("equipment from updateList does not exists");
+        assertContainsErrorMessage(ex, "equipment from updateList does not exists");
     }
 
 
@@ -138,7 +151,7 @@ class ReservationValidatorTest {
         when(equipmentRepository.findAllByIdsLocked(List.of(10L))).thenReturn(List.of(mockEquipment));
 
         ValidationException ex = assertThrows(ValidationException.class, () -> validator.validateCreateDto(dto));
-        assertThat(ex.getErrors().stream().anyMatch(e -> e.contains("is already reserved in this time range"))).isTrue();
+        assertContainsErrorMessageContaining(ex, "is already reserved in this time range");
     }
 
     @Test
@@ -160,7 +173,7 @@ class ReservationValidatorTest {
         when(equipmentRepository.findAllByIdsLocked(List.of(10L))).thenReturn(List.of(mockEquipment));
 
         ValidationException ex = assertThrows(ValidationException.class, () -> validator.validateCreateDto(dto));
-        assertThat(ex.getErrors().stream().anyMatch(e -> e.contains("is not available at this date"))).isTrue();
+        assertContainsErrorMessageContaining(ex, "is not available at this date");
     }
 
 
@@ -183,7 +196,7 @@ class ReservationValidatorTest {
         when(equipmentRepository.existsById(99L)).thenReturn(true);
 
         ValidationException ex = assertThrows(ValidationException.class, () -> validator.validateReservationRemoveEquipment(dto));
-        assertThat(ex.getErrors()).contains("Equipment with ID 99 is not part of this reservation");
+        assertContainsErrorMessage(ex, "Equipment with ID 99 is not part of this reservation");
     }
 
     @Test
@@ -198,9 +211,9 @@ class ReservationValidatorTest {
         ValidationException ex = assertThrows(ValidationException.class, () -> validator.validateCreateDto(dto));
 
         assertAll(
-            () -> assertThat(ex.getErrors()).contains("No such CustomerProfile with id: null"),
-            () -> assertThat(ex.getErrors()).contains("A reservation must contain at least one equipment."),
-            () -> assertThat(ex.getErrors()).contains("Reservation status must not be null")
+            () -> assertContainsErrorMessage(ex, "No such CustomerProfile with id: null"),
+            () -> assertContainsErrorMessage(ex, "A reservation must contain at least one equipment."),
+            () -> assertContainsErrorMessage(ex, "Reservation status must not be null")
         );
     }
 
@@ -222,9 +235,9 @@ class ReservationValidatorTest {
         ValidationException ex = assertThrows(ValidationException.class, () -> validator.validateUpdateDto(dto, null));
 
         assertAll(
-            () -> assertThat(ex.getErrors()).contains("End date is before start date"),
-            () -> assertThat(ex.getErrors()).contains("No such CustomerProfile with id: 99"),
-            () -> assertThat(ex.getErrors()).contains("A reservation must contain at least one equipment.")
+            () -> assertContainsErrorMessage(ex, "End date is before start date"),
+            () -> assertContainsErrorMessage(ex, "No such CustomerProfile with id: 99"),
+            () -> assertContainsErrorMessage(ex, "A reservation must contain at least one equipment.")
         );
     }
 

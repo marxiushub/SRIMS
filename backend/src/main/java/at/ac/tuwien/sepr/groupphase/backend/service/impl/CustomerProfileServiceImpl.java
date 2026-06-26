@@ -62,7 +62,7 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
         String profileName = dto.getProfileName().trim();
 
         if (customerProfileRepository.existsByCustomerIdAndProfileName(customerId, profileName)) {
-            throw new ValidationException("A profile with the name " + profileName + " already exists");
+            throw new ValidationException("A profile with the name " + profileName + " already exists", "Ein Profil names " + profileName + " existiert schon");
         }
 
         CustomerProfile customerProfile = new CustomerProfile(
@@ -155,7 +155,7 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
                 );
 
             if (nameAlreadyExists) {
-                throw new ValidationException("A profile with the name " + newName + " already exists");
+                throw new ValidationException("A profile with the name " + newName + " already exists", "Ein Profil names" + newName + "existiert schon");
             }
         }
 
@@ -192,7 +192,8 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
         CustomerProfile profile = checkUserAccessPermission(customerProfileId, currentUserId);
 
         if (reservationRepository.existsByCustomerProfileId(profile.getId())) {
-            throw new ValidationException("Cannot delete customer profile with existing reservations.");
+            throw new ValidationException("Cannot delete customer profile with existing reservations.",
+                "Kunden-Profile, die mit Reservierungen verbunden sind, können nicht gelöscht werden");
         }
 
         customerProfileRepository.delete(profile);

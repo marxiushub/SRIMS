@@ -69,7 +69,7 @@ describe('CustomerProfileDetailsComponent', () => {
     };
     component.openDeleteDialog(mockProfile);
 
-    customerProfileServiceMock.delete.and.returnValue(throwError(() => new Error('Error')));
+    customerProfileServiceMock.delete.and.returnValue(throwError(() => new Error('Profile could not be deleted.')));
 
     component.confirmDelete();
 

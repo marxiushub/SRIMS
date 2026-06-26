@@ -6,6 +6,7 @@ import {SkillLevel} from "../../../../dtos/skilllevel";
 import {ActivatedRoute, Router} from "@angular/router";
 import {NgForm, NgModel} from "@angular/forms";
 import {ToastrService} from 'ngx-toastr';
+import { ErrorMappingService } from '../../../../services/error-mapping.service';
 
 export enum ProfileCreateEditMode {
   create,
@@ -25,7 +26,9 @@ export class CustomerProfileCreateEditComponent {
   profileId?: number;
   loading = false;
   loadError = false;
+  loadErrorMessage = '';
   error = false;
+  errorMessage = '';
   submitted = false;
 
   profile: CustomerProfileCreationUpdate = {
@@ -42,7 +45,14 @@ export class CustomerProfileCreateEditComponent {
     SkillLevel.ADVANCED
   ]
 
-  constructor(private customerProfileService: CustomerProfileService, public translateService: TranslateService, private router: Router, private route: ActivatedRoute, private notification: ToastrService) {
+  constructor(
+    private customerProfileService: CustomerProfileService,
+    public translateService: TranslateService,
+    private router: Router,
+    private route: ActivatedRoute,
+    private notification: ToastrService,
+    private errorMapping: ErrorMappingService
+  ) {
   }
 
   /**
@@ -80,6 +90,7 @@ export class CustomerProfileCreateEditComponent {
         console.error('Failed to load profile', err);
         this.loadError = true;
         this.loading = false;
+        this.loadErrorMessage = this.errorMapping.getErrorMessage(err);
       }
     });
   }
@@ -96,6 +107,7 @@ export class CustomerProfileCreateEditComponent {
     if (form) {
       form.control.markAllAsTouched();
       if (form.invalid) {
+        this.loading = false;
         return;
       }
     }
@@ -122,6 +134,7 @@ export class CustomerProfileCreateEditComponent {
           console.error('Failed to create profile', err);
           this.error = true;
           this.loading = false;
+          this.errorMessage = this.errorMapping.getErrorMessage(err);
         }
       });
     } else {
@@ -138,6 +151,7 @@ export class CustomerProfileCreateEditComponent {
           console.error('Failed to update profile', err);
           this.error = true;
           this.loading = false;
+          this.errorMessage = this.errorMapping.getErrorMessage(err);
         }
       });
     }

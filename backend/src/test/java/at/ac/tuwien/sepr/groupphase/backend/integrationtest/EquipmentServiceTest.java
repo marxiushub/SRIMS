@@ -18,6 +18,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Helmet;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Ski;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
+import at.ac.tuwien.sepr.groupphase.backend.exception.LocalizedError;
 import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.EquipmentRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.HelmetRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.SkiRepository;
@@ -650,7 +651,8 @@ public class EquipmentServiceTest {
         );
 
         assertThat(ex.getErrors())
-            .anyMatch(msg -> msg.contains("Model must not exceed"));
+            .extracting(LocalizedError::message)
+            .anyMatch(message -> message.contains("Model must not exceed"));
     }
 
     @Test
@@ -677,6 +679,7 @@ public class EquipmentServiceTest {
         );
 
         assertThat(ex.getErrors())
+            .extracting(LocalizedError::message)
             .contains("Equipment is currently reserved and cannot be updated.");
     }
 

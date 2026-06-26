@@ -11,6 +11,7 @@ import {TranslateService} from '@ngx-translate/core';
 import {ToastrService} from 'ngx-toastr';
 import {debounceTime, forkJoin, Subject} from 'rxjs';
 import {NavbarService} from "../../../services/navbar.service";
+import {ErrorMappingService} from '../../../services/error-mapping.service';
 
 @Component({
   selector: 'app-staff-reservation',
@@ -24,6 +25,7 @@ export class StaffReservationComponent implements OnInit {
 
   reservations: ReservationDetail[] = [];
   loading = false;
+  error: string | null = null;
 
   // Reservation filters
   dateFilter: string = '';
@@ -45,7 +47,7 @@ export class StaffReservationComponent implements OnInit {
 
   reservationToDelete?: ReservationDetail;
   deleteLoading = false;
-  deleteError?: string;
+  deleteError: string | null = null;
 
   itemLimit: number = 10;
   currentPage: number = 1;
@@ -56,7 +58,8 @@ export class StaffReservationComponent implements OnInit {
     public translateService: TranslateService,
     private navbarService: NavbarService,
     private router: Router,
-    private notification: ToastrService
+    private notification: ToastrService,
+    private errorMapping: ErrorMappingService
   ) {
   }
 
@@ -82,6 +85,7 @@ export class StaffReservationComponent implements OnInit {
       this.selectedCustomerAccount = null;
       this.selectedCustomerId = null;
       this.foundCustomers = [];
+      this.error = null;
       this.loadReservations();
       return;
     }
@@ -96,6 +100,7 @@ export class StaffReservationComponent implements OnInit {
     this.searchingCustomers = true;
     this.selectedCustomerAccount = null;
     this.selectedCustomerId = null;
+    this.error = null;
 
     this.staffService.searchCustomers(this.customerSearchCriteria).subscribe({
       next: (customers) => {
@@ -112,6 +117,8 @@ export class StaffReservationComponent implements OnInit {
       error: (err) => {
         console.error('Failed to search customer accounts', err);
         this.searchingCustomers = false;
+        this.error = this.errorMapping.getErrorMessage(err);
+        this.notification.error(this.error);
       }
     });
   }
@@ -191,6 +198,7 @@ export class StaffReservationComponent implements OnInit {
   private handleLoadError(err: any): void {
     console.error('Failed to load reservations', err);
     this.loading = false;
+    this.error = this.errorMapping.getErrorMessage(err);
     this.notification.error('Failed to load reservations from server.');
   }
 
@@ -203,6 +211,7 @@ export class StaffReservationComponent implements OnInit {
     this.foundCustomers = [];
     this.selectedCustomerAccount = null;
     this.selectedCustomerId = null;
+    this.error = null;
     this.loadReservations();
   }
 
@@ -235,11 +244,11 @@ export class StaffReservationComponent implements OnInit {
   openDeleteDialog(item: ReservationDetail): void {
     this.navbarService.close();
     this.reservationToDelete = item;
-    this.deleteError = undefined;
+    this.deleteError = null;
   }
 
   cancelDelete(): void {
-    this.deleteError = undefined;
+    this.deleteError = null;
     this.reservationToDelete = undefined;
     this.deleteLoading = false;
   }
@@ -250,7 +259,7 @@ export class StaffReservationComponent implements OnInit {
     }
 
     this.deleteLoading = true;
-    this.deleteError = undefined;
+    this.deleteError = null;
 
     this.reservationService.deleteForStaff(this.reservationToDelete.id).subscribe({
       next: () => {

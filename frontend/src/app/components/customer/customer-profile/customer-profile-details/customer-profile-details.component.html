@@ -15,13 +15,14 @@
 
   @if (loadError) {
     <div class="alert alert-danger">
-      {{ 'CUSTOMER_PROFILE.LOADING_ERROR' | translate }}
+      {{ loadErrorMessage || 'CUSTOMER_PROFILE.LOADING_ERROR' | translate }}
     </div>
   }
 
   @if (!loading && !loadError) {
     <div class="card shadow-sm">
-      <h3 class="card-header d-flex justify-content-between align-items-center bg-light mb-0 fw-bold">{{ profile.profileName }}</h3>
+      <h3
+        class="card-header d-flex justify-content-between align-items-center bg-light mb-0 fw-bold">{{ profile.profileName }}</h3>
 
       <div class="card-body">
         <div class="row g-3">
@@ -45,15 +46,15 @@
             <span class="fs-5 fw-semibold">{{ profile.weight }} kg</span>
           </div>
 
-      <div class="d-flex align-items-center mb-3 gap-2">
-        <button class="btn btn-primary" (click)="openEditPage()">
-          {{ 'CUSTOMER_PROFILE_DETAILS.EDIT' | translate }}
-        </button>
+          <div class="d-flex align-items-center mb-3 gap-2">
+            <button class="btn btn-primary" (click)="openEditPage()">
+              {{ 'CUSTOMER_PROFILE_DETAILS.EDIT' | translate }}
+            </button>
 
-        <button class="btn btn-danger" (click)="openDeleteDialog(this.profile)">
-          {{ 'CUSTOMER_PROFILE_DETAILS.DELETE' | translate }}
-        </button>
-      </div>
+            <button class="btn btn-danger" (click)="openDeleteDialog(this.profile)">
+              {{ 'CUSTOMER_PROFILE_DETAILS.DELETE' | translate }}
+            </button>
+          </div>
 
         </div>
       </div>
@@ -90,7 +91,7 @@
 
             @if (deleteError) {
               <div class="alert alert-danger mt-3 mb-0">
-                {{ 'CUSTOMER_PROFILE_DELETE.ERROR' | translate }}
+                {{ deleteError || 'CUSTOMER_PROFILE_DELETE.ERROR' | translate }}
               </div>
             }
           </div>

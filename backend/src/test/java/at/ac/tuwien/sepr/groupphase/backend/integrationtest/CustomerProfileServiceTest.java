@@ -682,7 +682,8 @@ public class CustomerProfileServiceTest {
         );
 
         assertThat(exception.getErrors())
-            .anyMatch(msg -> msg.contains("blank") || msg.contains("Profile name"));
+            .extracting(error -> error.message())
+            .anyMatch(message -> message.contains("blank") || message.contains("Profile name"));
     }
 
     @Test
@@ -696,7 +697,7 @@ public class CustomerProfileServiceTest {
         assertThrows(
             ValidationException.class,
             () -> customerProfileService.updateCustomerProfile(profile.getId(), dto));
-    }        
+    }
 
     @Test
     public void deleteCustomerProfile_withExistingReservations_throwsValidationException() {

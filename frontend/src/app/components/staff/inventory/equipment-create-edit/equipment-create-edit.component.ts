@@ -9,6 +9,7 @@ import {TranslateService} from '@ngx-translate/core';
 import {ActivatedRoute, Router} from "@angular/router";
 import {NgForm, NgModel} from "@angular/forms";
 import {ToastrService} from 'ngx-toastr';
+import {ErrorMappingService} from '../../../../services/error-mapping.service';
 
 export enum EquipmentCreateEditMode {
   create,
@@ -64,10 +65,17 @@ export class EquipmentCreateEditComponent implements OnInit {
 
 
   loading = false;
-  error = false;
+  errorMessage: string | null = null;
   submitted = false;
 
-  constructor(private equipmentService: EquipmentService, public translateService: TranslateService, private router: Router, private route: ActivatedRoute, private notification: ToastrService) {
+  constructor(
+    private equipmentService: EquipmentService,
+    public translateService: TranslateService,
+    private router: Router,
+    private route: ActivatedRoute,
+    private notification: ToastrService,
+    private errorMapping: ErrorMappingService
+  ) {
   }
 
   ngOnInit(): void {
@@ -102,7 +110,7 @@ export class EquipmentCreateEditComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load equipment', err);
-        this.error = true;
+        this.errorMessage = this.errorMapping.getErrorMessage(err);
         this.loading = false;
       }
     });
@@ -110,7 +118,7 @@ export class EquipmentCreateEditComponent implements OnInit {
 
   onSubmit(form?: NgForm): void {
     this.submitted = true;
-    this.error = false;
+    this.errorMessage = null;
 
     if (form) {
       form.control.markAllAsTouched();
@@ -135,7 +143,7 @@ export class EquipmentCreateEditComponent implements OnInit {
         },
         error: err => {
           console.error('Failed to create equipment', err);
-          this.error = true;
+          this.errorMessage = this.errorMapping.getErrorMessage(err);
           this.loading = false;
         }
       });
@@ -153,7 +161,7 @@ export class EquipmentCreateEditComponent implements OnInit {
         },
         error: err => {
           console.error('Failed to update equipment', err);
-          this.error = true;
+          this.errorMessage = this.errorMapping.getErrorMessage(err);
           this.loading = false;
         }
       });
@@ -266,6 +274,4 @@ export class EquipmentCreateEditComponent implements OnInit {
   hasError(control: NgModel | null | undefined, errorName: string): boolean {
     return !!control && control.hasError(errorName) && (control.touched || this.submitted);
   }
-
-
 }
