@@ -83,7 +83,7 @@ public class StatisticsServiceImpl implements StatisicsService {
             .filter(reservation ->
                 !reservation.getStartDate().isAfter(searchEnd)
                     && !reservation.getEndDate().isBefore(searchStart)
-                    && !reservation.getCustomerProfile().getProfileName().equals("Maintenance")
+                    && !reservation.getCustomerProfile().getCustomer().getEmail().equals("maintenance@system.internal")
             ).collect(Collectors.toList());
 
 
