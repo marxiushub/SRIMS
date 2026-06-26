@@ -9,6 +9,7 @@ import {TranslateService} from "@ngx-translate/core";
 import {Router} from "@angular/router";
 import {EquipmentSearch} from "../../dtos/equipment-search";
 import {debounceTime, distinctUntilChanged, map, OperatorFunction} from "rxjs";
+import {ErrorMappingService} from '../../services/error-mapping.service';
 
 @Component({
   selector: 'app-home',
@@ -20,6 +21,7 @@ export class HomeComponent implements OnInit {
 
   equipment: Equipment[] = [];
   loading = false;
+  error: string | undefined = undefined;
 
   modelOptions: string[] = [];
   modelFilter = '';
@@ -56,7 +58,13 @@ export class HomeComponent implements OnInit {
     SkillLevel.ADVANCED
   ];
 
-  constructor(public authService: AuthService, private equipmentService: EquipmentService, public translateService: TranslateService, private router: Router) {
+  constructor(
+    public authService: AuthService,
+    private equipmentService: EquipmentService,
+    public translateService: TranslateService,
+    private router: Router,
+    private errorMapping: ErrorMappingService
+  ) {
   }
 
   ngOnInit() {
@@ -65,6 +73,7 @@ export class HomeComponent implements OnInit {
 
   loadEquipment(): void {
     this.loading = true;
+    this.error = undefined;
     this.equipmentService.getAll().subscribe({
       next: (data) => {
         this.buildModelOptions(data);
@@ -75,6 +84,7 @@ export class HomeComponent implements OnInit {
       error: (err) => {
         console.error('Failed to load equipment', err);
         this.loading = false;
+        this.error = this.errorMapping.getErrorMessage(err);
       }
     });
   }
@@ -104,6 +114,7 @@ export class HomeComponent implements OnInit {
 
   searchEquipment(): void {
     this.loading = true;
+    this.error = undefined;
     const searchRequest: EquipmentSearch = {
       model: this.modelFilter.trim() || undefined,
       type: this.typeFilter ?? undefined,
@@ -122,6 +133,7 @@ export class HomeComponent implements OnInit {
       error: (err) => {
         console.error('Failed to search equipment', err);
         this.loading = false;
+        this.error = this.errorMapping.getErrorMessage(err);
       }
     });
   }

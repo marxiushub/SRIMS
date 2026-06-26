@@ -8,7 +8,7 @@
   </div>
 
   @if (loading) { <div class="alert alert-info">{{ 'INVENTORY.LOADING' | translate }}</div> }
-  @if (error) { <div class="alert alert-danger">{{ 'INVENTORY.LOADING_ERROR' | translate }}</div> }
+  @if (error) { <div class="alert alert-danger">{{ errorMessage || 'INVENTORY.LOADING_ERROR' | translate }}</div> }
 
   @if (!loading && equipment) {
     <div class="card shadow-sm">

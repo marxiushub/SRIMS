@@ -350,6 +350,7 @@
     "DELETE_TITLE": "Reservierung stornieren",
     "DELETE_CONFIRMATION": "Sind Sie sicher, dass Sie diese Reservierung stornieren möchten?",
     "DELETE_SUCCESS": "Reservierung erfolgreich storniert.",
+    "DELETE_FAILED": "Reservierung konnte nicht gelöscht werden",
     "TITLE_EDIT": "Reservierung bearbeiten",
     "UPDATE": "Änderungen speichern",
     "EDIT_SUCCESS": "Reservierung erfolgreich aktualisiert.",

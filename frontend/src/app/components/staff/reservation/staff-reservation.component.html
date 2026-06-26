@@ -187,6 +187,12 @@
     </div>
   }
 
+  @if (error) {
+    <div class="alert alert-danger animate-fade-in">
+      {{ error || ('RESERVATION.LOADING_FAILED' | translate) }}
+    </div>
+  }
+
   @if (loading) {
     <div class="alert alert-info">
       {{ 'INVENTORY.LOADING' | translate }}

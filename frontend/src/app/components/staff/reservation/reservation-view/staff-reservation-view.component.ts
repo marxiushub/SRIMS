@@ -4,6 +4,7 @@ import { ReservationService } from '../../../../services/reservation.service';
 import { ReservationDetail } from '../../../../dtos/reservation-detail';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { ErrorMappingService } from '../../../../services/error-mapping.service';
 
 @Component({
   selector: 'app-staff-reservation-view',
@@ -15,18 +16,19 @@ export class StaffReservationViewComponent implements OnInit {
   reservationId!: number;
   reservation?: ReservationDetail;
   loading = false;
-  error?: string;
+  error: string | null = null;
 
   showDeleteModal: boolean = false;
   deleteLoading: boolean = false;
-  deleteError?: string;
+  deleteError: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private reservationService: ReservationService,
     public translateService: TranslateService,
-    private notification: ToastrService
+    private notification: ToastrService,
+    private errorMapping: ErrorMappingService
   ) {}
 
   ngOnInit(): void {
@@ -45,7 +47,7 @@ export class StaffReservationViewComponent implements OnInit {
    */
   loadDetails(): void {
     this.loading = true;
-    this.error = undefined;
+    this.error = null;
     this.reservationService.getById(this.reservationId).subscribe({
       next: (data) => {
         this.reservation = data;
@@ -53,7 +55,7 @@ export class StaffReservationViewComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load reservation details', err);
-        this.error = 'RESERVATION.LOADING_FAILED';
+        this.error = this.errorMapping.getErrorMessage(err);
         this.loading = false;
       }
     });
@@ -75,12 +77,12 @@ export class StaffReservationViewComponent implements OnInit {
 
   openDeleteDialog(): void {
     this.showDeleteModal = true;
-    this.deleteError = undefined;
+    this.deleteError = null;
   }
 
   cancelDelete(): void {
     this.showDeleteModal = false;
-    this.deleteError = undefined;
+    this.deleteError = null;
     this.deleteLoading = false;
   }
 
@@ -88,7 +90,7 @@ export class StaffReservationViewComponent implements OnInit {
     if (!this.reservation) return;
 
     this.deleteLoading = true;
-    this.deleteError = undefined;
+    this.deleteError = null;
 
     this.reservationService.deleteForStaff(this.reservationId).subscribe({
       next: () => {
@@ -99,7 +101,7 @@ export class StaffReservationViewComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to delete reservation from staff detail view', err);
-        this.deleteError = err.error?.message || 'Reservation could not be deleted.';
+        this.deleteError = this.errorMapping.getErrorMessage(err);
         this.deleteLoading = false;
       }
     });

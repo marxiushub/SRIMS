@@ -115,7 +115,7 @@ describe('ReservationViewComponent', () => {
 
     expect(component.loading).toBeFalse();
     expect(component.reservation).toBeUndefined();
-    expect(component.error).toBe('RESERVATION.LOADING_FAILED');
+    expect(component.error).toBe('Backend failure');
   });
 
   it('should safely extract selected equipment through the getter', () => {

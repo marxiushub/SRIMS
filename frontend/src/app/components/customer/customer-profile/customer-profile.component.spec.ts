@@ -111,7 +111,7 @@ describe('CustomerProfileComponent', () => {
 
     component.confirmDelete();
 
-    expect(component.deleteError).toBe('Profile could not be deleted.');
+    expect(component.deleteError).toBe('Delete failed');
     expect(component.deleteLoading).toBeFalse();
     expect(component.profileToDelete).toEqual(testProfiles[0]);
   });

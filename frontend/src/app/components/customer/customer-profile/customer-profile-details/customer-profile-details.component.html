@@ -9,7 +9,7 @@
 
   @if (loading) {
     <div class="alert alert-info">
-      {{ 'CUSTOMER_PROFILE.LOADING' | translate }}
+      {{ loadErrorMessage || 'CUSTOMER_PROFILE.LOADING' | translate }}
     </div>
   }
 
@@ -90,7 +90,7 @@
 
             @if (deleteError) {
               <div class="alert alert-danger mt-3 mb-0">
-                {{ 'CUSTOMER_PROFILE_DELETE.ERROR' | translate }}
+                {{ deleteError || 'CUSTOMER_PROFILE_DELETE.ERROR' | translate }}
               </div>
             }
           </div>

@@ -1,0 +1,85 @@
+import { Injectable } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ErrorMappingService {
+
+  constructor(private translate: TranslateService) {}
+
+  /**
+   * Extracts the error-message in the correct language from the error
+   */
+  /*
+  getErrorMessage(error: any): string {
+    const errorBody = error?.error ? error.error : error;
+
+    const currentLang = this.translate.currentLang || this.translate.defaultLang;
+
+    if (currentLang === 'de') {
+      if (errorBody?.deMessage) {
+        return errorBody.deMessage;
+      }
+      if (errorBody?.errors) {
+        return errorBody.errors;
+      }
+    }
+
+    if (errorBody?.message) {
+      return errorBody.message;
+    }
+
+    return this.translate.instant('COMMON.UNKNOWN_ERROR') || 'An unexpected error occurred.';
+  }
+  /*
+
+  /**
+   * Extracts the error-message in the correct language from the error
+   */
+  getErrorMessage(error: any): string {
+    const errorBody = error?.error ? error.error : error;
+    const currentLang = this.translate.currentLang || this.translate.defaultLang;
+
+    if (currentLang === 'de') {
+      let baseDeMessage = errorBody?.deMessage || '';
+
+      if (errorBody?.errors && Array.isArray(errorBody.errors) && errorBody.errors.length > 0) {
+        const localizedDetails = errorBody.errors.map((err: any) => {
+          if (err && typeof err === 'object') {
+            return err.deMessage || err.message;
+          }
+          return err;
+        });
+
+        const joinedErrors = localizedDetails.join(', ');
+        return baseDeMessage ? `${baseDeMessage}: ${joinedErrors}` : joinedErrors;
+      }
+
+      if (baseDeMessage) {
+        return baseDeMessage;
+      }
+    }
+
+    //Global Fallback: if language isn't de or if de doesn't exist, do the errorMessage in English
+    let baseEnMessage = errorBody?.message || '';
+
+    if (errorBody?.errors && Array.isArray(errorBody.errors) && errorBody.errors.length > 0) {
+      const localizedDetails = errorBody.errors.map((err: any) => {
+        if (err && typeof err === 'object') {
+          return err.message || err.deMessage;
+        }
+        return err;
+      });
+
+      const joinedErrors = localizedDetails.join(', ');
+      return baseEnMessage ? `${baseEnMessage}: ${joinedErrors}` : joinedErrors;
+    }
+
+    if (baseEnMessage) {
+      return baseEnMessage;
+    }
+
+    return this.translate.instant('COMMON.UNKNOWN_ERROR') || 'An unexpected error occurred.';
+  }
+}

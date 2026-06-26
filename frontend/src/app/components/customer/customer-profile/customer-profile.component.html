@@ -16,7 +16,7 @@
     </div>
   }
 
-  @if (!loading && profiles.length === 0) {
+  @if (!loading && profiles.length === 0 && !loadError) {
     <div class="alert alert-warning">
       {{ 'CUSTOMER_PROFILE.NO_PROFILES' | translate }}
     </div>
@@ -78,7 +78,7 @@
 
             @if (deleteError) {
               <div class="alert alert-danger mt-3 mb-0">
-                {{ 'CUSTOMER_PROFILE_DELETE.ERROR' | translate }}
+                {{ deleteError || 'CUSTOMER_PROFILE_DELETE.ERROR' | translate }}
               </div>
             }
           </div>

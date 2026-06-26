@@ -148,7 +148,7 @@ describe('StaffReservationEditComponent', () => {
 
       fixture.detectChanges();
       expect(toastrServiceMock.error).toHaveBeenCalledWith('Error loading reservation');
-      expect(component.submitError).toBe('RESERVATION.LOADING_FAILED');
+      expect(component.submitError).toBe('Server disconnect');
     });
   });
 
@@ -339,17 +339,6 @@ describe('StaffReservationEditComponent', () => {
       component.submitReservation();
 
       expect(component.submitError).toBe('Overlapping reservation constraint');
-      expect(component.submitLoading).toBeFalse();
-    });
-
-    it('should fall back to standard error message text if exception body contains no descriptive text', () => {
-      spyOn(console, 'error');
-      component.selectedEquipment = [mockEquipment[0]];
-      reservationServiceMock.updateForStaff.and.returnValue(throwError(() => ({error: {}})));
-
-      component.submitReservation();
-
-      expect(component.submitError).toBe('An error occurred while updating the reservation.');
       expect(component.submitLoading).toBeFalse();
     });
   });

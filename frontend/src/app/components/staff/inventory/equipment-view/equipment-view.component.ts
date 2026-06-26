@@ -4,12 +4,12 @@ import {Equipment} from '../../../../dtos/equipment';
 import {EquipmentService} from '../../../../services/equipment.service';
 import {EquipmentType} from '../../../../dtos/equipmenttype';
 import {TranslateService} from '@ngx-translate/core';
-
 import {ReservationService} from '../../../../services/reservation.service';
 import {ReservationDetail} from '../../../../dtos/reservation-detail';
 import JsBarcode from 'jsbarcode';
 import {forkJoin} from 'rxjs';
 import {ReservationStatus} from "../../../../dtos/reservationstatus";
+import {ErrorMappingService} from '../../../../services/error-mapping.service';
 
 @Component({
   selector: 'app-equipment-detail',
@@ -23,22 +23,23 @@ export class EquipmentViewComponent implements OnInit {
 
   equipment?: Equipment;
   loading = false;
-  error = false;
+  errorMessage: string | null = null;
 
   reservations: ReservationDetail[] = [];
   reservationsLoading = false;
-  reservationsError = false;
+  reservationsErrorMessage : string | null = null;
 
   showDeleteModal = false;
   deleteLoading = false;
-  deleteError?: string;
+  deleteError: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private equipmentService: EquipmentService,
     private reservationService: ReservationService,
-    public translateService: TranslateService
+    public translateService: TranslateService,
+    private errorMapping: ErrorMappingService
   ) {
   }
 
@@ -51,7 +52,7 @@ export class EquipmentViewComponent implements OnInit {
 
   private loadEquipment(id: number): void {
     this.loading = true;
-    this.error = false;
+    this.errorMessage = null;
     this.equipmentService.getById(id).subscribe({
       next: (data) => {
         this.equipment = data;
@@ -69,7 +70,7 @@ export class EquipmentViewComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load equipment details', err);
-        this.error = true;
+        this.errorMessage = this.errorMapping.getErrorMessage(err);
         this.loading = false;
       }
     });
@@ -77,7 +78,7 @@ export class EquipmentViewComponent implements OnInit {
 
   private loadReservationsForEquipment(equipmentId: number): void {
     this.reservationsLoading = true;
-    this.reservationsError = false;
+    this.reservationsErrorMessage = null;
 
     //Reservations with ReservationStatus CREATED
     const createdQuery = this.reservationService.search({
@@ -99,7 +100,7 @@ export class EquipmentViewComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load active reservations for equipment via parallel requests', err);
-        this.reservationsError = true;
+        this.reservationsErrorMessage = this.errorMapping.getErrorMessage(err);
         this.reservationsLoading = false;
       }
     });
@@ -113,20 +114,20 @@ export class EquipmentViewComponent implements OnInit {
 
   openDeleteDialog(): void {
     this.showDeleteModal = true;
-    this.deleteError = undefined;
+    this.deleteError = null;
   }
 
   cancelDelete(): void {
     this.showDeleteModal = false;
     this.deleteLoading = false;
-    this.deleteError = undefined;
+    this.deleteError = null;
   }
 
   confirmDelete(): void {
     if (!this.equipment) return;
 
     this.deleteLoading = true;
-    this.deleteError = undefined;
+    this.deleteError = null;
 
     this.equipmentService.delete(this.equipment.id).subscribe({
       next: () => {
@@ -136,7 +137,7 @@ export class EquipmentViewComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to delete equipment', err);
-        this.deleteError = 'Equipment could not be deleted.';
+        this.deleteError = this.errorMapping.getErrorMessage(err);
         this.deleteLoading = false;
       }
     });
