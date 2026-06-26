@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Reservation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.ReservationStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -27,6 +28,10 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>,
         LocalDate startDateTo,
         ReservationStatus status
     );
+
+    @Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT r FROM Reservation r WHERE r.id = :id")
+    java.util.Optional<Reservation> findByIdLocked(@org.springframework.data.repository.query.Param("id") Long id);
 
     boolean existsByCustomerProfileId(Long customerProfileId);
 }

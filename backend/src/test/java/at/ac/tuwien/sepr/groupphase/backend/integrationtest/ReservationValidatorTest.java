@@ -28,6 +28,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -134,7 +135,7 @@ class ReservationValidatorTest {
 
         when(customerProfileRepository.existsById(1L)).thenReturn(true);
         when(equipmentRepository.existsById(10L)).thenReturn(true);
-        when(equipmentRepository.findAllById(List.of(10L))).thenReturn(List.of(mockEquipment));
+        when(equipmentRepository.findAllByIdsLocked(List.of(10L))).thenReturn(List.of(mockEquipment));
 
         ValidationException ex = assertThrows(ValidationException.class, () -> validator.validateCreateDto(dto));
         assertThat(ex.getErrors().stream().anyMatch(e -> e.contains("is already reserved in this time range"))).isTrue();
@@ -156,7 +157,7 @@ class ReservationValidatorTest {
 
         when(customerProfileRepository.existsById(1L)).thenReturn(true);
         when(equipmentRepository.existsById(10L)).thenReturn(true);
-        when(equipmentRepository.findAllById(List.of(10L))).thenReturn(List.of(mockEquipment));
+        when(equipmentRepository.findAllByIdsLocked(List.of(10L))).thenReturn(List.of(mockEquipment));
 
         ValidationException ex = assertThrows(ValidationException.class, () -> validator.validateCreateDto(dto));
         assertThat(ex.getErrors().stream().anyMatch(e -> e.contains("is not available at this date"))).isTrue();
@@ -178,7 +179,7 @@ class ReservationValidatorTest {
 
         reservation.addItem(insideEquip);
 
-        when(reservationRepository.findById(1L)).thenReturn(Optional.of(reservation));
+        when(reservationRepository.findByIdLocked(1L)).thenReturn(Optional.of(reservation));
         when(equipmentRepository.existsById(99L)).thenReturn(true);
 
         ValidationException ex = assertThrows(ValidationException.class, () -> validator.validateReservationRemoveEquipment(dto));
@@ -215,7 +216,7 @@ class ReservationValidatorTest {
         Reservation reservation = new Reservation(null, null, LocalDate.now(), LocalDate.now().plusDays(1), null);
         org.springframework.test.util.ReflectionTestUtils.setField(reservation, "id", 1L);
 
-        when(reservationRepository.findById(1L)).thenReturn(java.util.Optional.of(reservation));
+        when(reservationRepository.findByIdLocked(1L)).thenReturn(java.util.Optional.of(reservation));
         when(customerProfileRepository.existsById(99L)).thenReturn(false);
 
         ValidationException ex = assertThrows(ValidationException.class, () -> validator.validateUpdateDto(dto, null));
@@ -232,16 +233,13 @@ class ReservationValidatorTest {
         ReservationAddDeleteEquipmentDto dto = new ReservationAddDeleteEquipmentDto();
         dto.setId(99L);
         dto.setEquipmentIds(List.of(10L));
-
-        when(reservationRepository.findById(99L)).thenReturn(Optional.empty());
-
         NotFoundException ex = assertThrows(NotFoundException.class,
             () -> validator.validateReservationAddEquip(dto));
         assertThat(ex.getMessage()).contains("Reservation with ID 99 not found.");
     }
 
     @Test
-    void validateReservationAddEquip_withUnknownEquipmentId_throwsNotFoundException() {
+    void validateReservationAddEquip_withUnknownEquipmentId_throwsValidationException() {
         ReservationAddDeleteEquipmentDto dto = new ReservationAddDeleteEquipmentDto();
         dto.setId(1L);
         dto.setEquipmentIds(List.of(99L));
@@ -249,12 +247,14 @@ class ReservationValidatorTest {
         Reservation reservation = new Reservation(null, null, LocalDate.now(), LocalDate.now().plusDays(2), null);
         org.springframework.test.util.ReflectionTestUtils.setField(reservation, "id", 1L);
 
-        when(reservationRepository.findById(1L)).thenReturn(Optional.of(reservation));
-        when(equipmentRepository.findById(99L)).thenReturn(Optional.empty());
+        when(reservationRepository.findByIdLocked(anyLong())).thenReturn(Optional.of(reservation));
 
-        NotFoundException ex = assertThrows(NotFoundException.class,
+        when(reservationRepository.findByIdLocked(anyLong())).thenReturn(Optional.of(reservation));
+        when(equipmentRepository.existsById(anyLong())).thenReturn(false);
+
+
+        assertThrows(ValidationException.class,
             () -> validator.validateReservationAddEquip(dto));
-        assertThat(ex.getMessage()).contains("Equipment with ID 99 not found.");
     }
 
     @Test
@@ -269,8 +269,10 @@ class ReservationValidatorTest {
         Equipment equipment = new Helmet("Test Helmet", 10.0, 50.0, RentalStatus.FREE, SkillLevel.BEGINNER);
         org.springframework.test.util.ReflectionTestUtils.setField(equipment, "id", 10L);
 
-        when(reservationRepository.findById(1L)).thenReturn(Optional.of(reservation));
-        when(equipmentRepository.findById(10L)).thenReturn(Optional.of(equipment));
+        when(reservationRepository.findByIdLocked(anyLong())).thenReturn(Optional.of(reservation));
+        when(equipmentRepository.existsById(anyLong())).thenReturn(true);
+        when(equipmentRepository.findAllByIdsLocked(List.of(10L))).thenReturn(List.of(equipment));
+
 
         assertDoesNotThrow(() -> validator.validateReservationAddEquip(dto));
     }
