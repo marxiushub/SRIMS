@@ -54,6 +54,7 @@ public class CustomerProfileValidator {
         if (!errors.isEmpty()) {
             throw new ValidationException(
                 "Validation of customer profile update failed",
+                "Validierung der Kundenprofil-Aktualisierung fehlgeschlagen",
                 errors
             );
         }
@@ -87,6 +88,7 @@ public class CustomerProfileValidator {
         if (!errors.isEmpty()) {
             throw new ValidationException(
                 "Validation of customer profile creation failed",
+                "Validierung der Kundenprofil-Erstellung fehlgeschlagen.",
                 errors
             );
         }

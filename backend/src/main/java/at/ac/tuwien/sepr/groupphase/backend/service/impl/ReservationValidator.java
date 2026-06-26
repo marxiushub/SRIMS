@@ -44,7 +44,7 @@ public class ReservationValidator {
 
     public void validateCreateDto(ReservationCreationDto dto) {
         if (dto == null) {
-            throw new ValidationException("Reservation creation dto must not be null", List.of("dto is null"));
+            throw new ValidationException("Reservation creation dto must not be null", "Dto zur Erstellung der Reservierung ist NULL", List.of("dto is null"));
         }
 
         List<String> validationErrors = new ArrayList<>();
@@ -77,13 +77,13 @@ public class ReservationValidator {
         }
 
         if (!validationErrors.isEmpty()) {
-            throw new ValidationException("Validation failed for reservation creation", validationErrors);
+            throw new ValidationException("Validation failed for reservation creation", "Validation für Erstellung der Reservierung fehlgeschlagen", validationErrors);
         }
     }
 
     public void validateUpdateDto(ReservationUpdateDto dto, Long userId) {
         if (dto == null) {
-            throw new ValidationException("Reservation update dto must not be null", List.of("dto is null"));
+            throw new ValidationException("Reservation update dto must not be null", "Das Reservierungs-Update-DTO darf nicht null sein", List.of("dto is null"));
         }
 
         List<String> validationErrors = new ArrayList<>();
@@ -91,7 +91,7 @@ public class ReservationValidator {
         Reservation reservation = reservationRepository.findById(dto.getId()).orElse(null);
         if (reservation == null) {
             validationErrors.add("No such reservation with id " + dto.getId());
-            throw new ValidationException("Validation failed", validationErrors);
+            throw new ValidationException("Validation failed", "Validation fehlgeschlagen", validationErrors);
         }
 
         if (userId != null) {
@@ -143,7 +143,7 @@ public class ReservationValidator {
         }
 
         if (!validationErrors.isEmpty()) {
-            throw new ValidationException("Validation of the dto for update failed", validationErrors);
+            throw new ValidationException("Validation of the dto for update failed", "Validierung des DTOs zur Aktualisierung fehlgeschlagen", validationErrors);
         }
     }
 
@@ -173,6 +173,7 @@ public class ReservationValidator {
         if (!validationErrors.isEmpty()) {
             throw new ValidationException(
                 "Validation failed for adding equipment",
+                "Validierung beim Hinzufügen der Ausrüstung fehlgeschlagen",
                 validationErrors
             );
         }
@@ -205,7 +206,7 @@ public class ReservationValidator {
         validateReservationNotEmptyAfterRemove(dto.getEquipmentIds(), reservation, validationErrors);
 
         if (!validationErrors.isEmpty()) {
-            throw new ValidationException("Validation of the dto for update failed", validationErrors);
+            throw new ValidationException("Validation of the dto for update failed", "Validierung des DTOs zur Aktualisierung fehlgeschlagen", validationErrors);
         }
 
     }

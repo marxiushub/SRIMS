@@ -35,6 +35,7 @@ public class UserServiceValidator {
             errors.add("userCreationDto is null");
             throw new ValidationException(
                 "Validation of the dto for creating users failed",
+                "Validation des dtos zur Erstellung des Nutzers fehlgeschlagen",
                 errors
             );
         }
@@ -52,6 +53,7 @@ public class UserServiceValidator {
         if (!errors.isEmpty()) {
             throw new ValidationException(
                 "Validation of the dto for creating users failed",
+                "Validierung des DTOs zur Benutzererstellung fehlgeschlagen",
                 errors
             );
         }
@@ -65,6 +67,7 @@ public class UserServiceValidator {
             errors.add("userUpdateDto is null");
             throw new ValidationException(
                 "Validation of the dto for updating users failed",
+                "Validierung des DTOs zum Update des Nutzers fehlgeschlagen",
                 errors
             );
         }
@@ -105,6 +108,7 @@ public class UserServiceValidator {
         if (!errors.isEmpty()) {
             throw new ValidationException(
                 "Validation of the dto for updating users failed",
+                "Validierung des DTOs zur Benutzeraktualisierung fehlgeschlagen.",
                 errors
             );
         }
@@ -116,7 +120,7 @@ public class UserServiceValidator {
 
         if (dto == null) {
             errors.add("searchDto is null");
-            throw new ValidationException("Validation failed", errors);
+            throw new ValidationException("Validation failed", "Validierung fehlgeschlagen", errors);
         }
 
         validateEmail(dto.getEmail(), errors);
@@ -125,7 +129,7 @@ public class UserServiceValidator {
         validateSearchField("lastName", dto.getLastName(), errors);
 
         if (!errors.isEmpty()) {
-            throw new ValidationException("Validation of search DTO failed", errors);
+            throw new ValidationException("Validation of search DTO failed", "Validierung des Such-Dtos fehlgeschlagen", errors);
         }
     }
 
@@ -146,6 +150,7 @@ public class UserServiceValidator {
             validationErrors.add("email is blank");
             throw new ValidationException(
                 "Validation failed",
+                "Validierung fehlgeschlagen",
                 validationErrors
             );
         }
@@ -154,6 +159,7 @@ public class UserServiceValidator {
             validationErrors.add("Invalid email format");
             throw new ValidationException(
                 "Validation failed",
+                "Validierung fehlgeschlagen.",
                 validationErrors
             );
         }

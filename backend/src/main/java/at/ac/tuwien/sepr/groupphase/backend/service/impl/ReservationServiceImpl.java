@@ -109,7 +109,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
             }
 
             if (dto.getReservationStatus() != ReservationStatus.CREATED) {
-                throw new ValidationException("Customers can only create reservations with status CREATED.");
+                throw new ValidationException("Customers can only create reservations with status CREATED.", "Kunden können Reservierungen nur mit dem Status CREATED erstellen");
             }
 
         }
@@ -148,12 +148,12 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
                 throw new AccessDeniedException("You are not allowed to perform this action.");
             }
             if (reservation.getStartDate().isBefore(LocalDate.now().plusDays(2))) {
-                throw new ValidationException("Reservations can only be deleted at least two days before the start date.");
+                throw new ValidationException("Reservations can only be deleted at least two days before the start date.", "Reservierungen können nur mindestens zwei Tage vor dem Startdatum gelöscht werden.");
             }
         }
 
         if (reservation.getReservationStatus() == ReservationStatus.PICKED_UP) {
-            throw new ValidationException("Reservations can only be deleted if they have not been picked up.");
+            throw new ValidationException("Reservations can only be deleted if they have not been picked up.", "Reservierungen können nur gelöscht werden, wenn sie noch nicht abgeholt wurden.");
         }
 
         deleteTimePeriodsForEquipment(reservation.getItems().stream().map(ReservationRelation::getEquipment).toList(), reservation);
@@ -204,7 +204,8 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
      */
     private void applyUpdateCommon(Reservation reservation, ReservationUpdateDto dto, boolean isStaff, boolean isScan) {
         if (reservation.getReservationStatus() == ReservationStatus.PICKED_UP && !isScan) {
-            throw new ValidationException("Reservations that are PICKED_UP can only be updated or deleted as part of a scan.");
+            throw new ValidationException("Reservations that are PICKED_UP can only be updated or deleted as part of a scan.",
+                "Reservierungen mit dem Status PICKED_UP können nur im Rahmen eines Scan-Vorgangs aktualisiert oder gelöscht werden");
         }
 
         boolean datesChanged = (dto.getStartDate() != null && !dto.getStartDate().equals(reservation.getStartDate()))
@@ -306,7 +307,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
 
         if (searchDto.getSearchRangeStart() != null && searchDto.getSearchRangeEnd() != null) {
             if (searchDto.getSearchRangeStart().isAfter(searchDto.getSearchRangeEnd())) {
-                throw new ValidationException("Start date must be before end date");
+                throw new ValidationException("Start date must be before end date", "Start-Datum sollte vor dem End-Datum stehen");
             }
         }
 

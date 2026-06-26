@@ -24,5 +24,7 @@ public class ValidationException extends RuntimeException {
         return errors;
     }
 
-    public String getDeMessage() { return deMessage; }
+    public String getDeMessage() {
+        return deMessage;
+    }
 }

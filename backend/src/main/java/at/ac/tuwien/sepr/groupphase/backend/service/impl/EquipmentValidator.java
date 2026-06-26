@@ -48,7 +48,7 @@ public class EquipmentValidator {
         }
 
         if (!errors.isEmpty()) {
-            throw new ValidationException("Equipment creation validation failed", errors);
+            throw new ValidationException("Equipment creation validation failed", "Validierung der Ausrüstungserstellung fehlgeschlagen", errors);
         }
     }
 
@@ -82,7 +82,7 @@ public class EquipmentValidator {
         }
 
         if (!errors.isEmpty()) {
-            throw new ValidationException("Equipment update validation failed", errors);
+            throw new ValidationException("Equipment update validation failed", "Update des Equipments fehlgeschlagen", errors);
         }
     }
 
@@ -107,7 +107,7 @@ public class EquipmentValidator {
         }
 
         if (!errors.isEmpty()) {
-            throw new ValidationException("Equipment deletion validation failed", errors);
+            throw new ValidationException("Equipment deletion validation failed", "Validierung der Ausrüstungs-Löschung fehlgeschlagen", errors);
         }
     }
 

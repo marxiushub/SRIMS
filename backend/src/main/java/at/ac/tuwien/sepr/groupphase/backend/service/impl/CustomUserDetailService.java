@@ -142,7 +142,7 @@ public class CustomUserDetailService implements UserService {
         LOGGER.trace("Creating user with email {}", userCreationDto.getEmail());
 
         if (userRepository.findUserByEmail(userCreationDto.getEmail()).isPresent()) {
-            throw new ValidationException("Email is already in use", List.of("Email " + userCreationDto.getEmail() + " is already in use."));
+            throw new ValidationException("Email is already in use", "Email bereits vergeben", List.of("Email " + userCreationDto.getEmail() + " is already in use."));
         }
 
         validator.userCreationDtoValidator(userCreationDto);
@@ -253,27 +253,27 @@ public class CustomUserDetailService implements UserService {
         checkUserAccessPermission(id);
 
         if (passwordChangeDto == null) {
-            throw new ValidationException("Validation of the dto for changing passwords failed", List.of("passwordChangeDto is null"));
+            throw new ValidationException("Validation of the dto for changing passwords failed", "Validierung des DTOs zur Passwortänderung fehlgeschlagen", List.of("passwordChangeDto is null"));
         }
 
         if (passwordChangeDto.getOldPassword() == null || passwordChangeDto.getOldPassword().isBlank()) {
-            throw new ValidationException("Validation of the dto for changing passwords failed", List.of("oldPassword is blank"));
+            throw new ValidationException("Validation of the dto for changing passwords failed", "Validierung des DTOs zur Passwortänderung fehlgeschlagen", List.of("oldPassword is blank"));
         }
 
         if (passwordChangeDto.getNewPassword() == null || passwordChangeDto.getNewPassword().isBlank()) {
-            throw new ValidationException("Validation of the dto for changing passwords failed", List.of("newPassword is blank"));
+            throw new ValidationException("Validation of the dto for changing passwords failed", "Validierung des DTOs zur Passwortänderung fehlgeschlagen", List.of("newPassword is blank"));
         }
 
         ApplicationUser existingUser = userRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("User with ID " + id + " was not found."));
 
         if (!passwordEncoder.matches(passwordChangeDto.getOldPassword(), existingUser.getPassword())) {
-            throw new ValidationException("Old password is incorrect");
+            throw new ValidationException("Old password is incorrect", "Altes Passwort stimmt nicht");
         }
 
         if (passwordEncoder.matches(passwordChangeDto.getNewPassword(), existingUser.getPassword())) {
             throw new ValidationException(
-                "Validation of the dto for changing passwords failed",
+                "Validation of the dto for changing passwords failed", "Validierung des DTOs zur Passwortänderung fehlgeschlagen",
                 List.of("New Password must differ from the current password.")
             );
         }
