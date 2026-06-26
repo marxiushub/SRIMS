@@ -15,6 +15,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.user.Customer;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
+import at.ac.tuwien.sepr.groupphase.backend.exception.LocalizedError;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ReservationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.TimePeriodsRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.HelmetRepository;
@@ -111,6 +112,16 @@ public class ReservationServiceTest {
         reservationRepository.deleteAll();
     }
 
+    //helper for validation error assertion
+    private static void assertContainsErrorMessageContaining(
+        ValidationException exception,
+        String expectedMessagePart
+    ) {
+        assertThat(exception.getErrors())
+            .extracting(LocalizedError::message)
+            .anyMatch(message -> message.contains(expectedMessagePart));
+    }
+
     @Test
     public void createReservation_withValidData_returnsSavedReservationDto() {
         ReservationCreationDto dto = createReservationCreationDto(
@@ -155,8 +166,7 @@ public class ReservationServiceTest {
             "Verify that the correct exception with the correct message is thrown",
             () -> assertThat(exception).isNotNull(),
             () -> assertThat(exception.getMessage()).containsIgnoringCase("Validation failed"),
-            () -> assertThat(exception.getErrors().stream()
-                .anyMatch(error -> error.contains("No such CustomerProfile"))).isTrue()
+            () -> assertContainsErrorMessageContaining(exception, "No such CustomerProfile")
         );
     }
 
@@ -178,8 +188,7 @@ public class ReservationServiceTest {
         assertAll(
             "Verify that missing reservation status is rejected",
             () -> assertThat(exception).isNotNull(),
-            () -> assertThat(exception.getErrors().stream()
-                .anyMatch(error -> error.contains("Reservation status must not be null"))).isTrue()
+            () -> assertContainsErrorMessageContaining(exception, "Reservation status must not be null")
         );
     }
 
@@ -973,8 +982,7 @@ public class ReservationServiceTest {
         assertAll(
             "Verify that duplicate equipment IDs in the request are blocked",
             () -> assertThat(exception).isNotNull(),
-            () -> assertThat(exception.getErrors().stream()
-                .anyMatch(e -> e.contains("duplicate IDs"))).isTrue()
+            () -> assertContainsErrorMessageContaining(exception, "duplicate IDs")
         );
     }
 
@@ -1000,8 +1008,7 @@ public class ReservationServiceTest {
         assertAll(
             "Verify that adding already existing equipment is blocked",
             () -> assertThat(exception).isNotNull(),
-            () -> assertThat(exception.getErrors().stream()
-                .anyMatch(e -> e.contains("already part of this reservation"))).isTrue()
+            () -> assertContainsErrorMessageContaining(exception, "already part of this reservation")
         );
     }
 
@@ -1027,8 +1034,7 @@ public class ReservationServiceTest {
         assertAll(
             "Verify that a reservation cannot be emptied completely",
             () -> assertThat(exception).isNotNull(),
-            () -> assertThat(exception.getErrors().stream()
-                .anyMatch(e -> e.contains("must contain at least one equipment"))).isTrue()
+            () -> assertContainsErrorMessageContaining(exception, "must contain at least one equipment")
         );
     }
 
@@ -1054,8 +1060,7 @@ public class ReservationServiceTest {
         assertAll(
             "Verify that removing unassociated equipment throws an error",
             () -> assertThat(exception).isNotNull(),
-            () -> assertThat(exception.getErrors().stream()
-                .anyMatch(e -> e.contains("not part of this reservation"))).isTrue()
+            () -> assertContainsErrorMessageContaining(exception, "not part of this reservation")
         );
     }
 
