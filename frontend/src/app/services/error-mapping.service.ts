@@ -54,6 +54,12 @@ export class ErrorMappingService {
       return baseEnMessage;
     }
 
-    return this.translate.instant('COMMON.UNKNOWN_ERROR') || 'An unexpected error occurred.';
+    //Fallback if Notification contains nothing at all: check whether we actually got the error from server
+    if (error.status === 0) {
+      return this.translate.instant('COMMON.SERVER_UNREACHABLE')
+        || 'The server is currently unreachable. Please check your internet connection and try again later.';
+    }
+
+    return this.translate.instant('COMMON.UNEXPECTED_ERROR') || 'An unexpected error occurred.';
   }
 }
