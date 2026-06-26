@@ -35,7 +35,9 @@
     "ALREADY_LOGGED_IN": "Sie sind bereits eingeloggt.",
     "LOGIN_SUCCESS": "Erfolgreich angemeldet.",
     "REGISTER_SUCCESS": "Erfolgreich registriert.",
-    "LOGOUT_SUCCESS": "Erfolgreich ausgeloggt."
+    "LOGOUT_SUCCESS": "Erfolgreich ausgeloggt.",
+    "UNEXPECTED_ERROR": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen sie es später erneut.",
+    "SERVER_UNREACHABLE": "Der Server ist derzeit nicht erreichbar. Bitte überprüfe deine Internetverbindung und versuche es später erneut."
   },
   "INVENTORY": {
     "TITLE": "Skiausrüstung Inventar",

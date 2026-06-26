@@ -35,7 +35,9 @@
     "ALREADY_LOGGED_IN": "You are already logged in.",
     "LOGIN_SUCCESS": "Login successful.",
     "REGISTER_SUCCESS": "Registration successful.",
-    "LOGOUT_SUCCESS": "Logout successful."
+    "LOGOUT_SUCCESS": "Logout successful.",
+    "UNEXPECTED_ERROR": "An unexpected error occured. Please try again later.",
+    "SERVER_UNREACHABLE": "The server is currently unreachable. Please check your internet connection and try again later."
   },
   "INVENTORY": {
     "TITLE": "Ski Equipment Inventory",
