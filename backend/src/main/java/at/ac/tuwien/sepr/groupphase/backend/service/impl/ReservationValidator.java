@@ -173,7 +173,11 @@ public class ReservationValidator {
         validateNoDuplicateEquipmentInRequestOrReservation(dto.getEquipmentIds(), reservation, validationErrors);
 
         if (!validationErrors.isEmpty()) {
-            throw new ValidationException("Validation failed for adding equipment", validationErrors);
+            throw new ValidationException(
+                "Validation failed for adding equipment",
+                "Validierung beim Hinzufügen der Ausrüstung fehlgeschlagen",
+                validationErrors
+            );
         }
 
         if (dto.getEquipmentIds() != null) {
