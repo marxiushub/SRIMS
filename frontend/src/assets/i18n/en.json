@@ -76,7 +76,8 @@
     "RESERVATIONS_ERROR": "Error loading reservations for this equipment.",
     "NO_RESERVATIONS": "There are currently no reservations for this equipment.",
     "PRINT": "Print",
-    "DOWNLOAD": "Download"
+    "DOWNLOAD": "Download",
+    "LOADING_FAILED": "The Inventory couldn't be loaded."
   },
   "RENTAL_STATUS": {
     "FREE": "Available",

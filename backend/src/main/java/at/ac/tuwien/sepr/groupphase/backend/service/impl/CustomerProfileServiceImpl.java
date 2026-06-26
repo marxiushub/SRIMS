@@ -62,7 +62,7 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
         String profileName = dto.getProfileName().trim();
 
         if (customerProfileRepository.existsByCustomerIdAndProfileName(customerId, profileName)) {
-            throw new ValidationException("A profile with the name " + profileName + " already exists", "Ein Profil names" + profileName + "existiert schon");
+            throw new ValidationException("A profile with the name " + profileName + " already exists", "Ein Profil names " + profileName + " existiert schon");
         }
 
         CustomerProfile customerProfile = new CustomerProfile(

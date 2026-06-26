@@ -76,7 +76,8 @@
     "RESERVATIONS_ERROR": "Fehler beim Laden der Reservierungen für dieses Equipment.",
     "NO_RESERVATIONS": "Für dieses Equipment liegen aktuell keine Reservierungen vor.",
     "PRINT": "Drucken",
-    "DOWNLOAD": "Herunterladen"
+    "DOWNLOAD": "Herunterladen",
+    "LOADING_FAILED": "Das Inventar konnte nicht geladen werden."
   },
   "RENTAL_STATUS": {
     "FREE": "Verfügbar",

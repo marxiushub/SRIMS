@@ -144,7 +144,7 @@
     }
     @if (error) {
       <div class="alert alert-danger">
-        {{ error || 'INVENTORY.LOADING_FAILED' | translate }}
+        {{ 'INVENTORY.LOADING_FAILED' | translate }}
       </div>
     }
     @if (!loading && equipment.length === 0) {
