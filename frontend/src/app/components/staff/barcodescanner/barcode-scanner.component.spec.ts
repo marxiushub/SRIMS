@@ -1,22 +1,35 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { ReactiveFormsModule, FormsModule, FormBuilder } from '@angular/forms';
-import { of } from 'rxjs';
-import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { RouterModule } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
-import { ZXingScannerModule } from '@zxing/ngx-scanner';
+import {ComponentFixture, fakeAsync, TestBed, tick} from '@angular/core/testing';
+import {Component, EventEmitter, Input, NO_ERRORS_SCHEMA, Output} from '@angular/core';
+import {FormBuilder, FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {of} from 'rxjs';
+import {provideHttpClient} from '@angular/common/http';
+import {provideHttpClientTesting} from '@angular/common/http/testing';
+import {RouterModule} from '@angular/router';
+import {TranslateModule} from '@ngx-translate/core';
+import {ToastrModule, ToastrService} from 'ngx-toastr';
 
-import { BarcodeScannerComponent } from './barcode-scanner.component';
-import { EquipmentService } from '../../../services/equipment.service';
-import { ReservationService } from '../../../services/reservation.service';
-import { BarcodeScannerService } from '../../../services/barcode-scanner.service';
-import { CustomerProfileService } from '../../../services/customer-profile.service';
-import { StaffService } from '../../../services/staff.service';
-import { ReservationStatus } from '../../../dtos/reservationstatus';
-import { Equipment } from '../../../dtos/equipment';
-import { ReservationDetail } from '../../../dtos/reservation-detail';
+import {BarcodeScannerComponent} from './barcode-scanner.component';
+import {EquipmentService} from '../../../services/equipment.service';
+import {ReservationService} from '../../../services/reservation.service';
+import {BarcodeScannerService} from '../../../services/barcode-scanner.service';
+import {CustomerProfileService} from '../../../services/customer-profile.service';
+import {StaffService} from '../../../services/staff.service';
+import {ReservationStatus} from '../../../dtos/reservationstatus';
+import {Equipment} from '../../../dtos/equipment';
+import {ReservationDetail} from '../../../dtos/reservation-detail';
+
+// Stub replaces ZXingScannerModule so the real scanner never tries to access
+// the camera, which doesn't exist in jsdom.
+@Component({selector: 'zxing-scanner', template: '', standalone: false})
+class ZXingScannerStubComponent {
+  @Input() enable = true;
+  @Input() device: any;
+  @Input() formats: any;
+  @Output() scanSuccess = new EventEmitter<string>();
+  @Output() camerasFound = new EventEmitter<any[]>();
+  @Output() permissionResponse = new EventEmitter<boolean>();
+}
+
 
 // AI-assisted: Code generated with Google Gemini and adapted
 describe('BarcodeScannerComponent', () => {
@@ -74,27 +87,32 @@ describe('BarcodeScannerComponent', () => {
 
     staffServiceMock.searchCustomers.and.returnValue(of([]));
 
+    spyOn(console, 'log').and.stub();
+
     await TestBed.configureTestingModule({
-      declarations: [BarcodeScannerComponent],
+      declarations: [
+        BarcodeScannerComponent,
+        ZXingScannerStubComponent,
+      ],
       imports: [
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
         ToastrModule.forRoot(),
         ReactiveFormsModule,
         FormsModule,
-        ZXingScannerModule
       ],
       providers: [
         FormBuilder,
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: EquipmentService, useValue: equipmentServiceMock },
-        { provide: ReservationService, useValue: reservationServiceMock },
-        { provide: BarcodeScannerService, useValue: barcodeScannerServiceMock },
-        { provide: CustomerProfileService, useValue: customerProfileServiceMock },
-        { provide: StaffService, useValue: staffServiceMock },
-        { provide: ToastrService, useValue: toastrServiceMock }
-      ]
+        {provide: EquipmentService, useValue: equipmentServiceMock},
+        {provide: ReservationService, useValue: reservationServiceMock},
+        {provide: BarcodeScannerService, useValue: barcodeScannerServiceMock},
+        {provide: CustomerProfileService, useValue: customerProfileServiceMock},
+        {provide: StaffService, useValue: staffServiceMock},
+        {provide: ToastrService, useValue: toastrServiceMock}
+      ],
+      schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();
 
     fixture = TestBed.createComponent(BarcodeScannerComponent);
@@ -188,7 +206,7 @@ describe('BarcodeScannerComponent', () => {
     it('should invoke reservationService.removeEquipmentFromReservation when removing item directly from backend reservation', () => {
       component.matchedReservations = [mockReservation];
       component.scanScenario = 'SINGLE_RESERVATION';
-      reservationServiceMock.removeEquipmentFromReservation.and.returnValue(of({ ...mockReservation, items: [] }));
+      reservationServiceMock.removeEquipmentFromReservation.and.returnValue(of({...mockReservation, items: []}));
 
       component.removeEquipmentFromExistingReservation(mockEquipment1.id);
 
@@ -260,7 +278,7 @@ describe('BarcodeScannerComponent', () => {
   // --- Submission Orchestration ---
   describe('Reservation Submissions', () => {
     it('should submit existing reservation updates when scenario criteria are satisfied', () => {
-      component.matchedReservations = [{ ...mockReservation, reservationStatus: ReservationStatus.CREATED }];
+      component.matchedReservations = [{...mockReservation, reservationStatus: ReservationStatus.CREATED}];
       component.scanScenario = 'SINGLE_RESERVATION';
       component.equipmentScenario = 'ALL_RESERVED_EQUIPMENT_SCANNED';
       component.scannedEquipmentIds = [mockEquipment1.id];
@@ -277,7 +295,7 @@ describe('BarcodeScannerComponent', () => {
     });
 
     it('should block walk-in form submission if end-date range check fails', () => {
-      component.walkInForm.patchValue({ endDate: '2020-01-01' });
+      component.walkInForm.patchValue({endDate: '2020-01-01'});
       spyOn(component, 'submitWalkInCheckout').and.callThrough();
 
       expect(component.isWalkInDateRangeInvalid).toBeTrue();

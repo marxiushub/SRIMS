@@ -17,6 +17,10 @@ describe('ResetStaffPasswordComponent', () => {
   let router: Router;
   let notification: ToastrService;
 
+  beforeEach(() => {
+    spyOn(console, 'log').and.stub();
+  });
+
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ResetStaffPasswordComponent],
