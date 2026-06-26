@@ -157,7 +157,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
         }
 
         if (reservation.getReservationStatus() == ReservationStatus.RETURNED) {
-            throw new ValidationException("Reservations can only be deleted if they have not been returned.");
+            throw new ValidationException("Reservations can only be deleted if they have not been returned.", "Reservierungen können nur gelöscht werden, wenn sie nicht zurückgegeben wurden");
         }
 
         deleteTimePeriodsForEquipment(reservation.getItems().stream().map(ReservationRelation::getEquipment).toList(), reservation);
@@ -208,7 +208,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
      */
     private void applyUpdateCommon(Reservation reservation, ReservationUpdateDto dto, boolean isStaff, boolean isScan) {
         if (reservation.getReservationStatus() == ReservationStatus.RETURNED) {
-            throw new ValidationException("Reservations can only be updated if they have not been returned.");
+            throw new ValidationException("Reservations can only be updated if they have not been returned.", "Reservierungen können nur aktualisiert werden, wenn sie nicht zurückgegeben wurden.");
         }
         if (reservation.getReservationStatus() == ReservationStatus.PICKED_UP && !isScan) {
             throw new ValidationException("Reservations that are PICKED_UP can only be updated or deleted as part of a scan.",
@@ -385,7 +385,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
         Reservation reservation = reservationRepository.getReferenceById(dto.getId());
 
         if (reservation.getReservationStatus() == ReservationStatus.RETURNED) {
-            throw new ValidationException("Reservations can only be deleted if they have not been returned.");
+            throw new ValidationException("Reservations can only be deleted if they have not been returned.", "Reservierungen können nur gelöscht werden, wenn sie nicht zurückgegeben wurden.");
         }
 
         List<Equipment> equipmentList = equipmentRepository.findAllById(dto.getEquipmentIds());
@@ -407,7 +407,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
         Reservation reservation = reservationRepository.getReferenceById(dto.getId());
 
         if (reservation.getReservationStatus() == ReservationStatus.RETURNED) {
-            throw new ValidationException("Equipment can only be removed if it has not been returned.");
+            throw new ValidationException("Equipment can only be removed if it has not been returned.", "Equipment kann nur entfernt werden, wenn es nicht zurückgegeben wurde");
         }
 
         List<Equipment> equipmentList = equipmentRepository.findAllById(dto.getEquipmentIds());

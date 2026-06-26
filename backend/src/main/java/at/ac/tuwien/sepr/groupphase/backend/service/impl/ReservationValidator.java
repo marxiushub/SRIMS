@@ -239,7 +239,8 @@ public class ReservationValidator {
                         "Equipment mit ID " + equipment.getId() + " ist nicht verfügbar in diesem Zeitraum"));
                 }
             } else if (time.getEndDate().isEqual(start)) {
-                validationErrors.add("Equipment with ID " + equipment.getId() + " is not available at this date");
+                validationErrors.add(new LocalizedError("Equipment with ID " + equipment.getId() + " is not available at this date", "Equipment mit Id " + equipment.getId()
+                    + " ist an diesem Datum nicht verfügbar"));
             }
         }
     }
