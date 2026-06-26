@@ -61,7 +61,7 @@ public class ReservationValidator {
             validateEquipmentList(dto.getEquipmentIds(), validationErrors);
 
             if (validationErrors.isEmpty()) {
-                List<Equipment> equipments = equipmentRepository.findAllById(dto.getEquipmentIds());
+                List<Equipment> equipments = equipmentRepository.findAllByIdsLocked(dto.getEquipmentIds());
                 for (Equipment equipment : equipments) {
                     isEquipmentAvailable(equipment, dto.getStartDate(), dto.getEndDate(), null, validationErrors);
                 }
@@ -88,7 +88,7 @@ public class ReservationValidator {
 
         List<String> validationErrors = new ArrayList<>();
 
-        Reservation reservation = reservationRepository.findById(dto.getId()).orElse(null);
+        Reservation reservation = reservationRepository.findByIdLocked(dto.getId()).orElse(null);
         if (reservation == null) {
             validationErrors.add("No such reservation with id " + dto.getId());
             throw new ValidationException("Validation failed", validationErrors);
@@ -129,7 +129,7 @@ public class ReservationValidator {
                 validateEquipmentList(dto.getEquipmentIds(), validationErrors);
 
                 if (validationErrors.isEmpty()) {
-                    List<Equipment> equipments = equipmentRepository.findAllById(dto.getEquipmentIds());
+                    List<Equipment> equipments = equipmentRepository.findAllByIdsLocked(dto.getEquipmentIds());
                     for (Equipment equipment : equipments) {
                         isEquipmentAvailable(equipment, pickUpDate, returnDate, dto.getId(), validationErrors);
                     }
@@ -155,21 +155,28 @@ public class ReservationValidator {
 
         List<String> validationErrors = new ArrayList<>();
 
-        Reservation reservation = reservationRepository.findById(dto.getId()).orElseThrow(() ->
+        Reservation reservation = reservationRepository.findByIdLocked(dto.getId()).orElseThrow(() ->
             new NotFoundException("Reservation with ID " + dto.getId() + " not found.")
         );
 
         validateNoDuplicateEquipmentInRequestOrReservation(dto.getEquipmentIds(), reservation, validationErrors);
 
+        if (!validationErrors.isEmpty()) {
+            throw new ValidationException("Validation failed for adding equipment", validationErrors);
+        }
+
         if (dto.getEquipmentIds() != null) {
-            for (Long id : dto.getEquipmentIds()) {
-                Equipment equipment = equipmentRepository.findById(id)
-                    .orElseThrow(() ->
-                        new NotFoundException("Equipment with ID " + id + " not found.")
-                    );
-                isEquipmentAvailable(equipment, reservation.getStartDate(), reservation.getEndDate(), null, validationErrors);
+
+            validateEquipmentList(dto.getEquipmentIds(), validationErrors);
+
+            if (validationErrors.isEmpty()) {
+                List<Equipment> equipmentList = equipmentRepository.findAllByIdsLocked(dto.getEquipmentIds());
+                for (Equipment equipment : equipmentList) {
+                    isEquipmentAvailable(equipment, reservation.getStartDate(), reservation.getEndDate(), null, validationErrors);
+                }
             }
         }
+
         if (!validationErrors.isEmpty()) {
             throw new ValidationException(
                 "Validation failed for adding equipment",
@@ -186,7 +193,7 @@ public class ReservationValidator {
 
         List<String> validationErrors = new ArrayList<>();
 
-        Reservation reservation = reservationRepository.findById(dto.getId()).orElseThrow(() ->
+        Reservation reservation = reservationRepository.findByIdLocked(dto.getId()).orElseThrow(() ->
             new NotFoundException("Reservation with ID " + dto.getId() + " not found.")
         );
 

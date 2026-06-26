@@ -121,7 +121,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
             dto.getEndDate(),
             dto.getReservationStatus()
         );
-        List<Equipment> equipmentList = equipmentRepository.findAllById(dto.getEquipmentIds());
+        List<Equipment> equipmentList = equipmentRepository.findAllByIdsLocked(dto.getEquipmentIds());
         for (Equipment equipment : equipmentList) {
             reservation.addItem(equipment);
 
@@ -139,7 +139,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
     public void deleteReservation(Long id, boolean isStaff) {
         LOGGER.trace("Deleting reservation with id {}", id);
 
-        Reservation reservation = reservationRepository.findById(id)
+        Reservation reservation = reservationRepository.findByIdLocked(id)
             .orElseThrow(() -> new NotFoundException("Reservation with ID " + id + " was not found."));
 
         if (!isStaff) {
@@ -247,7 +247,7 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
         List<Equipment> finalEquipmentsToReserve;
         if (equipmentChanged) {
             reservation.getItems().clear();
-            finalEquipmentsToReserve = equipmentRepository.findAllById(dto.getEquipmentIds());
+            finalEquipmentsToReserve = equipmentRepository.findAllByIdsLocked(dto.getEquipmentIds());
             for (Equipment eq : finalEquipmentsToReserve) {
                 reservation.addItem(eq);
             }
@@ -381,14 +381,14 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
 
         validator.validateReservationAddEquip(dto);
 
-        Reservation reservation = reservationRepository.getReferenceById(dto.getId());
+        Reservation reservation = reservationRepository.findByIdLocked(dto.getId())
+            .orElseThrow(() -> new NotFoundException("Reservation with ID " + dto.getId() + " not found."));
 
         if (reservation.getReservationStatus() == ReservationStatus.RETURNED) {
             throw new ValidationException("Reservations can only be deleted if they have not been returned.");
         }
 
-        List<Equipment> equipmentList = equipmentRepository.findAllById(dto.getEquipmentIds());
-
+        List<Equipment> equipmentList = equipmentRepository.findAllByIdsLocked(dto.getEquipmentIds());
         for (Equipment equipment : equipmentList) {
             reservation.addItem(equipment);
             equipment.addTimePeriod(reservation.getStartDate(), reservation.getEndDate(), PeriodType.RENTED, reservation);
@@ -403,13 +403,14 @@ public class ReservationServiceImpl implements at.ac.tuwien.sepr.groupphase.back
     public ReservationDetailDto removeEquipmentFromReservation(ReservationAddDeleteEquipmentDto dto) {
         validator.validateReservationRemoveEquipment(dto);
 
-        Reservation reservation = reservationRepository.getReferenceById(dto.getId());
+        Reservation reservation = reservationRepository.findByIdLocked(dto.getId())
+            .orElseThrow(() -> new NotFoundException("Reservation with ID " + dto.getId() + " not found."));
 
         if (reservation.getReservationStatus() == ReservationStatus.RETURNED) {
             throw new ValidationException("Equipment can only be removed if it has not been returned.");
         }
 
-        List<Equipment> equipmentList = equipmentRepository.findAllById(dto.getEquipmentIds());
+        List<Equipment> equipmentList = equipmentRepository.findAllByIdsLocked(dto.getEquipmentIds());
 
         deleteTimePeriodsForEquipment(equipmentList, reservation);
 
