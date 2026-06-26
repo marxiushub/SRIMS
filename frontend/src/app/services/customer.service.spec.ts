@@ -49,7 +49,7 @@ describe('CustomerService', () => {
         expect(response).toEqual(mockResponse);
       });
 
-      const req = httpMock.expectOne(`${globals.backendUri}/customer/20`);
+      const req = httpMock.expectOne(`${globals.backendUri}/customers/20`);
       expect(req.request.method).toBe('GET');
 
       req.flush(mockResponse);
@@ -77,7 +77,7 @@ describe('CustomerService', () => {
         expect(response).toEqual(mockResponse);
       });
 
-      const req = httpMock.expectOne(`${globals.backendUri}/customer/password/20`);
+      const req = httpMock.expectOne(`${globals.backendUri}/customers/password/20`);
       expect(req.request.method).toBe('PATCH');
       expect(req.request.body).toEqual(passwordChange);
 

@@ -9,7 +9,7 @@ import {Globals} from '../global/globals';
 })
 export class StatisticsService {
 
-  private statisticBaseUri: string = this.globals.backendUri + '/statistics/get';
+  private statisticBaseUri: string = this.globals.backendUri + '/statistics';
 
   constructor(private httpClient: HttpClient, private globals: Globals) { }
 

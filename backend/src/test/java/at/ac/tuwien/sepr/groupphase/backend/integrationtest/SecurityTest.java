@@ -94,7 +94,7 @@ public class SecurityTest implements TestData {
 
     @Test
     public void givenCustomerLoggedIn_whenGetCustomer_then200() {
-        MvcResult mvcResult = assertDoesNotThrow(() -> this.mockMvc.perform(get("/api/v1/customer/{id}", ID)
+        MvcResult mvcResult = assertDoesNotThrow(() -> this.mockMvc.perform(get("/api/v1/customers/{id}", ID)
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(DEFAULT_USER, ID, USER_PERMISSIONS)))
             .andDo(print())
             .andReturn());
@@ -105,7 +105,7 @@ public class SecurityTest implements TestData {
 
     @Test
     public void givenNoOneLoggedIn_whenGetCustomer_then403() {
-        MvcResult mvcResult = assertDoesNotThrow(() -> this.mockMvc.perform(get("/api/v1/customer/{id}", ID))
+        MvcResult mvcResult = assertDoesNotThrow(() -> this.mockMvc.perform(get("/api/v1/customers/{id}", ID))
             .andDo(print())
             .andReturn());
         MockHttpServletResponse response = mvcResult.getResponse();

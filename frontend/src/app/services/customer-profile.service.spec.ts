@@ -48,7 +48,7 @@ describe('CustomerProfileService', () => {
         expect(profiles.length).toBe(2);
       });
 
-      const req = httpMock.expectOne(`${globals.backendUri}/customer/profiles`);
+      const req = httpMock.expectOne(`${globals.backendUri}/customers/profiles`);
       expect(req.request.method).toBe('GET');
       req.flush(mockProfiles);
     });
@@ -67,7 +67,7 @@ describe('CustomerProfileService', () => {
         expect(profiles.length).toBe(2);
       });
 
-      const req = httpMock.expectOne(`${globals.backendUri}/customer/${targetCustomerId}/profiles`);
+      const req = httpMock.expectOne(`${globals.backendUri}/customers/profiles/${targetCustomerId}/profiles`);
 
       expect(req.request.method).toBe('GET');
       req.flush(mockProfiles);
@@ -83,7 +83,7 @@ describe('CustomerProfileService', () => {
         expect(profile).toEqual(mockProfile);
       });
 
-      const req = httpMock.expectOne(`${globals.backendUri}/customer/profiles/${profileId}`);
+      const req = httpMock.expectOne(`${globals.backendUri}/customers/profiles/${profileId}`);
       expect(req.request.method).toBe('GET');
       req.flush(mockProfile);
     });
@@ -97,7 +97,7 @@ describe('CustomerProfileService', () => {
         expect().nothing();
       });
 
-      const req = httpMock.expectOne(`${globals.backendUri}/customer/profiles/${profileId}`);
+      const req = httpMock.expectOne(`${globals.backendUri}/customers/profiles/${profileId}`);
       expect(req.request.method).toBe('DELETE');
       req.flush(null);
     });
@@ -112,7 +112,7 @@ describe('CustomerProfileService', () => {
         expect(profile).toEqual(createdProfile);
       });
 
-      const req = httpMock.expectOne(`${globals.backendUri}/customer/profiles`);
+      const req = httpMock.expectOne(`${globals.backendUri}/customers/profiles`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(newProfile);
       req.flush(createdProfile);
@@ -129,7 +129,7 @@ describe('CustomerProfileService', () => {
         expect(profile).toEqual(updatedProfile);
       });
 
-      const req = httpMock.expectOne(`${globals.backendUri}/customer/profiles/${profileId}`);
+      const req = httpMock.expectOne(`${globals.backendUri}/customers/profiles/${profileId}`);
       expect(req.request.method).toBe('PATCH');
       expect(req.request.body).toEqual(updateData);
       req.flush(updatedProfile);
@@ -149,7 +149,7 @@ describe('CustomerProfileService', () => {
         }
       });
 
-      const req = httpMock.expectOne(`${globals.backendUri}/customer/profiles/${profileId}`);
+      const req = httpMock.expectOne(`${globals.backendUri}/customers/profiles/${profileId}`);
 
       req.flush(mockErrorResponse, {status: 404, statusText: 'Not Found'});
     });
@@ -164,7 +164,7 @@ describe('CustomerProfileService', () => {
         }
       });
 
-      const req = httpMock.expectOne(`${globals.backendUri}/customer/profiles`);
+      const req = httpMock.expectOne(`${globals.backendUri}/customers/profiles`);
       req.flush('Invalid data', {status: 400, statusText: 'Bad Request'});
     });
   });

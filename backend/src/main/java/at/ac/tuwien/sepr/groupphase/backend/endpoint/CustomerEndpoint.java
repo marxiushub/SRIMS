@@ -29,7 +29,7 @@ import java.lang.invoke.MethodHandles;
  * Provides endpoint for retrieving equipment information.
  */
 @RestController
-@RequestMapping("/api/v1/customer")
+@RequestMapping("/api/v1/customers")
 public class CustomerEndpoint {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final CustomUserDetailService userService;
@@ -46,9 +46,9 @@ public class CustomerEndpoint {
      * @return a Customer entity
      */
     @PermitAll
-    @PostMapping("/create")
+    @PostMapping
     public UserDetailDto createCustomer(@Valid @RequestBody CustomerCreationDto dto) {
-        LOGGER.info("POST /api/v1/customer/create - {}", dto);
+        LOGGER.info("POST /api/v1/customer - {}", dto);
         return userService.createUser(dto);
     }
 
@@ -60,9 +60,9 @@ public class CustomerEndpoint {
      * @return the updated customer user
      */
     @PreAuthorize("hasAnyAuthority('CUSTOMER_UPDATE')")
-    @PutMapping("/update/{id}")
+    @PutMapping("/{id}")
     public UserDetailDto updateCustomer(@PathVariable("id") Long id, @Valid @RequestBody CustomerUpdateDto dto) {
-        LOGGER.info("PUT /api/v1/customer/update/{} - {}", id, dto);
+        LOGGER.info("PUT /api/v1/customer/{} - {}", id, dto);
         return userService.updateUser(id, dto);
     }
 
@@ -87,9 +87,9 @@ public class CustomerEndpoint {
      * @return the updated customer
      */
     @PermitAll
-    @PatchMapping("/password-resets/{email}")
+    @PatchMapping("/password-reset/{email}")
     public UserDetailDto resetPassword(@PathVariable("email") String email) {
-        LOGGER.info("PATCH /api/v1/staff/password-resets/{}", email);
+        LOGGER.info("PATCH /api/v1/staff/password-reset/{}", email);
         return userService.resetPassword(email);
     }
 
@@ -99,9 +99,9 @@ public class CustomerEndpoint {
      * @param id the ID of the Costumer user to delete
      */
     @PreAuthorize("hasAnyAuthority('CUSTOMER_DELETE')")
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable("id") Long id) {
-        LOGGER.info("DELETE /api/v1/costumer/delete/{}", id);
+        LOGGER.info("DELETE /api/v1/costumer/{}", id);
         userService.deleteUserById(id);
     }
 
