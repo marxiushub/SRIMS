@@ -4,6 +4,7 @@ import {Router} from '@angular/router';
 import {ToastrService} from 'ngx-toastr';
 import {TranslateService} from '@ngx-translate/core';
 import {StaffService} from '../../../services/staff.service';
+import {ErrorMappingService} from "../../../services/error-mapping.service";
 
 @Component({
   selector: 'app-reset-staff-password',
@@ -21,7 +22,8 @@ export class ResetStaffPasswordComponent {
     private staffService: StaffService,
     private router: Router,
     public translateService: TranslateService,
-    private notification: ToastrService
+    private notification: ToastrService,
+    private errorMapping: ErrorMappingService
   ) {
     this.resetForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]]
@@ -52,8 +54,9 @@ export class ResetStaffPasswordComponent {
   private handleError(error: any): void {
     console.log('Action failed due to:', error);
     let errorMessage: string;
+    errorMessage = this.errorMapping.getErrorMessage(error);
 
-    if (error.error && typeof error.error === 'object') {
+    /*if (error.error && typeof error.error === 'object') {
       if (error.error.errors) {
         errorMessage = error.error.errors;
       } else if (error.error.message) {
@@ -67,7 +70,7 @@ export class ResetStaffPasswordComponent {
       errorMessage = error.error;
     } else {
       errorMessage = this.translateService.instant('COMMON.UNKNOWN_ERROR') || 'An unexpected error occurred.';
-    }
+    }*/
 
     this.notification.error(errorMessage);
   }

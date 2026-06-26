@@ -20,6 +20,7 @@ export class CustomerInventoryComponent implements OnInit {
 
   equipment: Equipment[] = [];
   loading = false;
+  loadError = false;
   errorMessage = '';
 
   modelOptions: string[] = [];
@@ -90,11 +91,13 @@ export class CustomerInventoryComponent implements OnInit {
       }
     });
   }
+
 // Navigates to the equipment detail view page for the selected item.
   openDetailPage(item: Equipment): void {
     this.router.navigate(['/customer/inventory/view', item.id]);
   }
- // Returns the CSS class based on the equipment status.
+
+  // Returns the CSS class based on the equipment status.
   getStatusClass(status: string): string {
     switch (status) {
       case 'FREE':

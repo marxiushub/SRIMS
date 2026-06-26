@@ -7,6 +7,7 @@ import {AuthService} from '../../../services/auth.service';
 import {CustomerService} from '../../../services/customer.service';
 import {CustomerSearchResponse} from '../../../dtos/customer-search-response';
 import {PasswordChange} from '../../../dtos/password-change';
+import {ErrorMappingService} from "../../../services/error-mapping.service";
 
 @Component({
   selector: 'app-customer-account',
@@ -18,7 +19,7 @@ export class CustomerAccountComponent implements OnInit {
 
   account?: CustomerSearchResponse;
   loading = false;
-  loadError = false;
+  loadError: string | null = null;
 
   passwordForm: UntypedFormGroup;
   passwordSubmitted = false;
@@ -33,7 +34,8 @@ export class CustomerAccountComponent implements OnInit {
     private customerService: CustomerService,
     private router: Router,
     public translateService: TranslateService,
-    private notification: ToastrService
+    private notification: ToastrService,
+    private errorMapping: ErrorMappingService
   ) {
     this.passwordForm = this.formBuilder.group({
       oldPassword: ['', [Validators.required]],
@@ -51,13 +53,14 @@ export class CustomerAccountComponent implements OnInit {
     if (this.customerId != null) {
       this.loadAccount(this.customerId);
     } else {
-      this.loadError = true;
+      this.loadError = this.translateService.instant('COMMON.UNEXPECTED_ERROR') || 'An unexpected error occurred.';
     }
   }
+
 // Loads the customer account data for the given customer ID from the backend.
   loadAccount(id: number): void {
     this.loading = true;
-    this.loadError = false;
+    this.loadError = null;
     this.customerService.getById(id).subscribe({
       next: (data) => {
         this.account = data;
@@ -65,11 +68,12 @@ export class CustomerAccountComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load account', err);
-        this.loadError = true;
+        this.loadError = this.errorMapping.getErrorMessage(err);
         this.loading = false;
       }
     });
   }
+
   // Submits a password change request after validating the form input.
   onSubmitPasswordChange(): void {
     this.passwordSubmitted = true;
@@ -96,6 +100,7 @@ export class CustomerAccountComponent implements OnInit {
   back(): void {
     this.router.navigate(['/customer']);
   }
+
 // Processes and displays error messages from failed HTTP requests.
   private handleError(error: any): void {
     console.log('Action failed due to:', error);

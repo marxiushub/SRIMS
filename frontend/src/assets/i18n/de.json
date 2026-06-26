@@ -343,6 +343,7 @@
     "ADD": "Hinzufügen",
     "ADDED": "Hinzugefügt",
     "SUBMIT": "Reservierung verbindlich abschicken",
+    "SUBMIT_ERROR": "Reservierung konnte nicht erstellt werden.",
     "VALIDATION_WARNING": "Einige bereits ausgewählte Gegenstände wurden entfernt, da sie im neu gewählten Zeitraum nicht verfügbar sind.",
     "CUSTOMER_PROFILES_LOADING_FAILED": "Kunden-Profile konnten nicht geladen werden",
     "ADD_RESERVATION": "Neue Reservierung erstellen",

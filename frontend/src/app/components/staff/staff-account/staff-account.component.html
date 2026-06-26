@@ -15,7 +15,7 @@
 
   @if (loadError) {
     <div class="alert alert-danger">
-      {{ 'STAFF.ACCOUNT.LOADING_ERROR' | translate }}
+      {{ loadError || 'STAFF.ACCOUNT.LOADING_ERROR' | translate }}
     </div>
   }
 

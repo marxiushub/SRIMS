@@ -383,7 +383,8 @@
           <div class="modal-body">
             <p>{{ 'RESERVATION.DELETE_CONFIRMATION' | translate }}</p>
             @if (deleteError) {
-              <div class="alert alert-danger mt-3 mb-0">{{ deleteError }}</div>
+              <div class="alert alert-danger mt-3 mb-0">{{ deleteError || 'RESERVATION.DELETE_FAILED' | translate }}
+              </div>
             }
           </div>
 

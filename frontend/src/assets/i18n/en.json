@@ -343,6 +343,7 @@
     "ADD": "Add",
     "ADDED": "Added",
     "SUBMIT": "Submit Binding Reservation",
+    "SUBMIT_ERROR": "Reservation could not be created.",
     "VALIDATION_WARNING": "Some previously selected items have been removed because they are not available in the newly selected period.",
     "CUSTOMER_PROFILES_LOADING_FAILED": "Loading of customer profiles failed",
     "ADD_RESERVATION": "Create New Reservation",
