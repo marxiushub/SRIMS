@@ -48,6 +48,9 @@ export class BarcodeScannerComponent implements OnInit {
   filteredProfiles: CustomerProfile[] = [];
   submitLoading = false;
   submitError: string | null = null;
+  userSearchTerm = '';
+  showUserDropdown = false;
+  filteredUsers: CustomerSearchResponse[] = [];
 
   //Mode for the walk-in checkout: RENTAL (default) or MAINTENANCE. Only relevant when
   //scanScenario === 'NO_RESERVATION', since that's the only scenario where a walk-in
@@ -512,6 +515,10 @@ export class BarcodeScannerComponent implements OnInit {
       endDate: [null, Validators.required]
     });
 
+    this.userSearchTerm = '';
+    this.showUserDropdown = false;
+    this.filteredUsers = [];
+
     //Checks whether a CustomerAccount is selected, to load the corresponding profiles
     this.walkInForm.get('userId')?.valueChanges.subscribe(userId => {
       if (userId) {
@@ -661,6 +668,33 @@ export class BarcodeScannerComponent implements OnInit {
         this.errorMessage = this.translateService.instant('BARCODE_SCANNER.ERROR_UNEXPECTED');
       }
     });
+  }
+
+  onUserSearch(term: string): void {
+    this.userSearchTerm = term;
+    if (!term.trim()) {
+      this.filteredUsers = [];
+      this.showUserDropdown = false;
+      this.walkInForm.patchValue({ userId: null });
+      this.walkInForm.get('customerProfileId')?.disable();
+      this.filteredProfiles = [];
+      return;
+    }
+    const lower = term.toLowerCase();
+    this.filteredUsers = this.allUsers.filter(u =>
+      `${u.firstName} ${u.lastName}`.toLowerCase().includes(lower) ||
+      u.email.toLowerCase().includes(lower)
+    );
+    this.showUserDropdown = this.filteredUsers.length > 0;
+  }
+
+  selectUser(user: CustomerSearchResponse): void {
+    this.userSearchTerm = `${user.firstName} ${user.lastName}`;
+    this.showUserDropdown = false;
+    this.walkInForm.patchValue({ userId: user.id });
+    if (user.id) {
+      this.loadProfilesForUser(user.id);
+    }
   }
 
   //Checks that the returnDate is correct

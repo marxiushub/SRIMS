@@ -136,19 +136,30 @@
             <form [formGroup]="walkInForm" (ngSubmit)="openConfirmationModal(confirmDialog)">
               @if (checkoutMode === 'RENTAL') {
                 <div class="row g-3 mb-3">
-                  <div class="col-md-6">
-                    <label for="walkInUser"
-                           class="form-label small fw-bold">{{ 'BARCODE_SCANNER.WALK_IN_SELECT_USER' | translate }}
-                      *</label>
-                    <select id="walkInUser" formControlName="userId" class="form-select"
-                            [ngClass]="{ 'is-invalid': !walkInForm.get('userId')?.value }">
-                      <option [ngValue]="null" disabled>-- {{ 'BARCODE_SCANNER.CHOOSE_USER_PLACEHOLDER' | translate }}
-                        --
-                      </option>
-                      @for (user of allUsers; track user.id) {
-                        <option [ngValue]="user.id">{{ user.userName }}</option>
-                      }
-                    </select>
+                  <div class="col-md-6 position-relative">
+                    <label class="form-label small fw-bold">{{ 'BARCODE_SCANNER.WALK_IN_SELECT_USER' | translate }} *</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      [placeholder]="'BARCODE_SCANNER.CHOOSE_USER_PLACEHOLDER' | translate"
+                      [ngClass]="{ 'is-invalid': !walkInForm.get('userId')?.value && walkInForm.get('userId')?.touched }"
+                      [(ngModel)]="userSearchTerm"
+                      [ngModelOptions]="{ standalone: true }"
+                      (input)="onUserSearch(userSearchTerm)"
+                      (blur)="showUserDropdown = false"
+                      maxlength="100"
+                      autocomplete="off">
+                    @if (showUserDropdown) {
+                      <ul class="list-group position-absolute w-100 shadow-sm" style="top: 100%; z-index: 1000; max-height: 200px; overflow-y: auto;">
+                        @for (user of filteredUsers; track user.id) {
+                          <li class="list-group-item list-group-item-action py-1 px-3 small"
+                              (mousedown)="selectUser(user)">
+                            <span class="fw-medium">{{ user.firstName }} {{ user.lastName }}</span>
+                            <span class="text-muted ms-1">({{ user.email }})</span>
+                          </li>
+                        }
+                      </ul>
+                    }
                   </div>
 
                   <div class="col-md-6">
