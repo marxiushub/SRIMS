@@ -33,6 +33,7 @@ import org.springframework.test.context.ActiveProfiles;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
+import at.ac.tuwien.sepr.groupphase.backend.exception.LocalizedError;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -47,7 +48,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
-//TODO: use generated data in tests, need to work on cleanup and setup
+
 //Customer which are updated or deleted are created beforehand and do not use generated data
 @ActiveProfiles({"test", "datagenerator"})
 @SpringBootTest
@@ -155,6 +156,24 @@ public class UserServiceTest {
         return dto;
     }
 
+    private static void assertContainsErrorMessage(
+        ValidationException exception,
+        String expectedMessage
+    ) {
+        assertThat(exception.getErrors())
+            .extracting(LocalizedError::message)
+            .contains(expectedMessage);
+    }
+
+    private static void assertContainsErrorMessageContaining(
+        ValidationException exception,
+        String expectedMessagePart
+    ) {
+        assertThat(exception.getErrors())
+            .extracting(LocalizedError::message)
+            .anyMatch(message -> message.contains(expectedMessagePart));
+    }
+
     @Test
     public void createCustomer_withValidDto_returnsSavedCustomerWithId() {
         CustomerCreationDto dto = validCustomerDto(uniqueEmail("customer.create"));
@@ -242,8 +261,10 @@ public class UserServiceTest {
         assertThat(exception.getMessage())
             .contains("Email is already in use");
 
-        assertThat(exception.getErrors())
-            .anyMatch(err -> err.contains("Email " + email + " is already in use"));
+        assertContainsErrorMessageContaining(
+            exception,
+            "Email " + email + " is already in use"
+        );
     }
 
     @Test
@@ -409,8 +430,7 @@ public class UserServiceTest {
         assertThat(exception.getMessage())
             .contains("Validation of the dto for changing passwords failed");
 
-        assertThat(exception.getErrors())
-            .contains("passwordChangeDto is null");
+        assertContainsErrorMessage(exception, "passwordChangeDto is null");
     }
 
     @Test
@@ -431,8 +451,7 @@ public class UserServiceTest {
         assertThat(exception.getMessage())
             .contains("Validation of the dto for changing passwords failed");
 
-        assertThat(exception.getErrors())
-            .contains("oldPassword is blank");
+        assertContainsErrorMessage(exception, "oldPassword is blank");
     }
 
     @Test
@@ -453,8 +472,7 @@ public class UserServiceTest {
         assertThat(exception.getMessage())
             .contains("Validation of the dto for changing passwords failed");
 
-        assertThat(exception.getErrors())
-            .contains("oldPassword is blank");
+        assertContainsErrorMessage(exception, "oldPassword is blank");
     }
 
     @Test
@@ -475,8 +493,7 @@ public class UserServiceTest {
         assertThat(exception.getMessage())
             .contains("Validation of the dto for changing passwords failed");
 
-        assertThat(exception.getErrors())
-            .contains("newPassword is blank");
+        assertContainsErrorMessage(exception, "newPassword is blank");
     }
 
     @Test
@@ -497,8 +514,7 @@ public class UserServiceTest {
         assertThat(exception.getMessage())
             .contains("Validation of the dto for changing passwords failed");
 
-        assertThat(exception.getErrors())
-            .contains("newPassword is blank");
+        assertContainsErrorMessage(exception, "newPassword is blank");
     }
 
     @Test
