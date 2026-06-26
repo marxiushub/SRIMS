@@ -18,4 +18,6 @@ public interface CustomerProfileRepository extends JpaRepository<CustomerProfile
     Optional<CustomerProfile> findByIdAndCustomerId(Long id, Long customerId);
 
     boolean existsByCustomerIdAndProfileName(Long customerId, String profileName);
+
+    boolean existsByCustomerIdAndProfileNameAndIdNot(Long customerId, String profileName, Long id);
 }

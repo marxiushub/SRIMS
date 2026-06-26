@@ -145,10 +145,14 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
         CustomerProfile profile = checkUserAccessPermission(customerProfileId, currentUserId);
 
         if (dto.getProfileName() != null) {
-
             String newName = dto.getProfileName().trim();
 
-            boolean nameAlreadyExists = customerProfileRepository.existsByCustomerIdAndProfileName(currentUserId, newName);
+            boolean nameAlreadyExists =
+                customerProfileRepository.existsByCustomerIdAndProfileNameAndIdNot(
+                    currentUserId,
+                    newName,
+                    customerProfileId
+                );
 
             if (nameAlreadyExists) {
                 throw new ValidationException("A profile with the name " + newName + " already exists");
