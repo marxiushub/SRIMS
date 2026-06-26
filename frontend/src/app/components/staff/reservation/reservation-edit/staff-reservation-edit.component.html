@@ -22,7 +22,8 @@
 
         <div class="col-12 col-sm-6 col-xl-3">
           <label for="startDate" class="form-label fw-bold">{{ 'RESERVATION.PICKUP_DATE' | translate }} *</label>
-          <input type="date" id="startDate" formControlName="startDate" class="form-control">
+          <input type="date" id="startDate" formControlName="startDate" class="form-control"
+                 [ngClass]="{ 'is-invalid': isDateRangeInvalid || isStartDateInPast || isStartDateMissing}">
         </div>
 
         <div class="col-12 col-sm-6 col-xl-2">
@@ -32,8 +33,23 @@
 
         <div class="col-12 col-sm-6 col-xl-3">
           <label for="endDate" class="form-label fw-bold">{{ 'RESERVATION.RETURN_DATE' | translate }} *</label>
-          <input type="date" id="endDate" formControlName="endDate" class="form-control">
+          <input type="date" id="endDate" formControlName="endDate" class="form-control"
+                 [ngClass]="{ 'is-invalid': isDateRangeInvalid || isEndDateMissing}">
         </div>
+
+        @if (isDateRangeInvalid) {
+          <div class="alert alert-danger py-2 mt-2 mb-0 d-flex align-items-center gap-2">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            {{ 'RESERVATION.DATE_RANGE_INVALID' | translate }}
+          </div>
+        }
+
+        @if (isStartDateInPast) {
+          <div class="alert alert-danger py-2 mt-2 mb-0 d-flex align-items-center gap-2">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            {{ 'RESERVATION.DATE_START_IN_PAST' | translate }}
+          </div>
+        }
 
       </div>
     </div>
@@ -292,7 +308,7 @@
       <button
         type="button"
         class="btn btn-success btn-lg flex-grow-1"
-        [disabled]="reservationForm.invalid || selectedEquipment.length === 0 || isDateRangeInvalid || submitLoading"
+        [disabled]="reservationForm.invalid || selectedEquipment.length === 0 || isDateRangeInvalid || isStartDateInPast || submitLoading"
         (click)="submitConfirmDialog.showModal()">
         @if (submitLoading) {
           {{ 'INVENTORY.LOADING' | translate }}...

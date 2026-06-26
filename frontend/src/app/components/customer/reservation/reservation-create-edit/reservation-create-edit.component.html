@@ -18,7 +18,8 @@
 
         <div class="col-12 col-sm-6 col-xl-3">
           <label for="profile" class="form-label fw-bold">{{ 'RESERVATION.SELECT_PROFILE' | translate }} *</label>
-          <select id="profile" formControlName="customerProfileId" class="form-select" [attr.disabled]="mode === ReservationCreateEditMode.edit ? true : null">
+          <select id="profile" formControlName="customerProfileId" class="form-select"
+                  [attr.disabled]="mode === ReservationCreateEditMode.edit ? true : null">
             <option [ngValue]="null" disabled>{{ 'RESERVATION.CHOOSE_PROFILE_PLACEHOLDER' | translate }}</option>
             @for (profile of customerProfiles; track profile.id) {
               <option [ngValue]="profile.id">
@@ -30,7 +31,8 @@
 
         <div class="col-12 col-sm-6 col-xl-3">
           <label for="startDate" class="form-label fw-bold">{{ 'RESERVATION.PICKUP_DATE' | translate }} *</label>
-          <input type="date" id="startDate" formControlName="startDate" class="form-control">
+          <input type="date" id="startDate" formControlName="startDate" class="form-control"
+                 [ngClass]="{ 'is-invalid': isDateRangeInvalid || isStartDateInPast || isStartDateMissing}">
         </div>
 
         <div class="col-12 col-sm-6 col-xl-2">
@@ -40,8 +42,23 @@
 
         <div class="col-12 col-sm-6 col-xl-3">
           <label for="endDate" class="form-label fw-bold">{{ 'RESERVATION.RETURN_DATE' | translate }} *</label>
-          <input type="date" id="endDate" formControlName="endDate" class="form-control">
+          <input type="date" id="endDate" formControlName="endDate" class="form-control"
+                 [ngClass]="{ 'is-invalid': isDateRangeInvalid || isEndDateMissing}">
         </div>
+
+        @if (isDateRangeInvalid) {
+          <div class="alert alert-danger py-2 mt-2 mb-0 d-flex align-items-center gap-2">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            {{ 'RESERVATION.DATE_RANGE_INVALID' | translate }}
+          </div>
+        }
+
+        @if (isStartDateInPast) {
+          <div class="alert alert-danger py-2 mt-2 mb-0 d-flex align-items-center gap-2">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            {{ 'RESERVATION.DATE_START_IN_PAST' | translate }}
+          </div>
+        }
 
       </div>
     </div>
@@ -168,7 +185,8 @@
           <div class="d-md-flex flex-md-wrap gap-md-2 align-items-md-end" [ngbCollapse]="!filtersExpanded">
             <div class="row g-1 align-items-end mb-3">
               <div class="col-12 col-md-4">
-                <label for="searchEquipmentModel" class="col-form-label small fw-bold">{{ 'INVENTORY.EQUIPMENT_MODEL' | translate }}</label>
+                <label for="searchEquipmentModel"
+                       class="col-form-label small fw-bold">{{ 'INVENTORY.EQUIPMENT_MODEL' | translate }}</label>
                 <input
                   type="text"
                   id="searchEquipmentModel"
@@ -180,7 +198,8 @@
               </div>
 
               <div class="col-12 col-md-4">
-                <label for="searchEquipmentSkill" class="col-form-label small fw-bold">{{ 'INVENTORY.EQUIPMENT_SKILL' | translate }}</label>
+                <label for="searchEquipmentSkill"
+                       class="col-form-label small fw-bold">{{ 'INVENTORY.EQUIPMENT_SKILL' | translate }}</label>
                 <select
                   id="searchEquipmentSkill"
                   name="searchEquipmentSkill"
@@ -196,7 +215,8 @@
               </div>
 
               <div class="col-12 col-md-4">
-                <label for="searchEquipmentPriceSort" class="col-form-label small fw-bold">{{ 'INVENTORY.EQUIPMENT_PRICE' | translate }}</label>
+                <label for="searchEquipmentPriceSort"
+                       class="col-form-label small fw-bold">{{ 'INVENTORY.EQUIPMENT_PRICE' | translate }}</label>
                 <select
                   id="searchEquipmentPriceSort"
                   name="searchEquipmentPriceSort"
@@ -297,15 +317,16 @@
       <button
         type="button"
         class="btn btn-success btn-lg flex-grow-1"
-        [disabled]="reservationForm.invalid || selectedEquipment.length === 0 || isDateRangeInvalid || submitLoading"
-        (click) = submitConfirmDialog.showModal()>
+        [disabled]="reservationForm.invalid || selectedEquipment.length === 0 || isDateRangeInvalid || isStartDateInPast || submitLoading"
+        (click)=submitConfirmDialog.showModal()>
         @if (submitLoading) {
           {{ 'INVENTORY.LOADING' | translate }}...
         } @else {
           @if (mode === ReservationCreateEditMode.create) {
             {{ 'RESERVATION.SUBMIT' | translate }}
           } @else {
-            {{ 'RESERVATION.UPDATE' | translate }} }
+            {{ 'RESERVATION.UPDATE' | translate }}
+          }
         }
       </button>
 
@@ -316,7 +337,8 @@
 
   </form>
 
-  <dialog #submitConfirmDialog class="border-0 rounded shadow-lg p-0 backend-modal" style="max-width: 500px; width: calc(100% - 2rem);">
+  <dialog #submitConfirmDialog class="border-0 rounded shadow-lg p-0 backend-modal"
+          style="max-width: 500px; width: calc(100% - 2rem);">
     <div class="card border-0">
       <div class="card-header bg-primary text-white py-3">
         <h5 class="card-title mb-0 d-flex align-items-center">

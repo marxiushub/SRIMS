@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.statistics;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.EquipmentType;
 import jakarta.validation.constraints.NotNull;
+import org.aspectj.lang.annotation.Before;
 
 import java.time.LocalDate;
 

@@ -1,14 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { StatisticsService } from '../../../services/statistics.service';
+import {Component, OnInit} from '@angular/core';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {StatisticsService} from '../../../services/statistics.service';
 
 
-import { StatisticsRequestDto } from '../../../dtos/statistics-request';
-import { StatisticsResponseDto } from '../../../dtos/statistics-response';
-import { EquipmentType } from '../../../dtos/equipmenttype';
-import {Equipment} from "../../../dtos/equipment";
+import {StatisticsRequestDto} from '../../../dtos/statistics-request';
+import {StatisticsResponseDto} from '../../../dtos/statistics-response';
+import {EquipmentType} from '../../../dtos/equipmenttype';
 import {Router} from "@angular/router";
-import { StatisticsStateService } from '../../../services/statistics-state.service';
+import {StatisticsStateService} from '../../../services/statistics-state.service';
 
 interface RenderedRow {
   label: string;
@@ -32,12 +31,14 @@ export class StatisticsComponent implements OnInit {
   yAxisTicks: number[] = [];
   tableRows: RenderedRow[] = [];
   emptyReturnList = false;
+
   constructor(
     private fb: FormBuilder,
     private statisticsService: StatisticsService,
     private router: Router,
     private stateService: StatisticsStateService
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     if (this.stateService.lastFilterValues) {
@@ -58,6 +59,11 @@ export class StatisticsComponent implements OnInit {
       });
     }
   }
+
+  /**
+   * Navigates to the detail page for the selected row and saves the current state.
+   * @param row The row data for which to open the detail page.
+   */
   openDetailPage(row: RenderedRow): void {
     this.stateService.lastFilterValues = this.filterForm.value;
     this.stateService.lastTableRows = this.tableRows;
@@ -66,6 +72,9 @@ export class StatisticsComponent implements OnInit {
     this.router.navigate(['/staff/inventory/view', row.id]);
   }
 
+  /**
+   * Handles the form submission to fetch statistics data based on the filter criteria.
+   */
   onSubmit(): void {
     if (this.filterForm.invalid) return;
     this.emptyReturnList = false;
@@ -73,7 +82,7 @@ export class StatisticsComponent implements OnInit {
     this.errorMessageKey = null;
     this.tableRows = [];
 
-    const requestData: StatisticsRequestDto = { ...this.filterForm.value };
+    const requestData: StatisticsRequestDto = {...this.filterForm.value};
 
     if (requestData.type === '' as any) {
       requestData.type = null as unknown as EquipmentType;
@@ -96,7 +105,7 @@ export class StatisticsComponent implements OnInit {
           }));
         }
         if ((!response.itemCounts || Object.keys(response.itemCounts).length === 0) &&
-          (!response.modelCounts || Object.keys(response.modelCounts).length === 0) ) {
+          (!response.modelCounts || Object.keys(response.modelCounts).length === 0)) {
           this.emptyReturnList = true;
         }
         this.tableRows.sort((a, b) => b.daysRented - a.daysRented);
@@ -114,10 +123,18 @@ export class StatisticsComponent implements OnInit {
       }
     });
   }
+
+  /**
+   * Toggles the sorting order between ascending and descending.
+   */
   toggleSort(): void {
     this.sortDescending = !this.sortDescending;
     this.applySorting();
   }
+
+  /**
+   * Applies the current sorting order to the table rows based on the number of days rented.
+   */
   private applySorting(): void {
     if (this.sortDescending) {
       this.tableRows.sort((a, b) => b.daysRented - a.daysRented);
@@ -125,6 +142,10 @@ export class StatisticsComponent implements OnInit {
       this.tableRows.sort((a, b) => a.daysRented - b.daysRented);
     }
   }
+
+  /**
+   * Calculates the Y-axis ticks for the chart based on the maximum number of days rented.
+   */
   private calculateYAxis(): void {
     this.yAxisTicks = [];
     const maxDataVal = this.tableRows.length > 0
@@ -151,5 +172,31 @@ export class StatisticsComponent implements OnInit {
         this.yAxisTicks.push(i);
       }
     }
+  }
+
+  /**
+   * Checks if the date configuration is invalid.
+   */
+  get isDateRangeInvalid(): boolean {
+    const start = this.filterForm.get('searchStart')?.value;
+    const end = this.filterForm.get('searchEnd')?.value;
+    if (!start || !end) {
+      return false;
+    }
+    return new Date(end) < new Date(start);
+  }
+
+  /**
+   * Checks if the end date is in the past.
+   */
+  get isStartDateMissing(): boolean {
+    return !this.filterForm.get('searchStart')?.value;
+  }
+
+  /**
+   * Checks if the end date is missing.
+   */
+  get isEndDateMissing(): boolean {
+    return !this.filterForm.get('searchEnd')?.value;
   }
 }

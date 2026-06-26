@@ -18,6 +18,10 @@ describe('RegisterStaffComponent', () => {
   let router: Router;
   let notification: ToastrService;
 
+  beforeEach(() => {
+    spyOn(console, 'log').and.stub();
+  });
+
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [RegisterStaffComponent],
