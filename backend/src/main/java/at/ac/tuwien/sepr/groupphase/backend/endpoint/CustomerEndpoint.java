@@ -89,7 +89,7 @@ public class CustomerEndpoint {
     @PermitAll
     @PatchMapping("/password-reset/{email}")
     public UserDetailDto resetPassword(@PathVariable("email") String email) {
-        LOGGER.info("PATCH /api/v1/staff/password-resets/{}", email);
+        LOGGER.info("PATCH /api/v1/staff/password-reset/{}", email);
         return userService.resetPassword(email);
     }
 
