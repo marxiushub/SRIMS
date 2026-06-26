@@ -33,6 +33,7 @@ public interface TestData {
             add("STAFF_DELETE");
             add("CUSTOMERPROFILE_READ");
             add("STAFF");
+            add("CHECK_OUT_OR_IN_SCAN");
         }
     };
     String DEFAULT_USER = "admin@email.com";
