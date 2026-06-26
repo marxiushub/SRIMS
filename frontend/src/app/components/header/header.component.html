@@ -13,14 +13,14 @@
   <div class="d-none d-lg-flex align-items-center text-white-50 ms-3">
     <span class="small me-2" [class.text-white]="!isEnglish">DE</span>
     <div class="form-check form-switch m-0 p-0 d-flex align-items-center" style="min-height: auto;">
-      <input
-        class="form-check-input m-0 cursor-pointer"
-        type="checkbox"
-        role="switch"
-        id="langSwitchDesktop"
-        [checked]="isEnglish"
-        (change)="onLanguageToggle($event)"
-        style="width: 2.5em; height: 1.25em;">
+      <button
+        type="button"
+        class="lang-toggle"
+        [class.lang-toggle-en]="isEnglish"
+        (click)="toggleLanguage()"
+        aria-label="Switch language">
+        <span class="lang-toggle-thumb"></span>
+      </button>
     </div>
     <span class="small ms-2" [class.text-white]="isEnglish">EN</span>
   </div>
@@ -34,14 +34,14 @@
       <li class="nav-item d-flex d-lg-none align-items-center me-lg-2 mb-1 mb-lg-0 text-white-50">
         <span class="small me-2" [class.text-white]="!isEnglish">DE</span>
         <div class="form-check form-switch m-0 p-0 d-flex align-items-center" style="min-height: auto;">
-          <input
-            class="form-check-input m-0 cursor-pointer"
-            type="checkbox"
-            role="switch"
-            id="langSwitch"
-            [checked]="isEnglish"
-            (change)="onLanguageToggle($event)"
-            style="width: 2.5em; height: 1.25em;">
+          <button
+            type="button"
+            class="lang-toggle"
+            [class.lang-toggle-en]="isEnglish"
+            (click)="toggleLanguage()"
+            aria-label="Switch language">
+            <span class="lang-toggle-thumb"></span>
+          </button>
         </div>
         <span class="small ms-2" [class.text-white]="isEnglish">EN</span>
       </li>

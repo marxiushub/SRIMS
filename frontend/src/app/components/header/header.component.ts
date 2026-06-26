@@ -28,14 +28,9 @@ export class HeaderComponent implements OnInit {
     return this.translate.currentLang === 'en';
   }
 
-  onLanguageToggle(event: Event) {
-    const isChecked = (event.target as HTMLInputElement).checked;
-    if(isChecked) {
-      this.app.switchLanguage('en');
-    }
-    else{
-      this.app.switchLanguage('de');
-    }
+  toggleLanguage(): void {
+    const selectedLanguage = this.isEnglish ? 'de' : 'en';
+    this.app.switchLanguage(selectedLanguage);
   }
 
   @HostListener('document:click', ['$event'])
