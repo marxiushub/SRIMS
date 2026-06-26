@@ -139,7 +139,8 @@
                     <label for="walkInUser"
                            class="form-label small fw-bold">{{ 'BARCODE_SCANNER.WALK_IN_SELECT_USER' | translate }}
                       *</label>
-                    <select id="walkInUser" formControlName="userId" class="form-select">
+                    <select id="walkInUser" formControlName="userId" class="form-select"
+                            [ngClass]="{ 'is-invalid': !walkInForm.get('userId')?.value }">
                       <option [ngValue]="null" disabled>-- {{ 'BARCODE_SCANNER.CHOOSE_USER_PLACEHOLDER' | translate }}
                         --
                       </option>

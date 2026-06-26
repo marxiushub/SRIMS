@@ -28,6 +28,11 @@ describe('StaffAccountComponent', () => {
     userType: UserType.STAFF
   };
 
+  beforeEach(() => {
+    spyOn(console, 'log').and.stub();
+    spyOn(console, 'error').and.stub();
+  });
+
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [StaffAccountComponent],

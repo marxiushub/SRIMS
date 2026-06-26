@@ -14,6 +14,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Ski;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.SkiBoot;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Snowboard;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.SnowboardBoot;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ReservationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.StatisicsService;
 import org.slf4j.Logger;
@@ -64,6 +65,10 @@ public class StatisticsServiceImpl implements StatisicsService {
     public StatisticsResponseDto getEquipmentStatistics(StatisticsRequestDto request) {
         LOGGER.trace("create StatisticsResponseDto for: {}", request.getType());
 
+        if (request.getSearchEnd().isBefore(request.getSearchStart())) {
+            throw new ValidationException("Date not Valid");
+        }
+
         LocalDate searchStart = request.getSearchStart();
         LocalDate searchEnd = request.getSearchEnd();
 
@@ -78,7 +83,7 @@ public class StatisticsServiceImpl implements StatisicsService {
             .filter(reservation ->
                 !reservation.getStartDate().isAfter(searchEnd)
                     && !reservation.getEndDate().isBefore(searchStart)
-                    && !reservation.getCustomerProfile().getProfileName().equals("Maintenance")
+                    && !reservation.getCustomerProfile().getCustomer().getEmail().equals("maintenance@system.internal")
             ).collect(Collectors.toList());
 
 

@@ -19,6 +19,17 @@ export class StaffService {
   constructor(private httpClient: HttpClient, private globals: Globals) {}
 
   /**
+   * Creates a new staff account.
+   * Maps to POST /api/v1/staff/create
+   * Requires the caller to be an authenticated staff member with STAFF_CREATE authority.
+   *
+   * @param staffCreationDto the DTO containing the new staff account's userName, password, and email
+   */
+  createStaff(staffCreationDto: StaffCreationDto): Observable<any> {
+    return this.httpClient.post<any>(`${this.staffBaseUri}`, staffCreationDto);
+  }
+
+  /**
    * Searches for customer accounts based on dynamic query parameters.
    * Maps to GET /api/v1/staff/customers/search
    * @param search the search criteria containing optional firstName, lastName, userName or email
@@ -40,7 +51,7 @@ export class StaffService {
       params = params.set('email', search.email);
     }
 
-    return this.httpClient.get<CustomerSearchResponse[]>(`${this.staffCustomersBaseUri}/search`, { params });
+    return this.httpClient.get<CustomerSearchResponse[]>(`${this.staffCustomersBaseUri}`, { params });
   }
 
   /**
@@ -74,16 +85,5 @@ export class StaffService {
    */
   resetPasswordForStaff(email: string): Observable<any> {
     return this.httpClient.patch<any>(`${this.staffBaseUri}/password-resets/${encodeURIComponent(email)}`, null);
-  }
-
-  /**
-   * Creates a new staff account.
-   * Maps to POST /api/v1/staff/create
-   * Requires the caller to be an authenticated staff member with STAFF_CREATE authority.
-   *
-   * @param staffCreationDto the DTO containing the new staff account's userName, password, and email
-   */
-  createStaff(staffCreationDto: StaffCreationDto): Observable<any> {
-    return this.httpClient.post<any>(`${this.staffBaseUri}/create`, staffCreationDto);
   }
 }

@@ -64,7 +64,7 @@ describe('StaffService', () => {
         expect(response[0].userType).toBe(UserType.CUSTOMER);
       });
 
-      const req = httpMock.expectOne((request) => request.url === `${globals.backendUri}/staff/customers/search`);
+      const req = httpMock.expectOne((request) => request.url === `${globals.backendUri}/staff/customers`);
       expect(req.request.method).toBe('GET');
 
       expect(req.request.params.get('firstName')).toBe('Max');
@@ -82,7 +82,7 @@ describe('StaffService', () => {
         expect(response).toEqual([]);
       });
 
-      const expectedUrl = `${globals.backendUri}/staff/customers/search`;
+      const expectedUrl = `${globals.backendUri}/staff/customers`;
       const req = httpMock.expectOne(expectedUrl);
       expect(req.request.method).toBe('GET');
       expect(req.request.params.keys().length).toBe(0);

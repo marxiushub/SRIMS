@@ -10,7 +10,7 @@ import {CustomerProfileCreationUpdate} from '../dtos/customer-profile-creation-u
 })
 export class CustomerProfileService {
 
-  private customerBaseUri: string = this.globals.backendUri + '/customer/profiles';
+  private customerBaseUri: string = this.globals.backendUri + '/customers/profiles';
 
   constructor(private httpClient: HttpClient, private globals: Globals) {
   }
@@ -27,7 +27,7 @@ export class CustomerProfileService {
    * @param customerId The id of the customer for which to load the profiles.
    */
   getCustomerProfilesByCustomerId(customerId: number): Observable<CustomerProfile[]> {
-    return this.httpClient.get<CustomerProfile[]>(`${this.globals.backendUri}/customer/${customerId}/profiles`);
+    return this.httpClient.get<CustomerProfile[]>(`${this.globals.backendUri}/customers/${customerId}/profiles`);
   }
 
   /**

@@ -70,7 +70,7 @@ describe('StatisticsService', () => {
       });
 
 
-      const req = httpMock.expectOne(`${globals.backendUri}/statistics/get`);
+      const req = httpMock.expectOne(`${globals.backendUri}/statistics`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(mockRequest);
 
@@ -100,7 +100,7 @@ describe('StatisticsService', () => {
         expect(data.modelCounts?.['Atomic Redster']).toBe(120);
       });
 
-      const req = httpMock.expectOne(`${globals.backendUri}/statistics/get`);
+      const req = httpMock.expectOne(`${globals.backendUri}/statistics`);
       req.flush(mockResponse);
     });
 
@@ -121,7 +121,7 @@ describe('StatisticsService', () => {
       });
 
 
-      const req = httpMock.expectOne(`${globals.backendUri}/statistics/get`);
+      const req = httpMock.expectOne(`${globals.backendUri}/statistics`);
       req.flush('Bad Request', { status: 400, statusText: 'Bad Request' });
     });
 

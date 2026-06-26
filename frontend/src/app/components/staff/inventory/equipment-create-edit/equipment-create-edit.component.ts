@@ -167,8 +167,7 @@ export class EquipmentCreateEditComponent implements OnInit {
       });
     }
   }
-
-  //TODO maybe remove onTypeChange depending on how we want create and edit to work, or maybe just remove for editing
+  
   onTypeChange(): void {
     this.equipment.length = undefined;
     this.equipment.size = undefined;

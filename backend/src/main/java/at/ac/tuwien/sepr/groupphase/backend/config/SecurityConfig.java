@@ -41,10 +41,10 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/health", "/health/**").permitAll()
                 .requestMatchers("/api/v1/authentication/**").permitAll()
-                .requestMatchers("/api/v1/customer/create").permitAll()
+                .requestMatchers("/api/v1/customers").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/equipment").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
-                .requestMatchers(HttpMethod.PATCH, "/api/v1/customer/password-resets/**").permitAll()
+                .requestMatchers(HttpMethod.PATCH, "/api/v1/customers/password-reset/**").permitAll()
                 .anyRequest().authenticated()
             )
             //End

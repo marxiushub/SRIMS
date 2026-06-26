@@ -365,7 +365,9 @@
     "CONFIRM_PROMPT": "Are you sure you want to submit this reservation?",
     "CONFIRM_SUBTEXT": "Please double-check all selected equipment items and dates before proceeding.",
     "TITLE_DETAIL": "View Reservation",
-    "SHOW_PAST": "Show Past Reservations"
+    "SHOW_PAST": "Show Past Reservations",
+    "DATE_RANGE_INVALID": "The return date cannot be before the pickup date.",
+    "DATE_START_IN_PAST": "The pickup date cannot be in the past."
   },
   "RESERVATION_STATUS": {
     "CREATED": "Created",

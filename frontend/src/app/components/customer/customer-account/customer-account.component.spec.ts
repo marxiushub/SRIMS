@@ -41,6 +41,9 @@ describe('CustomerAccountComponent', () => {
   }));
 
   beforeEach(() => {
+    spyOn(console, 'log').and.stub();
+    spyOn(console, 'error').and.stub();
+
     fixture = TestBed.createComponent(CustomerAccountComponent);
     component = fixture.componentInstance;
     authService = TestBed.inject(AuthService);

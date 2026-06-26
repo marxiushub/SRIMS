@@ -10,7 +10,7 @@ import {PasswordChange} from '../dtos/password-change';
 })
 export class CustomerService {
 
-  private customerBaseUri: string = this.globals.backendUri + '/customer';
+  private customerBaseUri: string = this.globals.backendUri + '/customers';
 
   constructor(private httpClient: HttpClient, private globals: Globals) {
   }

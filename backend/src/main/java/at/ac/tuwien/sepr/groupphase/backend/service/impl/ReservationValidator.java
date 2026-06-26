@@ -177,7 +177,7 @@ public class ReservationValidator {
                 Equipment equipment = equipmentRepository.findById(id)
                     .orElseThrow(() ->
                         new NotFoundException("Equipment with ID " + id + " not found.")
-                   );
+                    );
                 isEquipmentAvailable(equipment, reservation.getStartDate(), reservation.getEndDate(), null, validationErrors);
             }
         }
@@ -238,6 +238,8 @@ public class ReservationValidator {
                     validationErrors.add(new LocalizedError("Equipment with ID " + equipment.getId() + " is not available at this date",
                         "Equipment mit ID " + equipment.getId() + " ist nicht verfügbar in diesem Zeitraum"));
                 }
+            } else if (time.getEndDate().isEqual(start)) {
+                validationErrors.add("Equipment with ID " + equipment.getId() + " is not available at this date");
             }
         }
     }

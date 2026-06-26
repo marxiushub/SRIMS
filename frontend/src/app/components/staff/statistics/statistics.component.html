@@ -9,12 +9,14 @@
     <div class="filter-row">
       <div class="form-group">
         <label for="searchStart">{{ 'STAFF.STATISTICS.FILTER.START' | translate }}</label>
-        <input type="date" id="searchStart" formControlName="searchStart" class="form-control" />
+        <input type="date" id="searchStart" formControlName="searchStart" class="form-control"
+               [ngClass]="{ 'is-invalid': isDateRangeInvalid || isStartDateMissing}"/>
       </div>
 
       <div class="form-group">
         <label for="searchEnd">{{ 'STAFF.STATISTICS.FILTER.END' | translate }}</label>
-        <input type="date" id="searchEnd" formControlName="searchEnd" class="form-control" />
+        <input type="date" id="searchEnd" formControlName="searchEnd" class="form-control"
+               [ngClass]="{ 'is-invalid': isDateRangeInvalid || isEndDateMissing}"/>
       </div>
 
       <div class="form-group">
@@ -41,9 +43,19 @@
       </div>
     </div>
 
+    @if (isDateRangeInvalid) {
+      <div class="alert alert-danger py-2 mt-2 mb-0 d-flex align-items-center gap-2">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        {{ 'RESERVATION.DATE_RANGE_INVALID' | translate }}
+      </div>
+    }
+
     <button type="submit" class="btn-submit" [disabled]="filterForm.invalid || isLoading">
-      @if (isLoading) { <span>{{ 'STAFF.STATISTICS.FILTER.LOADING' | translate }}</span> }
-      @else { <span>{{ 'STAFF.STATISTICS.FILTER.GENERATE' | translate }}</span> }
+      @if (isLoading) {
+        <span>{{ 'STAFF.STATISTICS.FILTER.LOADING' | translate }}</span>
+      } @else {
+        <span>{{ 'STAFF.STATISTICS.FILTER.GENERATE' | translate }}</span>
+      }
     </button>
 
     @if (emptyReturnList) {
@@ -64,8 +76,10 @@
       <div class="chart-controls">
         <button type="button" class="btn-sort" (click)="toggleSort()">
           @if (sortDescending) {
-            <span>↓ {{ 'STAFF.STATISTICS.TABLE.FILTER_LOW_TO_HIGH' | translate }}</span> } @else {
-            <span>↑ {{ 'STAFF.STATISTICS.TABLE.FILTER_HIGH_TO_LOW' | translate }}</span> }
+            <span>↓ {{ 'STAFF.STATISTICS.TABLE.FILTER_LOW_TO_HIGH' | translate }}</span>
+          } @else {
+            <span>↑ {{ 'STAFF.STATISTICS.TABLE.FILTER_HIGH_TO_LOW' | translate }}</span>
+          }
         </button>
       </div>
       <div class="custom-chart-container">
