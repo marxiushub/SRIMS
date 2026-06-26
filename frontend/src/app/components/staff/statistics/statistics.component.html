@@ -53,9 +53,10 @@
     }
   </form>
 
-
-  @if (errorMessageKey) {
-    <div class="alert alert-danger">{{ errorMessageKey | translate }}</div>
+  @if (errorMessage) {
+    <div class="alert alert-danger">
+      {{ errorMessage || ('STAFF.STATISTICS.MESSAGES.ERROR' | translate) }}
+    </div>
   }
 
   <div class="results-card">
@@ -107,7 +108,7 @@
         </div>
       </div>
 
-    } @else if (!isLoading && !errorMessageKey) {
+    } @else if (!isLoading && !errorMessage) {
     }
   </div>
 </div>

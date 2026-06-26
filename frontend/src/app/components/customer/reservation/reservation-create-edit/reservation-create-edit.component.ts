@@ -17,6 +17,7 @@ import {ReservationUpdate} from "../../../../dtos/reservation-update";
 import {ToastrService} from 'ngx-toastr';
 import {ReservationStatus} from "../../../../dtos/reservationstatus";
 import {forkJoin, of} from 'rxjs';
+import { ErrorMappingService } from '../../../../services/error-mapping.service';
 
 export enum ReservationCreateEditMode {
   create,
@@ -54,7 +55,7 @@ export class ReservationCreateEditComponent implements OnInit {
 
   loading: boolean = false;
   submitLoading: boolean = false;
-  submitError: string | undefined = undefined;
+  submitError: string | null = null;
   validationWarning: string | undefined = undefined;
 
   private originalStartDate!: string;
@@ -69,7 +70,8 @@ export class ReservationCreateEditComponent implements OnInit {
     public translateService: TranslateService,
     private router: Router,
     private route: ActivatedRoute,
-    private notification: ToastrService
+    private notification: ToastrService,
+    private errorMapping: ErrorMappingService
   ) {
   }
 
@@ -136,7 +138,7 @@ export class ReservationCreateEditComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load customer profiles from backend', err);
-        this.submitError = "RESERVATION.CUSTOMER_PROFILES_LOADING_FAILED";
+        this.submitError = this.errorMapping.getErrorMessage(err);
       }
     });
   }
@@ -150,7 +152,7 @@ export class ReservationCreateEditComponent implements OnInit {
     this.reservationService.getById(id).subscribe({
       next: (data: any) => {
         if (!data) {
-          this.submitError = 'RESERVATION.NOT_FOUND';
+          this.submitError = this.translateService.instant('RESERVATION.NOT_FOUND');
           this.loading = false;
           return;
         }
@@ -178,8 +180,8 @@ export class ReservationCreateEditComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load reservation details via getById', err);
-        this.submitError = 'RESERVATION.LOADING_FAILED';
         this.loading = false;
+        this.submitError = this.errorMapping.getErrorMessage(err);
       }
     });
   }
@@ -376,6 +378,7 @@ export class ReservationCreateEditComponent implements OnInit {
       error: (err) => {
         console.error('Failed to search equipment', err);
         this.loading = false;
+        this.submitError = this.errorMapping.getErrorMessage(err);
       }
     });
   }
@@ -516,7 +519,7 @@ export class ReservationCreateEditComponent implements OnInit {
 
     //Service-Call
     this.submitLoading = true;
-    this.submitError = undefined;
+    this.submitError = null;
 
     if (this.mode === ReservationCreateEditMode.create) {
       //Creation of Create-DTO
@@ -540,7 +543,7 @@ export class ReservationCreateEditComponent implements OnInit {
         error: (err) => {
           console.error('Error during submission of reservation', err);
           this.submitLoading = false;
-          this.submitError = err.error?.message || 'An error occurred while creating the reservation.';
+          this.submitError = this.errorMapping.getErrorMessage(err);
         }
       });
     } else {
@@ -564,7 +567,7 @@ export class ReservationCreateEditComponent implements OnInit {
         error: (err) => {
           console.error('Error during update of reservation', err);
           this.submitLoading = false;
-          this.submitError = err.error?.message || 'An error occurred while updating the reservation.';
+          this.submitError = this.errorMapping.getErrorMessage(err);
         }
       });
     }

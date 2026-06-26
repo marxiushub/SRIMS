@@ -78,7 +78,7 @@ describe('StaffReservationViewComponent', () => {
       expect(reservationServiceMock.getById).toHaveBeenCalledWith(42);
       expect(component.reservation).toEqual(mockReservation);
       expect(component.loading).toBeFalse();
-      expect(component.error).toBeUndefined();
+      expect(component.error).toBeNull();
     });
 
     it('should set error state and show toast notification if ID is missing in route params', () => {
@@ -99,7 +99,7 @@ describe('StaffReservationViewComponent', () => {
       fixture.detectChanges(); // Triggers ngOnInit()
 
       expect(component.loading).toBeFalse();
-      expect(component.error).toBe('RESERVATION.LOADING_FAILED');
+      expect(component.error).toBe('Not Found');
       expect(component.reservation).toBeUndefined();
     });
   });
@@ -131,7 +131,7 @@ describe('StaffReservationViewComponent', () => {
       component.openDeleteDialog();
 
       expect(component.showDeleteModal).toBeTrue();
-      expect(component.deleteError).toBeUndefined();
+      expect(component.deleteError).toBeNull();
     });
 
     it('should cancel delete modal dialog and reset states', () => {
@@ -142,7 +142,7 @@ describe('StaffReservationViewComponent', () => {
       component.cancelDelete();
 
       expect(component.showDeleteModal).toBeFalse();
-      expect(component.deleteError).toBeUndefined();
+      expect(component.deleteError).toBeNull();
       expect(component.deleteLoading).toBeFalse();
     });
 
@@ -180,18 +180,6 @@ describe('StaffReservationViewComponent', () => {
       expect(component.deleteError).toBe('Cannot delete');
       expect(component.deleteLoading).toBeFalse();
       expect(component.showDeleteModal).toBeTrue(); // Modal remains open
-    });
-
-    it('should fallback to default error message if error payload contains no message text', () => {
-      spyOn(console, 'error');
-      component.showDeleteModal = true;
-      reservationServiceMock.deleteForStaff.and.returnValue(throwError(() => ({error: {}})));
-
-      component.confirmDelete();
-
-      expect(component.deleteError).toBe('Reservation could not be deleted.');
-      expect(component.deleteLoading).toBeFalse();
-      expect(component.showDeleteModal).toBeTrue();
     });
   });
 });

@@ -11,6 +11,7 @@ import {EquipmentType} from '../../../../dtos/equipmenttype';
 import {SkillLevel} from '../../../../dtos/skilllevel';
 import {ReservationUpdate} from '../../../../dtos/reservation-update';
 import {debounceTime, distinctUntilChanged, forkJoin} from 'rxjs';
+import {ErrorMappingService} from '../../../../services/error-mapping.service';
 
 @Component({
   selector: 'app-staff-reservation-edit',
@@ -39,7 +40,7 @@ export class StaffReservationEditComponent implements OnInit {
 
   loading = false;
   submitLoading = false;
-  submitError?: string;
+  submitError: string | null = null;
   validationWarning?: string;
 
   private originalStartDate!: string;
@@ -53,7 +54,8 @@ export class StaffReservationEditComponent implements OnInit {
     private reservationService: ReservationService,
     private equipmentService: EquipmentService,
     private notification: ToastrService,
-    public translateService: TranslateService
+    public translateService: TranslateService,
+    private errorMapping: ErrorMappingService
   ) {
   }
 
@@ -260,7 +262,7 @@ export class StaffReservationEditComponent implements OnInit {
       error: (err) => {
         console.error('Failed to load reservation details via getById', err);
         this.notification.error('Error loading reservation');
-        this.submitError = 'RESERVATION.LOADING_FAILED';
+        this.submitError = this.errorMapping.getErrorMessage(err);
         this.loading = false;
       }
     });
@@ -298,6 +300,7 @@ export class StaffReservationEditComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to search equipment', err);
+        this.submitError = this.errorMapping.getErrorMessage(err);
         this.loading = false;
       }
     });
@@ -427,7 +430,7 @@ export class StaffReservationEditComponent implements OnInit {
 
     const formValue = this.reservationForm.value;
     this.submitLoading = true;
-    this.submitError = undefined;
+    this.submitError = null;
 
     const reservationPayload: ReservationUpdate = {
       id: this.reservationId,
@@ -448,7 +451,7 @@ export class StaffReservationEditComponent implements OnInit {
       error: (err) => {
         console.error('Error during update of reservation', err);
         this.submitLoading = false;
-        this.submitError = err.error?.message || 'An error occurred while updating the reservation.';
+        this.submitError = this.errorMapping.getErrorMessage(err);
       }
     });
   }

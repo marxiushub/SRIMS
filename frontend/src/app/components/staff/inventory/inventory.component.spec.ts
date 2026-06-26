@@ -83,7 +83,7 @@ describe('InventoryComponent', () => {
     component.openDeleteDialog(testEquipment[0]);
 
     expect(component.equipmentToDelete).toEqual(testEquipment[0]);
-    expect(component.deleteError).toBeUndefined();
+    expect(component.deleteError).toBeNull();
   })
 
   it('should cancel delete and clear delete state', () => {
@@ -94,7 +94,7 @@ describe('InventoryComponent', () => {
     component.cancelDelete();
 
     expect(component.equipmentToDelete).toBeUndefined();
-    expect(component.deleteError).toBeUndefined();
+    expect(component.deleteError).toBeNull();
     expect(component.deleteLoading).toBeFalse();
   });
 

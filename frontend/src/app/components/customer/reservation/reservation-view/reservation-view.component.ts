@@ -4,6 +4,7 @@ import { ReservationService } from '../../../../services/reservation.service';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { ReservationDetail } from '../../../../dtos/reservation-detail';
+import { ErrorMappingService } from '../../../../services/error-mapping.service';
 
 @Component({
   selector: 'app-reservation-view',
@@ -27,7 +28,8 @@ export class ReservationViewComponent implements OnInit {
     private router: Router,
     private reservationService: ReservationService,
     public translateService: TranslateService,
-    private notification: ToastrService
+    private notification: ToastrService,
+    private errorMapping: ErrorMappingService,
   ) { }
 
   ngOnInit(): void {
@@ -59,7 +61,7 @@ export class ReservationViewComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load reservation details', err);
-        this.error = 'RESERVATION.LOADING_FAILED';
+        this.error = this.errorMapping.getErrorMessage(err);
         this.loading = false;
       }
     });
@@ -123,8 +125,8 @@ export class ReservationViewComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to delete reservation from detail view', err);
-        this.deleteError = err.error?.message || 'Reservation could not be deleted.';
         this.deleteLoading = false;
+        this.deleteError = this.errorMapping.getErrorMessage(err);
       }
     });
   }

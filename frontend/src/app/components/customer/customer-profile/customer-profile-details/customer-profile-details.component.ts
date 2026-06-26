@@ -3,6 +3,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {CustomerProfile} from "../../../../dtos/customer-profile";
 import {CustomerProfileService} from "../../../../services/customer-profile.service";
 import {SkillLevel} from "../../../../dtos/skilllevel";
+import {ErrorMappingService} from '../../../../services/error-mapping.service';
 
 @Component({
   selector: 'app-customer-profile-details',
@@ -15,6 +16,7 @@ export class CustomerProfileDetailsComponent {
   profileId?: number;
   loading = false;
   loadError = false;
+  loadErrorMessage = '';
 
   profileToDelete?: CustomerProfile;
   deleteLoading = false;
@@ -30,7 +32,12 @@ export class CustomerProfileDetailsComponent {
     weight: 0,
   };
 
-  constructor(private customerProfileService: CustomerProfileService, private router: Router, private route: ActivatedRoute) {
+  constructor(
+    private customerProfileService: CustomerProfileService,
+    private router: Router,
+    private route: ActivatedRoute,
+    private errorMapping: ErrorMappingService
+  ) {
   }
 
 // Retrieves the profile ID from the active route and initiates data loading on component startup.
@@ -56,6 +63,7 @@ export class CustomerProfileDetailsComponent {
         console.error('Failed to load profile', err);
         this.loadError = true;
         this.loading = false;
+        this.loadErrorMessage = this.errorMapping.getErrorMessage(err);
       }
     })
   }
@@ -99,8 +107,8 @@ export class CustomerProfileDetailsComponent {
 
       error: (err) => {
         console.error('Failed to delete profile', err);
-        this.deleteError = 'Profile could not be deleted.';
         this.deleteLoading = false;
+        this.deleteError = this.errorMapping.getErrorMessage(err);
       }
     });
   }
