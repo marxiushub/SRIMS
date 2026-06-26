@@ -48,6 +48,7 @@ export class BarcodeScannerComponent implements OnInit {
   filteredProfiles: CustomerProfile[] = [];
   submitLoading = false;
   submitError: string | null = null;
+  walkInEndDateConflictWarning: string | null = null;
   userSearchTerm = '';
   showUserDropdown = false;
   filteredUsers: CustomerSearchResponse[] = [];
@@ -515,6 +516,10 @@ export class BarcodeScannerComponent implements OnInit {
       endDate: [null, Validators.required]
     });
 
+    this.walkInForm.get('endDate')?.valueChanges.subscribe(endDate => {
+      this.checkWalkInEndDateConflicts(endDate);
+    });
+
     this.userSearchTerm = '';
     this.showUserDropdown = false;
     this.filteredUsers = [];
@@ -584,6 +589,7 @@ export class BarcodeScannerComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
     this.maintenanceLookupError = null;
+    this.walkInEndDateConflictWarning = null;
 
     this.checkoutMode = target;
     this.updateScanScenario();
@@ -670,6 +676,41 @@ export class BarcodeScannerComponent implements OnInit {
     });
   }
 
+  //Checks whether any scanned equipment already has a future reservation that starts before
+  //or on the chosen walk-in end date. If so, sets walkInEndDateConflictWarning so the
+  //staff sees the conflict immediately without having to submit the form.
+  //Uses no date filter on the search so we get all reservations for the equipment and
+  //filter client-side — the startDate param only matches an exact date, not a range.
+  private checkWalkInEndDateConflicts(endDate: string | null): void {
+    this.walkInEndDateConflictWarning = null;
+    if (!endDate || this.scannedEquipmentIds.length === 0) return;
+
+    const search: ReservationSearch = {
+      equipmentIds: this.scannedEquipmentIds
+    };
+
+    this.reservationService.search(search).subscribe({
+      next: (reservations) => {
+        const today = new Date().toLocaleDateString('sv-SE');
+        const conflicts = reservations.filter(r =>
+          (r.reservationStatus === ReservationStatus.CREATED ||
+            r.reservationStatus === ReservationStatus.PICKED_UP) &&
+          r.startDate > today &&
+          r.startDate <= endDate
+        );
+        if (conflicts.length > 0) {
+          const earliest = conflicts.map(r => r.startDate).sort()[0];
+          const formatted = new Date(earliest + 'T00:00:00').toLocaleDateString('de-AT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+          this.walkInEndDateConflictWarning =
+            this.translateService.instant('BARCODE_SCANNER.WALK_IN_DATE_CONFLICT', { date: formatted });
+        }
+      },
+      error: () => {}
+    });
+  }
+
+  //Filters allUsers client-side as the staff types in the customer search input.
+  //Clears the form's userId and disables the profile dropdown if the input is cleared.
   onUserSearch(term: string): void {
     this.userSearchTerm = term;
     if (!term.trim()) {
@@ -688,6 +729,8 @@ export class BarcodeScannerComponent implements OnInit {
     this.showUserDropdown = this.filteredUsers.length > 0;
   }
 
+  //Called when the staff clicks a result in the customer search dropdown.
+  //Sets the form's userId and immediately loads that customer's profiles.
   selectUser(user: CustomerSearchResponse): void {
     this.userSearchTerm = `${user.firstName} ${user.lastName}`;
     this.showUserDropdown = false;
@@ -750,6 +793,7 @@ export class BarcodeScannerComponent implements OnInit {
         this.scannedEquipmentIds = [];
         this.matchedReservations = [];
         this.inputBarcodeId = '';
+        this.walkInEndDateConflictWarning = null;
         this.walkInForm.reset();
         this.initWalkInForm();
         this.updateScanScenario();

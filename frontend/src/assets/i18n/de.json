@@ -312,7 +312,8 @@
     "OPEN_CAMERA": "Kamera öffnen",
     "CAMERA_TITLE": "Kamera-Scanner",
     "BTN_REMOVE": "Von Reservierung entfernen",
-    "BTN_ADD": "Zu Reservierung hinzufügen"
+    "BTN_ADD": "Zu Reservierung hinzufügen",
+    "WALK_IN_DATE_CONFLICT": "Achtung: Dieses Equipment hat bereits eine Reservierung ab {{date}}. Bitte Rückgabedatum entsprechend anpassen."
   },
   "RESERVATION": {
     "CUSTOMER_NAME": "Kunde (Account)",
