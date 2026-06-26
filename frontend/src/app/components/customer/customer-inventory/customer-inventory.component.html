@@ -27,9 +27,8 @@
                class="col-4 col-sm-12 col-form-label">{{ 'INVENTORY.EQUIPMENT_MODEL' | translate }}</label>
         <div class="col-8 col-sm-12">
           <input type="text" id="searchEquipmentModel" name="searchEquipmentModel" [(ngModel)]="modelFilter"
-                 [ngModelOptions]="{ standalone: true }" [ngbTypeahead]="searchModel"
-                 (ngModelChange)="searchEquipment()"
-                 class="form-control">
+                 [ngModelOptions]="{ standalone: true }" [ngbTypeahead]="searchModel" (ngModelChange)="searchEquipment()"
+                 maxlength="100" class="form-control">
         </div>
       </div>
     </div>

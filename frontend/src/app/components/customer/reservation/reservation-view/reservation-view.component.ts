@@ -76,6 +76,18 @@ export class ReservationViewComponent implements OnInit {
   }
 
   /**
+   * Helper to check if reservation is within 2 days of start
+   */
+  get isWithin2DaysOfStart(): boolean {
+    if (!this.reservation?.startDate) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const start = new Date(this.reservation.startDate);
+    const diffDays = (start.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+    return diffDays < 2;
+  }
+
+  /**
    * Safe extraction of the equipment items array due to flexible naming.
    */
   get selectedEquipment(): any[] {

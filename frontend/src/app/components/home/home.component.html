@@ -35,7 +35,7 @@
           <div class="col-8 col-sm-12">
             <input type="text" id="searchEquipmentModel" name="searchEquipmentModel" [(ngModel)]="modelFilter"
                    [ngModelOptions]="{ standalone: true }" [ngbTypeahead]="searchModel"
-                   (ngModelChange)="searchEquipment()"
+                   (ngModelChange)="searchEquipment()" maxlength="100"
                    class="form-control">
           </div>
         </div>

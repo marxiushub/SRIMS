@@ -36,6 +36,7 @@
                   }
                 </label>
                 <input type="text" name="username" formControlName="username" class="form-control" id="inputUsername"
+                       maxlength="254"
                        aria-describedby="usernameHelp"
                        [placeholder]="(mode === LoginRegisterMode.login || mode === LoginRegisterMode.resetPassword) ? ('COMMON.EMAIL' | translate) : ('COMMON.USERNAME' | translate)">
                 @if (submitted && loginForm.controls.username.errors) {
@@ -58,6 +59,7 @@
 
                   <div class="input-group">
                     <input [type]="showPassword ? 'text' : 'password'" name="password" formControlName="password" class="form-control" id="password"
+                           maxlength="100"
                            placeholder="{{ 'COMMON.PASSWORD' | translate }}">
 
                     <button class="btn btn-sm btn-outline-secondary d-flex align-items-center py-0" type="button" (click)="showPassword = !showPassword">
@@ -86,6 +88,7 @@
                   <div class="input-group">
                     <input [type]="showRepeatPassword ? 'text' : 'password'" name="repeat-password" formControlName="repeatPassword"
                            class="form-control" id="repeat-password"
+                           maxlength="100"
                            placeholder="{{ 'COMMON.REPEAT_PASSWORD' | translate }}">
 
                     <button class="btn btn-sm btn-outline-secondary d-flex align-items-center py-0" type="button" (click)="showRepeatPassword = !showRepeatPassword">
@@ -108,6 +111,7 @@
                 <div class="form-group">
                   <label for="firstName">{{ 'COMMON.FIRST_NAME' | translate }}</label>
                   <input type="text" name="firstName" formControlName="firstName" class="form-control" id="firstName"
+                         maxlength="100"
                          placeholder="{{ 'COMMON.FIRST_NAME' | translate }}">
 
                   @if (submitted && loginForm.controls.firstName.errors) {
@@ -122,6 +126,7 @@
                 <div class="form-group">
                   <label for="lastName">{{ 'COMMON.LAST_NAME' | translate }}</label>
                   <input type="text" name="lastName" formControlName="lastName" class="form-control" id="lastName"
+                         maxlength="100"
                          placeholder="{{ 'COMMON.LAST_NAME' | translate }}">
 
                   @if (submitted && loginForm.controls.lastName.errors) {
@@ -136,6 +141,7 @@
                 <div class="form-group">
                   <label for="email">{{ 'COMMON.EMAIL' | translate }}</label>
                   <input type="email" name="email" formControlName="email" class="form-control" id="email"
+                         maxlength="100"
                          placeholder="{{ 'COMMON.EMAIL' | translate }}">
                   @if (submitted && loginForm.controls.email.errors) {
                     <div class="error">

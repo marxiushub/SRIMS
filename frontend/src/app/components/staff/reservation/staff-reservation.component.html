@@ -32,6 +32,7 @@
             [(ngModel)]="customerSearchCriteria.firstName"
             (ngModelChange)="onCustomerFilterChange()"
             [ngModelOptions]="{ standalone: true }"
+            maxlength="100"
             class="form-control">
         </div>
       </div>
@@ -48,6 +49,7 @@
             [(ngModel)]="customerSearchCriteria.lastName"
             (ngModelChange)="onCustomerFilterChange()"
             [ngModelOptions]="{ standalone: true }"
+            maxlength="100"
             class="form-control">
         </div>
       </div>
@@ -64,6 +66,7 @@
             [(ngModel)]="customerSearchCriteria.userName"
             (ngModelChange)="onCustomerFilterChange()"
             [ngModelOptions]="{ standalone: true }"
+            maxlength="50"
             class="form-control">
         </div>
       </div>
@@ -80,6 +83,7 @@
             [(ngModel)]="customerSearchCriteria.email"
             (ngModelChange)="onCustomerFilterChange()"
             [ngModelOptions]="{ standalone: true }"
+            maxlength="254"
             class="form-control">
         </div>
       </div>

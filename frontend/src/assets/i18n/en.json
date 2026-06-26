@@ -287,7 +287,7 @@
     "WALK_IN_TITLE": "Create Direct Rental (Walk-In)",
     "WALK_IN_SUBTITLE": "No existing reservation was found for this equipment today. You can assign the gear directly to a customer profile here.",
     "WALK_IN_SELECT_USER": "1. Select Employee / Customer Account",
-    "CHOOSE_USER_PLACEHOLDER": "Please select a user",
+    "CHOOSE_USER_PLACEHOLDER": "Kundenname oder E-Mail eingeben...",
     "CHOOSE_PROFILE_PLACEHOLDER": "Select a user first",
     "FIXED": "fixed",
     "ERROR_INVALID_RETURN_DATE": "The return date cannot be before today's pickup date!",
@@ -315,7 +315,8 @@
     "OPEN_CAMERA": "Open Camera",
     "CAMERA_TITLE": "Camera-Scanner",
     "BTN_REMOVE": "Remove from Reservation",
-    "BTN_ADD": "Add to Reservation"
+    "BTN_ADD": "Add to Reservation",
+    "WALK_IN_DATE_CONFLICT": "Warning: This equipment already has a reservation starting {{date}}. Please adjust the return date accordingly."
   },
   "RESERVATION": {
     "CUSTOMER_NAME": "Customer (Account)",
@@ -370,7 +371,9 @@
     "TITLE_DETAIL": "View Reservation",
     "SHOW_PAST": "Show Past Reservations",
     "DATE_RANGE_INVALID": "The return date cannot be before the pickup date.",
-    "DATE_START_IN_PAST": "The pickup date cannot be in the past."
+    "DATE_START_IN_PAST": "The pickup date cannot be in the past.",
+    "WARNING_2_DAY_LOCK": "Achtung: Diese Reservierung kann nicht mehr geändert werden, da der Starttermin in weniger als 2 Tagen liegt.",
+    "CONFIRM_2_DAY_NOTICE": "Bitte beachten: Reservierungen können nicht mehr geändert oder storniert werden, wenn der Starttermin weniger als 2 Tage entfernt ist."
   },
   "RESERVATION_STATUS": {
     "CREATED": "Created",

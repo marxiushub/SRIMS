@@ -329,6 +329,19 @@ export class ReservationCreateEditComponent implements OnInit {
   }
 
   /**
+   * Check if reservation is within 2 days of start
+   */
+  get isWithin2DaysOfStart(): boolean {
+    const start = this.reservationForm.get('startDate')?.value;
+    if (!start) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const startDate = new Date(start);
+    const diffDays = (startDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+    return diffDays < 2;
+  }
+
+  /**
    * Checks if the end date is in the past.
    */
   get isStartDateMissing(): boolean {

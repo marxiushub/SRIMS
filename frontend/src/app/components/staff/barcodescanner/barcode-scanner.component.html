@@ -73,6 +73,7 @@
             [(ngModel)]="inputBarcodeId"
             [placeholder]="'BARCODE_SCANNER.INPUT_PLACEHOLDER' | translate"
             class="form-control form-control-lg"
+            maxlength="50"
             [disabled]="loading || scanScenario === 'CONFLICT_RESERVATION' || equipmentScenario === 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED'"
           />
         </div>
@@ -135,19 +136,30 @@
             <form [formGroup]="walkInForm" (ngSubmit)="openConfirmationModal(confirmDialog)">
               @if (checkoutMode === 'RENTAL') {
                 <div class="row g-3 mb-3">
-                  <div class="col-md-6">
-                    <label for="walkInUser"
-                           class="form-label small fw-bold">{{ 'BARCODE_SCANNER.WALK_IN_SELECT_USER' | translate }}
-                      *</label>
-                    <select id="walkInUser" formControlName="userId" class="form-select"
-                            [ngClass]="{ 'is-invalid': !walkInForm.get('userId')?.value }">
-                      <option [ngValue]="null" disabled>-- {{ 'BARCODE_SCANNER.CHOOSE_USER_PLACEHOLDER' | translate }}
-                        --
-                      </option>
-                      @for (user of allUsers; track user.id) {
-                        <option [ngValue]="user.id">{{ user.userName }}</option>
-                      }
-                    </select>
+                  <div class="col-md-6 position-relative">
+                    <label class="form-label small fw-bold">{{ 'BARCODE_SCANNER.WALK_IN_SELECT_USER' | translate }} *</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      [placeholder]="'BARCODE_SCANNER.CHOOSE_USER_PLACEHOLDER' | translate"
+                      [ngClass]="{ 'is-invalid': !walkInForm.get('userId')?.value && walkInForm.get('userId')?.touched }"
+                      [(ngModel)]="userSearchTerm"
+                      [ngModelOptions]="{ standalone: true }"
+                      (input)="onUserSearch(userSearchTerm)"
+                      (blur)="showUserDropdown = false"
+                      maxlength="100"
+                      autocomplete="off">
+                    @if (showUserDropdown) {
+                      <ul class="list-group position-absolute w-100 shadow-sm" style="top: 100%; z-index: 1000; max-height: 200px; overflow-y: auto;">
+                        @for (user of filteredUsers; track user.id) {
+                          <li class="list-group-item list-group-item-action py-1 px-3 small"
+                              (mousedown)="selectUser(user)">
+                            <span class="fw-medium">{{ user.firstName }} {{ user.lastName }}</span>
+                            <span class="text-muted ms-1">({{ user.email }})</span>
+                          </li>
+                        }
+                      </ul>
+                    }
                   </div>
 
                   <div class="col-md-6">
@@ -201,6 +213,12 @@
               @if (isWalkInDateRangeInvalid) {
                 <div class="alert alert-danger py-1 small mb-3">
                   {{ 'BARCODE_SCANNER.ERROR_INVALID_RETURN_DATE' | translate }}
+                </div>
+              }
+              @if (walkInEndDateConflictWarning) {
+                <div class="alert alert-warning py-2 small mb-3 d-flex align-items-center gap-2">
+                  <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+                  <span>{{ walkInEndDateConflictWarning }}</span>
                 </div>
               }
               @if (submitError) {
@@ -407,7 +425,7 @@
           <i class="bi bi-person me-1"></i>{{ 'SKILL_LEVEL.' + item.targetSkillLevel | translate }}
         </span>
                 <span class="small fw-medium fs-6 fw-bold">
-          {{ item.price | currency:'EUR':'symbol':'1.2-2':(translateService.currentLang || 'de') }}
+          {{ item.price | currency:'EUR':'symbol':'1.2-2':'de-AT' }}
         </span>
               </div>
               <div class="mt-2 d-flex justify-content-between align-items-center gap-2">
@@ -445,7 +463,7 @@
                 <i class="bi bi-person me-1"></i>{{ 'SKILL_LEVEL.' + item.targetSkillLevel | translate }}
               </div>
               <div class="inv-col-price fs-6 fw-bold">
-                {{ item.price | currency:'EUR':'symbol':'1.2-2':(translateService.currentLang || 'de') }}
+                {{ item.price | currency:'EUR':'symbol':'1.2-2':'de-AT' }}
               </div>
               <div class="inv-col-badge">
         <span class="badge" [ngClass]="getStatusClass(item.status)">

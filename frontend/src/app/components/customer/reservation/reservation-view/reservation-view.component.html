@@ -79,6 +79,13 @@
       <div class="card p-3 mb-4">
         <h4 class="mb-3">{{ 'RESERVATION.SELECTED_EQUIPMENT' | translate }}</h4>
 
+        @if (isWithin2DaysOfStart && reservation.reservationStatus === 'CREATED') {
+          <div class="alert alert-warning d-flex align-items-center gap-2 mb-4 fw-semibold border-warning border-2">
+            <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+            {{ 'RESERVATION.WARNING_2_DAY_LOCK' | translate }}
+          </div>
+        }
+
         @if (selectedEquipment.length === 0) {
           <div class="text-muted small fst-italic">
             {{ 'RESERVATION.NO_EQUIPMENT_SELECTED' | translate }}
@@ -92,7 +99,7 @@
                 <div class="d-flex align-items-center gap-2">
                   <p class="fw-medium mb-0 text-truncate flex-fill">{{ item.model }}</p>
                   <span class="fw-medium text-nowrap">
-                    {{ item.price | currency:'EUR':'symbol':'1.2-2' }}
+                    {{ item.price | currency:'EUR':'symbol':'1.2-2':'de' }}
                   </span>
                 </div>
                 <p class="text-muted small mb-1">{{ 'EQUIPMENT_TYPE.' + item.equipmentType | translate }}</p>
@@ -117,7 +124,7 @@
                   <i class="bi bi-person me-1"></i>{{ 'SKILL_LEVEL.' + item.targetSkillLevel | translate }}
                 </div>
                 <div class="res-eq-col-price">
-                  {{ item.price | currency:'EUR':'symbol':'1.2-2' }}
+                  {{ item.price | currency:'EUR':'symbol':'1.2-2':'de' }}
                 </div>
               </div>
             }
@@ -127,7 +134,7 @@
           <div class="d-flex justify-content-end align-items-center gap-3 pt-2 border-top">
             <span class="fw-bold fs-5">{{ 'RESERVATION.TOTAL_PRICE' | translate }}:</span>
             <span class="fw-bold text-primary fs-5">
-              {{ reservation.totalPrice | currency:'EUR':'symbol':'1.2-2':'de-AT' }}
+              {{ reservation.totalPrice | currency:'EUR':'symbol':'1.2-2':'de' }}
             </span>
           </div>
         }

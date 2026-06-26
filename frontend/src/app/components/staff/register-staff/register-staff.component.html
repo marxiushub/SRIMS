@@ -18,6 +18,7 @@
         <div class="form-group">
           <label for="userName">{{ 'COMMON.USERNAME' | translate }}</label>
           <input type="text" name="userName" formControlName="userName" class="form-control" id="userName"
+                 maxlength="50"
                  placeholder="{{ 'COMMON.USERNAME' | translate }}">
 
           @if (submitted && registerForm.controls.userName.errors) {
@@ -32,6 +33,7 @@
         <div class="form-group">
           <label for="email">{{ 'COMMON.EMAIL' | translate }}</label>
           <input type="email" name="email" formControlName="email" class="form-control" id="email"
+                 maxlength="254"
                  placeholder="{{ 'COMMON.EMAIL' | translate }}">
 
           @if (submitted && registerForm.controls.email.errors) {
@@ -52,6 +54,7 @@
           <div class="input-group">
             <input [type]="showPassword ? 'text' : 'password'" name="password" formControlName="password"
                    class="form-control" id="password"
+                   maxlength="100"
                    placeholder="{{ 'COMMON.PASSWORD' | translate }}">
 
             <button class="btn btn-sm btn-outline-secondary d-flex align-items-center py-0" type="button"

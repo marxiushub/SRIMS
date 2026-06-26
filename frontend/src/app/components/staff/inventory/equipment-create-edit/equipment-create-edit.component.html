@@ -64,6 +64,7 @@
                   [(ngModel)]="equipment.model"
                   #equipmentModel="ngModel"
                   required
+                  maxlength="100"
                   pattern=".*\S.*">
                 @if (hasError(equipmentModel, 'required')) {
                   <div class="invalid-feedback">
@@ -301,6 +302,7 @@
                     name="equipmentLacingSystem"
                     type="text"
                     class="form-control"
+                    maxlength="100"
                     [(ngModel)]="equipment.lacingSystem">
                 </div>
               </div>

@@ -287,7 +287,7 @@
     "WALK_IN_TITLE": "Direkt-Ausleihe anlegen (Walk-In)",
     "WALK_IN_SUBTITLE": "Für dieses eingescannte Equipment liegt heute keine Reservierung vor. Sie können die Ausrüstung hier direkt einem Kunden zuweisen.",
     "WALK_IN_SELECT_USER": "1. Mitarbeiter / Kunden-Account wählen",
-    "CHOOSE_USER_PLACEHOLDER": "Bitte Benutzer auswählen",
+    "CHOOSE_USER_PLACEHOLDER": "Kundenname oder E-Mail eingeben...",
     "CHOOSE_PROFILE_PLACEHOLDER": "Zuerst Benutzer auswählen",
     "FIXED": "fixiert",
     "ERROR_INVALID_RETURN_DATE": "Das Rückgabedatum darf nicht vor dem Ausleihtag liegen!",
@@ -315,7 +315,8 @@
     "OPEN_CAMERA": "Kamera öffnen",
     "CAMERA_TITLE": "Kamera-Scanner",
     "BTN_REMOVE": "Von Reservierung entfernen",
-    "BTN_ADD": "Zu Reservierung hinzufügen"
+    "BTN_ADD": "Zu Reservierung hinzufügen",
+    "WALK_IN_DATE_CONFLICT": "Achtung: Dieses Equipment hat bereits eine Reservierung ab {{date}}. Bitte Rückgabedatum entsprechend anpassen."
   },
   "RESERVATION": {
     "CUSTOMER_NAME": "Kunde (Account)",
@@ -370,7 +371,9 @@
     "TITLE_DETAIL": "Reservierung ansehen",
     "SHOW_PAST": "Vergangene Reservierungen anzeigen",
     "DATE_RANGE_INVALID": "Das Rückgabedatum darf nicht vor dem Abholdatum liegen.",
-    "DATE_START_IN_PAST": "Das Abholdatum darf nicht in der Vergangenheit liegen."
+    "DATE_START_IN_PAST": "Das Abholdatum darf nicht in der Vergangenheit liegen.",
+    "WARNING_2_DAY_LOCK": "Achtung: Diese Reservierung kann nicht mehr geändert werden, da der Starttermin in weniger als 2 Tagen liegt.",
+    "CONFIRM_2_DAY_NOTICE": "Bitte beachten: Reservierungen können nicht mehr geändert oder storniert werden, wenn der Starttermin weniger als 2 Tage entfernt ist."
   },
   "RESERVATION_STATUS": {
     "CREATED": "Erstellt",
