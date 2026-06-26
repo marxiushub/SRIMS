@@ -101,7 +101,7 @@ public class UserEndpointTest extends IntegrationTestBase implements TestData {
             """;
 
         String anyToken = jwtTokenizer.getAuthToken("creator@test.at", 1L, USER_PERMISSIONS);
-        assertDoesNotThrow(() -> mockMvc.perform(post("/api/v1/customer/create")
+        assertDoesNotThrow(() -> mockMvc.perform(post("/api/v1/customers")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json)
                 .header(securityProperties.getAuthHeader(), anyToken)
@@ -127,7 +127,7 @@ public class UserEndpointTest extends IntegrationTestBase implements TestData {
             """;
 
         String anyToken = jwtTokenizer.getAuthToken("creator@test.at", 1L, USER_PERMISSIONS);
-        assertDoesNotThrow(() -> mockMvc.perform(post("/api/v1/customer/create")
+        assertDoesNotThrow(() -> mockMvc.perform(post("/api/v1/customers")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json)
                 .header(securityProperties.getAuthHeader(), anyToken)
@@ -150,7 +150,7 @@ public class UserEndpointTest extends IntegrationTestBase implements TestData {
             }
             """;
 
-        assertDoesNotThrow(() -> mockMvc.perform(post("/api/v1/staff/create")
+        assertDoesNotThrow(() -> mockMvc.perform(post("/api/v1/staff")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json)
                 .header(securityProperties.getAuthHeader(), staffToken(authStaff))
@@ -177,7 +177,7 @@ public class UserEndpointTest extends IntegrationTestBase implements TestData {
             }
             """;
 
-        assertDoesNotThrow(() -> mockMvc.perform(put("/api/v1/customer/update/{id}", customer.getId())
+        assertDoesNotThrow(() -> mockMvc.perform(put("/api/v1/customers/{id}", customer.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json)
                 .header(securityProperties.getAuthHeader(), customerToken(customer))
@@ -198,7 +198,7 @@ public class UserEndpointTest extends IntegrationTestBase implements TestData {
             }
             """;
 
-        assertDoesNotThrow(() -> mockMvc.perform(put("/api/v1/customer/update/{id}", customer.getId())
+        assertDoesNotThrow(() -> mockMvc.perform(put("/api/v1/customers/{id}", customer.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json)
                 .header(securityProperties.getAuthHeader(), customerToken(customer))
@@ -222,7 +222,7 @@ public class UserEndpointTest extends IntegrationTestBase implements TestData {
         long missingId = 999999L;
         String token = jwtTokenizer.getAuthToken("ghost@test.at", missingId, USER_PERMISSIONS);
 
-        assertDoesNotThrow(() -> mockMvc.perform(put("/api/v1/customer/update/{id}", missingId)
+        assertDoesNotThrow(() -> mockMvc.perform(put("/api/v1/customers/{id}", missingId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json)
                 .header(securityProperties.getAuthHeader(), token)
@@ -243,7 +243,7 @@ public class UserEndpointTest extends IntegrationTestBase implements TestData {
             """;
 
         // attacker's token (their id) tries to update owner's account
-        assertDoesNotThrow(() -> mockMvc.perform(put("/api/v1/customer/update/{id}", owner.getId())
+        assertDoesNotThrow(() -> mockMvc.perform(put("/api/v1/customers/{id}", owner.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json)
                 .header(securityProperties.getAuthHeader(), customerToken(attacker))
@@ -262,7 +262,7 @@ public class UserEndpointTest extends IntegrationTestBase implements TestData {
             }
             """;
 
-        assertDoesNotThrow(() -> mockMvc.perform(patch("/api/v1/customer/password/{id}", customer.getId())
+        assertDoesNotThrow(() -> mockMvc.perform(patch("/api/v1/customers/password/{id}", customer.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json)
                 .header(securityProperties.getAuthHeader(), customerToken(customer))
@@ -283,7 +283,7 @@ public class UserEndpointTest extends IntegrationTestBase implements TestData {
             }
             """;
 
-        assertDoesNotThrow(() -> mockMvc.perform(patch("/api/v1/customer/password/{id}", customer.getId())
+        assertDoesNotThrow(() -> mockMvc.perform(patch("/api/v1/customers/password/{id}", customer.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json)
                 .header(securityProperties.getAuthHeader(), customerToken(customer))
@@ -303,7 +303,7 @@ public class UserEndpointTest extends IntegrationTestBase implements TestData {
             }
             """;
 
-        assertDoesNotThrow(() -> mockMvc.perform(patch("/api/v1/customer/password/{id}", owner.getId())
+        assertDoesNotThrow(() -> mockMvc.perform(patch("/api/v1/customers/password/{id}", owner.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json)
                 .header(securityProperties.getAuthHeader(), customerToken(attacker))
@@ -317,7 +317,7 @@ public class UserEndpointTest extends IntegrationTestBase implements TestData {
     public void getCustomerById_ownAccount_returns200() {
         Customer customer = createTestCustomer("get");
 
-        assertDoesNotThrow(() -> mockMvc.perform(get("/api/v1/customer/{id}", customer.getId())
+        assertDoesNotThrow(() -> mockMvc.perform(get("/api/v1/customers/{id}", customer.getId())
                 .header(securityProperties.getAuthHeader(), customerToken(customer))
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
@@ -330,7 +330,7 @@ public class UserEndpointTest extends IntegrationTestBase implements TestData {
     public void deleteCustomer_ownAccount_returns200AndDeletes() {
         Customer customer = createTestCustomer("delete");
 
-        assertDoesNotThrow(() -> mockMvc.perform(delete("/api/v1/customer/delete/{id}", customer.getId())
+        assertDoesNotThrow(() -> mockMvc.perform(delete("/api/v1/customers/{id}", customer.getId())
                 .header(securityProperties.getAuthHeader(), customerToken(customer)))
             .andExpect(status().isOk()));
     }
@@ -352,7 +352,7 @@ public class UserEndpointTest extends IntegrationTestBase implements TestData {
     public void deleteStaff_ownAccount_returns200AndDeletes() {
         Staff staff = createTestStaff("delete");
 
-        assertDoesNotThrow(() -> mockMvc.perform(delete("/api/v1/staff/delete/{id}", staff.getId())
+        assertDoesNotThrow(() -> mockMvc.perform(delete("/api/v1/staff/{id}", staff.getId())
                 .header(securityProperties.getAuthHeader(), staffToken(staff)))
             .andExpect(status().isOk()));
     }
@@ -401,7 +401,7 @@ public class UserEndpointTest extends IntegrationTestBase implements TestData {
     public void resetPassword_unauthenticated_withValidEmail_returns200() {
         Customer targetCustomer = createTestCustomer("forgot_pw_target");
 
-        assertDoesNotThrow(() -> mockMvc.perform(patch("/api/v1/customer/password-resets/{email}", targetCustomer.getEmail())
+        assertDoesNotThrow(() -> mockMvc.perform(patch("/api/v1/customers/password-reset/{email}", targetCustomer.getEmail())
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.email").value(targetCustomer.getEmail())));

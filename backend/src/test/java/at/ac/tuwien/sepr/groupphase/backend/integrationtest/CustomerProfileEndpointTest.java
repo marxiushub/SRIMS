@@ -119,7 +119,7 @@ public class CustomerProfileEndpointTest extends IntegrationTestBase implements 
         }
         """;
 
-        assertDoesNotThrow(() -> mockMvc.perform(post("/api/v1/customer/profiles")
+        assertDoesNotThrow(() -> mockMvc.perform(post("/api/v1/customers/profiles")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json)
                 .header(securityProperties.getAuthHeader(), userToken(savedCustomer))
@@ -149,7 +149,7 @@ public class CustomerProfileEndpointTest extends IntegrationTestBase implements 
             List.of("CUSTOMERPROFILE_CREATE")
         );
 
-        assertDoesNotThrow(() -> mockMvc.perform(post("/api/v1/customer/profiles")
+        assertDoesNotThrow(() -> mockMvc.perform(post("/api/v1/customers/profiles")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json)
                 .header(securityProperties.getAuthHeader(), invalidToken)
@@ -171,7 +171,7 @@ public class CustomerProfileEndpointTest extends IntegrationTestBase implements 
             }
             """.formatted(customer.getId());
 
-        assertDoesNotThrow(() -> mockMvc.perform(post("/api/v1/customer/profiles")
+        assertDoesNotThrow(() -> mockMvc.perform(post("/api/v1/customers/profiles")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json)
                 .header(securityProperties.getAuthHeader(), userToken(customer))
@@ -186,7 +186,7 @@ public class CustomerProfileEndpointTest extends IntegrationTestBase implements 
         createTestProfile(customer, "Endpoint First Profile", SkillLevel.BEGINNER);
         createTestProfile(customer, "Endpoint Second Profile", SkillLevel.ADVANCED);
 
-        assertDoesNotThrow(() -> mockMvc.perform(get("/api/v1/customer/profiles")
+        assertDoesNotThrow(() -> mockMvc.perform(get("/api/v1/customers/profiles")
                 .header(securityProperties.getAuthHeader(), userToken(customer))
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
@@ -204,7 +204,7 @@ public class CustomerProfileEndpointTest extends IntegrationTestBase implements 
             List.of("CUSTOMERPROFILE_READ")
         );
 
-        assertDoesNotThrow(() -> mockMvc.perform(get("/api/v1/customer/profiles")
+        assertDoesNotThrow(() -> mockMvc.perform(get("/api/v1/customers/profiles")
                 .header(securityProperties.getAuthHeader(), token)
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound()));
@@ -219,7 +219,7 @@ public class CustomerProfileEndpointTest extends IntegrationTestBase implements 
 
         Staff staff = createTestStaff("reader");
 
-        assertDoesNotThrow(() -> mockMvc.perform(get("/api/v1/customer/{customerId}/profiles", customer.getId())
+        assertDoesNotThrow(() -> mockMvc.perform(get("/api/v1/customers/{customerId}/profiles", customer.getId())
                 .header(securityProperties.getAuthHeader(), staffToken(staff))
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
@@ -233,7 +233,7 @@ public class CustomerProfileEndpointTest extends IntegrationTestBase implements 
 
         Staff staff = createTestStaff("reader");
 
-        assertDoesNotThrow(() -> mockMvc.perform(get("/api/v1/customer/{customerId}/profiles", 99999L)
+        assertDoesNotThrow(() -> mockMvc.perform(get("/api/v1/customers/{customerId}/profiles", 99999L)
                 .header(securityProperties.getAuthHeader(), staffToken(staff))
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound()));
@@ -245,7 +245,7 @@ public class CustomerProfileEndpointTest extends IntegrationTestBase implements 
 
         String token = userToken(customer);
 
-        assertDoesNotThrow(() -> mockMvc.perform(get("/api/v1/customer/{customerId}/profiles", 1L)
+        assertDoesNotThrow(() -> mockMvc.perform(get("/api/v1/customers/{customerId}/profiles", 1L)
                 .header(securityProperties.getAuthHeader(), token)
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isForbidden()));
@@ -263,7 +263,7 @@ public class CustomerProfileEndpointTest extends IntegrationTestBase implements 
             List.of("STAFF") // missing CUSTOMERPROFILE_READ
         );
 
-        assertDoesNotThrow(() -> mockMvc.perform(get("/api/v1/customer/{customerId}/profiles", customer.getId())
+        assertDoesNotThrow(() -> mockMvc.perform(get("/api/v1/customers/{customerId}/profiles", customer.getId())
                 .header(securityProperties.getAuthHeader(), token)
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isForbidden()));
@@ -274,11 +274,11 @@ public class CustomerProfileEndpointTest extends IntegrationTestBase implements 
         Customer customer = createTestCustomer("delete_valid");
         CustomerProfile profile = createTestProfile(customer, "Endpoint Profile To Delete", SkillLevel.BEGINNER);
 
-        assertDoesNotThrow(() -> mockMvc.perform(delete("/api/v1/customer/profiles/{profileId}", profile.getId())
+        assertDoesNotThrow(() -> mockMvc.perform(delete("/api/v1/customers/profiles/{profileId}", profile.getId())
                 .header(securityProperties.getAuthHeader(), userToken(customer)))
             .andExpect(status().isNoContent()));
 
-        assertDoesNotThrow(() -> mockMvc.perform(get("/api/v1/customer/profiles/{profileId}", profile.getId())
+        assertDoesNotThrow(() -> mockMvc.perform(get("/api/v1/customers/profiles/{profileId}", profile.getId())
                 .header(securityProperties.getAuthHeader(), userToken(customer))
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound()));
@@ -288,7 +288,7 @@ public class CustomerProfileEndpointTest extends IntegrationTestBase implements 
     public void deleteCustomerProfile_withUnknownProfile_returns404() {
         Customer authCustomer = createTestCustomer("delete_unknown_auth");
 
-        assertDoesNotThrow(() -> mockMvc.perform(delete("/api/v1/customer/profiles/{profileId}", 99999L)
+        assertDoesNotThrow(() -> mockMvc.perform(delete("/api/v1/customers/profiles/{profileId}", 99999L)
                 .header(securityProperties.getAuthHeader(), userToken(authCustomer)))
             .andExpect(status().isNotFound()));
     }
@@ -306,7 +306,7 @@ public class CustomerProfileEndpointTest extends IntegrationTestBase implements 
             }
             """;
 
-        assertDoesNotThrow(() -> mockMvc.perform(patch("/api/v1/customer/profiles/{profileId}", profile.getId())
+        assertDoesNotThrow(() -> mockMvc.perform(patch("/api/v1/customers/profiles/{profileId}", profile.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json)
                 .header(securityProperties.getAuthHeader(), userToken(customer))
@@ -329,7 +329,7 @@ public class CustomerProfileEndpointTest extends IntegrationTestBase implements 
             }
             """;
 
-        assertDoesNotThrow(() -> mockMvc.perform(patch("/api/v1/customer/profiles/{profileId}", 99999L)
+        assertDoesNotThrow(() -> mockMvc.perform(patch("/api/v1/customers/profiles/{profileId}", 99999L)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json)
                 .header(securityProperties.getAuthHeader(), userToken(authCustomer))
@@ -347,7 +347,7 @@ public class CustomerProfileEndpointTest extends IntegrationTestBase implements 
             }
             """;
 
-        assertDoesNotThrow(() -> mockMvc.perform(patch("/api/v1/customer/profiles/{profileId}", profile.getId())
+        assertDoesNotThrow(() -> mockMvc.perform(patch("/api/v1/customers/profiles/{profileId}", profile.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json)
                 .header(securityProperties.getAuthHeader(), userToken(customer))
