@@ -29,7 +29,7 @@
 
       @if (checkoutMode === 'MAINTENANCE' && maintenanceLookupError) {
         <div class="alert alert-danger py-2 small mt-3 mb-0">
-          {{ maintenanceLookupError }}
+          {{ maintenanceLookupError || 'BARCODE_SCANNER.MAINTENANCE_LOAD_FAILED' | translate }}
         </div>
       }
     </div>
@@ -129,7 +129,7 @@
 
             @if (checkoutMode === 'MAINTENANCE' && maintenanceLookupError) {
               <div class="alert alert-danger py-2 small mb-3">
-                {{ maintenanceLookupError }}
+                {{ maintenanceLookupError || 'BARCODE_SCANNER.MAINTENANCE_LOAD_FAILED' | translate }}
               </div>
             }
 
@@ -222,7 +222,9 @@
                 </div>
               }
               @if (submitError) {
-                <div class="alert alert-danger py-1 small mb-3">{{ submitError }}</div>
+                <div class="alert alert-danger py-1 small mb-3">
+                  {{ submitError || 'BARCODE_SCANNER.CHECKOUT_FAILED' | translate }}
+                </div>
               }
             </form>
           </div>

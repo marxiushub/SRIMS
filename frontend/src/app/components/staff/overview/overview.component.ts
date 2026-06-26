@@ -3,6 +3,7 @@ import {EquipmentService} from '../../../services/equipment.service';
 import {EquipmentOverview} from '../../../dtos/equipment-overview';
 import {EquipmentType} from '../../../dtos/equipmenttype';
 import {RentalStatus} from '../../../dtos/rentalstatus';
+import {ErrorMappingService} from '../../../services/error-mapping.service';
 
 const DONUT_RADIUS = 48;
 const DONUT_CIRCUMFERENCE = 2 * Math.PI * DONUT_RADIUS;
@@ -31,14 +32,14 @@ export class OverviewComponent implements OnInit {
 
   overview: EquipmentOverview | null = null;
   loading = false;
-  errorMessageKey: string | null = null;
+  errorMessage: string | null = null;
 
   typeDonuts: TypeDonut[] = [];
   totalFree = 0;
   totalRented = 0;
   totalMaintenance = 0;
 
-  constructor(private equipmentService: EquipmentService) {
+  constructor(private equipmentService: EquipmentService, private errorMapping: ErrorMappingService) {
   }
 
   ngOnInit(): void {
@@ -47,7 +48,7 @@ export class OverviewComponent implements OnInit {
 
   loadOverview(): void {
     this.loading = true;
-    this.errorMessageKey = null;
+    this.errorMessage = null;
 
     this.equipmentService.getStatusOverview().subscribe({
       next: (data) => {
@@ -60,7 +61,7 @@ export class OverviewComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load equipment status overview', err);
-        this.errorMessageKey = 'STAFF.OVERVIEW.MESSAGES.ERROR';
+        this.errorMessage = this.errorMapping.getErrorMessage(err);
         this.loading = false;
       }
     });

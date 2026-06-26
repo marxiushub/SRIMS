@@ -7,6 +7,7 @@ import {AuthService} from '../../../services/auth.service';
 import {StaffService} from '../../../services/staff.service';
 import {StaffSearchResponse} from '../../../dtos/staff-search-response';
 import {PasswordChange} from '../../../dtos/password-change';
+import {ErrorMappingService} from "../../../services/error-mapping.service";
 
 @Component({
   selector: 'app-staff-account',
@@ -18,7 +19,7 @@ export class StaffAccountComponent implements OnInit {
 
   account?: StaffSearchResponse;
   loading = false;
-  loadError = false;
+  loadError: string | null = null;
 
   passwordForm: UntypedFormGroup;
   passwordSubmitted = false;
@@ -33,7 +34,8 @@ export class StaffAccountComponent implements OnInit {
     private staffService: StaffService,
     private router: Router,
     public translateService: TranslateService,
-    private notification: ToastrService
+    private notification: ToastrService,
+    private errorMapping: ErrorMappingService
   ) {
     this.passwordForm = this.formBuilder.group({
       oldPassword: ['', [Validators.required]],
@@ -50,13 +52,13 @@ export class StaffAccountComponent implements OnInit {
     if (this.staffId != null) {
       this.loadAccount(this.staffId);
     } else {
-      this.loadError = true;
+      this.loadError = this.translateService.instant('COMMON.UNEXPECTED_ERROR') || 'An unexpected error occurred.';
     }
   }
 
   loadAccount(id: number): void {
     this.loading = true;
-    this.loadError = false;
+    this.loadError = null;
     this.staffService.getById(id).subscribe({
       next: (data) => {
         this.account = data;
@@ -64,7 +66,7 @@ export class StaffAccountComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load account', err);
-        this.loadError = true;
+        this.loadError = this.errorMapping.getErrorMessage(err);
         this.loading = false;
       }
     });
@@ -98,8 +100,9 @@ export class StaffAccountComponent implements OnInit {
   private handleError(error: any): void {
     console.log('Action failed due to:', error);
     let errorMessage: string;
+    errorMessage = this.errorMapping.getErrorMessage(error);
 
-    if (error.error && typeof error.error === 'object') {
+    /*if (error.error && typeof error.error === 'object') {
       if (error.error.errors) {
         errorMessage = error.error.errors;
       } else if (error.error.message) {
@@ -113,7 +116,7 @@ export class StaffAccountComponent implements OnInit {
       errorMessage = error.error;
     } else {
       errorMessage = this.translateService.instant('COMMON.UNKNOWN_ERROR') || 'An unexpected error occurred.';
-    }
+    }*/
 
     this.notification.error(errorMessage);
   }

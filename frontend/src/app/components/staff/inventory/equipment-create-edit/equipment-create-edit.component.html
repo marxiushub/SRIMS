@@ -11,12 +11,12 @@
 
   <div class="card">
     <div class="card-body">
-      @if (error) {
+      @if (errorMessage) {
         <div class="alert alert-danger">
           @if (mode === EquipmentCreateEditMode.create) {
-            {{ 'EQUIPMENT_CREATE.ERROR' | translate }}
+            {{ errorMessage || 'EQUIPMENT_CREATE.ERROR' | translate }}
           } @else {
-            {{ 'EQUIPMENT_EDIT.ERROR' | translate }}
+            {{ errorMessage || 'EQUIPMENT_EDIT.ERROR' | translate }}
           }
         </div>
       }

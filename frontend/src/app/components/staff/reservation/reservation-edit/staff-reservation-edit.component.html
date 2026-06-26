@@ -301,7 +301,7 @@
 
     @if (submitError) {
       <div class="alert alert-danger mb-3">
-        {{ submitError }}
+        {{ submitError || ('RESERVATION.SUBMIT_ERROR' | translate) }}
       </div>
     }
 

@@ -122,7 +122,7 @@ describe('ReservationComponent', () => {
     component.openDeleteDialog(testReservations[0]);
 
     expect(component.reservationToDelete).toEqual(testReservations[0]);
-    expect(component.deleteError).toBeUndefined();
+    expect(component.deleteError).toBeNull();
   });
 
   it('should cancel delete and clear delete state', () => {
@@ -133,7 +133,7 @@ describe('ReservationComponent', () => {
     component.cancelDelete();
 
     expect(component.reservationToDelete).toBeUndefined();
-    expect(component.deleteError).toBeUndefined();
+    expect(component.deleteError).toBeNull();
     expect(component.deleteLoading).toBeFalse();
   });
 
@@ -150,6 +150,7 @@ describe('ReservationComponent', () => {
     expect(component.reservations.length).toBe(1);
     expect(component.reservations[0].id).toBe(200);
     expect(component.reservationToDelete).toBeUndefined();
+
     expect(component.deleteLoading).toBeFalse();
     expect(toastrServiceMock.success).toHaveBeenCalledWith('Reservation deleted');
   });

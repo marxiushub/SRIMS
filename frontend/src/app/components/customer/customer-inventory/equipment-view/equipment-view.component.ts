@@ -4,6 +4,7 @@ import { Equipment } from '../../../../dtos/equipment';
 import { EquipmentService } from '../../../../services/equipment.service';
 import { EquipmentType } from '../../../../dtos/equipmenttype';
 import { TranslateService } from '@ngx-translate/core';
+import { ErrorMappingService } from '../../../../services/error-mapping.service';
 
 @Component({
   selector: 'app-customer-equipment-view',
@@ -17,15 +18,17 @@ export class CustomerEquipmentViewComponent implements OnInit {
   equipment?: Equipment;
   loading = false;
   error = false;
+  errorMessage = '';
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private equipmentService: EquipmentService,
-    public translateService: TranslateService
+    public translateService: TranslateService,
+    private errorMapping: ErrorMappingService
   ) {}
 
-// Initializes the component and loads equipment details based on the route parameter ID.
+  // Initializes the component and loads equipment details based on the route parameter ID.
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
@@ -46,6 +49,7 @@ export class CustomerEquipmentViewComponent implements OnInit {
         console.error('Failed to load equipment details', err);
         this.error = true;
         this.loading = false;
+        this.errorMessage = this.errorMapping.getErrorMessage(err);
       }
     });
   }

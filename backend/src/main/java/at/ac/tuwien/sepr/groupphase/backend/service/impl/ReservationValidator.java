@@ -8,6 +8,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Reservation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.TimePeriods;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.PeriodType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
+import at.ac.tuwien.sepr.groupphase.backend.exception.LocalizedError;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ReservationRepository;
@@ -44,70 +45,78 @@ public class ReservationValidator {
 
     public void validateCreateDto(ReservationCreationDto dto) {
         if (dto == null) {
-            throw new ValidationException("Reservation creation dto must not be null", List.of("dto is null"));
+            throw new ValidationException("Reservation creation dto must not be null", "Dto zur Erstellung der Reservierung ist NULL",
+                List.of(new LocalizedError("dto is null", "DTO ist null")));
         }
 
-        List<String> validationErrors = new ArrayList<>();
+        List<LocalizedError> validationErrors = new ArrayList<>();
 
         if (dto.getStartDate() != null && dto.getEndDate() != null && dto.getEndDate().isBefore(dto.getStartDate())) {
-            validationErrors.add("End date is before start date");
+            validationErrors.add(new LocalizedError("End date is before start date", "End-Datum ist vor Start-Datum"));
         }
 
         if (dto.getCustomerProfileId() == null || !customerProfileRepository.existsById(dto.getCustomerProfileId())) {
-            validationErrors.add("No such CustomerProfile with id: " + dto.getCustomerProfileId());
+            validationErrors.add(new LocalizedError("No such CustomerProfile with id: " + dto.getCustomerProfileId(),
+                "Es gibt kein Kunden Profil mit ID: " + dto.getCustomerProfileId()));
         }
 
         if (dto.getEquipmentIds() != null && !dto.getEquipmentIds().isEmpty()) {
             validateEquipmentList(dto.getEquipmentIds(), validationErrors);
 
             if (validationErrors.isEmpty()) {
-                List<Equipment> equipments = equipmentRepository.findAllById(dto.getEquipmentIds());
+                List<Equipment> equipments = equipmentRepository.findAllByIdsLocked(dto.getEquipmentIds());
                 for (Equipment equipment : equipments) {
                     isEquipmentAvailable(equipment, dto.getStartDate(), dto.getEndDate(), null, validationErrors);
                 }
             }
         } else {
-            validationErrors.add("A reservation must contain at least one equipment.");
+            validationErrors.add(new LocalizedError("A reservation must contain at least one equipment.",
+                "Eine Reservierung muss mindestens 1 Equipment enthalten."));
         }
 
         //Status should be created
 
         if (dto.getReservationStatus() == null) {
-            validationErrors.add("Reservation status must not be null");
+            validationErrors.add(new LocalizedError("Reservation status must not be null", "Der Reservieruns-Status darf nicht null sein"));
         }
 
         if (!validationErrors.isEmpty()) {
-            throw new ValidationException("Validation failed for reservation creation", validationErrors);
+            throw new ValidationException("Validation failed for reservation creation", "Validation für Erstellung der Reservierung fehlgeschlagen", validationErrors);
         }
     }
 
     public void validateUpdateDto(ReservationUpdateDto dto, Long userId) {
         if (dto == null) {
-            throw new ValidationException("Reservation update dto must not be null", List.of("dto is null"));
+            throw new ValidationException("Reservation update dto must not be null", "Das Reservierungs-Update-DTO darf nicht null sein",
+                List.of(new LocalizedError("dto is null", "DTO ist null")));
         }
 
-        List<String> validationErrors = new ArrayList<>();
+        List<LocalizedError> validationErrors = new ArrayList<>();
 
-        Reservation reservation = reservationRepository.findById(dto.getId()).orElse(null);
+        Reservation reservation = reservationRepository.findByIdLocked(dto.getId()).orElse(null);
         if (reservation == null) {
-            validationErrors.add("No such reservation with id " + dto.getId());
-            throw new ValidationException("Validation failed", validationErrors);
+            validationErrors.add(new LocalizedError("No such reservation with id " + dto.getId(),
+                "Es gibt keine Reservation mit ID " + dto.getId()));
+            throw new ValidationException("Validation failed", "Validation fehlgeschlagen", validationErrors);
         }
 
         if (userId != null) {
             if (!Objects.equals(reservation.getCustomerProfile().getCustomer().getId(), userId)) {
-                validationErrors.add("User is not the owner of this reservation");
+                validationErrors.add(new LocalizedError("User is not the owner of this reservation", "User ist nicht Besitzer der Reservation"));
             } else {
                 LocalDate nowPlusTwoDays = LocalDate.now().plusDays(2);
                 if (reservation.getStartDate().isBefore(nowPlusTwoDays)) {
-                    validationErrors.add("Reservation can no longer be changed within two days of its start date");
+                    validationErrors.add(new LocalizedError("Reservation can no longer be changed within two days of its start date",
+                        "Reservierung kann innerhalb von 2 Tagen zum Start-Datum nicht mehr geändert werden"));
                 }
                 if (dto.getCustomerProfileId() != null && reservation.getCustomerProfile().getCustomer().getProfiles().stream().noneMatch(profile -> profile.getId().equals(dto.getCustomerProfileId()))) {
-                    validationErrors.add("Customer profile does not belong to the customer");
+                    validationErrors.add(new LocalizedError("Customer profile does not belong to the customer",
+                        "Kunden Profil gehört nicht zu diesem Kunden"));
                 }
             }
             if (dto.getReservationStatus() != null) {
-                validationErrors.add("Reservation status must not be changed by the customer");
+                validationErrors.add(new LocalizedError("Reservation status must not be changed by the customer",
+                    "Reservierungs-Status darf nicht von Kunden verändert werden"));
             }
         }
 
@@ -115,21 +124,23 @@ public class ReservationValidator {
         LocalDate returnDate = dto.getEndDate() != null ? dto.getEndDate() : reservation.getEndDate();
 
         if (returnDate.isBefore(pickUpDate)) {
-            validationErrors.add("End date is before start date");
+            validationErrors.add(new LocalizedError("End date is before start date", "End-Datum ist vor Start-Datum"));
         }
 
         if (dto.getCustomerProfileId() != null && !customerProfileRepository.existsById(dto.getCustomerProfileId())) {
-            validationErrors.add("No such CustomerProfile with id: " + dto.getCustomerProfileId());
+            validationErrors.add(new LocalizedError("No such CustomerProfile with id: " + dto.getCustomerProfileId(),
+                "Es gibt kein Kunden Profil mit ID: " + dto.getCustomerProfileId()));
         }
 
         if (dto.getEquipmentIds() != null) {
             if (dto.getEquipmentIds().isEmpty()) {
-                validationErrors.add("A reservation must contain at least one equipment.");
+                validationErrors.add(new LocalizedError("A reservation must contain at least one equipment.",
+                    "Eine Reservierung muss mindestens 1 Equipment enthalten"));
             } else {
                 validateEquipmentList(dto.getEquipmentIds(), validationErrors);
 
                 if (validationErrors.isEmpty()) {
-                    List<Equipment> equipments = equipmentRepository.findAllById(dto.getEquipmentIds());
+                    List<Equipment> equipments = equipmentRepository.findAllByIdsLocked(dto.getEquipmentIds());
                     for (Equipment equipment : equipments) {
                         isEquipmentAvailable(equipment, pickUpDate, returnDate, dto.getId(), validationErrors);
                     }
@@ -143,7 +154,7 @@ public class ReservationValidator {
         }
 
         if (!validationErrors.isEmpty()) {
-            throw new ValidationException("Validation of the dto for update failed", validationErrors);
+            throw new ValidationException("Validation of the dto for update failed", "Validierung des DTOs zur Aktualisierung fehlgeschlagen", validationErrors);
         }
     }
 
@@ -153,26 +164,38 @@ public class ReservationValidator {
             throw new IllegalArgumentException("dto must not be null");
         }
 
-        List<String> validationErrors = new ArrayList<>();
+        List<LocalizedError> validationErrors = new ArrayList<>();
 
-        Reservation reservation = reservationRepository.findById(dto.getId()).orElseThrow(() ->
+        Reservation reservation = reservationRepository.findByIdLocked(dto.getId()).orElseThrow(() ->
             new NotFoundException("Reservation with ID " + dto.getId() + " not found.")
         );
 
         validateNoDuplicateEquipmentInRequestOrReservation(dto.getEquipmentIds(), reservation, validationErrors);
 
-        if (dto.getEquipmentIds() != null) {
-            for (Long id : dto.getEquipmentIds()) {
-                Equipment equipment = equipmentRepository.findById(id)
-                    .orElseThrow(() ->
-                        new NotFoundException("Equipment with ID " + id + " not found.")
-                    );
-                isEquipmentAvailable(equipment, reservation.getStartDate(), reservation.getEndDate(), null, validationErrors);
-            }
-        }
         if (!validationErrors.isEmpty()) {
             throw new ValidationException(
                 "Validation failed for adding equipment",
+                "Validierung beim Hinzufügen der Ausrüstung fehlgeschlagen",
+                validationErrors
+            );
+        }
+
+        if (dto.getEquipmentIds() != null) {
+
+            validateEquipmentList(dto.getEquipmentIds(), validationErrors);
+
+            if (validationErrors.isEmpty()) {
+                List<Equipment> equipmentList = equipmentRepository.findAllByIdsLocked(dto.getEquipmentIds());
+                for (Equipment equipment : equipmentList) {
+                    isEquipmentAvailable(equipment, reservation.getStartDate(), reservation.getEndDate(), null, validationErrors);
+                }
+            }
+        }
+
+        if (!validationErrors.isEmpty()) {
+            throw new ValidationException(
+                "Validation failed for adding equipment",
+                "Validierung beim Hinzufügen der Ausrüstung fehlgeschlagen",
                 validationErrors
             );
         }
@@ -184,9 +207,9 @@ public class ReservationValidator {
             throw new IllegalArgumentException("dto must not be null");
         }
 
-        List<String> validationErrors = new ArrayList<>();
+        List<LocalizedError> validationErrors = new ArrayList<>();
 
-        Reservation reservation = reservationRepository.findById(dto.getId()).orElseThrow(() ->
+        Reservation reservation = reservationRepository.findByIdLocked(dto.getId()).orElseThrow(() ->
             new NotFoundException("Reservation with ID " + dto.getId() + " not found.")
         );
 
@@ -197,7 +220,8 @@ public class ReservationValidator {
                     .anyMatch(item -> item.getEquipment().getId().equals(equipmentId));
 
                 if (!equipmentInReservation) {
-                    validationErrors.add("Equipment with ID " + equipmentId + " is not part of this reservation");
+                    validationErrors.add(new LocalizedError("Equipment with ID " + equipmentId + " is not part of this reservation",
+                        "Equipment mit ID " + equipmentId + " ist nicht Teil dieser Reservation"));
                 }
             }
         }
@@ -205,13 +229,13 @@ public class ReservationValidator {
         validateReservationNotEmptyAfterRemove(dto.getEquipmentIds(), reservation, validationErrors);
 
         if (!validationErrors.isEmpty()) {
-            throw new ValidationException("Validation of the dto for update failed", validationErrors);
+            throw new ValidationException("Validation of the dto for update failed", "Validierung des DTOs zur Aktualisierung fehlgeschlagen", validationErrors);
         }
 
     }
 
 
-    private void isEquipmentAvailable(Equipment equipment, LocalDate start, LocalDate end, Long reservationIdToIgnore, List<String> validationErrors) {
+    private void isEquipmentAvailable(Equipment equipment, LocalDate start, LocalDate end, Long reservationIdToIgnore, List<LocalizedError> validationErrors) {
         for (TimePeriods time : equipment.getTimePeriodsList()) {
             if (reservationIdToIgnore != null && time.getReservation() != null && time.getReservation().getId().equals(reservationIdToIgnore)) {
                 continue;
@@ -219,24 +243,29 @@ public class ReservationValidator {
 
             if (time.getStartDate().isBefore(end) && time.getEndDate().isAfter(start)) {
                 if (time.getPeriodType() == PeriodType.RENTED) {
-                    validationErrors.add("Equipment with ID " + equipment.getId() + " is already reserved in this time range");
+                    validationErrors.add(new LocalizedError("Equipment with ID " + equipment.getId() + " is already reserved in this time range",
+                        "Equipment mit ID " + equipment.getId() + " ist in diesem Zeitraum bereits reserviert"));
                 } else {
-                    validationErrors.add("Equipment with ID " + equipment.getId() + " is not available at this date");
+                    validationErrors.add(new LocalizedError("Equipment with ID " + equipment.getId() + " is not available at this date",
+                        "Equipment mit ID " + equipment.getId() + " ist nicht verfügbar in diesem Zeitraum"));
                 }
             } else if (time.getEndDate().isEqual(start)) {
-                validationErrors.add("Equipment with ID " + equipment.getId() + " is not available at this date");
+                validationErrors.add(new LocalizedError("Equipment with ID " + equipment.getId() + " is not available at this date", "Equipment mit Id " + equipment.getId()
+                    + " ist an diesem Datum nicht verfügbar"));
             }
         }
     }
 
-    private void validateEquipmentList(List<Long> equipmentList, List<String> validationErrors) {
+    private void validateEquipmentList(List<Long> equipmentList, List<LocalizedError> validationErrors) {
         Set<Long> buffer = new HashSet<>();
         for (Long equipId : equipmentList) {
             if (!buffer.add(equipId)) {
-                validationErrors.add("equipment with id: " + equipId + "is double in list");
+                validationErrors.add(new LocalizedError("equipment with id: " + equipId + "is double in list",
+                    "Equipment mit ID: " + equipId + "ist doppelt in Liste"));
             }
             if (!equipmentRepository.existsById(equipId)) {
-                validationErrors.add("equipment from updateList does not exists");
+                validationErrors.add(new LocalizedError("equipment from updateList does not exists",
+                    "Equipment von updateList existiert nicht"));
             }
         }
 
@@ -245,7 +274,7 @@ public class ReservationValidator {
     private void validateNoDuplicateEquipmentInRequestOrReservation(
         List<Long> requestedEquipmentIds,
         Reservation reservation,
-        List<String> validationErrors
+        List<LocalizedError> validationErrors
     ) {
         if (requestedEquipmentIds == null || requestedEquipmentIds.isEmpty()) {
             return;
@@ -270,18 +299,19 @@ public class ReservationValidator {
         }
 
         if (!duplicateInRequest.isEmpty()) {
-            validationErrors.add("Equipment list contains duplicate IDs: " + duplicateInRequest);
+            validationErrors.add(new LocalizedError("Equipment list contains duplicate IDs: " + duplicateInRequest, "Equipment Liste enthält doppelte IDs: " + duplicateInRequest));
         }
 
         if (!alreadyInReservation.isEmpty()) {
-            validationErrors.add("The following equipments are already part of this reservation: " + alreadyInReservation);
+            validationErrors.add(new LocalizedError("The following equipments are already part of this reservation: " + alreadyInReservation,
+                "Die folgenden Equipments sind bereits Teil dieser Reservierung: " + alreadyInReservation));
         }
     }
 
     private void validateReservationNotEmptyAfterRemove(
         List<Long> equipmentIdsToRemove,
         Reservation reservation,
-        List<String> validationErrors
+        List<LocalizedError> validationErrors
     ) {
         if (equipmentIdsToRemove == null || equipmentIdsToRemove.isEmpty()) {
             return;
@@ -294,7 +324,8 @@ public class ReservationValidator {
             .count();
 
         if (reservation.getItems().size() <= validItemsToRemove) {
-            validationErrors.add("Cannot remove all items. A reservation must contain at least one equipment.");
+            validationErrors.add(new LocalizedError("Cannot remove all items. A reservation must contain at least one equipment.",
+                "Es könnten nicht alle Equipments entfernt werden. Eine Reservation muss mindestens 1 Equipment enthalten."));
         }
     }
 

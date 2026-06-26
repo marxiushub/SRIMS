@@ -317,7 +317,7 @@
 
     @if (submitError) {
       <div class="alert alert-danger mb-3">
-        {{ submitError }}
+        {{ submitError || (mode === ReservationCreateEditMode.create ? 'RESERVATION.CREATE_FAILED' : 'RESERVATION.EDIT_FAILED') | translate }}
       </div>
     }
 
@@ -325,8 +325,8 @@
       <button
         type="button"
         class="btn btn-success btn-lg flex-grow-1"
-        [disabled]="reservationForm.invalid || selectedEquipment.length === 0 || isDateRangeInvalid || isStartDateInPast || submitLoading"
-        (click)=submitConfirmDialog.showModal()>
+        [disabled]="reservationForm.invalid || selectedEquipment.length === 0 || isDateRangeInvalid || submitLoading || loading"
+        (click) = submitConfirmDialog.showModal()>
         @if (submitLoading) {
           {{ 'INVENTORY.LOADING' | translate }}...
         } @else {

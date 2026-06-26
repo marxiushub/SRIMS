@@ -10,13 +10,13 @@
     </div>
   }
 
-  @if (errorMessageKey) {
+  @if (errorMessage) {
     <div class="alert alert-danger">
-      {{ errorMessageKey | translate }}
+      {{ errorMessage || ('STAFF.OVERVIEW.MESSAGES.ERROR' | translate) }}
     </div>
   }
 
-  @if (!loading && !errorMessageKey && overview) {
+  @if (!loading && !errorMessage && overview) {
     <div class="summary-tiles d-flex flex-wrap">
       <div class="summary-tile tile-free">
         <span class="summary-count">{{ totalFree }}</span>

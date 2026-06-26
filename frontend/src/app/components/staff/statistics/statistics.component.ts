@@ -1,13 +1,13 @@
-import {Component, OnInit} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {StatisticsService} from '../../../services/statistics.service';
-
-
-import {StatisticsRequestDto} from '../../../dtos/statistics-request';
-import {StatisticsResponseDto} from '../../../dtos/statistics-response';
-import {EquipmentType} from '../../../dtos/equipmenttype';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { StatisticsService } from '../../../services/statistics.service';
+import { StatisticsRequestDto } from '../../../dtos/statistics-request';
+import { StatisticsResponseDto } from '../../../dtos/statistics-response';
+import { EquipmentType } from '../../../dtos/equipmenttype';
+import {Equipment} from "../../../dtos/equipment";
 import {Router} from "@angular/router";
-import {StatisticsStateService} from '../../../services/statistics-state.service';
+import { StatisticsStateService } from '../../../services/statistics-state.service';
+import { ErrorMappingService } from '../../../services/error-mapping.service';
 
 interface RenderedRow {
   label: string;
@@ -26,7 +26,7 @@ export class StatisticsComponent implements OnInit {
   isLoading = false;
   maxDaysRented = 1;
   sortDescending = true;
-  errorMessageKey: string | null = null;
+  errorMessage: string | null = null;
   detailDegreeLabelKey = 'STAFF.STATISTICS.TABLE.MODEL_NAME';
   yAxisTicks: number[] = [];
   tableRows: RenderedRow[] = [];
@@ -36,9 +36,9 @@ export class StatisticsComponent implements OnInit {
     private fb: FormBuilder,
     private statisticsService: StatisticsService,
     private router: Router,
-    private stateService: StatisticsStateService
-  ) {
-  }
+    private stateService: StatisticsStateService,
+    private errorMapping: ErrorMappingService
+  ) {}
 
   ngOnInit(): void {
     if (this.stateService.lastFilterValues) {
@@ -79,7 +79,7 @@ export class StatisticsComponent implements OnInit {
     if (this.filterForm.invalid) return;
     this.emptyReturnList = false;
     this.isLoading = true;
-    this.errorMessageKey = null;
+    this.errorMessage = null;
     this.tableRows = [];
 
     const requestData: StatisticsRequestDto = {...this.filterForm.value};
@@ -117,9 +117,9 @@ export class StatisticsComponent implements OnInit {
         this.calculateYAxis();
       },
       error: (error) => {
-        this.isLoading = false;
-        this.errorMessageKey = 'STAFF.STATISTICS.MESSAGES.ERROR';
         console.error('Statistics Error:', error);
+        this.isLoading = false;
+        this.errorMessage = this.errorMapping.getErrorMessage(error);
       }
     });
   }

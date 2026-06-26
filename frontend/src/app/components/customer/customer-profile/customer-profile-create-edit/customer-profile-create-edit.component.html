@@ -12,17 +12,21 @@
     <div class="card-body">
       @if (error) {
         <div class="alert alert-danger">
-          @if (mode === ProfileCreateEditMode.create) {
-            {{ 'CUSTOMER_PROFILE_CREATE.ERROR' | translate }}
+          @if (errorMessage) {
+            {{ errorMessage }}
           } @else {
-            {{ 'CUSTOMER_PROFILE_EDIT.ERROR' | translate }}
+            @if (mode === ProfileCreateEditMode.create) {
+              {{ 'CUSTOMER_PROFILE_CREATE.ERROR' | translate }}
+            } @else {
+              {{ 'CUSTOMER_PROFILE_EDIT.ERROR' | translate }}
+            }
           }
         </div>
       }
 
       @if (loadError) {
         <div class="alert alert-danger">
-          {{ 'CUSTOMER_PROFILE.LOADING_ERROR' | translate }}
+          {{ loadErrorMessage || 'CUSTOMER_PROFILE.LOADING_ERROR' | translate }}
         </div>
       }
 

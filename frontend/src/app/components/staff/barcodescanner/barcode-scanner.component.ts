@@ -18,6 +18,7 @@ import {StaffService} from '../../../services/staff.service';
 import {CustomerSearch} from '../../../dtos/customer-search';
 import {CustomerSearchResponse} from '../../../dtos/customer-search-response';
 import {BarcodeFormat} from '@zxing/library';
+import {ErrorMappingService} from '../../../services/error-mapping.service';
 
 @Component({
   selector: 'app-barcode-scanner',
@@ -75,7 +76,8 @@ export class BarcodeScannerComponent implements OnInit {
     private customerProfileService: CustomerProfileService,
     private staffService: StaffService,
     private fb: FormBuilder,
-    private notification: ToastrService
+    private notification: ToastrService,
+    private errorMapping: ErrorMappingService
   ) {
   }
 
@@ -263,7 +265,7 @@ export class BarcodeScannerComponent implements OnInit {
             },
             error: (err) => {
               console.error('Error during the Reservation Search', err);
-              this.errorMessage = this.translateService.instant('BARCODE_SCANNER.ERROR_UNEXPECTED');
+              this.errorMessage = this.errorMapping.getErrorMessage(err);
               this.loading = false;
               this.updateScanScenario();
             }
@@ -427,7 +429,7 @@ export class BarcodeScannerComponent implements OnInit {
       error: (err) => {
         this.loading = false;
         console.error('Error during rental update submission', err);
-        this.errorMessage = this.translateService.instant('BARCODE_SCANNER.ERROR_UNEXPECTED');
+        this.errorMessage = this.errorMapping.getErrorMessage(err);
         this.updateScanScenario();
       }
     });
@@ -458,7 +460,7 @@ export class BarcodeScannerComponent implements OnInit {
       error: (err) => {
         this.loading = false;
         console.error('Failed to add equipment to reservation', err);
-        this.notification.error(err.error?.message || 'Error adding equipment.');
+        this.notification.error(this.errorMapping.getErrorMessage(err));
       }
     });
   }
@@ -491,7 +493,7 @@ export class BarcodeScannerComponent implements OnInit {
       error: (err) => {
         this.loading = false;
         console.error('Failed to remove equipment from reservation', err);
-        this.notification.error(err.error?.message || 'Error removing equipment.');
+        this.notification.error(this.errorMapping.getErrorMessage(err));
       }
     });
   }
@@ -628,13 +630,13 @@ export class BarcodeScannerComponent implements OnInit {
           },
           error: (err) => {
             console.error('Failed to load maintenance customer profile', err);
-            this.maintenanceLookupError = this.translateService.instant('BARCODE_SCANNER.ERROR_UNEXPECTED');
+            this.maintenanceLookupError = this.errorMapping.getErrorMessage(err);
           }
         });
       },
       error: (err) => {
         console.error('Failed to load maintenance customer account', err);
-        this.maintenanceLookupError = this.translateService.instant('BARCODE_SCANNER.ERROR_UNEXPECTED');
+        this.maintenanceLookupError = this.errorMapping.getErrorMessage(err);
       }
     });
   }
@@ -654,7 +656,7 @@ export class BarcodeScannerComponent implements OnInit {
       error: (err) => {
         this.loading = false;
         console.error('Failed to load all system users:', err);
-        this.errorMessage = this.translateService.instant('BARCODE_SCANNER.ERROR_UNEXPECTED');
+        this.errorMessage = this.errorMapping.getErrorMessage(err);
       }
     });
   }
@@ -671,7 +673,7 @@ export class BarcodeScannerComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error during loading of customer profiles', err);
-        this.errorMessage = this.translateService.instant('BARCODE_SCANNER.ERROR_UNEXPECTED');
+        this.errorMessage = this.errorMapping.getErrorMessage(err);
       }
     });
   }
@@ -801,7 +803,7 @@ export class BarcodeScannerComponent implements OnInit {
       error: (err) => {
         console.error('Error during walk-in checkout submission', err);
         this.submitLoading = false;
-        this.submitError = err.error?.message || 'An error occurred while creating the walk-in reservation.';
+        this.submitError = this.errorMapping.getErrorMessage(err);
       }
     });
   }

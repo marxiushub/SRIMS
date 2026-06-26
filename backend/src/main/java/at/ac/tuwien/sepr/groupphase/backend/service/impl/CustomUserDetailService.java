@@ -13,6 +13,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Role;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.UserType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.Customer;
+import at.ac.tuwien.sepr.groupphase.backend.exception.LocalizedError;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RoleRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.CustomerRepository;
@@ -142,7 +143,9 @@ public class CustomUserDetailService implements UserService {
         LOGGER.trace("Creating user with email {}", userCreationDto.getEmail());
 
         if (userRepository.findUserByEmail(userCreationDto.getEmail()).isPresent()) {
-            throw new ValidationException("Email is already in use", List.of("Email " + userCreationDto.getEmail() + " is already in use."));
+            throw new ValidationException("Email is already in use", "Email bereits vergeben", List.of(new LocalizedError(
+                "Email " + userCreationDto.getEmail() + " is already in use.",
+                "Die Email-Adresse " + userCreationDto.getEmail() + " wird bereits verwendet.")));
         }
 
         validator.userCreationDtoValidator(userCreationDto);
@@ -253,28 +256,32 @@ public class CustomUserDetailService implements UserService {
         checkUserAccessPermission(id);
 
         if (passwordChangeDto == null) {
-            throw new ValidationException("Validation of the dto for changing passwords failed", List.of("passwordChangeDto is null"));
+            throw new ValidationException("Validation of the dto for changing passwords failed", "Validierung des DTOs zur Passwortänderung fehlgeschlagen",
+                List.of(new LocalizedError("passwordChangeDto is null", "passwordChangeDto ist null")));
         }
 
         if (passwordChangeDto.getOldPassword() == null || passwordChangeDto.getOldPassword().isBlank()) {
-            throw new ValidationException("Validation of the dto for changing passwords failed", List.of("oldPassword is blank"));
+            throw new ValidationException("Validation of the dto for changing passwords failed", "Validierung des DTOs zur Passwortänderung fehlgeschlagen",
+                List.of(new LocalizedError("oldPassword is blank", "Altes Passwort ist leer")));
         }
 
         if (passwordChangeDto.getNewPassword() == null || passwordChangeDto.getNewPassword().isBlank()) {
-            throw new ValidationException("Validation of the dto for changing passwords failed", List.of("newPassword is blank"));
+            throw new ValidationException("Validation of the dto for changing passwords failed", "Validierung des DTOs zur Passwortänderung fehlgeschlagen",
+                List.of(new LocalizedError("newPassword is blank", "Neues Passwort ist leer")));
         }
 
         ApplicationUser existingUser = userRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("User with ID " + id + " was not found."));
 
         if (!passwordEncoder.matches(passwordChangeDto.getOldPassword(), existingUser.getPassword())) {
-            throw new ValidationException("Old password is incorrect");
+            throw new ValidationException("Old password is incorrect", "Altes Passwort stimmt nicht");
         }
 
         if (passwordEncoder.matches(passwordChangeDto.getNewPassword(), existingUser.getPassword())) {
             throw new ValidationException(
-                "Validation of the dto for changing passwords failed",
-                List.of("New Password must differ from the current password.")
+                "Validation of the dto for changing passwords failed", "Validierung des DTOs zur Passwortänderung fehlgeschlagen",
+                List.of(new LocalizedError("New Password must differ from the current password.",
+                    "Das neue Passwort muss sich vom alten Passwort unterscheiden."))
             );
         }
 

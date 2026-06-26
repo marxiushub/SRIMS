@@ -94,7 +94,7 @@ describe('EquipmentCreateEditComponent', () => {
     });
     expect(routerMock.navigate).toHaveBeenCalledWith(['/staff/inventory']);
     expect(component.loading).toBeFalse();
-    expect(component.error).toBeFalse();
+    expect(component.errorMessage).toBeNull();
   });
 
   it('should set error when create request fails', () => {
@@ -104,7 +104,7 @@ describe('EquipmentCreateEditComponent', () => {
 
     component.onSubmit();
 
-    expect(component.error).toBeTrue();
+    expect(component.errorMessage).not.toBeNull();
     expect(component.loading).toBeFalse();
     expect(routerMock.navigate).not.toHaveBeenCalled();
   });
@@ -148,7 +148,7 @@ describe('EquipmentCreateEditComponent', () => {
     });
     expect(routerMock.navigate).toHaveBeenCalledWith(['/staff/inventory']);
     expect(component.loading).toBeFalse();
-    expect(component.error).toBeFalse();
+    expect(component.errorMessage).toBeNull();
   });
 
   it('should set error when update request fails', () => {
@@ -160,7 +160,7 @@ describe('EquipmentCreateEditComponent', () => {
 
     component.onSubmit();
 
-    expect(component.error).toBeTrue();
+    expect(component.errorMessage).not.toBeNull();
     expect(component.loading).toBeFalse();
     expect(routerMock.navigate).not.toHaveBeenCalled();
   });
@@ -214,7 +214,7 @@ describe('EquipmentCreateEditComponent', () => {
     expect(equipmentServiceMock.create).toHaveBeenCalled(); // Kept short for readability, keep your original exact matching payload if you want!
     expect(routerMock.navigate).toHaveBeenCalledWith(['/staff/inventory']);
     expect(component.loading).toBeFalse();
-    expect(component.error).toBeFalse();
+    expect(component.errorMessage).toBeNull();
 
     expect(toastrServiceMock.success).toHaveBeenCalledWith('Item successfully created');
   });
@@ -240,7 +240,7 @@ describe('EquipmentCreateEditComponent', () => {
     expect(equipmentServiceMock.update).toHaveBeenCalled(); // Kept short for readability
     expect(routerMock.navigate).toHaveBeenCalledWith(['/staff/inventory']);
     expect(component.loading).toBeFalse();
-    expect(component.error).toBeFalse();
+    expect(component.errorMessage).toBeNull();
 
     expect(toastrServiceMock.success).toHaveBeenCalledWith('Item successfully updated');
   });

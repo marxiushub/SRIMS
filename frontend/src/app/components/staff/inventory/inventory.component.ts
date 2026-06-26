@@ -10,6 +10,7 @@ import {SkillLevel} from "../../../dtos/skilllevel";
 import {EquipmentSearch} from '../../../dtos/equipment-search';
 import {ToastrService} from 'ngx-toastr';
 import {NavbarService} from "../../../services/navbar.service";
+import {ErrorMappingService} from '../../../services/error-mapping.service';
 
 @Component({
   selector: 'app-inventory',
@@ -21,10 +22,11 @@ export class InventoryComponent implements OnInit {
 
   equipment: Equipment[] = [];
   loading = false;
+  errorMessage: string | null = null;
 
   equipmentToDelete?: Equipment;
   deleteLoading = false;
-  deleteError?: string;
+  deleteError: string | null = null;
 
   modelOptions: string[] = [];
   modelFilter = '';
@@ -60,7 +62,14 @@ export class InventoryComponent implements OnInit {
     SkillLevel.ADVANCED
   ];
 
-  constructor(private equipmentService: EquipmentService, public translateService: TranslateService, private navbarService: NavbarService, private router: Router, private notification: ToastrService) {
+  constructor(
+    private equipmentService: EquipmentService,
+    public translateService: TranslateService,
+    private navbarService: NavbarService,
+    private router: Router,
+    private notification: ToastrService,
+    private errorMapping: ErrorMappingService
+  ) {
   }
 
   ngOnInit(): void {
@@ -79,6 +88,7 @@ export class InventoryComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load equipment', err);
+        this.errorMessage = this.errorMapping.getErrorMessage(err);
         this.loading = false;
       }
     })
@@ -100,11 +110,11 @@ export class InventoryComponent implements OnInit {
   openDeleteDialog(item: Equipment): void {
     this.navbarService.close();
     this.equipmentToDelete = item;
-    this.deleteError = undefined;
+    this.deleteError = null;
   }
 
   cancelDelete(): void {
-    this.deleteError = undefined;
+    this.deleteError = null;
     this.equipmentToDelete = undefined;
     this.deleteLoading = false;
   }
@@ -115,7 +125,7 @@ export class InventoryComponent implements OnInit {
     }
 
     this.deleteLoading = true;
-    this.deleteError = undefined;
+    this.deleteError = null;
     const deletedModelName = this.equipmentToDelete.model;
 
     this.equipmentService.delete(this.equipmentToDelete.id).subscribe({
@@ -137,7 +147,7 @@ export class InventoryComponent implements OnInit {
 
       error: (err) => {
         console.error('Failed to delete equipment', err);
-        this.deleteError = 'Equipment could not be deleted.';
+        this.deleteError = this.errorMapping.getErrorMessage(err);
         this.deleteLoading = false;
       }
     });
@@ -177,6 +187,7 @@ export class InventoryComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to search equipment', err);
+        this.errorMessage = this.errorMapping.getErrorMessage(err);
         this.loading = false;
       }
     });

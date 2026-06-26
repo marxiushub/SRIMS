@@ -15,6 +15,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.user.Customer;
 import at.ac.tuwien.sepr.groupphase.backend.entity.user.CustomerProfile;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
+import at.ac.tuwien.sepr.groupphase.backend.exception.LocalizedError;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ReservationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.TimePeriodsRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.equipment.HelmetRepository;
@@ -35,6 +36,11 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -111,6 +117,16 @@ public class ReservationServiceTest {
         reservationRepository.deleteAll();
     }
 
+    //helper for validation error assertion
+    private static void assertContainsErrorMessageContaining(
+        ValidationException exception,
+        String expectedMessagePart
+    ) {
+        assertThat(exception.getErrors())
+            .extracting(LocalizedError::message)
+            .anyMatch(message -> message.contains(expectedMessagePart));
+    }
+
     @Test
     public void createReservation_withValidData_returnsSavedReservationDto() {
         ReservationCreationDto dto = createReservationCreationDto(
@@ -155,8 +171,7 @@ public class ReservationServiceTest {
             "Verify that the correct exception with the correct message is thrown",
             () -> assertThat(exception).isNotNull(),
             () -> assertThat(exception.getMessage()).containsIgnoringCase("Validation failed"),
-            () -> assertThat(exception.getErrors().stream()
-                .anyMatch(error -> error.contains("No such CustomerProfile"))).isTrue()
+            () -> assertContainsErrorMessageContaining(exception, "No such CustomerProfile")
         );
     }
 
@@ -178,8 +193,7 @@ public class ReservationServiceTest {
         assertAll(
             "Verify that missing reservation status is rejected",
             () -> assertThat(exception).isNotNull(),
-            () -> assertThat(exception.getErrors().stream()
-                .anyMatch(error -> error.contains("Reservation status must not be null"))).isTrue()
+            () -> assertContainsErrorMessageContaining(exception, "Reservation status must not be null")
         );
     }
 
@@ -973,8 +987,7 @@ public class ReservationServiceTest {
         assertAll(
             "Verify that duplicate equipment IDs in the request are blocked",
             () -> assertThat(exception).isNotNull(),
-            () -> assertThat(exception.getErrors().stream()
-                .anyMatch(e -> e.contains("duplicate IDs"))).isTrue()
+            () -> assertContainsErrorMessageContaining(exception, "duplicate IDs")
         );
     }
 
@@ -1000,8 +1013,7 @@ public class ReservationServiceTest {
         assertAll(
             "Verify that adding already existing equipment is blocked",
             () -> assertThat(exception).isNotNull(),
-            () -> assertThat(exception.getErrors().stream()
-                .anyMatch(e -> e.contains("already part of this reservation"))).isTrue()
+            () -> assertContainsErrorMessageContaining(exception, "already part of this reservation")
         );
     }
 
@@ -1027,8 +1039,7 @@ public class ReservationServiceTest {
         assertAll(
             "Verify that a reservation cannot be emptied completely",
             () -> assertThat(exception).isNotNull(),
-            () -> assertThat(exception.getErrors().stream()
-                .anyMatch(e -> e.contains("must contain at least one equipment"))).isTrue()
+            () -> assertContainsErrorMessageContaining(exception, "must contain at least one equipment")
         );
     }
 
@@ -1054,8 +1065,272 @@ public class ReservationServiceTest {
         assertAll(
             "Verify that removing unassociated equipment throws an error",
             () -> assertThat(exception).isNotNull(),
-            () -> assertThat(exception.getErrors().stream()
-                .anyMatch(e -> e.contains("not part of this reservation"))).isTrue()
+            () -> assertContainsErrorMessageContaining(exception, "not part of this reservation")
+        );
+    }
+
+    @Test
+    public void createReservation_concurrentRequestsForSameEquipment_preventsDoubleBooking() throws InterruptedException {
+        ReservationCreationDto dto = createReservationCreationDto(
+            testCustomerProfile.getId(),
+            List.of(testEquipment.getId()),
+            LocalDate.now().plusDays(20),
+            LocalDate.now().plusDays(25),
+            LocalTime.of(10, 0)
+        );
+
+        int numberOfThreads = 2;
+        ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
+
+        CountDownLatch startLatch = new CountDownLatch(1);
+        CountDownLatch doneLatch = new CountDownLatch(numberOfThreads);
+
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger exceptionCount = new AtomicInteger(0);
+
+        Runnable bookingTask = () -> {
+            try {
+                startLatch.await();
+
+
+                reservationService.createReservation(dto);
+
+                successCount.incrementAndGet();
+            } catch (ValidationException e) {
+                exceptionCount.incrementAndGet();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                doneLatch.countDown();
+            }
+        };
+
+        executor.submit(bookingTask);
+        executor.submit(bookingTask);
+
+        startLatch.countDown();
+
+        boolean finished = doneLatch.await(5, TimeUnit.SECONDS);
+        executor.shutdown();
+
+        assertAll(
+            "Verify that Pessimistic Locking perfectly prevents double booking",
+            () -> assertThat(finished).as("Threads did not finish in time").isTrue(),
+            () -> assertThat(successCount.get()).as("Exactly ONE booking should succeed").isEqualTo(1),
+            () -> assertThat(exceptionCount.get()).as("Exactly ONE booking should be blocked by Validator").isEqualTo(1)
+        );
+    }
+
+    @Test
+    public void addEquipmentToReservation_concurrentRequests_preventsDoubleBooking() throws InterruptedException {
+        Helmet contestedHelmet = new Helmet("Golden Helmet", 50.0, 55.0, RentalStatus.FREE, SkillLevel.ADVANCED);
+        contestedHelmet = helmetRepository.save(contestedHelmet);
+
+        ReservationCreationDto createDto1 = createReservationCreationDto(
+            testCustomerProfile.getId(), List.of(testEquipment.getId()),
+            LocalDate.now().plusDays(30), LocalDate.now().plusDays(35), LocalTime.of(10, 0));
+        ReservationDetailDto res1 = reservationService.createReservation(createDto1);
+
+        ReservationCreationDto createDto2 = createReservationCreationDto(
+            testCustomerProfile2.getId(), List.of(testEquipment2.getId()),
+            LocalDate.now().plusDays(30), LocalDate.now().plusDays(35), LocalTime.of(10, 0));
+        ReservationDetailDto res2 = reservationService.createReservation(createDto2);
+
+        ReservationAddDeleteEquipmentDto addDto1 = new ReservationAddDeleteEquipmentDto();
+        addDto1.setId(res1.getId());
+        addDto1.setEquipmentIds(List.of(contestedHelmet.getId()));
+
+        ReservationAddDeleteEquipmentDto addDto2 = new ReservationAddDeleteEquipmentDto();
+        addDto2.setId(res2.getId());
+        addDto2.setEquipmentIds(List.of(contestedHelmet.getId()));
+
+        int numberOfThreads = 2;
+        ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
+        CountDownLatch startLatch = new CountDownLatch(1);
+        CountDownLatch doneLatch = new CountDownLatch(numberOfThreads);
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger exceptionCount = new AtomicInteger(0);
+
+        executor.submit(() -> {
+            try {
+                startLatch.await();
+                reservationService.addEquipmentToReservation(addDto1);
+                successCount.incrementAndGet();
+            } catch (ValidationException e) {
+                exceptionCount.incrementAndGet();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                doneLatch.countDown();
+            }
+        });
+
+        executor.submit(() -> {
+            try {
+                startLatch.await();
+                reservationService.addEquipmentToReservation(addDto2);
+                successCount.incrementAndGet();
+            } catch (ValidationException e) {
+                exceptionCount.incrementAndGet();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                doneLatch.countDown();
+            }
+        });
+
+        startLatch.countDown();
+        boolean finished = doneLatch.await(5, TimeUnit.SECONDS);
+        executor.shutdown();
+
+        assertAll(
+            "Verify that concurrent ADD requests cannot overbook equipment",
+            () -> assertThat(finished).isTrue(),
+            () -> assertThat(successCount.get()).isEqualTo(1),
+            () -> assertThat(exceptionCount.get()).isEqualTo(1)
+        );
+    }
+
+    @Test
+    public void updateReservation_concurrentRequests_preventsDoubleBooking() throws InterruptedException {
+        Helmet contestedHelmet = new Helmet("Platinum Helmet", 60.0, 56.0, RentalStatus.FREE, SkillLevel.ADVANCED);
+        contestedHelmet = helmetRepository.save(contestedHelmet);
+
+        ReservationCreationDto createDto1 = createReservationCreationDto(
+            testCustomerProfile.getId(), List.of(testEquipment.getId()),
+            LocalDate.now().plusDays(40), LocalDate.now().plusDays(45), LocalTime.of(10, 0));
+        ReservationDetailDto res1 = reservationService.createReservation(createDto1);
+
+        ReservationCreationDto createDto2 = createReservationCreationDto(
+            testCustomerProfile2.getId(), List.of(testEquipment2.getId()),
+            LocalDate.now().plusDays(40), LocalDate.now().plusDays(45), LocalTime.of(10, 0));
+        ReservationDetailDto res2 = reservationService.createReservation(createDto2);
+
+        ReservationUpdateDto updateDto1 = new ReservationUpdateDto();
+        updateDto1.setId(res1.getId());
+        updateDto1.setEquipmentIds(List.of(contestedHelmet.getId()));
+
+        ReservationUpdateDto updateDto2 = new ReservationUpdateDto();
+        updateDto2.setId(res2.getId());
+        updateDto2.setEquipmentIds(List.of(contestedHelmet.getId()));
+
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        CountDownLatch startLatch = new CountDownLatch(1);
+        CountDownLatch doneLatch = new CountDownLatch(2);
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger exceptionCount = new AtomicInteger(0);
+
+        Runnable task1 = () -> {
+            try {
+                startLatch.await();
+                reservationService.updateReservation(updateDto1);
+                successCount.incrementAndGet();
+            } catch (ValidationException e) {
+                exceptionCount.incrementAndGet();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                doneLatch.countDown();
+            }
+        };
+
+        Runnable task2 = () -> {
+            try {
+                startLatch.await();
+                reservationService.updateReservation(updateDto2);
+                successCount.incrementAndGet();
+            } catch (ValidationException e) {
+                exceptionCount.incrementAndGet();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                doneLatch.countDown();
+            }
+        };
+
+        executor.submit(task1);
+        executor.submit(task2);
+
+        startLatch.countDown();
+        boolean finished = doneLatch.await(5, TimeUnit.SECONDS);
+        executor.shutdown();
+
+        assertAll(
+            "Verify that concurrent UPDATE requests cannot overbook equipment",
+            () -> assertThat(finished).isTrue(),
+            () -> assertThat(successCount.get()).isEqualTo(1),
+            () -> assertThat(exceptionCount.get()).isEqualTo(1)
+        );
+    }
+
+    @Test
+    public void concurrentAddAndUpdate_forSameEquipment_preventsDoubleBooking() throws InterruptedException {
+        Helmet crossContestedHelmet = new Helmet("Cross-Method Helmet", 70.0, 52.0, RentalStatus.FREE, SkillLevel.ADVANCED);
+        crossContestedHelmet = helmetRepository.save(crossContestedHelmet);
+
+        LocalDate start = LocalDate.now().plusDays(60);
+        LocalDate end = LocalDate.now().plusDays(65);
+
+        ReservationCreationDto createDto1 = createReservationCreationDto(
+            testCustomerProfile.getId(), List.of(testEquipment.getId()), start, end, LocalTime.of(10, 0));
+        ReservationDetailDto res1 = reservationService.createReservation(createDto1);
+
+        ReservationCreationDto createDto2 = createReservationCreationDto(
+            testCustomerProfile2.getId(), List.of(testEquipment2.getId()), start, end, LocalTime.of(10, 0));
+        ReservationDetailDto res2 = reservationService.createReservation(createDto2);
+
+
+        ReservationAddDeleteEquipmentDto addDto = new ReservationAddDeleteEquipmentDto();
+        addDto.setId(res1.getId());
+        addDto.setEquipmentIds(List.of(crossContestedHelmet.getId()));
+
+        ReservationUpdateDto updateDto = new ReservationUpdateDto();
+        updateDto.setId(res2.getId());
+        updateDto.setEquipmentIds(List.of(crossContestedHelmet.getId()));
+
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        CountDownLatch startLatch = new CountDownLatch(1);
+        CountDownLatch doneLatch = new CountDownLatch(2);
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger exceptionCount = new AtomicInteger(0);
+
+        executor.submit(() -> {
+            try {
+                startLatch.await();
+                reservationService.addEquipmentToReservation(addDto);
+                successCount.incrementAndGet();
+            } catch (ValidationException e) {
+                exceptionCount.incrementAndGet();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                doneLatch.countDown();
+            }
+        });
+
+        executor.submit(() -> {
+            try {
+                startLatch.await();
+                reservationService.updateReservation(updateDto);
+                successCount.incrementAndGet();
+            } catch (ValidationException e) {
+                exceptionCount.incrementAndGet();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                doneLatch.countDown();
+            }
+        });
+
+        startLatch.countDown();
+        boolean finished = doneLatch.await(5, TimeUnit.SECONDS);
+        executor.shutdown();
+
+        assertAll(
+            "Verify that concurrent requests across DIFFERENT methods (ADD vs UPDATE) prevent double booking",
+            () -> assertThat(finished).isTrue(),
+            () -> assertThat(successCount.get()).as("Exactly ONE method should successfully book the helmet").isEqualTo(1),
+            () -> assertThat(exceptionCount.get()).as("Exactly ONE method should be blocked by the validator").isEqualTo(1)
         );
     }
 

@@ -160,6 +160,12 @@
     <div class="alert alert-info">{{ 'INVENTORY.LOADING' | translate }}</div>
   }
 
+  @if (errorMessage) {
+    <div class="alert alert-danger">
+      {{ errorMessage || 'INVENTORY.LOADING_ERROR' | translate }}
+    </div>
+  }
+
   @if (!loading && equipment.length === 0) {
     <div class="alert alert-warning">{{ 'INVENTORY.NO_EQUIPMENT' | translate }}</div>
   }
@@ -309,7 +315,7 @@
 
             @if (deleteError) {
               <div class="alert alert-danger mt-3 mb-0">
-                {{ 'INVENTORY.DELETE_ERROR' | translate }}
+                {{ deleteError || 'INVENTORY.DELETE_ERROR' | translate }}
               </div>
             }
           </div>

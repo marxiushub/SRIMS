@@ -5,6 +5,7 @@ import {CustomerProfile} from '../../../dtos/customer-profile';
 import {TranslateService} from '@ngx-translate/core';
 import {ToastrService} from 'ngx-toastr';
 import {NavbarService} from "../../../services/navbar.service";
+import {ErrorMappingService} from '../../../services/error-mapping.service';
 
 @Component({
   selector: 'app-customer-profile',
@@ -15,12 +16,21 @@ import {NavbarService} from "../../../services/navbar.service";
 export class CustomerProfileComponent {
   profiles: CustomerProfile[] = [];
   loading = false;
+  loadError = false;
+  loadErrorMessage = '';
 
   profileToDelete?: CustomerProfile;
   deleteLoading = false;
   deleteError?: string;
 
-  constructor(private customerProfileService: CustomerProfileService, public translateService: TranslateService, private navbarService: NavbarService, private router: Router, private notification: ToastrService) {
+  constructor(
+    private customerProfileService: CustomerProfileService,
+    public translateService: TranslateService,
+    private navbarService: NavbarService,
+    private router: Router,
+    private notification: ToastrService,
+    private errorMapping: ErrorMappingService
+  ) {
   }
 
   ngOnInit(): void {
@@ -38,7 +48,9 @@ export class CustomerProfileComponent {
       },
       error: (err) => {
         console.error('Failed to load profiles', err);
+        this.loadError = true;
         this.loading = false;
+        this.loadErrorMessage = this.errorMapping.getErrorMessage(err);
       }
     })
   }
@@ -47,6 +59,7 @@ export class CustomerProfileComponent {
   openCreatePage(): void {
     this.router.navigate(['/customer/profiles/create']);
   }
+
 // Closes the navigation bar and redirects to the edit page for the selected profile.
   openEditPage(item: CustomerProfile): void {
     this.navbarService.close();
@@ -56,6 +69,7 @@ export class CustomerProfileComponent {
   openDetailPage(item: CustomerProfile): void {
     this.router.navigate(['customer/profiles/view', item.id])
   }
+
 // Closes the navigation bar and stages the selected profile for deletion in the dialog
   openDeleteDialog(item: CustomerProfile): void {
     this.navbarService.close();
@@ -68,6 +82,7 @@ export class CustomerProfileComponent {
     this.profileToDelete = undefined;
     this.deleteLoading = false;
   }
+
 // Deletes the profile via the service, updates the local UI list, and shows a success notification.
   confirmDelete(): void {
     if (!this.profileToDelete) {
@@ -94,8 +109,8 @@ export class CustomerProfileComponent {
 
       error: (err) => {
         console.error('Failed to delete profile', err);
-        this.deleteError = 'Profile could not be deleted.';
         this.deleteLoading = false;
+        this.deleteError = this.errorMapping.getErrorMessage(err);
       }
     });
   }

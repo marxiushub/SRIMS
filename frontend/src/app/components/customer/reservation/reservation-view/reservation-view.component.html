@@ -13,7 +13,7 @@
 
   @if (error) {
     <div class="alert alert-danger">
-      {{ error | translate }}
+      {{ error || 'RESERVATION.LOADING_FAILED' | translate }}
     </div>
     <button type="button" class="btn btn-secondary" (click)="backToList()">
       {{ 'EQUIPMENT_CREATE.CANCEL' | translate }}
@@ -189,7 +189,7 @@
 
             @if (deleteError) {
               <div class="alert alert-danger mt-3 mb-0">
-                {{ deleteError }}
+                {{ deleteError || 'RESERVATION.DELETE_FAILED' | translate }}
               </div>
             }
           </div>

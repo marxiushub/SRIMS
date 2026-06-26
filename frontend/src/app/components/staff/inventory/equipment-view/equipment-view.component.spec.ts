@@ -93,7 +93,7 @@ describe('EquipmentViewComponent', () => {
     );
 
     expect(component.reservations.length).toBe(0);
-    expect(component.reservationsError).toBeFalse();
+    expect(component.reservationsErrorMessage).toBeNull();
   });
 
   it('should successfully store found reservations in the component state', () => {
@@ -116,7 +116,7 @@ describe('EquipmentViewComponent', () => {
     component['loadReservationsForEquipment'](1);
 
     expect(component.reservationsLoading).toBeFalse();
-    expect(component.reservationsError).toBeFalse();
+    expect(component.reservationsErrorMessage).toBeNull();
     expect(component.reservations.length).toBe(2);
     expect(component.reservations[0].customerName).toBe('Max Mustermann');
     expect(component.reservations[0].id).toBe(42);
@@ -129,7 +129,7 @@ describe('EquipmentViewComponent', () => {
     component['loadReservationsForEquipment'](1);
 
     expect(component.reservationsLoading).toBeFalse();
-    expect(component.reservationsError).toBeTrue();
+    expect(component.reservationsErrorMessage).not.toBeNull();
     expect(component.reservations.length).toBe(0);
   });
 

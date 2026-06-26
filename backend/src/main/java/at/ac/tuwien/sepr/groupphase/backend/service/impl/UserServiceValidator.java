@@ -5,6 +5,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.creation.UserCr
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.search.CustomerSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.CustomerUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.userdto.update.UserUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.exception.LocalizedError;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.user.UserRepository;
 import org.springframework.stereotype.Component;
@@ -29,12 +30,13 @@ public class UserServiceValidator {
 
     public void userCreationDtoValidator(UserCreationDto dto) {
 
-        List<String> errors = new ArrayList<>();
+        List<LocalizedError> errors = new ArrayList<>();
 
         if (dto == null) {
-            errors.add("userCreationDto is null");
+            errors.add(new LocalizedError("userCreationDto is null", "userCreationDto ist null"));
             throw new ValidationException(
                 "Validation of the dto for creating users failed",
+                "Validation des dtos zur Erstellung des Nutzers fehlgeschlagen",
                 errors
             );
         }
@@ -42,7 +44,8 @@ public class UserServiceValidator {
         validateEmail(dto.getEmail(), errors);
 
         if (userRepository.existsByEmail(dto.getEmail())) {
-            errors.add("This email address is already registered to another account.");
+            errors.add(new LocalizedError("This email address is already registered to another account.",
+                "Diese Emailaddresse ist bereits mit einem anderen Account registriert."));
         }
 
         if (dto instanceof CustomerCreationDto customerDto) {
@@ -52,6 +55,7 @@ public class UserServiceValidator {
         if (!errors.isEmpty()) {
             throw new ValidationException(
                 "Validation of the dto for creating users failed",
+                "Validierung des DTOs zur Benutzererstellung fehlgeschlagen",
                 errors
             );
         }
@@ -59,12 +63,13 @@ public class UserServiceValidator {
 
     public void userUpdateDtoValidator(Long id, UserUpdateDto dto) {
 
-        List<String> errors = new ArrayList<>();
+        List<LocalizedError> errors = new ArrayList<>();
 
         if (dto == null) {
-            errors.add("userUpdateDto is null");
+            errors.add(new LocalizedError("userUpdateDto is null", "userUpdateDto ist null"));
             throw new ValidationException(
                 "Validation of the dto for updating users failed",
+                "Validierung des DTOs zum Update des Nutzers fehlgeschlagen",
                 errors
             );
         }
@@ -85,7 +90,7 @@ public class UserServiceValidator {
         }
 
         if (!hasAnyField) {
-            errors.add("At least one field must be provided");
+            errors.add(new LocalizedError("At least one field must be provided", "Mindestens ein Feld muss bereitgestellt werden"));
         }
 
         if (dto.getEmail() != null && !dto.getEmail().isBlank()) {
@@ -96,7 +101,8 @@ public class UserServiceValidator {
                 .ifPresent(user -> {
                     if (!user.getId().equals(id)) {
                         errors.add(
-                            "This email address is already registered to another account."
+                            new LocalizedError("This email address is already registered to another account.",
+                                "Diese Emailaddresse ist bereits mit einem anderen Account registriert.")
                         );
                     }
                 });
@@ -105,6 +111,7 @@ public class UserServiceValidator {
         if (!errors.isEmpty()) {
             throw new ValidationException(
                 "Validation of the dto for updating users failed",
+                "Validierung des DTOs zur Benutzeraktualisierung fehlgeschlagen.",
                 errors
             );
         }
@@ -112,11 +119,11 @@ public class UserServiceValidator {
 
     public void customerSearchDtoValidator(CustomerSearchDto dto) {
 
-        List<String> errors = new ArrayList<>();
+        List<LocalizedError> errors = new ArrayList<>();
 
         if (dto == null) {
-            errors.add("searchDto is null");
-            throw new ValidationException("Validation failed", errors);
+            errors.add(new LocalizedError("searchDto is null", "searchDto ist null"));
+            throw new ValidationException("Validation failed", "Validierung fehlgeschlagen", errors);
         }
 
         validateEmail(dto.getEmail(), errors);
@@ -125,7 +132,7 @@ public class UserServiceValidator {
         validateSearchField("lastName", dto.getLastName(), errors);
 
         if (!errors.isEmpty()) {
-            throw new ValidationException("Validation of search DTO failed", errors);
+            throw new ValidationException("Validation of search DTO failed", "Validierung des Such-Dtos fehlgeschlagen", errors);
         }
     }
 
@@ -140,44 +147,47 @@ public class UserServiceValidator {
         }
     }
 
-    public void validateEmailFormat(String email, List<String> validationErrors) {
+    public void validateEmailFormat(String email, List<LocalizedError> validationErrors) {
 
         if (email == null || email.isBlank()) {
-            validationErrors.add("email is blank");
+            validationErrors.add(new LocalizedError("email is blank", "Email ist leer"));
             throw new ValidationException(
                 "Validation failed",
+                "Validierung fehlgeschlagen",
                 validationErrors
             );
         }
 
         if (!email.matches(EMAIL_REGEX)) {
-            validationErrors.add("Invalid email format");
+            validationErrors.add(new LocalizedError("Invalid email format", "Ungültiges Email Format"));
             throw new ValidationException(
                 "Validation failed",
+                "Validierung fehlgeschlagen.",
                 validationErrors
             );
         }
     }
 
-    private void validateEmail(String email, List<String> errors) {
+    private void validateEmail(String email, List<LocalizedError> errors) {
 
         if (email == null || email.isBlank()) {
-            errors.add("email is blank");
+            errors.add(new LocalizedError("email is blank", "Email ist leer"));
             return;
         }
 
         if (!email.matches(EMAIL_REGEX)) {
-            errors.add("Invalid email format");
+            errors.add(new LocalizedError("Invalid email format", "Ungültiges Email Format"));
         }
 
         if (email.length() > 255) {
-            errors.add("email must not exceed 255 characters");
+            errors.add(new LocalizedError("email must not exceed 255 characters",
+                "Email darf nicht länger als 255 Zeichen lang sein"));
         }
     }
 
     private void validateDateOfBirth(
         LocalDate dateOfBirth,
-        List<String> errors
+        List<LocalizedError> errors
     ) {
 
         if (dateOfBirth == null) {
@@ -185,15 +195,16 @@ public class UserServiceValidator {
         }
 
         if (dateOfBirth.isAfter(LocalDate.now())) {
-            errors.add("Date of birth must be in the past");
+            errors.add(new LocalizedError("Date of birth must be in the past",
+                "Geburtsdatum muss in der Vergangenheit liegen"));
         }
 
         if (dateOfBirth.isBefore(LocalDate.now().minusYears(120))) {
-            errors.add("Date of birth is not plausible");
+            errors.add(new LocalizedError("Date of birth is not plausible", "Geburtsdatum ist nicht plausibel"));
         }
     }
 
-    private void validateSearchField(String fieldName, String value, List<String> errors) {
+    private void validateSearchField(String fieldName, String value, List<LocalizedError> errors) {
         if (value == null) {
             return;
         }
@@ -205,7 +216,7 @@ public class UserServiceValidator {
         }
 
         if (trimmed.length() > 100) {
-            errors.add(fieldName + " must not exceed 100 characters");
+            errors.add(new LocalizedError(fieldName + " must not exceed 100 characters", fieldName + " darf nicht länger als 100 Zeichen lang sein"));
         }
     }
 }

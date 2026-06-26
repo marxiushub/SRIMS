@@ -35,7 +35,9 @@
     "ALREADY_LOGGED_IN": "You are already logged in.",
     "LOGIN_SUCCESS": "Login successful.",
     "REGISTER_SUCCESS": "Registration successful.",
-    "LOGOUT_SUCCESS": "Logout successful."
+    "LOGOUT_SUCCESS": "Logout successful.",
+    "UNEXPECTED_ERROR": "An unexpected error occured. Please try again later.",
+    "SERVER_UNREACHABLE": "The server is currently unreachable. Please check your internet connection and try again later."
   },
   "INVENTORY": {
     "TITLE": "Ski Equipment Inventory",
@@ -76,7 +78,8 @@
     "RESERVATIONS_ERROR": "Error loading reservations for this equipment.",
     "NO_RESERVATIONS": "There are currently no reservations for this equipment.",
     "PRINT": "Print",
-    "DOWNLOAD": "Download"
+    "DOWNLOAD": "Download",
+    "LOADING_FAILED": "The Inventory couldn't be loaded."
   },
   "RENTAL_STATUS": {
     "FREE": "Available",
@@ -343,6 +346,7 @@
     "ADD": "Add",
     "ADDED": "Added",
     "SUBMIT": "Submit Binding Reservation",
+    "SUBMIT_ERROR": "Reservation could not be created.",
     "VALIDATION_WARNING": "Some previously selected items have been removed because they are not available in the newly selected period.",
     "CUSTOMER_PROFILES_LOADING_FAILED": "Loading of customer profiles failed",
     "ADD_RESERVATION": "Create New Reservation",
@@ -350,7 +354,8 @@
     "ID": "Reservation ID",
     "DELETE_TITLE": "Cancel Reservation",
     "DELETE_CONFIRMATION": "Are you sure you want to cancel this reservation?",
-    "DELETE_SUCCESS": "Reservation successfully canceled.",
+    "DELETE_SUCCESS": "Reservation successfully cancelled.",
+    "DELETE_FAILED": "Reservation could not be cancelled",
     "TITLE_EDIT": "Update Reservation",
     "UPDATE": "Update",
     "EDIT_SUCCESS": "Reservation successfully updated.",

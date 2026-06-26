@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.equipment.Equipment;
 import at.ac.tuwien.sepr.groupphase.backend.entity.enums.RentalStatus;
+import at.ac.tuwien.sepr.groupphase.backend.exception.LocalizedError;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,28 +28,28 @@ public class EquipmentValidator {
                                RentalStatus status,
                                int creationNumber) {
 
-        List<String> errors = new ArrayList<>();
+        List<LocalizedError> errors = new ArrayList<>();
 
         if (price <= 0) {
-            errors.add("Price must be greater than 0.");
+            errors.add(new LocalizedError("Price must be greater than 0.", "Der Preis muss größer als 0 sein."));
         }
 
         if (model == null || model.isBlank()) {
-            errors.add("Model must not be empty.");
+            errors.add(new LocalizedError("Model must not be empty.", "Modell darf nicht leer sein."));
         } else if (model.length() > 100) {
-            errors.add("Model must not exceed 100 characters.");
+            errors.add(new LocalizedError("Model must not exceed 100 characters.", "Modell darf nicht länger als 100 Zeichen sein."));
         }
 
         if (status == null) {
-            errors.add("Status must not be null.");
+            errors.add(new LocalizedError("Status must not be null.", "Status darf nicht null sein."));
         }
 
         if (creationNumber <= 0 || creationNumber > 100) {
-            errors.add("Creation number must be between 1 and 100.");
+            errors.add(new LocalizedError("Creation number must be between 1 and 100.", "Creation number muss zwischen 1 und 100 sein."));
         }
 
         if (!errors.isEmpty()) {
-            throw new ValidationException("Equipment creation validation failed", errors);
+            throw new ValidationException("Equipment creation validation failed", "Validierung der Ausrüstungserstellung fehlgeschlagen", errors);
         }
     }
 
@@ -61,28 +62,29 @@ public class EquipmentValidator {
                                String model,
                                RentalStatus status) {
 
-        List<String> errors = new ArrayList<>();
+        List<LocalizedError> errors = new ArrayList<>();
 
         if (equipment == null) {
             throw new IllegalArgumentException("Equipment is null");
         }
 
         if (hasBlockingReservation(equipment)) {
-            errors.add("Equipment is currently reserved and cannot be updated.");
+            errors.add(new LocalizedError("Equipment is currently reserved and cannot be updated.",
+                "Equipment ist derzeit reserviert und kann nicht geupdated werden"));
         }
 
         if (price != null && price < 0) {
-            errors.add("Price must not be negative.");
+            errors.add(new LocalizedError("Price must not be negative.", "Preis darf nicht negativ sein."));
         }
 
         if (model != null && model.isBlank()) {
-            errors.add("Model must not be blank.");
+            errors.add(new LocalizedError("Model must not be blank.", "Modell darf nicht leer sein."));
         } else if (model != null && model.length() > 100) {
-            errors.add("Model must not exceed 100 characters.");
+            errors.add(new LocalizedError("Model must not exceed 100 characters.", "Modell darf nicht länger als 100 Zeichen lang sein"));
         }
 
         if (!errors.isEmpty()) {
-            throw new ValidationException("Equipment update validation failed", errors);
+            throw new ValidationException("Equipment update validation failed", "Update des Equipments fehlgeschlagen", errors);
         }
     }
 
@@ -92,22 +94,24 @@ public class EquipmentValidator {
 
     public void validateDeletable(Equipment equipment) {
 
-        List<String> errors = new ArrayList<>();
+        List<LocalizedError> errors = new ArrayList<>();
 
         if (equipment == null) {
             throw new IllegalArgumentException("Equipment is null");
         }
 
         if (hasBlockingReservation(equipment)) {
-            errors.add("Equipment is currently reserved and cannot be deleted.");
+            errors.add(new LocalizedError("Equipment is currently reserved and cannot be deleted.",
+                "Equipment ist derzeit reserviert und kann nicht gelöscht werden."));
         }
 
         if (equipment.getStatus() == RentalStatus.RENTED) {
-            errors.add("Equipment is currently rented and cannot be deleted.");
+            errors.add(new LocalizedError("Equipment is currently rented and cannot be deleted.",
+                "Equipment ist derzeit verliehen und kann nicht gelöscht werden."));
         }
 
         if (!errors.isEmpty()) {
-            throw new ValidationException("Equipment deletion validation failed", errors);
+            throw new ValidationException("Equipment deletion validation failed", "Validierung der Ausrüstungs-Löschung fehlgeschlagen", errors);
         }
     }
 

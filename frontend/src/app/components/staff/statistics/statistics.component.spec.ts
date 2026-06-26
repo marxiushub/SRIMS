@@ -136,7 +136,7 @@ describe('StatisticsComponent', () => {
       component.onSubmit();
 
       expect(component.isLoading).toBeFalse();
-      expect(component.errorMessageKey).toBe('STAFF.STATISTICS.MESSAGES.ERROR');
+      expect(component.errorMessage).not.toBeNull();
       expect(component.tableRows.length).toBe(0);
     });
   });
