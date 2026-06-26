@@ -188,7 +188,8 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
         CustomerProfile profile = checkUserAccessPermission(customerProfileId, currentUserId);
 
         if (reservationRepository.existsByCustomerProfileId(profile.getId())) {
-            throw new ValidationException("Cannot delete customer profile with existing reservations.", "");
+            throw new ValidationException("Cannot delete customer profile with existing reservations.",
+                "Kunden-Profile, die mit Reservierungen verbunden sind, können nicht gelöscht werden");
         }
 
         customerProfileRepository.delete(profile);

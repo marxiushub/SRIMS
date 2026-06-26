@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.customerprofile.CustomerProfileUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.customerprofile.CustomerProfileCreationDto;
+import at.ac.tuwien.sepr.groupphase.backend.exception.LocalizedError;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +26,7 @@ public class CustomerProfileValidator {
             throw new IllegalArgumentException("CustomerProfileUpdateDto is null");
         }
 
-        List<String> errors = new ArrayList<>();
+        List<LocalizedError> errors = new ArrayList<>();
 
         boolean hasAnyField =
             (dto.getProfileName() != null && !dto.getProfileName().isBlank())
@@ -35,7 +36,7 @@ public class CustomerProfileValidator {
                 || dto.getSkillLevel() != null;
 
         if (!hasAnyField) {
-            errors.add("At least one field must be provided for update");
+            errors.add(new LocalizedError("At least one field must be provided for update", "Mindestens ein Feld muss im Update verändert werden"));
         }
 
         if (dto.getProfileName() != null) {
@@ -43,11 +44,11 @@ public class CustomerProfileValidator {
             String profileName = dto.getProfileName().trim();
 
             if (profileName.isEmpty()) {
-                errors.add("Profile name must not be blank");
+                errors.add(new LocalizedError("Profile name must not be blank", "Der Profil Name darf nicht leer sein"));
             }
 
             if (profileName.length() > 100) {
-                errors.add("Profile name must not exceed 100 characters");
+                errors.add(new LocalizedError("Profile name must not exceed 100 characters", "Der Profil Name darf nicht über 100 Zeichen lang sein"));
             }
         }
 
@@ -68,21 +69,22 @@ public class CustomerProfileValidator {
             throw new IllegalArgumentException("CustomerProfileCreationDto is null");
         }
 
-        List<String> errors = new ArrayList<>();
+        List<LocalizedError> errors = new ArrayList<>();
 
         if (dto.getProfileName() != null) {
 
             String profileName = dto.getProfileName().trim();
 
             if (profileName.isEmpty()) {
-                errors.add("Profile name must not be blank");
+                errors.add(new LocalizedError("Profile name must not be blank", "Der Profil Name darf nicht leer sein"));
             }
 
             if (profileName.length() > 100) {
-                errors.add("Profile name must not exceed 100 characters");
+                errors.add(new LocalizedError("Profile name must not exceed 100 characters",
+                    "Der Profil Name darf nicht länger als 100 Zeichen lang sein"));
             }
         } else {
-            errors.add("Profile name must not be blank");
+            errors.add(new LocalizedError("Profile name must not be blank", "Der Profil Name darf nicht leer sein"));
         }
 
         if (!errors.isEmpty()) {

@@ -14,11 +14,13 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import at.ac.tuwien.sepr.groupphase.backend.exception.LocalizedError;
 
 import java.lang.invoke.MethodHandles;
 import java.nio.file.AccessDeniedException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,6 +32,12 @@ import java.util.Map;
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+    public static record ApiValidationErrorResponse(
+        String message,
+        String deMessage,
+        List<LocalizedError> errors
+    ) {}
 
     /**
      * Use the @ExceptionHandler annotation to write handler for custom exceptions.
@@ -78,14 +86,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         WebRequest request
     ) {
         LOGGER.warn(ex.getMessage());
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("message", ex.getMessage());
-        body.put("deMessage", ex.getDeMessage());
-        String combinedErrors = String.join(", ", ex.getErrors());
-        body.put("errors", combinedErrors);
+
+        ApiValidationErrorResponse responseBody = new ApiValidationErrorResponse(
+            ex.getMessage(),
+            ex.getDeMessage(),
+            ex.getErrors()
+        );
 
         return new ResponseEntity<>(
-            body, new HttpHeaders(), HttpStatus.BAD_REQUEST
+            responseBody, new HttpHeaders(), HttpStatus.BAD_REQUEST
         );
     }
 
