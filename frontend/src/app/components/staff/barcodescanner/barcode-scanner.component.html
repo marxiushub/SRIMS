@@ -73,6 +73,7 @@
             [(ngModel)]="inputBarcodeId"
             [placeholder]="'BARCODE_SCANNER.INPUT_PLACEHOLDER' | translate"
             class="form-control form-control-lg"
+            maxlength="50"
             [disabled]="loading || scanScenario === 'CONFLICT_RESERVATION' || equipmentScenario === 'EQUIPMENT_SCANNED_THAT_IS_UNRESERVED'"
           />
         </div>

@@ -45,6 +45,7 @@
                   [(ngModel)]="profile.profileName"
                   #profileName="ngModel"
                   required
+                  maxlength="100"
                   pattern=".*\S.*">
 
                 @if (hasError(profileName, 'required')) {
