@@ -18,11 +18,13 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>,
         + "WHERE r.reservationStatus IN :statuses")
     List<Reservation> findByReservationStatusIn(@Param("statuses") List<ReservationStatus> status);
 
+    @Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
     List<Reservation> findByEndDateBeforeAndReservationStatusAndOverdueReminderSentFalse(
         LocalDate date,
         ReservationStatus status
     );
 
+    @Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
     List<Reservation> findByStartDateBetweenAndReservationStatusAndPickUpReminderSentFalse(
         LocalDate startDateFrom,
         LocalDate startDateTo,
