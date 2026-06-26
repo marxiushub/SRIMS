@@ -68,7 +68,7 @@ describe('CustomerAccountComponent', () => {
     expect(customerService.getById).toHaveBeenCalledWith(20);
     expect(component.account).toEqual(mockAccount);
     expect(component.loading).toBeFalse();
-    expect(component.loadError).toBeFalse();
+    expect(component.loadError).toBeFalsy();
   });
 
   it('should set loadError when no user id is available', () => {
@@ -78,7 +78,7 @@ describe('CustomerAccountComponent', () => {
     fixture.detectChanges();
 
     expect(customerService.getById).not.toHaveBeenCalled();
-    expect(component.loadError).toBeTrue();
+    expect(component.loadError).toBeTruthy();
   });
 
   it('should set loadError when loading the account fails', () => {
@@ -87,7 +87,7 @@ describe('CustomerAccountComponent', () => {
 
     fixture.detectChanges();
 
-    expect(component.loadError).toBeTrue();
+    expect(component.loadError).toBeTruthy();
     expect(component.loading).toBeFalse();
   });
 

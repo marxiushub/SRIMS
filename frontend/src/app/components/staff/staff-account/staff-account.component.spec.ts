@@ -67,7 +67,7 @@ describe('StaffAccountComponent', () => {
     expect(staffService.getById).toHaveBeenCalledWith(1);
     expect(component.account).toEqual(mockAccount);
     expect(component.loading).toBeFalse();
-    expect(component.loadError).toBeFalse();
+    expect(component.loadError).toBeFalsy();
   });
 
   it('should set loadError when no user id is available', () => {
@@ -77,7 +77,7 @@ describe('StaffAccountComponent', () => {
     fixture.detectChanges();
 
     expect(staffService.getById).not.toHaveBeenCalled();
-    expect(component.loadError).toBeTrue();
+    expect(component.loadError).toBeTruthy();
   });
 
   it('should set loadError when loading the account fails', () => {
@@ -86,7 +86,7 @@ describe('StaffAccountComponent', () => {
 
     fixture.detectChanges();
 
-    expect(component.loadError).toBeTrue();
+    expect(component.loadError).toBeTruthy();
     expect(component.loading).toBeFalse();
   });
 
