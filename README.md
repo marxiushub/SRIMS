@@ -188,22 +188,6 @@ Background jobs that process overdue and pick-up reminders also hold pessimistic
 
 ---
 
-## ⚙️ CI/CD Pipeline
-
-Defined in `.gitlab-ci.yml`:
-
-| Stage | Job | Description |
-|---|---|---|
-| `test` | `test-backend` | `mvn clean install` — Checkstyle, unit & integration tests |
-| `test` | `test-frontend` | `npm ci`, ESLint, Angular production build |
-| `test` | `gitinspector` | Contributor statistics report |
-| `build` | `build-image` | Google Jib Docker image pushed to GitLab registry |
-| `deploy` | `deploy` | Rolling deployment via reset.inso-world.com API |
-
-Build and deploy stages run on the **`master`** branch only.
-
----
-
 ## 🧪 Running Tests
 
 ### Backend
